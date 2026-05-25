@@ -89,13 +89,13 @@ export const botConfig = {
     colors: {
       // Main brand colors.
       primary: "#ff6600", 
-      secondary: "#2F3136", 
+      secondary: "#ff6600", 
 
       // Standard status colors for success/error/warning/info messages.
-      success: "#57F287", 
+      success: "#ff6600", 
       error: "#ED4245", 
-      warning: "#FEE75C", 
-      info: "#3498DB", 
+      warning: "#ff6600", 
+      info: "#ff6600", 
 
       // Neutral utility colors.
       light: "#FFFFFF",
@@ -112,18 +112,18 @@ export const botConfig = {
 
       // Feature-specific colors.
       giveaway: {
-        active: "#57F287",
-        ended: "#ED4245",
+        active: "#ff6600",
+        ended: "#ff6600",
       },
       ticket: {
-        open: "#57F287",
-        claimed: "#FAA61A",
-        closed: "#ED4245",
-        pending: "#99AAB5",
+        open: "#ff6600",
+        claimed: "#ff6600",
+        closed: "#ff6600",
+        pending: "#ff6600",
       },
-      economy: "#F1C40F",
-      birthday: "#E91E63",
-      moderation: "#9B59B6",
+      economy: "#ff6600",
+      birthday: "#ff6600",
+      moderation: "#ff6600",
 
       // Ticket priority color mapping.
       priority: {
