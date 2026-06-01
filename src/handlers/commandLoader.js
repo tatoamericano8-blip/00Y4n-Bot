@@ -12,6 +12,20 @@ const __dirname = path.dirname(__filename);
 
 
 
+function getCommandDataJSON(command) {
+    if (!command || !command.data) {
+        return null;
+    }
+    if (typeof command.data.toJSON === 'function') {
+        return command.data.toJSON();
+    }
+    if (typeof command.data === 'object') {
+        return command.data;
+    }
+    logger.warn(`Command "${command.data?.name ?? '(unknown)'}" has invalid data structure — skipping.`);
+    return null;
+}
+
 function getSubcommandInfo(commandData) {
     const subcommands = [];
     
@@ -100,7 +114,12 @@ export async function loadCommands(client) {
                 client.commands.set(primaryCommandName, command);
             }
             
-            const subcommands = getSubcommandInfo(command.data.toJSON());
+            const commandJSON = getCommandDataJSON(command);
+            if (!commandJSON) {
+                logger.warn(`Skipping subcommand info for "${primaryCommandName}" — invalid command data.`);
+                continue;
+            }
+            const subcommands = getSubcommandInfo(commandJSON);
             
             logger.info(`Loaded command: ${primaryCommandName} from ${normalizedPath} (category: ${category})`);
             
@@ -114,12 +133,15 @@ export async function loadCommands(client) {
     }
     
     const commandsWithSubcommands = Array.from(client.commands.values()).filter(cmd => {
-        const subcommands = getSubcommandInfo(cmd.data.toJSON());
-        return subcommands.length > 0;
+        const json = getCommandDataJSON(cmd);
+        if (!json) return false;
+        return getSubcommandInfo(json).length > 0;
     });
     
     const totalSubcommands = commandsWithSubcommands.reduce((total, cmd) => {
-        return total + getSubcommandInfo(cmd.data.toJSON()).length;
+        const json = getCommandDataJSON(cmd);
+        if (!json) return total;
+        return total + getSubcommandInfo(json).length;
     }, 0);
     
     const uniqueCommands = new Set();
@@ -146,27 +168,28 @@ export async function registerCommands(client, guildId) {
 const registeredNames = new Set();
         
         for (const command of client.commands.values()) {
-            if (command.data && typeof command.data.toJSON === 'function') {
-                const commandName = command.data.name;
-                
-                logger.debug(`Processing command for registration: ${commandName}`);
-                
-                if (!registeredNames.has(commandName)) {
-                    registeredNames.add(commandName);
-                    const commandJson = command.data.toJSON();
-                    commands.push(commandJson);
-                    
-                    const subcommands = getSubcommandInfo(commandJson);
-                    totalSubcommands += subcommands.length;
-                    
-                    if (process.env.NODE_ENV !== 'production') {
-                        logger.debug(`Registering command: ${commandName}`);
-                    }
-                } else {
-                    logger.debug(`Skipping duplicate command: ${commandName}`);
+            const commandJson = getCommandDataJSON(command);
+            if (!commandJson) {
+                logger.warn(`Skipping command during registration — invalid data structure: ${command?.data?.name ?? '(unknown)'}`);
+                continue;
+            }
+
+            const commandName = command.data.name;
+
+            logger.debug(`Processing command for registration: ${commandName}`);
+
+            if (!registeredNames.has(commandName)) {
+                registeredNames.add(commandName);
+                commands.push(commandJson);
+
+                const subcommands = getSubcommandInfo(commandJson);
+                totalSubcommands += subcommands.length;
+
+                if (process.env.NODE_ENV !== 'production') {
+                    logger.debug(`Registering command: ${commandName}`);
                 }
             } else {
-                logger.warn(`Command missing data or toJSON method: ${command}`);
+                logger.debug(`Skipping duplicate command: ${commandName}`);
             }
         }
         
