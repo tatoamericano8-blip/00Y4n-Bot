@@ -39,6 +39,7 @@ export default {
                 options: [
                     { name: 'id_inicio', description: 'Copia el ID del mensaje de Startup.', type: ApplicationCommandOptionType.String, required: true },
                     { name: 'tipo', description: '¿RP o Meet?', type: ApplicationCommandOptionType.String, required: true, choices: [{ name: 'Roleplay', value: 'rp' }, { name: 'Car Meet', value: 'meet' }] },
+                    { name: 'link', description: 'Pegá acá el link de Roblox de esta sesión.', type: ApplicationCommandOptionType.String, required: true },
                     { name: 'imagen', description: 'Link de la foto/banner para la apertura (opcional).', type: ApplicationCommandOptionType.String, required: false }
                 ]
             }
@@ -61,7 +62,7 @@ export default {
                     { name: '› Límite de Velocidad (FRP)', value: `${limite}`, inline: true },
                     { name: '› Estado de Peacetime', value: `${peacetime}`, inline: true }
                 )
-                .setColor('#1E90FF');
+                .setColor('#ff6600');
 
             if (urlImagen) embedRP.setImage(urlImagen);
 
@@ -86,7 +87,7 @@ export default {
                     { name: '❗ Duración / Spots', value: `${spots}`, inline: true },
                     { name: '❗ Lugar de Inicio', value: `${ubicacion}`, inline: true }
                 )
-                .setColor('#00FF7F');
+                .setColor('#ff6600');
 
             if (urlImagen) embedMeet.setImage(urlImagen);
 
@@ -100,24 +101,25 @@ export default {
         if (sub === 'release') {
             const idInicio = interaction.options.getString('id_inicio');
             const tipo = interaction.options.getString('tipo');
+            const linkSesion = interaction.options.getString('link');
 
             if (!global.mapaVotos || !global.mapaVotos.has(idInicio)) {
                 return interaction.reply({ content: '❌ El ID de mensaje no es válido o el bot se reinició borrando la memoria.', ephemeral: true });
             }
 
             const titulo = tipo === 'rp' ? '__SWFL Roleplay Release__' : '__SWFL Meet Release__';
-            const color = tipo === 'rp' ? '#1E90FF' : '#00FF7F';
 
             const embedRelease = new EmbedBuilder()
                 .setTitle(titulo)
                 .setDescription(`> **Anfitrión:** <@${interaction.user.id}>\n\nLa sesión fue oficialmente lanzada. Si aportaste tu reacción en el mensaje de inicio, toca el botón de abajo para obtener el acceso.\n\n⚠️ *Filtrar el enlace directo es motivo de ban.*`)
-                .setColor(color);
+                .setColor('#ff6600');
 
             if (urlImagen) embedRelease.setImage(urlImagen);
 
+            // Guardamos el ID de inicio y el Link separados por un asterisco dentro del CustomId del botón
             const fila = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
-                    .setCustomId(`link_session_${idInicio}`)
+                    .setCustomId(`link_session_${idInicio}*${linkSesion}`)
                     .setLabel('Link de la Sesión')
                     .setStyle(ButtonStyle.Primary)
             );
