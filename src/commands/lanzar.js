@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
-// Inicializamos una memoria segura para guardar los links de Roblox sin saturar el botón de Discord
+// Inicializamos la memoria global para asociar el mensaje de release con sus datos
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
 export default {
@@ -42,9 +42,6 @@ export default {
         const linkSesion = interaction.options.getString('acceso');
         const urlImagen = interaction.options.getString('imagen');
 
-        // Guardamos el link larguísimo en la memoria global usando el ID del mensaje como llave
-        global.coleccionSesiones.set(idInicio, linkSesion);
-
         const titulo = tipo === 'rp' ? '__SWFL Roleplay Release__' : '__SWFL Meet Release__';
 
         const embedRelease = new EmbedBuilder()
@@ -54,15 +51,18 @@ export default {
 
         if (urlImagen) embedRelease.setImage(urlImagen);
 
-        // Ahora el CustomId es ultra corto y seguro, evitando el error de "Invalid string length"
+        // ID COMPLETAMENTE ESTÁTICO: TitanBot ahora lo va a poder leer y enrutar sin problemas
         const fila = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-                .setCustomId(`verificar_voto_${idInicio}`)
+                .setCustomId('verificar_voto_swfl')
                 .setLabel('Link de la Sesión')
                 .setStyle(ButtonStyle.Primary)
         );
 
         await interaction.reply({ content: 'Lanzando sistema de accesos...', ephemeral: true });
-        await interaction.channel.send({ content: '@everyone', embeds: [embedRelease], components: [fila] });
+        const msgRelease = await interaction.channel.send({ content: '@everyone', embeds: [embedRelease], components: [fila] });
+
+        // Guardamos la configuración indexada por el ID del mensaje de release enviado
+        global.coleccionSesiones.set(msgRelease.id, { idInicio, linkSesion });
     }
 };
