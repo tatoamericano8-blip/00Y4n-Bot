@@ -1,31 +1,35 @@
 export async function execute(interaction) {
     if (!interaction.isButton()) return;
 
-    if (interaction.customId.startsWith('link_session_')) {
-        // Postergamos la respuesta para que a Discord no se le venza el tiempo (3 segundos) mientras busca las reacciones
+    if (interaction.customId.startsWith('verificar_voto_')) {
         await interaction.deferReply({ ephemeral: true });
 
-        const datosLimpios = interaction.customId.replace('link_session_', '');
-        const [idStartupAsociado, linkReal] = datosLimpios.split('*');
+        const idStartupAsociado = interaction.customId.replace('verificar_voto_', '');
+        
+        // Conectamos con la memoria global para extraer el enlace de Roblox
+        global.coleccionSesiones = global.coleccionSesiones || new Map();
+        const linkReal = global.coleccionSesiones.get(idStartupAsociado);
+
+        // Control de seguridad por si el bot se llega a reiniciar en medio de la sesión
+        if (!linkReal) {
+            return await interaction.editReply({
+                content: `❌ **Error de sincronización:** El bot se reinició o la sesión expiró de la memoria. Por favor, pídele al staff que vuelva a ejecutar el comando \`/lanzar_swfl\` para reactivar este botón.`
+            });
+        }
         
         const userId = interaction.user.id;
 
         try {
-            // Buscamos el mensaje de inicio original directamente en el canal actual
             const mensajeInicio = await interaction.channel.messages.fetch(idStartupAsociado);
-            
-            // Buscamos la reacción del tilde (✅) en ese mensaje
             const reaccionTilde = mensajeInicio.reactions.cache.get('✅');
             
             let usuarioReacciono = false;
 
             if (reaccionTilde) {
-                // Traemos la lista de usuarios que pusieron ✅
                 const usuariosQueReaccionaron = await reaccionTilde.users.fetch();
                 usuarioReacciono = usuariosQueReaccionaron.has(userId);
             }
 
-            // CONTROL DEFINITIVO EN VIVO
             if (usuarioReacciono) {
                 await interaction.editReply({
                     content: `🎉 **¡Voto verificado!** Acá tenés el acceso a la sesión de **00Y4n**:\n🔗 ${linkReal}\n\n*Respetá las reglas de la comunidad y evitá compartir el link.*`
@@ -39,7 +43,7 @@ export async function execute(interaction) {
         } catch (error) {
             console.error(error);
             await interaction.editReply({
-                content: `❌ **Error al verificar:** No se pudo encontrar el mensaje de inicio en este canal. Asegúrate de estar ejecutando el comando \`/sesiones_00y4n lanzar\` en el mismo canal donde se creó el Startup.`
+                content: `❌ **Error al verificar:** No se pudo encontrar el mensaje de inicio original. Asegúrate de estar ejecutando el comando en el mismo canal donde se creó el Startup.`
             });
         }
     }
