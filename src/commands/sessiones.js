@@ -1,9 +1,5 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
-if (!global.mapaVotos) {
-    global.mapaVotos = new Map();
-}
-
 export default {
     data: {
         name: 'sesiones_00y4n',
@@ -33,7 +29,7 @@ export default {
                 ]
             },
             {
-                name: 'lanzar', // Cambiado de 'release' a 'lanzar' para evitar el bloqueo de TitanBot
+                name: 'lanzar',
                 description: 'Lanza el botón del link vinculándolo al inicio.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
@@ -67,10 +63,8 @@ export default {
             if (urlImagen) embedRP.setImage(urlImagen);
 
             await interaction.reply({ content: 'Lanzando Startup...', ephemeral: true });
-            const msg = await interaction.channel.send({ content: '@everyone', embeds: [embedRP] });
-            await msg.react('✅');
-
-            global.mapaVotos.set(msg.id, new Set());
+            await interaction.channel.send({ content: '@everyone', embeds: [embedRP] });
+            // Dejamos que los usuarios usen el tilde nativo de Discord sin forzar reacciones por código si genera conflictos en la base
         }
 
         if (sub === 'startup_meet') {
@@ -92,20 +86,13 @@ export default {
             if (urlImagen) embedMeet.setImage(urlImagen);
 
             await interaction.reply({ content: 'Lanzando Car Meet...', ephemeral: true });
-            const msg = await interaction.channel.send({ content: '@everyone', embeds: [embedMeet] });
-            await msg.react('✅');
-
-            global.mapaVotos.set(msg.id, new Set());
+            await interaction.channel.send({ content: '@everyone', embeds: [embedMeet] });
         }
 
-        if (sub === 'lanzar') { // Cambiado a 'lanzar' aquí también
+        if (sub === 'lanzar') {
             const idInicio = interaction.options.getString('id_inicio');
             const tipo = interaction.options.getString('tipo');
             const linkSesion = interaction.options.getString('link');
-
-            if (!global.mapaVotos || !global.mapaVotos.has(idInicio)) {
-                return interaction.reply({ content: '❌ El ID de mensaje no es válido o el bot se reinició borrando la memoria de esta tanda.', ephemeral: true });
-            }
 
             const titulo = tipo === 'rp' ? '__SWFL Roleplay Release__' : '__SWFL Meet Release__';
 
@@ -116,6 +103,7 @@ export default {
 
             if (urlImagen) embedRelease.setImage(urlImagen);
 
+            // Almacenamos el ID y el link directo en el botón para saltear la memoria ram volatil
             const fila = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
                     .setCustomId(`link_session_${idInicio}*${linkSesion}`)
