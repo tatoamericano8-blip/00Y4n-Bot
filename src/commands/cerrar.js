@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
+import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
 export default {
     data: {
@@ -23,8 +23,8 @@ export default {
             },
             {
                 name: 'imagen',
-                description: 'Link de la foto/banner de "Sesión Finalizada" (opcional).',
-                type: ApplicationCommandOptionType.String,
+                description: 'Sube la foto o banner de la sesión finalizada (opcional).',
+                type: ApplicationCommandOptionType.Attachment,
                 required: false
             }
         ]
@@ -33,7 +33,7 @@ export default {
     async execute(interaction) {
         const tipo = interaction.options.getString('tipo');
         const duracion = interaction.options.getString('duracion');
-        const urlImagen = interaction.options.getString('imagen');
+        const fotoAdjunta = interaction.options.getAttachment('imagen');
 
         const titulo = tipo === 'rp' ? '__SWFL Roleplay | Sesión Finalizada__' : '__SWFL Meet | Sesión Finalizada__';
 
@@ -42,12 +42,19 @@ export default {
             .setDescription(`La sesión ha concluido oficialmente. ¡Muchísimas gracias a todos los que asistieron, respetaron las reglas y compartieron un buen rato con sus naves! 🚗💨\n\n> 👤 **Anfitrión:** <@${interaction.user.id}>\n> ⏱️ **Duración Total:** ${duracion}`)
             .setColor('#ff6600');
 
-        if (urlImagen) embedCierre.setImage(urlImagen);
+        if (fotoAdjunta) embedCierre.setImage(fotoAdjunta.url);
 
-        // Mensaje oculto de confirmación solo para vos
+        // Creamos el botón de Feedback (Estilo gris como en la imagen)
+        const filaComponentes = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId('abrir_feedback_swfl')
+                .setLabel('Opinión de la Sesión')
+                .setStyle(ButtonStyle.Secondary)
+        );
+
         await interaction.reply({ content: 'Cerrando la sesión y generando el anuncio...', ephemeral: true });
 
-        // Mensaje público: Envía SOLO el embed limpio, sin menciones a @everyone ni roles
-        await interaction.channel.send({ embeds: [embedCierre] });
+        // Enviamos el embed junto con el botón al canal
+        await interaction.channel.send({ embeds: [embedCierre], components: [filaComponentes] });
     }
 };
