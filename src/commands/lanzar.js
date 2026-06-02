@@ -2,7 +2,7 @@ import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBui
 
 export default {
     data: {
-        name: 'lanzar_00y4n', // Comando completamente independiente
+        name: 'lanzar_00y4n',
         description: 'Lanza el botón de acceso para la sesión de SWFL vinculándolo al inicio.',
         options: [
             { name: 'id_inicio', description: 'Copia el ID del mensaje de Startup original.', type: ApplicationCommandOptionType.String, required: true },
