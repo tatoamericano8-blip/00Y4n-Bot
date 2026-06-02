@@ -1,22 +1,49 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
+// Inicializamos una memoria segura para guardar los links de Roblox sin saturar el botón de Discord
+global.coleccionSesiones = global.coleccionSesiones || new Map();
+
 export default {
     data: {
-        name: 'lanzar_00y4n',
+        name: 'lanzar_swfl', 
         description: 'Lanza el botón de acceso para la sesión de SWFL vinculándolo al inicio.',
         options: [
-            { name: 'id_inicio', description: 'Copia el ID del mensaje de Startup original.', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'tipo', description: '¿Roleplay o Car Meet?', type: ApplicationCommandOptionType.String, required: true, choices: [{ name: 'Roleplay', value: 'rp' }, { name: 'Car Meet', value: 'meet' }] },
-            { name: 'link', description: 'Pegá acá el link del servidor privado de Roblox para esta tanda.', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'imagen', description: 'Link de la foto/banner para la apertura (opcional).', type: ApplicationCommandOptionType.String, required: false }
+            { 
+                name: 'mensaje', 
+                description: 'Copia el ID del mensaje de Startup original.', 
+                type: ApplicationCommandOptionType.String, 
+                required: true 
+            },
+            { 
+                name: 'tipo', 
+                description: '¿Roleplay o Car Meet?', 
+                type: ApplicationCommandOptionType.String, 
+                required: true, 
+                choices: [{ name: 'Roleplay', value: 'rp' }, { name: 'Car Meet', value: 'meet' }] 
+            },
+            { 
+                name: 'acceso', 
+                description: 'Pegá acá el enlace del servidor privado de Roblox.', 
+                type: ApplicationCommandOptionType.String, 
+                required: true 
+            },
+            { 
+                name: 'imagen', 
+                description: 'Link de la foto/banner para la apertura (opcional).', 
+                type: ApplicationCommandOptionType.String, 
+                required: false 
+            }
         ]
     },
 
     async execute(interaction) {
-        const idInicio = interaction.options.getString('id_inicio');
+        const idInicio = interaction.options.getString('mensaje');
         const tipo = interaction.options.getString('tipo');
-        const linkSesion = interaction.options.getString('link');
+        const linkSesion = interaction.options.getString('acceso');
         const urlImagen = interaction.options.getString('imagen');
+
+        // Guardamos el link larguísimo en la memoria global usando el ID del mensaje como llave
+        global.coleccionSesiones.set(idInicio, linkSesion);
 
         const titulo = tipo === 'rp' ? '__SWFL Roleplay Release__' : '__SWFL Meet Release__';
 
@@ -27,9 +54,10 @@ export default {
 
         if (urlImagen) embedRelease.setImage(urlImagen);
 
+        // Ahora el CustomId es ultra corto y seguro, evitando el error de "Invalid string length"
         const fila = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-                .setCustomId(`link_session_${idInicio}*${linkSesion}`)
+                .setCustomId(`verificar_voto_${idInicio}`)
                 .setLabel('Link de la Sesión')
                 .setStyle(ButtonStyle.Primary)
         );
