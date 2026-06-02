@@ -33,7 +33,7 @@ export default {
                 ]
             },
             {
-                name: 'release',
+                name: 'lanzar', // Cambiado de 'release' a 'lanzar' para evitar el bloqueo de TitanBot
                 description: 'Lanza el botón del link vinculándolo al inicio.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
@@ -98,13 +98,13 @@ export default {
             global.mapaVotos.set(msg.id, new Set());
         }
 
-        if (sub === 'release') {
+        if (sub === 'lanzar') { // Cambiado a 'lanzar' aquí también
             const idInicio = interaction.options.getString('id_inicio');
             const tipo = interaction.options.getString('tipo');
             const linkSesion = interaction.options.getString('link');
 
             if (!global.mapaVotos || !global.mapaVotos.has(idInicio)) {
-                return interaction.reply({ content: '❌ El ID de mensaje no es válido o el bot se reinició borrando la memoria.', ephemeral: true });
+                return interaction.reply({ content: '❌ El ID de mensaje no es válido o el bot se reinició borrando la memoria de esta tanda.', ephemeral: true });
             }
 
             const titulo = tipo === 'rp' ? '__SWFL Roleplay Release__' : '__SWFL Meet Release__';
@@ -116,7 +116,6 @@ export default {
 
             if (urlImagen) embedRelease.setImage(urlImagen);
 
-            // Guardamos el ID de inicio y el Link separados por un asterisco dentro del CustomId del botón
             const fila = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
                     .setCustomId(`link_session_${idInicio}*${linkSesion}`)
