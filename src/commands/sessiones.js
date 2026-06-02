@@ -1,12 +1,13 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
 export default {
+    // Registramos la estructura de manera plana para evitar bloqueos del Handler
     data: {
-        name: 'sesiones_00y4n',
-        description: 'Gestión de sesiones de Roleplay y Car Meets',
+        name: 'sesiones_00y4n', 
+        description: 'Manejo de sesiones de SWFL para la comunidad',
         options: [
             {
-                name: 'startup_rp',
+                name: 'rp',
                 description: 'Lanza un inicio de sesión de Roleplay convencional.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
@@ -17,7 +18,7 @@ export default {
                 ]
             },
             {
-                name: 'startup_meet',
+                name: 'meet',
                 description: 'Lanza un inicio de sesión para un Car Meet.',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
@@ -27,17 +28,6 @@ export default {
                     { name: 'ubicacion', description: 'Lugar de inicio (Ej: Spawn)', type: ApplicationCommandOptionType.String, required: true },
                     { name: 'imagen', description: 'Link de la foto/banner para el Car Meet (opcional).', type: ApplicationCommandOptionType.String, required: false }
                 ]
-            },
-            {
-                name: 'lanzar',
-                description: 'Lanza el botón del link vinculándolo al inicio.',
-                type: ApplicationCommandOptionType.Subcommand,
-                options: [
-                    { name: 'id_inicio', description: 'Copia el ID del mensaje de Startup.', type: ApplicationCommandOptionType.String, required: true },
-                    { name: 'tipo', description: '¿RP o Meet?', type: ApplicationCommandOptionType.String, required: true, choices: [{ name: 'Roleplay', value: 'rp' }, { name: 'Car Meet', value: 'meet' }] },
-                    { name: 'link', description: 'Pegá acá el link de Roblox de esta sesión.', type: ApplicationCommandOptionType.String, required: true },
-                    { name: 'imagen', description: 'Link de la foto/banner para la apertura (opcional).', type: ApplicationCommandOptionType.String, required: false }
-                ]
             }
         ]
     },
@@ -46,7 +36,7 @@ export default {
         const sub = interaction.options.getSubcommand();
         const urlImagen = interaction.options.getString('imagen');
 
-        if (sub === 'startup_rp') {
+        if (sub === 'rp') {
             const reacciones = interaction.options.getInteger('reacciones');
             const limite = interaction.options.getString('limite') || '80 MPH';
             const peacetime = interaction.options.getString('peacetime') || 'Off';
@@ -63,11 +53,11 @@ export default {
             if (urlImagen) embedRP.setImage(urlImagen);
 
             await interaction.reply({ content: 'Lanzando Startup...', ephemeral: true });
-            await interaction.channel.send({ content: '@everyone', embeds: [embedRP] });
-            // Dejamos que los usuarios usen el tilde nativo de Discord sin forzar reacciones por código si genera conflictos en la base
+            const msg = await interaction.channel.send({ content: '@everyone', embeds: [embedRP] });
+            await msg.react('✅');
         }
 
-        if (sub === 'startup_meet') {
+        if (sub === 'meet') {
             const reacciones = interaction.options.getInteger('reacciones');
             const tematica = interaction.options.getString('tematica');
             const spots = interaction.options.getString('spots');
@@ -86,33 +76,8 @@ export default {
             if (urlImagen) embedMeet.setImage(urlImagen);
 
             await interaction.reply({ content: 'Lanzando Car Meet...', ephemeral: true });
-            await interaction.channel.send({ content: '@everyone', embeds: [embedMeet] });
-        }
-
-        if (sub === 'lanzar') {
-            const idInicio = interaction.options.getString('id_inicio');
-            const tipo = interaction.options.getString('tipo');
-            const linkSesion = interaction.options.getString('link');
-
-            const titulo = tipo === 'rp' ? '__SWFL Roleplay Release__' : '__SWFL Meet Release__';
-
-            const embedRelease = new EmbedBuilder()
-                .setTitle(titulo)
-                .setDescription(`> **Anfitrión:** <@${interaction.user.id}>\n\nLa sesión fue oficialmente lanzada. Si aportaste tu reacción en el mensaje de inicio, toca el botón de abajo para obtener el acceso.\n\n⚠️ *Filtrar el enlace directo es motivo de ban.*`)
-                .setColor('#ff6600');
-
-            if (urlImagen) embedRelease.setImage(urlImagen);
-
-            // Almacenamos el ID y el link directo en el botón para saltear la memoria ram volatil
-            const fila = new ActionRowBuilder().addComponents(
-                new ButtonBuilder()
-                    .setCustomId(`link_session_${idInicio}*${linkSesion}`)
-                    .setLabel('Link de la Sesión')
-                    .setStyle(ButtonStyle.Primary)
-            );
-
-            await interaction.reply({ content: 'Lanzando release...', ephemeral: true });
-            await interaction.channel.send({ content: '@everyone', embeds: [embedRelease], components: [fila] });
+            const msg = await interaction.channel.send({ content: '@everyone', embeds: [embedMeet] });
+            await msg.react('✅');
         }
     }
 };
