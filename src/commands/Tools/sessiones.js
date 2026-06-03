@@ -1,8 +1,8 @@
-import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
+import { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 
 export default {
     data: {
-        name: 'startup_00y4n', // Ahora es un comando directo y limpio
+        name: 'startup_swfl', 
         description: 'Lanza un inicio de sesión de Roleplay o Car Meet para SWFL.',
         options: [
             {
@@ -15,40 +15,23 @@ export default {
                     { name: 'Car Meet', value: 'meet' }
                 ]
             },
-            {
-                name: 'reacciones',
-                description: 'Cantidad de reacciones necesarias para abrir.',
-                type: ApplicationCommandOptionType.Integer,
-                required: true
-            },
-            {
-                name: 'tematica_o_limite',
-                description: 'Ejemplo RP: 80 MPH | Ejemplo Meet: JDM, Exóticos, etc.',
-                type: ApplicationCommandOptionType.String,
-                required: true
-            },
-            {
-                name: 'ubicacion_o_peacetime',
-                description: 'Ejemplo RP: Peacetime On/Off | Ejemplo Meet: Spawn, Puerto, etc.',
-                type: ApplicationCommandOptionType.String,
-                required: true
-            },
-            {
-                name: 'spots',
-                description: 'Solo para Car Meets (Ejemplo: 2-3 SPOTS + BOTM). Para RP dejar vacío.',
-                type: ApplicationCommandOptionType.String,
-                required: false
-            },
-            {
-                name: 'imagen',
-                description: 'Link de la foto/banner para el anuncio (opcional).',
-                type: ApplicationCommandOptionType.String,
-                required: false
-            }
+            { name: 'reacciones', description: 'Cantidad de reacciones necesarias para abrir.', type: ApplicationCommandOptionType.Integer, required: true },
+            { name: 'tematica_o_limite', description: 'Ejemplo RP: 80 MPH | Ejemplo Meet: JDM, Exóticos, etc.', type: ApplicationCommandOptionType.String, required: true },
+            { name: 'ubicacion_o_peacetime', description: 'Ejemplo RP: Peacetime On/Off | Ejemplo Meet: Spawn, Puerto, etc.', type: ApplicationCommandOptionType.String, required: true },
+            { name: 'spots', description: 'Solo para Car Meets (Ejemplo: 2-3 SPOTS + BOTM). Para RP dejar vacío.', type: ApplicationCommandOptionType.String, required: false },
+            { name: 'imagen', description: 'Link de la foto/banner para el anuncio (opcional).', type: ApplicationCommandOptionType.String, required: false }
         ]
     },
 
     async execute(interaction) {
+        // 🔒 SEGURIDAD: Si no tiene permiso de Gestionar Mensajes, el bot frena el comando
+        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
+            return await interaction.reply({ 
+                content: '❌ **No tienes permisos:** Solo el Staff autorizado puede iniciar sesiones.', 
+                ephemeral: true 
+            });
+        }
+
         const tipo = interaction.options.getString('tipo');
         const reacciones = interaction.options.getInteger('reacciones');
         const dato1 = interaction.options.getString('tematica_o_limite');
