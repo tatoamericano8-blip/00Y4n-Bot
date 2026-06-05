@@ -1,5 +1,8 @@
 import { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 
+// Inicializamos la memoria global para registrar los inicios activos
+global.coleccionStartups = global.coleccionStartups || new Map();
+
 export default {
     data: {
         name: 'startup_swfl', 
@@ -24,7 +27,7 @@ export default {
     },
 
     async execute(interaction) {
-        // 🔒 SEGURIDAD: Si no tiene permiso de Gestionar Mensajes, el bot frena el comando
+        // 🔒 SEGURIDAD: Bloqueo de Staff
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({ 
                 content: '❌ **No tienes permisos:** Solo el Staff autorizado puede iniciar sesiones.', 
@@ -39,10 +42,11 @@ export default {
         const spots = interaction.options.getString('spots') || 'N/A';
         const urlImagen = interaction.options.getString('imagen');
 
+        // Configuración visual basada en image_8c543c.png traducida al español
         if (tipo === 'rp') {
             const embedRP = new EmbedBuilder()
-                .setTitle('__SWFL RP Startup__')
-                .setDescription(`> **Anfitrión:** <@${interaction.user.id}>\n\n*Asegúrate de haber leído las normativas en el canal correspondiente y tener tu vehículo registrado antes de ingresar a la sesión.*\n\n**¡Necesitamos ${reacciones} reacciones para iniciar!**`)
+                .setTitle('🦋 SWFL | Inicio de Sesión de Roleplay 🦋')
+                .setDescription(`• <@${interaction.user.id}> **¡está organizando una sesión!** Antes de ingresar, asegúrate de tener tu vehículo registrado y haber leído las normativas vigentes.\n\n➔ Por favor, sean pacientes mientras nuestro equipo prepara todo. Hay numerosos factores en juego para garantizarles una experiencia de rol de la más alta calidad.\n\n👇 **¡Para comenzar con los preparativos y abrir el servidor, necesitamos alcanzar ${reacciones}+ reacciones!** Una vez cumplido el requisito, se liberará el FastPass.`)
                 .addFields(
                     { name: '› Límite de Velocidad (FRP)', value: `${dato1}`, inline: true },
                     { name: '› Estado de Peacetime', value: `${dato2}`, inline: true }
@@ -54,16 +58,19 @@ export default {
             await interaction.reply({ content: 'Lanzando Startup de Roleplay...', ephemeral: true });
             const msg = await interaction.channel.send({ content: '@everyone', embeds: [embedRP] });
             await msg.react('✅');
+
+            // Guardamos en memoria para el detector automático
+            global.coleccionStartups.set(msg.id, { hostId: interaction.user.id, reaccionesRequeridas: reacciones, tipo, imagen: urlImagen, procesado: false });
         }
 
         if (tipo === 'meet') {
             const embedMeet = new EmbedBuilder()
-                .setTitle('__SWFL Meet Startup__')
-                .setDescription(`> **Anfitrión:** <@${interaction.user.id}>\n\n*¡Atención amantes de los fierros! Se viene una juntada oficial.*\n\n**¡Necesitamos ${reacciones} reacciones para iniciar!**`)
+                .setTitle('🦋 SWFL | Inicio de Car Meet Oficial 🦋')
+                .setDescription(`• <@${interaction.user.id}> **¡está organizando un Car Meet!** Prepará tu mejor nave, repasá las reglas de convivencia en caravana y estate listo para exhibir.\n\n➔ Por favor, tengan paciencia mientras acomodamos el mapa. Queremos asegurar una juntada limpia, organizada y con los mejores spots.\n\n👇 **¡Para comenzar con los preparativos y abrir el servidor, necesitamos alcanzar ${reacciones}+ reacciones!** Una vez cumplido el requisito, se liberará el FastPass.`)
                 .addFields(
                     { name: '❗ Temática del Meet', value: `${dato1}`, inline: false },
                     { name: '❗ Lugar de Inicio', value: `${dato2}`, inline: true },
-                    { name: '❗ Duración / Spots', value: `${spots}`, inline: true }
+                    { name: '❗ Spots / Duración', value: `${spots}`, inline: true }
                 )
                 .setColor('#ff6600');
 
@@ -72,6 +79,9 @@ export default {
             await interaction.reply({ content: 'Lanzando Startup de Car Meet...', ephemeral: true });
             const msg = await interaction.channel.send({ content: '@everyone', embeds: [embedMeet] });
             await msg.react('✅');
+
+            // Guardamos en memoria para el detector automático
+            global.coleccionStartups.set(msg.id, { hostId: interaction.user.id, reaccionesRequeridas: reacciones, tipo, imagen: urlImagen, procesado: false });
         }
     }
 };
