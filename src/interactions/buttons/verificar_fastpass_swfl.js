@@ -16,14 +16,13 @@ export default {
             });
         }
 
-        // 🆔 COPIÁ ACÁ EXACTAMENTE LAS MISMAS IDs DE ROLES QUE PUSISTE EN EL ANTERIOR
+        // 🆔 COPIÁ ACÁ EXACTAMENTE LAS MISMAS 2 IDs DE ROLES QUE PUSISTE EN EL ANTERIOR
         const ROLES_VIP_IDS = [
-            '1484294519234105638', 
-            '1512120103771050005',             
-            '1503769793474597027'  
+            '1512120103771050005', // ID del Rol: Equipo de Staff
+            '1503769793474597027'  // ID del Rol: FastPass
         ];
 
-        // Verificamos si el usuario que apretó el botón tiene alguno de esos roles
+        // Verificamos si el usuario que apretó el botón tiene alguno de esos 2 roles
         const tieneRolVip = interaction.member.roles.cache.some(role => ROLES_VIP_IDS.includes(role.id));
 
         if (tieneRolVip) {
@@ -32,9 +31,9 @@ export default {
                 content: `🎉 **¡FastPass Verificado!** Acá tenés tu enlace de entrada anticipada:\n🔗 ${linkReal}\n\n*Recordá que filtrar este link es motivo de ban permanente.*`
             });
         } else {
-            // Si no tiene ninguno de los roles, lo rechazamos
+            // Si no tiene ninguno de los 2 roles, lo rechazamos
             await interaction.editReply({
-                content: `❌ **No tienes acceso:** Este botón es exclusivo para Boosters, miembros con FastPass y Staff Team. Si crees que es un error, contacta con soporte.`
+                content: `❌ **No tienes acceso:** Este botón es exclusivo para miembros con el rango FastPass y el Staff Team.`
             });
         }
     }
