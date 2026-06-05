@@ -5,8 +5,8 @@ global.coleccionFastPass = global.coleccionFastPass || new Map();
 
 // 🆔 CONFIGURACIÓN DE ROLES (Poné acá las 2 IDs reales de tu servidor)
 const ROLES_VIP_IDS = [
-    '1111111111111111111', // ID del Rol: Equipo de Staff
-    '2222222222222222222'  // ID del Rol: FastPass
+    '1512120103771050005', // ID del Rol: Equipo de Staff
+    '1503769793474597027'  // ID del Rol: FastPass
 ];
 
 export default {
