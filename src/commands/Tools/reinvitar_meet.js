@@ -65,7 +65,7 @@ export default {
 
         // Embed adaptado al español con estilo 00Y4n enfocado en Car Meets
         const embedReinviteMeet = new EmbedBuilder()
-            .setTitle('💚 SWFL Car Meet | Re-Invitación a la Junta 💚')
+            .setTitle('__🟠 SWFL Car Meet | Re-Invitación al Meet 🟠__')
             .setDescription(`▬ ¡<@${interaction.user.id}> ha liberado las **re-invitaciones** para el Car Meet! Son más que bienvenidos a unirse utilizando el botón de abajo.\n\n*Asegúrense de traer vehículos que cumplan con la temática actual y respeten las zonas de estacionamiento fijadas.*`)
             .addFields(
                 { name: '📋 Información de la Juntada', value: `• **Temática del Meet:** ${tematica}\n• **Ubicación Actual:** ${ubicacion}\n• **Estado del Servidor:** ${estado}`, inline: false }
