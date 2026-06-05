@@ -45,7 +45,7 @@ export default {
         // Configuración visual basada en image_8c543c.png traducida al español
         if (tipo === 'rp') {
             const embedRP = new EmbedBuilder()
-                .setTitle('🦋 SWFL | Inicio de Sesión de Roleplay 🦋')
+                .setTitle('🟠 SWFL | Inicio de Sesión de Roleplay 🟠')
                 .setDescription(`• <@${interaction.user.id}> **¡está organizando una sesión!** Antes de ingresar, asegúrate de tener tu vehículo registrado y haber leído las normativas vigentes.\n\n➔ Por favor, sean pacientes mientras nuestro equipo prepara todo. Hay numerosos factores en juego para garantizarles una experiencia de rol de la más alta calidad.\n\n👇 **¡Para comenzar con los preparativos y abrir el servidor, necesitamos alcanzar ${reacciones}+ reacciones!** Una vez cumplido el requisito, se liberará el FastPass.`)
                 .addFields(
                     { name: '› Límite de Velocidad (FRP)', value: `${dato1}`, inline: true },
@@ -65,7 +65,7 @@ export default {
 
         if (tipo === 'meet') {
             const embedMeet = new EmbedBuilder()
-                .setTitle('🦋 SWFL | Inicio de Car Meet Oficial 🦋')
+                .setTitle('🟠 SWFL | Inicio de Car Meet Oficial 🟠')
                 .setDescription(`• <@${interaction.user.id}> **¡está organizando un Car Meet!** Prepará tu mejor nave, repasá las reglas de convivencia en caravana y estate listo para exhibir.\n\n➔ Por favor, tengan paciencia mientras acomodamos el mapa. Queremos asegurar una juntada limpia, organizada y con los mejores spots.\n\n👇 **¡Para comenzar con los preparativos y abrir el servidor, necesitamos alcanzar ${reacciones}+ reacciones!** Una vez cumplido el requisito, se liberará el FastPass.`)
                 .addFields(
                     { name: '❗ Temática del Meet', value: `${dato1}`, inline: false },
