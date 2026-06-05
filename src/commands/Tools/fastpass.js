@@ -3,17 +3,16 @@ import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBui
 // Memoria global para guardar los links de FastPass en secreto
 global.coleccionFastPass = global.coleccionFastPass || new Map();
 
-// 🆔 CONFIGURACIÓN DE ROLES (Reemplazá estos números por las IDs reales de tus roles en Discord)
+// 🆔 CONFIGURACIÓN DE ROLES (Poné acá las 2 IDs reales de tu servidor)
 const ROLES_VIP_IDS = [
-    '1484294519234105638', // ID del Rol: Nitro Contributor / Booster  
-    '1512120103771050005', // ID del Rol: Equipo de Staff
-    '1503769793474597027'  // ID del Rol: FastPass
+    '1111111111111111111', // ID del Rol: Equipo de Staff
+    '2222222222222222222'  // ID del Rol: FastPass
 ];
 
 export default {
     data: {
         name: 'fastpass_swfl',
-        description: 'Lanza el anuncio de FastPass para los roles VIP y Staff.',
+        description: 'Lanza el anuncio de FastPass únicamente para los roles de FastPass y Staff.',
         options: [
             {
                 name: 'acceso',
@@ -42,18 +41,18 @@ export default {
         const linkSesion = interaction.options.getString('acceso');
         const fotoAdjunta = interaction.options.getAttachment('imagen');
 
-        // Armamos la cadena de menciones de roles usando las IDs configuradas arriba
+        // Armamos la cadena de menciones de roles usando las 2 IDs configuradas arriba
         const mencionesRoles = ROLES_VIP_IDS.map(id => `<@&${id}>`).join(' ');
 
-        // Traducción y adaptación impecable al estilo 00Y4n
+        // Texto adaptado exclusivamente para Staff y poseedores de FastPass
         const embedFastPass = new EmbedBuilder()
             .setTitle('🧡 FastPass de la Sesión 🧡')
-            .setDescription(`▬ El FastPass ha sido **liberado para la sesión**. Los Colaboradores de Nitro, miembros con FastPass y el Equipo de Staff ya pueden unirse utilizando el botón de abajo.\n\n*Compartir este enlace resultará en la revocación permanente de tus permisos de FastPass.*\n\n➔ ¿Querés unirte al **FastPass**? ¡Convertite en Booster del servidor o adquirí el pase correspondiente en el canal de beneficios!`)
+            .setDescription(`▬ El FastPass ha sido **liberado para la sesión**. Los miembros que adquirieron su pase de FastPass y el Equipo de Staff ya pueden unirse utilizando el botón de abajo.\n\n*Compartir este enlace resultará en la revocación permanente de tus permisos de FastPass.*\n\n➔ ¿Quieres unirte antes que el resto? Adquiere tu pase de **FastPass** correspondiente en el canal de beneficios del servidor.`)
             .setColor('#ff6600'); // Tu naranja insignia
 
         if (fotoAdjunta) embedFastPass.setImage(fotoAdjunta.url);
 
-        // Botón gris estático para TitanBot (Estilo idéntico a la imagen)
+        // Botón gris estático para TitanBot
         const filaComponentes = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('verificar_fastpass_swfl')
@@ -61,7 +60,7 @@ export default {
                 .setStyle(ButtonStyle.Secondary)
         );
 
-        await interaction.reply({ content: 'Lanzando el anuncio de FastPass...', ephemeral: true });
+        await interaction.reply({ content: 'Lanzando el anuncio de FastPass restringido...', ephemeral: true });
 
         // Enviamos las menciones de los roles juntas y abajo el Embed con el botón
         const msgFastPass = await interaction.channel.send({ 
