@@ -28,7 +28,7 @@ export default {
         const linkSesion = interaction.options.getString('acceso');
         const urlImagen = interaction.options.getString('imagen');
 
-        const titulo = tipo === 'rp' ? '__SWFL Roleplay Release__' : '__SWFL Meet Release__';
+        const titulo = tipo === 'rp' ? '__🟠SWFL Roleplay Release🟠__' : '__🟠SWFL Meet Release🟠__';
 
         const embedRelease = new EmbedBuilder()
             .setTitle(titulo)
