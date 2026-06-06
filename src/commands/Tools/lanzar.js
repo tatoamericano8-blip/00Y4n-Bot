@@ -45,7 +45,7 @@ export default {
         );
 
         await interaction.reply({ content: 'Lanzando sistema de accesos...', ephemeral: true });
-        const msgRelease = await interaction.channel.send({ embeds: [embedRelease], components: [fila] });
+        const msgRelease = await interaction.channel.send({ content: '@everyone', embeds: [embedRelease], components: [fila] });
 
         global.coleccionSesiones.set(msgRelease.id, { idInicio, linkSesion });
     }
