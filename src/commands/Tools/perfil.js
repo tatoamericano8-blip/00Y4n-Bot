@@ -2,7 +2,7 @@ import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBui
 
 // 🔑 CONFIGURACIÓN DE APIS
 // Consigue tu API Key en el panel de desarrolladores de Bloxlink (https://blox.link/dashboard)
-const BLOXLINK_API_KEY = 'https://blox.link/dashboard/user'; 
+const BLOXLINK_API_KEY = 'e47f3929-9be2-4179-82b1-e53b4a9a6538'; 
 
 export default {
     data: {
