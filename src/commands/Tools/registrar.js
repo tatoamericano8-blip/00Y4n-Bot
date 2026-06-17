@@ -46,6 +46,18 @@ export default {
             // Obtener lista actual del usuario o crear una nueva
             const misAutos = global.baseDatosVehiculos.get(usuarioId) || [];
 
+            // 🚨 CONTROL DE LÍMITE DE VEHÍCULOS (Máximo 4 autos)
+            const LIMITE_MAXIMO = 4; 
+            if (misAutos.length >= LIMITE_MAXIMO) {
+                return await interaction.reply({
+                    content: `❌ **Límite alcanzado:** Ya tienes el máximo de **${LIMITE_MAXIMO}** vehículos registrados en tu perfil.\n\n*Si quieres registrar una nueva unidad, primero debes dar de baja alguna de tus patentes actuales usando \`/matricula_swfl remover\`.*`,
+                    ephemeral: true
+                });
+            }
+
+            // Evitar que registre dos veces la misma patente
+            if (misAutos.some(auto => auto.patente === patente)) {
+
             // Evitar que registre dos veces la misma patente
             if (misAutos.some(auto => auto.patente === patente)) {
                 return await interaction.reply({
