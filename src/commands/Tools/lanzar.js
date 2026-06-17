@@ -2,8 +2,6 @@ import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBui
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
-// 🖼️ URL DE LA IMAGEN PREDETERMINADA (Paso anterior)
-const IMAGEN_POR_DEFECTO = 'https://enlace-de-tu-imagen.com/banner.png'; 
 
 export default {
     data: {
