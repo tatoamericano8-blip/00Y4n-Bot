@@ -45,7 +45,7 @@ export default {
         // Modificación estética basada de forma estricta en image_45c25c.png con estilo 00Y4n
         if (tipo === 'rp') {
             const embedRP = new EmbedBuilder()
-                .setTitle('💨 Southwest Florida – *Roleplay Session Startup* 💨')
+                .setTitle('💨 Southwest Florida – *__Roleplay Sesión Inicio__* 💨')
                 .setDescription(
                     `> › <@${interaction.user.id}> ¡está organizando una sesión de roleplay! Si tienes la intención de unirte, reacciona abajo con el emoji elegido por el host. ¡Si reaccionas sin unirte, podrías enfrentar consecuencias por parte del equipo de staff!\n\n` +
                     `**Antes de Unirte**\n\n` +
@@ -71,13 +71,12 @@ export default {
 
         if (tipo === 'meet') {
             const embedMeet = new EmbedBuilder()
-                .setTitle('💨 Southwest Florida – *Car Meet Session Startup* 💨')
+                .setTitle('💨 Southwest Florida – *__Car Meet Sesión Inicio__* 💨')
                 .setDescription(
                     `> › <@${interaction.user.id}> ¡está organizando un car meet oficial! Si tienes la intención de unirte, reacciona abajo con el emoji elegido por el host. ¡Si reaccionas sin unirte, podrías enfrentar consecuencias por parte del equipo de staff!\n\n` +
                     `**Antes de Unirte**\n\n` +
                     `> ➔ Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
                     `> ➔ Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627).\n` +
-                    `> ➔ Registra tus vehículos en <#1516832509222981864>!\n\n` +
                     `> ⤷ El host debe obtener **${reacciones}+** reacciones antes de comenzar.`
                 )
                 .addFields(
