@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
 
-// 📦 Inicialización de la base de datos en memoria compartida
+// 📂 Inicialización de la base de datos en memoria compartida
 global.baseDatosVehiculos = global.baseDatosVehiculos || new Map();
 
 export default {
@@ -46,7 +46,7 @@ export default {
             // Obtener lista actual del usuario o crear una nueva
             const misAutos = global.baseDatosVehiculos.get(usuarioId) || [];
 
-            // 🚨 CONTROL DE LÍMITE DE VEHÍCULOS (Máximo 4 autos)
+            // 🚨 CONTROL DE LÍMITE DE VEHÍCULOS (Máximo 4 unidades)
             const LIMITE_MAXIMO = 4; 
             if (misAutos.length >= LIMITE_MAXIMO) {
                 return await interaction.reply({
@@ -54,9 +54,6 @@ export default {
                     ephemeral: true
                 });
             }
-
-            // Evitar que registre dos veces la misma patente
-            if (misAutos.some(auto => auto.patente === patente)) {
 
             // Evitar que registre dos veces la misma patente
             if (misAutos.some(auto => auto.patente === patente)) {
@@ -74,10 +71,10 @@ export default {
                 .setTitle('📋 SWFL | FORMATO DE MATRICULACIÓN DE VEHÍCULOS')
                 .setDescription(
                     `> El siguiente vehículo ha sido cargado exitosamente en el sistema de patentes de la comunidad y se encuentra apto para circular.\n\n` +
-                    `• **Marca:** ${marca}\n` +
-                    `• **Modelo:** ${modelo}\n` +
-                    `• **Año:** ${año}\n` +
-                    `• **Color:** ${color}\n` +
+                    `• **Marca:** \`${marca}\`\n` +
+                    `• **Modelo:** \`${modelo}\`\n` +
+                    `• **Año:** \`${año}\`\n` +
+                    `• **Color:** \`${color}\`\n` +
                     `• **Matrícula:** \`${patente}\`\n` +
                     `• **Propietario:** <@${usuarioId}>`
                 )
