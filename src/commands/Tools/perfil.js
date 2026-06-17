@@ -98,14 +98,14 @@ export default {
 
         // 4. ARMADO DEL EMBED PRINCIPAL (Fiel a la estética solicitada)
         const perfilEmbed = new EmbedBuilder()
-            .setTitle('🪪 Southwest Florida | *Civilian Profile*')
+            .setTitle('🪪 Southwest Florida | *Civil Perfil*')
             .setDescription(
                 `> Ficha de registro oficial del ciudadano dentro de nuestra base de datos de regulaciones de tránsito.\n\n` +
                 `• **Usuario:** <@${miembro.id}>\n` +
                 `• **Perfil de Roblox:** [${robloxUsername}](https://www.roblox.com/users/${robloxId}/profile)\n` +
                 `• **Estado de Licencia:** ✅ Activa\n` +
                 `• **Vehículos Registrados:** \`0\`\n\n` +
-                `⤷ *Para registrar una nueva unidad en tu garaje utiliza el comando \`/matricula_swfl registrar\` de forma pública.*`
+                `⤷ *Para registrar una nueva unidad en tu garaje utiliza el comando \`/registrar_swfl registrar\` de forma pública.*`
             )
             .setThumbnail(fotoAvatar)
             .setColor('#ff6600')
