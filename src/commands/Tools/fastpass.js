@@ -51,7 +51,7 @@ export default {
             .setColor('#ff6600'); // Tu naranja insignia
 
         // 🖼️ Imagen por defecto si no suben ninguna en el comando
-const urlPredeterminada = 'TU_LINK_DE_IMAGEN_AQUI.png'; 
+const urlPredeterminada = 'https://cdn.discordapp.com/attachments/1505017301089652898/1515546631360086107/ChatGPT_Image_4_jun_2026_13_02_43.png?ex=6a34038a&is=6a32b20a&hm=025ab4671c00f6148be01fa70ea58828eccaae5b807d0994aa0a2f274f99b4f7&'; 
 embedFastPass.setImage(fotoAdjunta ? fotoAdjunta.url : urlPredeterminada);
 
         // Botón gris estático para TitanBot
