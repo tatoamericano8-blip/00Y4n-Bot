@@ -70,7 +70,7 @@ export default {
                     `> Se ha revocado el permiso de circulación para el vehículo registrado con la siguiente placa:\n\n` +
                     `• **Matrícula Removida:** \`${patente}\`\n` +
                     `• **Solicitante:** <@${interaction.user.id}>\n\n` +
-                    `*Nota: Si vendiste el auto o cambiaste de patente, recuerda volver a usar el subcomando /matricula_swfl registrar.*`
+                    `*Nota: Si vendiste el auto o cambiaste de patente, recuerda volver a usar el subcomando /registrar_swfl matricula.*`
                 )
                 .setColor('#ff6600')
                 .setFooter({ text: 'Bajas del Sistema de Tránsito' })
