@@ -50,7 +50,9 @@ export default {
             .setDescription(`▬ El FastPass ha sido **liberado para la sesión**. Los miembros que adquirieron su pase de FastPass y el Equipo de Staff ya pueden unirse utilizando el botón de abajo.\n\n*Compartir este enlace resultará en la revocación permanente de tus permisos de FastPass.*\n\n➔ ¿Quieres unirte antes que el resto? Adquiere tu pase de **FastPass** correspondiente en el canal de beneficios del servidor.`)
             .setColor('#ff6600'); // Tu naranja insignia
 
-        if (fotoAdjunta) embedFastPass.setImage(fotoAdjunta.url);
+        // 🖼️ Imagen por defecto si no suben ninguna en el comando
+const urlPredeterminada = 'TU_LINK_DE_IMAGEN_AQUI.png'; 
+embedFastPass.setImage(fotoAdjunta ? fotoAdjunta.url : urlPredeterminada);
 
         // Botón gris estático para TitanBot
         const filaComponentes = new ActionRowBuilder().addComponents(
