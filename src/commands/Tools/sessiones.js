@@ -42,11 +42,18 @@ export default {
         const spots = interaction.options.getString('spots') || 'N/A';
         const urlImagen = interaction.options.getString('imagen');
 
-        // Configuración visual basada en image_8c543c.png traducida al español
+        // Modificación estética basada de forma estricta en image_45c25c.png con estilo 00Y4n
         if (tipo === 'rp') {
             const embedRP = new EmbedBuilder()
-                .setTitle('🟠 SWFL | Inicio de Sesión de Roleplay 🟠')
-                .setDescription(`• <@${interaction.user.id}> **¡está organizando una sesión!** Antes de ingresar, asegúrate de tener tu vehículo registrado y haber leído las normativas vigentes.\n\n➔ Por favor, sean pacientes mientras nuestro equipo prepara todo. Hay numerosos factores en juego para garantizarles una experiencia de rol de la más alta calidad.\n\n👇 **¡Para comenzar con los preparativos y abrir el servidor, necesitamos alcanzar ${reacciones}+ reacciones!** Una vez cumplido el requisito, se liberará el FastPass.`)
+                .setTitle('💨 Southwest Florida – *Roleplay Session Startup* 💨')
+                .setDescription(
+                    `> › <@${interaction.user.id}> ¡está organizando una sesión de roleplay! Si tienes la intención de unirte, reacciona abajo con el emoji elegido por el host. ¡Si reaccionas sin unirte, podrías enfrentar consecuencias por parte del equipo de staff!\n\n` +
+                    `**Antes de Unirte**\n\n` +
+                    `> ➔ Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+                    `> ➔ Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627).\n` +
+                    `> ➔ Registra tus vehículos en <#1516832509222981864>!\n\n` +
+                    `> ⤷ El host debe obtener **${reacciones}+** reacciones antes de comenzar.`
+                )
                 .addFields(
                     { name: '› Límite de Velocidad (FRP)', value: `${dato1}`, inline: true },
                     { name: '› Estado de Peacetime', value: `${dato2}`, inline: true }
@@ -59,14 +66,20 @@ export default {
             const msg = await interaction.channel.send({ content: '@everyone', embeds: [embedRP] });
             await msg.react('✅');
 
-            // Guardamos en memoria para el detector automático
             global.coleccionStartups.set(msg.id, { hostId: interaction.user.id, reaccionesRequeridas: reacciones, tipo, imagen: urlImagen, procesado: false });
         }
 
         if (tipo === 'meet') {
             const embedMeet = new EmbedBuilder()
-                .setTitle('🟠 SWFL | Inicio de Car Meet Oficial 🟠')
-                .setDescription(`• <@${interaction.user.id}> **¡está organizando un Car Meet!** Prepará tu mejor nave, repasá las reglas de convivencia en caravana y estate listo para exhibir.\n\n➔ Por favor, tengan paciencia mientras acomodamos el mapa. Queremos asegurar una juntada limpia, organizada y con los mejores spots.\n\n👇 **¡Para comenzar con los preparativos y abrir el servidor, necesitamos alcanzar ${reacciones}+ reacciones!** Una vez cumplido el requisito, se liberará el FastPass.`)
+                .setTitle('💨 Southwest Florida – *Car Meet Session Startup* 💨')
+                .setDescription(
+                    `> › <@${interaction.user.id}> ¡está organizando un car meet oficial! Si tienes la intención de unirte, reacciona abajo con el emoji elegido por el host. ¡Si reaccionas sin unirte, podrías enfrentar consecuencias por parte del equipo de staff!\n\n` +
+                    `**Antes de Unirte**\n\n` +
+                    `> ➔ Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+                    `> ➔ Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627).\n` +
+                    `> ➔ Registra tus vehículos en <#1516832509222981864>!\n\n` +
+                    `> ⤷ El host debe obtener **${reacciones}+** reacciones antes de comenzar.`
+                )
                 .addFields(
                     { name: '❗ Temática del Meet', value: `${dato1}`, inline: false },
                     { name: '❗ Lugar de Inicio', value: `${dato2}`, inline: true },
@@ -80,7 +93,6 @@ export default {
             const msg = await interaction.channel.send({ content: '@everyone', embeds: [embedMeet] });
             await msg.react('✅');
 
-            // Guardamos en memoria para el detector automático
             global.coleccionStartups.set(msg.id, { hostId: interaction.user.id, reaccionesRequeridas: reacciones, tipo, imagen: urlImagen, procesado: false });
         }
     }
