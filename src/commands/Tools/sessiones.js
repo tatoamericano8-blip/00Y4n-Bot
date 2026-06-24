@@ -47,6 +47,7 @@ export default {
         const ePunto   = '<:00y4ncirpunto:1519474782117171392>';    // Círculo/Punto naranja
         const eFlechaH = '<:FlechaHoriz00Y4n:1519474590370500608>'; // Flecha horizontal naranja
         const eFlechaV = '<:Flecha_00Y4n:1519473149845045400>';     // Flecha curva naranja
+        const idTildeNaranja = '1519476900995666101';               // ID real de tu tilde naranja para las reacciones
 
         // Modificación estética basada de forma estricta en image_45c25c.png con estilo 00Y4n
         if (tipo === 'rp') {
@@ -70,7 +71,9 @@ export default {
 
             await interaction.reply({ content: 'Lanzando Startup de Roleplay...', ephemeral: true });
             const msg = await interaction.channel.send({ content: '@everyone', embeds: [embedRP] });
-            await msg.react('✅');
+            
+            // CAMBIO AQUÍ: Ahora reacciona con tu tilde naranja personalizado
+            await msg.react(idTildeNaranja);
 
             global.coleccionStartups.set(msg.id, { hostId: interaction.user.id, reaccionesRequeridas: reacciones, tipo, imagen: urlImagen, procesado: false });
         }
@@ -97,7 +100,9 @@ export default {
 
             await interaction.reply({ content: 'Lanzando Startup de Car Meet...', ephemeral: true });
             const msg = await interaction.channel.send({ content: '@everyone', embeds: [embedMeet] });
-            await msg.react('✅');
+            
+            // CAMBIO AQUÍ: También aplica para los Car Meets
+            await msg.react(idTildeNaranja);
 
             global.coleccionStartups.set(msg.id, { hostId: interaction.user.id, reaccionesRequeridas: reacciones, tipo, imagen: urlImagen, procesado: false });
         }
