@@ -1,50 +1,86 @@
 import { EmbedBuilder } from 'discord.js';
 
+// --- DICCIONARIO COMPLETO DE EMOJIS CUSTOM (00Y4n) ---
+const EMOJIS = {
+    // Estáticos
+    link: '<:link00y4n:1519476984932073482>',
+    cruz: '<:cruz00y4n:1519476959606734998>',
+    warn: '<:warn00y4n:1519476933988061295>',
+    cirPunto: '<:00y4ncirpunto:1519474782117171392>',
+    flechaH: '<:FlechaHoriz00Y4n:1519474590370500608>',
+    flechaV: '<:Flecha_00Y4n:1519473149845045400>',
+    star: '<:star00y4n:1519474745320669194>',
+    tilde: {
+        id: '1519476900995666101',
+        tag: '<:tilde00y4n:1519476900995666101>'
+    },
+    // Números estáticos
+    n1: '<:100y4n:1519475036283473980>',
+    n2: '<:200y4n:1519475057846521888>',
+    n3: '<:300y4n:1519475081724825690>',
+    n4: '<:400y4n:1519475112087130282>',
+
+    // Animados (Movimiento)
+    coraMov: '<a:Cora_Mov_00Y4n:1519473208334749716>',
+    floresMov: '<a:Floresmov00Y4n:1519474632917385296>',
+    caramMov: '<a:caram00y4nmov:1519474823309426699>',
+    circMov: '<a:circmovim00y4n:1519476873959178380>',
+    coraaMov: '<a:coraamov00y4n:1519475012283666554>'
+};
+
 export default {
     name: 'messageReactionAdd',
     async execute(reaction, user) {
-        // Ignoramos por completo los pings de los propios bots
+        // Ignoramos reacciones de bots
         if (user.bot) return;
 
-        // Si el mensaje es viejo y no está en la memoria caché actual de Discord, lo recuperamos
+        // Estabilizamos la reacción parcial si viene de mensajes viejos
         if (reaction.partial) {
             try {
                 await reaction.fetch();
             } catch (error) {
-                console.error('No se pudo recuperar la reacción parcial:', error);
+                console.error('Error al recuperar datos de la reacción parcial:', error);
                 return;
             }
         }
 
-        global.coleccionStartups = global.coleccionStartups || new Map();
-        
-        // Verificamos si este mensaje de reacción pertenece a un startup activo
-        const datosSesion = global.coleccionStartups.get(reaction.message.id);
+        const msgId = reaction.message.id;
 
-        // Si no existe en la lista o ya generó su mensaje automático, cerramos el proceso
-        if (!datosSesion || datosSesion.procesado) return;
+        // Comprobamos si el mensaje está registrado en la base de inicios activos
+        const startup = global.coleccionStartups?.get(msgId);
+        if (!startup || startup.procesado) return;
 
-        // Comprobamos que estén reaccionando con el tilde verde configurado
-        if (reaction.emoji.name === '✅') {
-            const votosActuales = reaction.count;
+        // Comprobamos de forma estricta si coincide con la ID de tu tilde naranja
+        if (reaction.emoji.id === EMOJIS.tilde.id) {
+            
+            // Restamos 1 para descontar la reacción inicial que añade el bot obligatoriamente
+            const votosActuales = reaction.count - 1;
 
-            // ¡LLEGAMOS A LA META DE VOTOS SELECCIONADOS!
-            if (votosActuales >= datosSesion.reaccionesRequeridas) {
-                datosSesion.procesado = true; // Candado inmediato para evitar duplicados
+            if (votosActuales >= startup.reaccionesRequeridas) {
+                // Bloqueo de duplicados inmediato
+                startup.procesado = true;
 
-                const tituloEmbed = datosSesion.tipo === 'rp' ? '🟠 SWFL | Configuración del Servidor 🟠' : '🟠 SWFL Car Meet | Configuración del Servidor 🟠';
+                const nombreSesion = startup.tipo === 'rp' ? 'Roleplay' : 'Car Meet';
 
-                // Traducción impecable al español con estilo 00Y4n
+                // Embed estructurado al estilo premium 00Y4n con tus nuevos emojis
                 const embedSetup = new EmbedBuilder()
-                    .setTitle(tituloEmbed)
-                    .setDescription(`• <@${datosSesion.hostId}> **¡ha comenzado a configurar su servidor!**\n\nLos miembros con rango de **FastPass** pronto podrán empezar a ingresar utilizando el enlace de acceso anticipado que se enviará de un momento a otro. ¡Asegúrate de contar con tu rango correspondiente para entrar a la pista antes que el resto!\n\n> 📞 *Por favor, sean pacientes y denle al Host un tiempo prudencial y razonable para preparar toda la sesión correctamente.*`)
-                    .setColor('#ff6600'); // Tu naranja insignia
+                    .setTitle(`${EMOJIS.circMov} Southwest Florida - *_Configuración de Sesión_* ${EMOJIS.circMov}`)
+                    .setDescription(
+                        `> ${EMOJIS.cirPunto} <@${startup.hostId}> **ya está configurando el servidor para la sesión oficial de ${nombreSesion}!**\n\n` +
+                        `> ${EMOJIS.flechaH} El Staff, miembros con Acceso Anticipado, colaboradores y P/S ya pueden ir ingresando utilizando el enlace de EA.\n\n` +
+                        `> ${EMOJIS.flechaH} Por favor, dale al host un lapso de hasta **10 minutos** para liberar la sesión por completo.\n\n` +
+                        `${EMOJIS.warn} **¡IMPORTANTE!** No molestes ni satures al host con mensajes privados o pings innecesarios durante este proceso. Espera pacientemente el anuncio oficial de apertura.`
+                    )
+                    .setColor('#ff6600');
 
-                // Si en el startup original usaron un banner, el bot lo hereda acá de forma automática
-                if (datosSesion.imagen) embedSetup.setImage(datosSesion.imagen);
+                // Si se pasó un banner opcional al iniciar, lo inyectamos acá
+                if (startup.imagen) {
+                    embedSetup.setImage(startup.imagen);
+                }
 
-                // 🚀 CAMBIO ACÁ: Se envía SOLO el embed al canal, sin pings a @everyone ni a roles
-                await reaction.message.channel.send({
+                // Responde directamente al embed de los votos conectando los mensajes de manera limpia
+                await reaction.message.reply({
+                    content: '@everyone',
                     embeds: [embedSetup]
                 });
             }
