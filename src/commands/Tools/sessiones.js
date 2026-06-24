@@ -5,7 +5,7 @@ global.coleccionStartups = global.coleccionStartups || new Map();
 
 export default {
     data: {
-        name: 'inicio_swfl', 
+        name: 'inicio_swfl',
         description: 'Lanza un inicio de sesión de Roleplay o Car Meet para SWFL.',
         options: [
             {
@@ -29,9 +29,9 @@ export default {
     async execute(interaction) {
         // 🔒 SEGURIDAD: Bloqueo de Staff
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
-            return await interaction.reply({ 
-                content: '❌ **No tienes permisos:** Solo el Staff autorizado puede iniciar sesiones.', 
-                ephemeral: true 
+            return await interaction.reply({
+                content: '❌ **No tienes permisos:** Solo el Staff autorizado puede iniciar sesiones.',
+                ephemeral: true
             });
         }
 
@@ -42,21 +42,27 @@ export default {
         const spots = interaction.options.getString('spots') || 'N/A';
         const urlImagen = interaction.options.getString('imagen');
 
+        // --- MAPEO DE EMOJIS CUSTOM (IDs Reales de tu servidor 00Y4n) ---
+        const eCoraMov = '<a:Cora_Mov_00Y4n:1519473208334749716>'; // Animado para títulos
+        const ePunto   = '<:00y4ncirpunto:1519474782117171392>';    // Círculo/Punto naranja
+        const eFlechaH = '<:FlechaHoriz00Y4n:1519474590370500608>'; // Flecha horizontal naranja
+        const eFlechaV = '<:Flecha_00Y4n:1519473149845045400>';     // Flecha curva naranja
+
         // Modificación estética basada de forma estricta en image_45c25c.png con estilo 00Y4n
         if (tipo === 'rp') {
             const embedRP = new EmbedBuilder()
-                .setTitle('💨 Southwest Florida – *__Roleplay Sesión Inicio__* 💨')
+                .setTitle(`${eCoraMov} Southwest Florida - *_Roleplay Sesión Inicio_* ${eCoraMov}`)
                 .setDescription(
-                    `> › <@${interaction.user.id}> ¡está organizando una sesión de roleplay! Si tienes la intención de unirte, reacciona abajo con el emoji elegido por el host. ¡Si reaccionas sin unirte, podrías enfrentar consecuencias por parte del equipo de staff!\n\n` +
+                    `> ${ePunto} <@${interaction.user.id}> ¡está organizando una sesión de roleplay! Si tienes la intención de unirte, reacciona abajo con el emoji elegido por el host. ¡Si reaccionas sin unirte, podrías enfrentar consecuencias por parte del equipo de staff!\n\n` +
                     `**Antes de Unirte**\n\n` +
-                    `> ➔ Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-                    `> ➔ Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627).\n` +
-                    `> ➔ Registra tus vehículos en <#1516832509222981864>!\n\n` +
-                    `> ⤷ El host debe obtener **${reacciones}+** reacciones antes de comenzar.`
+                    `> ${eFlechaH} Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+                    `> ${eFlechaH} Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627)\n` +
+                    `> ${eFlechaH} Registra tus vehículos en <#1516832509222981864>!\n\n` +
+                    `> ${eFlechaV} El host debe obtener **${reacciones}+** reacciones antes de comenzar.`
                 )
                 .addFields(
-                    { name: '› Límite de Velocidad (FRP)', value: `${dato1}`, inline: true },
-                    { name: '› Estado de Peacetime', value: `${dato2}`, inline: true }
+                    { name: '> Límite de Velocidad (FRP)', value: `${dato1}`, inline: true },
+                    { name: '> Estado de Peacetime', value: `${dato2}`, inline: true }
                 )
                 .setColor('#ff6600');
 
@@ -71,18 +77,19 @@ export default {
 
         if (tipo === 'meet') {
             const embedMeet = new EmbedBuilder()
-                .setTitle('💨 Southwest Florida – *__Car Meet Sesión Inicio__* 💨')
+                .setTitle(`${eCoraMov} Southwest Florida - *_Car Meet Sesión Inicio_* ${eCoraMov}`)
                 .setDescription(
-                    `> › <@${interaction.user.id}> ¡está organizando un car meet oficial! Si tienes la intención de unirte, reacciona abajo con el emoji elegido por el host. ¡Si reaccionas sin unirte, podrías enfrentar consecuencias por parte del equipo de staff!\n\n` +
+                    `> ${ePunto} <@${interaction.user.id}> ¡está organizando un car meet oficial! Si tienes la intención de unirte, reacciona abajo con el emoji elegido por el host. ¡Si reaccionas sin unirte, podrías enfrentar consecuencias por parte del equipo de staff!\n\n` +
                     `**Antes de Unirte**\n\n` +
-                    `> ➔ Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-                    `> ➔ Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627).\n` +
-                    `> ⤷ El host debe obtener **${reacciones}+** reacciones antes de comenzar.`
+                    `> ${eFlechaH} Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+                    `> ${eFlechaH} Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627)\n` +
+                    `> ${eFlechaH} Registra tus vehículos en <#1516832509222981864>!\n\n` +
+                    `> ${eFlechaV} El host debe obtener **${reacciones}+** reacciones antes de comenzar.`
                 )
                 .addFields(
-                    { name: '❗ Temática del Meet', value: `${dato1}`, inline: false },
-                    { name: '❗ Lugar de Inicio', value: `${dato2}`, inline: true },
-                    { name: '❗ Spots / Duración', value: `${spots}`, inline: true }
+                    { name: '> Temática del Meet', value: `${dato1}`, inline: false },
+                    { name: '> Lugar de Inicio', value: `${dato2}`, inline: true },
+                    { name: '> Spots / Duración', value: `${spots}`, inline: true }
                 )
                 .setColor('#ff6600');
 
