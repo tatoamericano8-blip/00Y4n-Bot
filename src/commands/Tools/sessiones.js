@@ -5,7 +5,7 @@ global.coleccionStartups = global.coleccionStartups || new Map();
 
 export default {
     data: {
-        name: 'startup_swfl', 
+        name: 'inicio_swfl', 
         description: 'Lanza un inicio de sesión de Roleplay o Car Meet para SWFL.',
         options: [
             {
