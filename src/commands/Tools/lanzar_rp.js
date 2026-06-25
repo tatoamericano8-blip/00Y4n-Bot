@@ -3,7 +3,7 @@ import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBui
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
 // URL DE LA IMAGEN PREDETERMINADA PARA ROLEPLAY
-const IMAGEN_RP_DEFECTO = 'https://cdn.discordapp.com/attachments/15051730108952898/1515546633440329869/ChatGPT_Image_31_may_2026_20_26_33.png?ex=6a34038a&is=6a32b20a&hm=c43e921cf0f60e70024509c7734f2fa510bc509cf734f92fa510bc5902fc37cbb5&';
+const IMAGEN_RP_DEFECTO = 'https://cdn.discordapp.com/attachments/15051730108952898/1515546633440329869/ChatGPT_Image_31_may_2026_20_26_33.png?ex=6a34038a&is=6a32b20a&hm=c43e921cf0f60e70024509c7734f2fa510bc509cf734f92fa510bc509cf734f92fa510bc5902fc37cbb5&';
 
 // --- DICCIONARIO COMPLETO DE EMOJIS CUSTOM (00Y4n) ---
 const EMOJIS = {
@@ -14,9 +14,7 @@ const EMOJIS = {
     flechaH: '<:FlechaHoriz00Y4n:1519474590370500608>',
     flechaV: '<:Flecha_00Y4n:1519473149845045400>',
     star: '<:star00y4n:1519474745320669194>',
-    tilde: '<:tilde00y4n:1519476900995666101>',
-    coraMov: '<a:Cora_Mov_00Y4n:1519473208334749716>',
-    circMov: '<a:circmovim00y4n:1519476873959178380>'
+    coraMov: '<a:Cora_Mov_00Y4n:1519473208334749716>'
 };
 
 export default {
@@ -24,7 +22,7 @@ export default {
         name: 'lanzar_rp_swfl',
         description: 'Liberas los accesos para una sesión oficial de Roleplay.',
         options: [
-            { name: 'mensaje', description: 'Copia el ID del mensaje de Inicio original.', type: ApplicationCommandOptionType.String, required: true },
+            // Se eliminó la opción "mensaje". El bot ahora lo gestiona de forma interna y automática.
             { name: 'acceso', description: 'Pegá acá el enlace del servidor privado de Roblox.', type: ApplicationCommandOptionType.String, required: true },
             { name: 'limite_velocidad', description: 'Ejemplo: 75 MPH / 80 MPH', type: ApplicationCommandOptionType.String, required: true },
             { name: 'peacetime', description: 'Ejemplo: On / Off', type: ApplicationCommandOptionType.String, required: true },
@@ -41,13 +39,28 @@ export default {
             });
         }
 
-        const idInicio = interaction.options.getString('mensaje');
+        // 🧠 DETECCIÓN AUTOMÁTICA EXTRA-PRECISA
+        // Escaneamos la colección global buscando el último Startup activo de tipo 'rp' que pertenezca al Host que ejecuta el comando
+        const coleccionStartups = global.coleccionStartups || new Map();
+        const idInicio = Array.from(coleccionStartups.keys()).reverse().find(id => {
+            const startup = coleccionStartups.get(id);
+            return startup.hostId === interaction.user.id && startup.tipo === 'rp';
+        });
+
+        // Si el host no inició una votación previa, evitamos un quiebre de lógica en los botones
+        if (!idInicio) {
+            return await interaction.reply({
+                content: `${EMOJIS.cruz} **Error de sincronización:** No encontré ningún Startup de Roleplay activo iniciado por ti. Asegúrate de que la votación con tildes se haya completado primero.`,
+                ephemeral: true
+            });
+        }
+
         const linkSesion = interaction.options.getString('acceso');
         const limite = interaction.options.getString('limite_velocidad');
         const peacetime = interaction.options.getString('peacetime');
         const urlImagen = interaction.options.getString('imagen');
 
-        // Estructura premium adaptada combinando tus capturas de código con el estilo visual 00Y4n
+        // Diseño visual Premium unificado
         const infoDescripcion = 
             `> ${EMOJIS.cirPunto} <@${interaction.user.id}> ¡ha lanzado su sesión! Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
             `**Antes de Unirte**\n\n` +
@@ -58,27 +71,25 @@ export default {
             `> ${EMOJIS.star} **Estado de Peacetime:** ${peacetime}\n` +
             `> ${EMOJIS.star} **Velocidad de Fail Roleplay:** ${limite}\n` +
             `> ${EMOJIS.flechaV} Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n\n` +
-            `${EMOJIS.warn} *¡Cualquier miembro descubierto haciendo Fail Roleplay de forma excesiva será expulsado inmediatamente de la sesión!*`;
+            `${EMOJIS.warn} *¡Cualquier miembro descubierto haciendo Fail Roleplay de forma excessive será expulsado inmediatamente de la sesión!*`;
 
         const embedRelease = new EmbedBuilder()
             .setTitle(`${EMOJIS.coraMov} Southwest Florida - *_Roleplay Sesión Lanzada_* ${EMOJIS.coraMov}`)
             .setDescription(infoDescripcion)
             .setColor('#ff6600');
 
-        // Manejo inteligente de imágenes según tus condiciones de diseño
         if (urlImagen) {
             embedRelease.setImage(urlImagen);
         } else if (IMAGEN_RP_DEFECTO !== '') {
             embedRelease.setImage(IMAGEN_RP_DEFECTO);
         }
 
-        // Fila de componentes interactivos (Botón premium con tu emoji de enlace incorporado)
         const fila = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('verificar_voto_swfl')
                 .setLabel('Link de la Sesión')
                 .setStyle(ButtonStyle.Primary)
-                .setEmoji('1519476984932073482') // ID real de tu emoji custom 'link'
+                .setEmoji('1519476984932073482') // ID de tu emoji estático de enlace
         );
 
         await interaction.reply({ content: 'Liberando accesos de Roleplay...', ephemeral: true });
@@ -89,7 +100,7 @@ export default {
             components: [fila]
         });
 
-        // Guardamos en caché de memoria mapeando la ID del mensaje final con sus respectivos accesos
+        // Vinculamos de manera automática la ID del mensaje de lanzamiento con el de la votación en memoria
         global.coleccionSesiones.set(msgRelease.id, { idInicio, linkSesion });
     }
 };
