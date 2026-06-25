@@ -67,7 +67,7 @@ export default {
                     .setTitle(`${EMOJIS.circMov} Southwest Florida - *_Configuración de Sesión_* ${EMOJIS.circMov}`)
                     .setDescription(
                         `> ${EMOJIS.cirPunto} <@${startup.hostId}> **ya está configurando el servidor para la sesión oficial de ${nombreSesion}!**\n\n` +
-                        `> ${EMOJIS.flechaH} El Staff, miembros con Acceso Anticipado, colaboradores y P/S ya pueden ir ingresando utilizando el enlace de EA.\n\n` +
+                        `> ${EMOJIS.flechaH} El Staff, miembros con FastPass, colaboradores y el equipo de servicios publicos ya pueden ir ingresando utilizando el enlace de FastPass.\n\n` +
                         `> ${EMOJIS.flechaH} Por favor, dale al host un lapso de hasta **10 minutos** para liberar la sesión por completo.\n\n` +
                         `${EMOJIS.warn} **¡IMPORTANTE!** No molestes ni satures al host con mensajes privados o pings innecesarios durante este proceso. Espera pacientemente el anuncio oficial de apertura.`
                     )
