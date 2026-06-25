@@ -10,7 +10,6 @@ export default {
         name: 'lanzar_meet_swfl',
         description: 'Libera los accesos para un Car Meet oficial.',
         options: [
-            { name: 'mensaje', description: 'Copia el ID del mensaje de Startup original.', type: ApplicationCommandOptionType.String, required: true },
             { name: 'acceso', description: 'Pegá acá el enlace del servidor privado de Roblox.', type: ApplicationCommandOptionType.String, required: true },
             { name: 'tematica', description: 'Ejemplo: JDM, Exóticos, Camionetas', type: ApplicationCommandOptionType.String, required: true },
             { name: 'ubicacion', description: 'Lugar de concentración (Ej: Puerto, Aeropuerto)', type: ApplicationCommandOptionType.String, required: true },
@@ -23,33 +22,42 @@ export default {
         // 🔒 SEGURIDAD: Bloqueo de Staff
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
-                content: '❌ **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesión.',
+                content: '<:cruz00y4n:1519476959606734998> **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesión.',
                 ephemeral: true
             });
         }
 
-        const idInicio = interaction.options.getString('mensaje');
+        // 🤖 BÚSQUEDA AUTOMÁTICA DE LA SESIÓN ACTIVA EN MEMORIA
+        const sesionActiva = Array.from(global.coleccionSesiones?.values() || []).find(s => s.guildId === interaction.guildId);
+
+        if (!sesionActiva) {
+            return await interaction.reply({
+                content: '<:cruz00y4n:1519476959606734998> **Error:** No se encontró ninguna sesión de Startup activa en la memoria para este servidor.',
+                ephemeral: true
+            });
+        }
+
+        const idInicio = sesionActiva.idInicio; // Tomamos la ID automáticamente
         const linkSesion = interaction.options.getString('acceso');
         const tematica = interaction.options.getString('tematica');
         const ubicacion = interaction.options.getString('ubicacion');
         const spots = interaction.options.getString('spots_duracion');
         const urlImagen = interaction.options.getString('imagen');
 
-        // Modificado: Se eliminó el requisito de registrar vehículos para el meet
         const infoDescripcion = 
-            `> ▬ <@${interaction.user.id}> ¡ha lanzado su car meet! Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
-            `**Antes de Unirte**\n\n` +
-            `> ➔ Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-            `> ➔ Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627).\n\n` +
-            `**Información del Car Meet**\n\n` +
+            `> ▬ <@${interaction.user.id}> **¡ha lanzado un Car Meet oficial!** Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
+            `**<a:caram00y4nmov:1519474823309426699> Antes de Unirte**\n\n` +
+            `> <:00y4ncirpunto:1519474782117171392> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+            `> <:00y4ncirpunto:1519474782117171392> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627).\n\n` +
+            `**<a:caram00y4nmov:1519474823309426699> Información del Car Meet**\n\n` +
             `• **Temática del Meet:** ${tematica}\n` +
             `• **Lugar de Inicio:** ${ubicacion}\n` +
             `• **Spots / Duración:** ${spots}\n` +
-            `╰ Los vehiculos deben ingresar __despacio__ al lugar actual del meet.\n\n` +
-            `➴ *¡Cualquier miembro descubierto haciendo Choque de vehiculos o saboteando el orden será __expulsado__ e ingresará directo a la blacklist!*`;
+            `╰ Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n\n` +
+            `➴ *¡Cualquier miembro descubierto haciendo Choque de vehículos o saboteando el orden será __expulsado__ e ingresará directo a la blacklist!*`;
 
         const embedRelease = new EmbedBuilder()
-            .setTitle('╰ Southwest Florida – ***__Car Meet Sesión Lanzada__*** ╮')
+            .setTitle('<a:caram00y4nmov:1519474823309426699> Southwest Florida – ***__Car Meet Sesión Lanzada__*** <a:caram00y4nmov:1519474823309426699>')
             .setDescription(infoDescripcion)
             .setColor('#ff6600');
 
@@ -69,11 +77,17 @@ export default {
         await interaction.reply({ content: 'Liberando accesos del Car Meet...', ephemeral: true });
         
         const msgRelease = await interaction.channel.send({ 
-            content: '@everyone <@&1491458302993891358>', // Poné acá la ID de tu rol de anuncios
+            content: '@everyone <@&1491458302993891358>', // ID del rol de anuncios
             embeds: [embedRelease], 
             components: [fila] 
         });
 
-        global.coleccionSesiones.set(msgRelease.id, { idInicio, linkSesion });
+        // 📝 Guardamos agregando el identificador "tipo: 'meet'"
+        global.coleccionSesiones.set(msgRelease.id, { 
+            idInicio, 
+            linkSesion, 
+            guildId: interaction.guildId, 
+            tipo: 'meet' 
+        });
     }
 };
