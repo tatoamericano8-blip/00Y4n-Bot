@@ -94,63 +94,10 @@ export default {
               type: 'command',
               commandName: interaction.commandName
             }, interactionTraceContext));
-          } catch (error) {
-            await handleInteractionError(interaction, error, withTraceContext({
-                type: 'command',
-                commandName: interaction.commandName
-            }, interactionTraceContext));
-        }
-    } else if (interaction.isButton() && interaction.customId === 'verificar_voto_swfl') {
-            const sesion = global.coleccionSesiones?.get(interaction.message.id);
-            if (!sesion) {
-                return await interaction.reply({
-                    content: '<:cruz00y4n:1519476959606734998> **Error:** No se encontraron los registros de esta sesión en la memoria.',
-                    ephemeral: true
-                });
-            }
-
-            try {
-                const msgInicio = await interaction.channel.messages.fetch(sesion.idInicio);
-                const reaccionTilde = msgInicio.reactions.cache.get('1519476900995666101'); // ID tilde naranja
-
-                let haVotado = false;
-                if (reaccionTilde) {
-                    const usuariosQueVotaron = await reaccionTilde.users.fetch();
-                    haVotado = usuariosQueVotaron.has(interaction.user.id);
-                }
-
-                if (!haVotado) {
-                    return await interaction.reply({
-                        content: '<:cruz00y4n:1519476959606734998> **¡No has votado!** Primero debes dejar tu reacción con el tilde naranja en el mensaje de inicio de la sesión para poder acceder al link.',
-                        ephemeral: true
-                    });
-                }
-
-                // Embed exclusivo estilo 00Y4n para el link
-                const embedLink = new EmbedBuilder()
-                    .setTitle('<a:caram00y4nmov:1519474823309426699> Southwest Florida - *_Recordatorio de Sesión_* <a:caram00y4nmov:1519474823309426699>')
-                    .setDescription(
-                        `> <:00y4ncirpunto:1519474782117171392> **Por favor, asegúrate de registrar tu(s) vehículo(s) en <#1516832509222981864>, ¡ya que podrías ser citado o recibir multas por parte de las Fuerzas del Orden!**\n\n` +
-                        `**Enlace de la Sesión**\n` +
-                        `> <:link00y4n:1519476984932073482> Haz clic [aquí](${sesion.linkSesion}) para unirte.`
-                    )
-                    .setColor('#ff6600');
-
-                return await interaction.reply({
-                    embeds: [embedLink],
-                    ephemeral: true
-                });
-
-            } catch (error) {
-                logger.error(`Error al verificar voto: ${error.message}`);
-                return await interaction.reply({
-                    content: '<:warn00y4n:1519476933988061295> **Error interno:** No se pudo comprobar tu voto. Asegúrate de que el Startup no haya sido eliminado.',
-                    ephemeral: true
-               }
+          }
         } else if (interaction.isAutocomplete()) {
-            // Handle autocomplete interactions
-            const focusedOption = interaction.options.getFocused(true);
-            // ... (Todo el código de autocomplete que ya tenías de la línea 99 hacia abajo queda intacto)
+          // Handle autocomplete interactions
+          const focusedOption = interaction.options.getFocused(true);
           
           if (interaction.commandName === 'apply' && focusedOption.name === 'application') {
             try {
