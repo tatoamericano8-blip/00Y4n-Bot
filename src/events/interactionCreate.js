@@ -214,11 +214,13 @@ export default {
               const validChoices = choices.filter(c => c !== null);
               await interaction.respond(validChoices);
             } catch (error) {
-              logger.error('Error handling reactroles autocomplete:', {
-                error: error.message,
-                guildId: interaction.guildId,
-                commandName: interaction.commandName
-              });
+                // Acá cambiamos "logger" por "console" 👇
+                console.error(`Error al verificar voto: ${error.message}`);
+                return await interaction.reply({
+                    content: '<:warn00y4n:1519476933988061295> **Error interno:** No se pudo comprobar tu voto. Asegúrate de que el Startup no haya sido eliminado.',
+                    ephemeral: true
+                });
+            }
               await interaction.respond([]);
             }
           }
