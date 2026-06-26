@@ -3,7 +3,7 @@ import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBui
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
 // URL DE LA IMAGEN PREDETERMINADA PARA ROLEPLAY
-const IMAGEN_RP_DEFECTO = 'https://cdn.discordapp.com/attachments/15051730108952898/1515546633440329869/ChatGPT_Image_31_may_2026_20_26_33.png?ex=6a34038a&is=6a32b20a&hm=c43e921cf0f60e70024509c7734f2fa510bc509cf734f92fa510bc509cf734f92fa510bc5902fc37cbb5&';
+const IMAGEN_RP_DEFECTO = 'https://cdn.discordapp.com/attachments/1505017301089652898/1515546633440329869/ChatGPT_Image_31_may_2026_20_26_33.png?ex=6a3fe10a&is=6a3e8f8a&hm=0d56b53821baaf230d874192f4c6e47963ac6653a94abf3e78988da463ceca1e&';
 
 // --- DICCIONARIO COMPLETO DE EMOJIS CUSTOM (00Y4n) ---
 const EMOJIS = {
@@ -22,7 +22,7 @@ export default {
         name: 'lanzar_rp_swfl',
         description: 'Liberas los accesos para una sesión oficial de Roleplay.',
         options: [
-            // Se eliminó la opción "mensaje". El bot ahora lo gestiona de forma interna y automática.
+            { name: 'mensaje_id', description: 'Pegá acá la ID del mensaje de Startup/Inicio de esta sesión.', type: ApplicationCommandOptionType.String, required: true },
             { name: 'acceso', description: 'Pegá acá el enlace del servidor privado de Roblox.', type: ApplicationCommandOptionType.String, required: true },
             { name: 'limite_velocidad', description: 'Ejemplo: 75 MPH / 80 MPH', type: ApplicationCommandOptionType.String, required: true },
             { name: 'peacetime', description: 'Ejemplo: On / Off', type: ApplicationCommandOptionType.String, required: true },
@@ -34,27 +34,13 @@ export default {
         // 🔒 SEGURIDAD: Bloqueo de Staff
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
-                content: '❌ **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesión.',
+                content: `${EMOJIS.cruz} **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesión.',
                 ephemeral: true
             });
         }
 
-        // 🧠 DETECCIÓN AUTOMÁTICA EXTRA-PRECISA
-        // Escaneamos la colección global buscando el último Startup activo de tipo 'rp' que pertenezca al Host que ejecuta el comando
-        const coleccionStartups = global.coleccionStartups || new Map();
-        const idInicio = Array.from(coleccionStartups.keys()).reverse().find(id => {
-            const startup = coleccionStartups.get(id);
-            return startup.hostId === interaction.user.id && startup.tipo === 'rp';
-        });
-
-        // Si el host no inició una votación previa, evitamos un quiebre de lógica en los botones
-        if (!idInicio) {
-            return await interaction.reply({
-                content: `${EMOJIS.cruz} **Error de sincronización:** No encontré ningún Startup de Roleplay activo iniciado por ti. Asegúrate de que la votación con tildes se haya completado primero.`,
-                ephemeral: true
-            });
-        }
-
+        // 📝 Obtenemos la ID de forma manual desde las opciones
+        const idInicio = interaction.options.getString('mensaje_id');
         const linkSesion = interaction.options.getString('acceso');
         const limite = interaction.options.getString('limite_velocidad');
         const peacetime = interaction.options.getString('peacetime');
@@ -100,7 +86,12 @@ export default {
             components: [fila]
         });
 
-        // Vinculamos de manera automática la ID del mensaje de lanzamiento con el de la votación en memoria
-        global.coleccionSesiones.set(msgRelease.id, { idInicio, linkSesion });
+        // Guardamos los datos mapeando de forma segura
+        global.coleccionSesiones.set(msgRelease.id, { 
+            idInicio, 
+            linkSesion,
+            guildId: interaction.guildId,
+            tipo: 'rp'
+        });
     }
 };
