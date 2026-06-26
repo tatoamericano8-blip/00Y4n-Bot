@@ -78,10 +78,14 @@ export default {
                     embedSetup.setImage(startup.imagen);
                 }
 
-                // Responde directamente al embed de los votos conectando los mensajes de manera limpia
+                    // Responde directamente al embed de los votos conectando los mensajes de manera limpia
                 await reaction.message.reply({
-                    content: '@everyone',
                     embeds: [embedSetup]
+                });
+            }
+        }
+    }
+};
                 });
             }
         }
