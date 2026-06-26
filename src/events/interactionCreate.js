@@ -222,8 +222,61 @@ export default {
               await interaction.respond([]);
             }
           }
-        } else if (interaction.isButton()) {
-          if (interaction.customId.startsWith('shared_todo_')) {
+        // 00Y4n: Interceptamos el botón de la sesión de SWFL antes de que busque en otros lados
+          if (interaction.customId === 'verificar_voto_swfl') {
+            const sesion = global.coleccionSesiones?.get(interaction.message.id);
+            if (!sesion) {
+                return await interaction.reply({
+                    content: '<:cruz00y4n:1519476959606734998> **Error:** No se encontraron los registros de esta sesión en la memoria.',
+                    ephemeral: true
+                });
+            }
+
+            try {
+                const msgInicio = await interaction.channel.messages.fetch(sesion.idInicio);
+                const reaccionTilde = msgInicio.reactions.cache.get('1519476900995666101'); // Tu tilde naranja custom
+
+                let haVotado = false;
+                if (reaccionTilde) {
+                    const usuariosQueVotaron = await reaccionTilde.users.fetch();
+                    haVotado = usuariosQueVotaron.has(interaction.user.id);
+                }
+
+                if (!haVotado) {
+                    return await interaction.reply({
+                        content: '<:cruz00y4n:1519476959606734998> **¡No has votado!** Primero debes dejar tu reacción con el tilde naranja en el mensaje de inicio de la sesión para poder acceder al link.',
+                        ephemeral: true
+                    });
+                }
+
+                // 🎭 Personalizamos el Embed dependiendo de si es un Car Meet o un Roleplay normal
+                let tituloEmbed = '<a:caram00y4nmov:1519474823309426699> Southwest Florida - *_Recordatorio de Sesión_* <a:caram00y4nmov:1519474823309426699>';
+                let descripcionEmbed = `> <:00y4ncirpunto:1519474782117171392> **Por favor, asegúrate de registrar tu(s) vehículo(s) en <#1516832509222981864>, ¡ya que podrías ser citado o recibir multas por parte de las Fuerzas del Orden!**\n\n**Enlace de la Sesión**\n> <:link00y4n:1519476984932073482> Haz clic [aquí](${sesion.linkSesion}) para unirte.`;
+
+                if (sesion.tipo === 'meet') {
+                    tituloEmbed = '<a:caram00y4nmov:1519474823309426699> Southwest Florida - *_Enlace del Car Meet_* <a:caram00y4nmov:1519474823309426699>';
+                    descripcionEmbed = `> <:00y4ncirpunto:1519474782117171392> **¡Disfruta del Car Meet Oficial! Recuerda respetar las indicaciones del Staff, ingresar despacio a los spots y mantener una buena conducta.**\n\n**Enlace del Car Meet**\n> <:link00y4n:1519476984932073482> Haz clic [aquí](${sesion.linkSesion}) para unirte.`;
+                }
+
+                const embedLink = {
+                    title: tituloEmbed,
+                    description: descripcionEmbed,
+                    color: 0xff6600
+                };
+
+                return await interaction.reply({
+                    embeds: [embedLink],
+                    ephemeral: true
+                });
+
+            } catch (error) {
+                logger.error(`Error al verificar voto: ${error.message}`);
+                return await interaction.reply({
+                    content: '<:warn00y4n:1519476933988061295> **Error interno:** No se pudo comprobar tu voto. Asegúrate de que el Startup no haya sido eliminado.',
+                    ephemeral: true
+                });
+            }
+          }
             const parts = interaction.customId.split('_');
             const buttonType = parts.slice(0, 3).join('_');
             const listId = parts[3];
