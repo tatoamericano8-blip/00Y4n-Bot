@@ -222,9 +222,7 @@ export default {
               await interaction.respond([]);
             }
           }
-        } else if (interaction.isButton()) {
-          
-          // 00Y4n: Interceptamos el botón de la sesión de SWFL antes de que busque en otros lados
+        // 00Y4n: Interceptamos el botón de la sesión de SWFL antes de que busque en otros lados
           if (interaction.customId === 'verificar_voto_swfl') {
             const sesion = global.coleccionSesiones?.get(interaction.message.id);
             if (!sesion) {
@@ -251,10 +249,18 @@ export default {
                     });
                 }
 
-                // Usamos un objeto plano para el Embed así no dependemos de imports extras arriba
+                // 🎭 Personalizamos el Embed dependiendo de si es un Car Meet o un Roleplay normal
+                let tituloEmbed = '<a:caram00y4nmov:1519474823309426699> Southwest Florida - *_Recordatorio de Sesión_* <a:caram00y4nmov:1519474823309426699>';
+                let descripcionEmbed = `> <:00y4ncirpunto:1519474782117171392> **Por favor, asegúrate de registrar tu(s) vehículo(s) en <#1516832509222981864>, ¡ya que podrías ser citado o recibir multas por parte de las Fuerzas del Orden!**\n\n**Enlace de la Sesión**\n> <:link00y4n:1519476984932073482> Haz clic [aquí](${sesion.linkSesion}) para unirte.`;
+
+                if (sesion.tipo === 'meet') {
+                    tituloEmbed = '<a:caram00y4nmov:1519474823309426699> Southwest Florida - *_Enlace del Car Meet_* <a:caram00y4nmov:1519474823309426699>';
+                    descripcionEmbed = `> <:00y4ncirpunto:1519474782117171392> **¡Disfruta del Car Meet Oficial! Recuerda respetar las indicaciones del Staff, ingresar despacio a los spots y mantener una buena conducta.**\n\n**Enlace del Car Meet**\n> <:link00y4n:1519476984932073482> Haz clic [aquí](${sesion.linkSesion}) para unirte.`;
+                }
+
                 const embedLink = {
-                    title: '<a:caram00y4nmov:1519474823309426699> Southwest Florida - *_Recordatorio de Sesión_* <a:caram00y4nmov:1519474823309426699>',
-                    description: `> <:00y4ncirpunto:1519474782117171392> **Por favor, asegúrate de registrar tu(s) vehículo(s) en <#1516832509222981864>, ¡ya que podrías ser citado o recibir multas por parte de las Fuerzas del Orden!**\n\n**Enlace de la Sesión**\n> <:link00y4n:1519476984932073482> Haz clic [aquí](${sesion.linkSesion}) para unirte.`,
+                    title: tituloEmbed,
+                    description: descripcionEmbed,
                     color: 0xff6600
                 };
 
@@ -271,7 +277,6 @@ export default {
                 });
             }
           }
-
           if (interaction.customId.startsWith('shared_todo_')) {
             const parts = interaction.customId.split('_');
             const buttonType = parts.slice(0, 3).join('_');
