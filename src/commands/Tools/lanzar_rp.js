@@ -19,7 +19,7 @@ const EMOJIS = {
 
 export default {
     data: {
-        name: 'lanzar_rp_swfl',
+        name: 'lanzar_rp',
         description: 'Liberas los accesos para una sesión oficial de Roleplay.',
         options: [
             { name: 'mensaje_id', description: 'Pegá acá la ID del mensaje de Startup/Inicio de esta sesión.', type: ApplicationCommandOptionType.String, required: true },
@@ -34,7 +34,7 @@ export default {
         // 🔒 SEGURIDAD: Bloqueo de Staff
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
-                content: `${EMOJIS.cruz} **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesión.',
+                content: `${EMOJIS.cruz} **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesión.`,
                 ephemeral: true
             });
         }
@@ -95,3 +95,4 @@ export default {
         });
     }
 };
+
