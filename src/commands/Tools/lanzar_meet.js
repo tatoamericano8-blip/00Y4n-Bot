@@ -10,6 +10,7 @@ export default {
         name: 'lanzar_meet_swfl',
         description: 'Libera los accesos para un Car Meet oficial.',
         options: [
+            { name: 'mensaje_id', description: 'Pegá acá la ID del mensaje de Startup/Inicio de esta sesión.', type: ApplicationCommandOptionType.String, required: true },
             { name: 'acceso', description: 'Pegá acá el enlace del servidor privado de Roblox.', type: ApplicationCommandOptionType.String, required: true },
             { name: 'tematica', description: 'Ejemplo: JDM, Exóticos, Camionetas', type: ApplicationCommandOptionType.String, required: true },
             { name: 'ubicacion', description: 'Lugar de concentración (Ej: Puerto, Aeropuerto)', type: ApplicationCommandOptionType.String, required: true },
@@ -27,17 +28,8 @@ export default {
             });
         }
 
-        // 🤖 BÚSQUEDA AUTOMÁTICA DE LA SESIÓN ACTIVA EN MEMORIA
-        const sesionActiva = Array.from(global.coleccionSesiones?.values() || []).find(s => s.guildId === interaction.guildId);
-
-        if (!sesionActiva) {
-            return await interaction.reply({
-                content: '<:cruz00y4n:1519476959606734998> **Error:** No se encontró ninguna sesión de Startup activa en la memoria para este servidor.',
-                ephemeral: true
-            });
-        }
-
-        const idInicio = sesionActiva.idInicio; // Tomamos la ID automáticamente
+        // 📝 Obtenemos la ID de forma manual desde las opciones
+        const idInicio = interaction.options.getString('mensaje_id');
         const linkSesion = interaction.options.getString('acceso');
         const tematica = interaction.options.getString('tematica');
         const ubicacion = interaction.options.getString('ubicacion');
@@ -82,7 +74,7 @@ export default {
             components: [fila] 
         });
 
-        // 📝 Guardamos agregando el identificador "tipo: 'meet'"
+        // Guardamos los datos en la memoria vinculando la ID manual y seteando tipo 'meet'
         global.coleccionSesiones.set(msgRelease.id, { 
             idInicio, 
             linkSesion, 
