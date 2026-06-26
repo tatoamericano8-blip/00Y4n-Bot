@@ -3,7 +3,7 @@ import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBui
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
 // 🖼️ URL DE LA IMAGEN PREDETERMINADA PARA CAR MEETS
-const IMAGEN_MEET_DEFECTO = 'https://cdn.discordapp.com/attachments/1505017301089652898/1515546632026849341/ChatGPT_Image_29_may_2026_22_32_14.png?ex=6a34038a&is=6a32b20a&hm=277638dc93cbde101233dc5ca54ac6e79b471cf82f4a4cc66f10905addec55c2&'; 
+const IMAGEN_MEET_DEFECTO = 'https://cdn.discordapp.com/attachments/1505017301089652898/1515546632026849341/ChatGPT_Image_29_may_2026_22_32_14.png?ex=6a3fe10a&is=6a3e8f8a&hm=b6741ab53ba48b0b6412b696df662945476ed818e5e4a9ad18991e1cd7c41984&'; 
 
 export default {
     data: {
