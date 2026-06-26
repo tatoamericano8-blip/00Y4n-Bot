@@ -1,5 +1,33 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
 
+// --- DICCIONARIO COMPLETO DE EMOJIS CUSTOM (00Y4n) ---
+const EMOJIS = {
+    // Estáticos
+    link: '<:link00y4n:1519476984932073482>',
+    cruz: '<:cruz00y4n:1519476959606734998>',
+    warn: '<:warn00y4n:1519476933988061295>',
+    cirPunto: '<:00y4ncirpunto:1519474782117171392>',
+    flechaH: '<:FlechaHoriz00Y4n:1519474590370500608>',
+    flechaV: '<:Flecha_00Y4n:1519473149845045400>',
+    star: '<:star00y4n:1519474745320669194>',
+    tilde: {
+        id: '1519476900995666101',
+        tag: '<:tilde00y4n:1519476900995666101>'
+    },
+    // Números estáticos
+    n1: '<:100y4n:1519475036283473980>',
+    n2: '<:200y4n:1519475057846521888>',
+    n3: '<:300y4n:1519475081724825690>',
+    n4: '<:400y4n:1519475112087130282>',
+
+    // Animados (Movimiento)
+    coraMov: '<a:Cora_Mov_00Y4n:1519473208334749716>',
+    floresMov: '<a:Floresmov00Y4n:1519474632917385296>',
+    caramMov: '<a:caram00y4nmov:1519474823309426699>',
+    circMov: '<a:circmovim00y4n:1519476873959178380>',
+    coraaMov: '<a:coraamov00y4n:1519475012283666554>'
+};
+
 // Memoria global para almacenar los links de las re-invitaciones en curso
 global.coleccionReinvites = global.coleccionReinvites || new Map();
 
@@ -65,10 +93,10 @@ export default {
 
         // Embed adaptado al español con estilo 00Y4n y color naranja
         const embedReinvite = new EmbedBuilder()
-            .setTitle(' SWFL Roleplay | Re-Invitación a la Sesión ')
-            .setDescription(`▬ ¡<@${interaction.user.id}> ha liberado las **re-invitaciones** para su sesión! Son más que bienvenidos a unirse utilizando el botón de abajo.\n\n*Antes de ingresar a la sesión, asegúrense de haber leído la información detallada aquí abajo respecto al estado del juego.*`)
+            .setTitle(`${EMOJIS.caramMov} SWFL Roleplay | Re-Invitación a la Sesión ${EMOJIS.caramMov}`)
+            .setDescription(`${EMOJIS.flechaH} ¡<@${interaction.user.id}> ha liberado las **re-invitaciones** para su sesión! Son más que bienvenidos a unirse utilizando el botón de abajo.\n\n${EMOJIS.flechaV} *Antes de ingresar a la sesión, asegúrense de haber leído la información detallada aquí abajo respecto al estado del juego.*`)
             .addFields(
-                { name: '📋 Información del Roleplay', value: `• **Estado del Peacetime:** ${peacetime}\n• **Velocidad de Fail Roleplay (FRP):** ${frp}\n• **Aplicación de la Ley (L.E.O):** ${ley}`, inline: false }
+                { name: '📋 Información del Roleplay', value: `${EMOJIS.flechaH} **Estado del Peacetime:** ${peacetime}\n${EMOJIS.flechaH} **Velocidad de Fail Roleplay (FRP):** ${frp}\n${EMOJIS.flechaH} **Aplicación de la Ley (L.E.O):** ${ley}`, inline: false }
             )
             .setFooter({ text: '🚗 Las paradas de tránsito se ejecutan superando el límite establecido.' })
             .setColor('#ff6600');
