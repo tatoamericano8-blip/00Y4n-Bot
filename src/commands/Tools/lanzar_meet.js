@@ -42,10 +42,10 @@ export default {
             `> <:00y4ncirpunto:1519474782117171392> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
             `> <:00y4ncirpunto:1519474782117171392> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627).\n\n` +
             `**<a:caram00y4nmov:1519474823309426699> Información del Car Meet**\n\n` +
-            `• **Temática del Meet:** ${tematica}\n` +
-            `• **Lugar de Inicio:** ${ubicacion}\n` +
-            `• **Spots / Duración:** ${spots}\n` +
-            `╰ Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n\n` +
+            `<:FlechaHoriz00Y4n:1519474590370500608> **Temática del Meet:** ${tematica}\n` +
+            `<:FlechaHoriz00Y4n:1519474590370500608> **Lugar de Inicio:** ${ubicacion}\n` +
+            `<:FlechaHoriz00Y4n:1519474590370500608> **Spots / Duración:** ${spots}\n` +
+            `<:Flecha_00Y4n:1519473149845045400> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n\n` +
             `➴ *¡Cualquier miembro descubierto haciendo Choque de vehículos o saboteando el orden será __expulsado__ e ingresará directo a la blacklist!*`;
 
         const embedRelease = new EmbedBuilder()
