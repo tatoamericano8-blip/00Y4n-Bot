@@ -1,5 +1,12 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
 
+// --- DICCIONARIO DE EMOJIS ---
+const EMOJIS = {
+    flechaH: '<:FlechaHoriz00Y4n:1519474590370500608>',
+    flechaV: '<:Flecha_00Y4n:1519473149845045400>',
+    coraaMov: '<a:coraamov00y4n:1519475012283666554>'
+};
+
 // Memoria global para guardar los links de FastPass en secreto
 global.coleccionFastPass = global.coleccionFastPass || new Map();
 
@@ -44,17 +51,17 @@ export default {
         // Armamos la cadena de menciones de roles usando las 2 IDs configuradas arriba
         const mencionesRoles = ROLES_VIP_IDS.map(id => `<@&${id}>`).join(' ');
 
-        // Texto adaptado exclusivamente para Staff y poseedores de FastPass
+        // Embed con estética 00Y4n
         const embedFastPass = new EmbedBuilder()
-            .setTitle('🧡 FastPass de la Sesión 🧡')
-            .setDescription(`▬ El FastPass ha sido **liberado para la sesión**. Los miembros que adquirieron su pase de FastPass y el Equipo de Staff ya pueden unirse utilizando el botón de abajo.\n\n*Compartir este enlace resultará en la revocación permanente de tus permisos de FastPass.*\n\n➔ ¿Quieres unirte antes que el resto? Adquiere tu pase de **FastPass** correspondiente en el canal de beneficios del servidor.`)
+            .setTitle(`${EMOJIS.coraaMov} FastPass de la Sesión ${EMOJIS.coraaMov}`)
+            .setDescription(`${EMOJIS.flechaV} El FastPass ha sido **liberado para la sesión**. Los miembros que adquirieron su pase de FastPass y el Equipo de Staff ya pueden unirse utilizando el botón de abajo.\n\n*Compartir este enlace resultará en la revocación permanente de tus permisos de FastPass.*\n\n${EMOJIS.flechaH} ¿Quieres unirte antes que el resto? Adquiere tu pase de **FastPass** correspondiente en el canal de beneficios del servidor.`)
             .setColor('#ff6600'); // Tu naranja insignia
 
-        // 🖼️ Imagen por defecto si no suben ninguna en el comando
-const urlPredeterminada = 'https://cdn.discordapp.com/attachments/1505017301089652898/1515546631360086107/ChatGPT_Image_4_jun_2026_13_02_43.png?ex=6a34038a&is=6a32b20a&hm=025ab4671c00f6148be01fa70ea58828eccaae5b807d0994aa0a2f274f99b4f7&'; 
-embedFastPass.setImage(fotoAdjunta ? fotoAdjunta.url : urlPredeterminada);
+        // 🖼️ Imagen por defecto
+        const urlPredeterminada = 'https://cdn.discordapp.com/attachments/1505017301089652898/1515546631360086107/ChatGPT_Image_4_jun_2026_13_02_43.png?ex=6a3fe10a&is=6a3e8f8a&hm=50583c5a9ed9c868a04078af82ac1135f50798218139bd1d05e25b48e2403b34&'; 
+        embedFastPass.setImage(fotoAdjunta ? fotoAdjunta.url : urlPredeterminada);
 
-        // Botón gris estático para TitanBot
+        // Botón gris estático
         const filaComponentes = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('verificar_fastpass_swfl')
@@ -64,14 +71,14 @@ embedFastPass.setImage(fotoAdjunta ? fotoAdjunta.url : urlPredeterminada);
 
         await interaction.reply({ content: 'Lanzando el anuncio de FastPass restringido...', ephemeral: true });
 
-        // Enviamos las menciones de los roles juntas y abajo el Embed con el botón
+        // Enviamos las menciones y el embed
         const msgFastPass = await interaction.channel.send({ 
             content: mencionesRoles, 
             embeds: [embedFastPass], 
             components: [filaComponentes] 
         });
 
-        // Guardamos el link indexado por el ID de este mensaje
+        // Guardamos el link indexado
         global.coleccionFastPass.set(msgFastPass.id, linkSesion);
     }
 };
