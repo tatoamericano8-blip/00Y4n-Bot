@@ -54,7 +54,7 @@ export default {
         // Embed con estética 00Y4n
         const embedFastPass = new EmbedBuilder()
             .setTitle(`${EMOJIS.coraaMov} __FastPass de la Sesión__ ${EMOJIS.coraaMov}`)
-            .setDescription(`${EMOJIS.flechaV} El FastPass ha sido **liberado para la sesión**. Los miembros que adquirieron su pase de FastPass y el Equipo de Staff ya pueden unirse utilizando el botón de abajo.\n\n*Compartir este enlace resultará en la revocación permanente de tus permisos de FastPass.*\n\n<:si:1520905604720496843> ¿Quieres unirte antes que el resto? Adquiere tu pase de **FastPass** correspondiente en el canal de beneficios del servidor.`)
+            .setDescription(`${EMOJIS.flechaV} El FastPass ha sido **liberado para la sesión**. Los miembros que adquirieron su pase de FastPass y el Equipo de Staff ya pueden unirse utilizando el botón de abajo.\n\n*Compartir este enlace resultará en la revocación permanente de tus permisos de FastPass.*\n\n<a:si:1520905604720496843> ¿Quieres unirte antes que el resto? Adquiere tu pase de **FastPass** correspondiente en el canal de beneficios del servidor.`)
             .setColor('#ff6600'); // Tu naranja insignia
 
         // 🖼️ Imagen por defecto
