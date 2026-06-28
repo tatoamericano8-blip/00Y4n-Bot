@@ -59,7 +59,7 @@ export default {
                     `> <a:felc:1520905604720496843> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
                     `> <a:felc:1520905604720496843> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627)\n` +
                     `> <a:felc:1520905604720496843> Registra tus vehículos en <#1516832509222981864>!\n\n` +
-                    `> <a:felc:1520905604720496843> El host debe obtener **${reacciones}+** reacciones antes de comenzar.`
+                    `> <a:felc:1520905696697389227> El host debe obtener **${reacciones}+** reacciones antes de comenzar.`
                 )
                 .addFields(
                     { name: '> Límite de Velocidad (FRP)', value: `${dato1}`, inline: true },
