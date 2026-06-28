@@ -50,12 +50,12 @@ export default {
         const infoDescripcion = 
             `> ${EMOJIS.cirPunto} <@${interaction.user.id}> ¡ha lanzado su sesión! Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
             `**Antes de Unirte**\n\n` +
-            `> ${EMOJIS.flechaH} Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-            `> ${EMOJIS.flechaH} Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627).\n` +
-            `> ${EMOJIS.flechaH} Registra tus vehículos en <#1516832509222981864>!\n\n` +
+            `> <a:si:1520905604720496843> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+            `> <a:si:1520905604720496843> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627).\n` +
+            `> <a:si:1520905604720496843> Registra tus vehículos en <#1516832509222981864>!\n\n` +
             `**Información del Roleplay**\n\n` +
-            `> ${EMOJIS.star} **Estado de Peacetime:** ${peacetime}\n` +
-            `> ${EMOJIS.star} **Velocidad de Fail Roleplay:** ${limite}\n` +
+            `> <:star:1519475036283473980> **Estado de Peacetime:** ${peacetime}\n` +
+            `> <:dos:1519475057846521888> **Velocidad de Fail Roleplay:** ${limite}\n` +
             `> ${EMOJIS.flechaV} Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n\n` +
             `${EMOJIS.warn} *¡Cualquier miembro descubierto haciendo Fail Roleplay de forma excessive será expulsado inmediatamente de la sesión!*`;
 
