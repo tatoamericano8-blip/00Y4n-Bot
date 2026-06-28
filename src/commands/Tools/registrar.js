@@ -106,8 +106,8 @@ export default {
                 .setTitle('🗑️ SWFL | ANULACIÓN DE MATRICULA')
                 .setDescription(
                     `> Se ha revocado el permiso de circulación para el vehículo registrado con la siguiente placa:\n\n` +
-                    `• **Matrícula Removida:** \`${patente}\`\n` +
-                    `• **Solicitante:** <@${usuarioId}>\n\n` +
+                    `<:si:1519474590370500608> **Matrícula Removida:** \`${patente}\`\n` +
+                    `<:si:1519474590370500608> **Solicitante:** <@${usuarioId}>\n\n` +
                     `*Nota: Si vendiste el auto o cambiaste de patente, recuerda volver a usar el subcomando /matricula_swfl registrar.*`
                 )
                 .setColor('#ff6600')
