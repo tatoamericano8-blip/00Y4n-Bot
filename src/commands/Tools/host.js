@@ -40,9 +40,9 @@ export default {
 
         // Adaptación limpia con los términos Host y Co-Host
         if (tipo === 'host') {
-            textoTraducido = `<@${usuarioStaff.id}> ahora es el **Host** de la sesión actual. ¡Dirígete a este usuario si tienes alguna duda o inconveniente dentro del servidor!`;
+            textoTraducido = `<a:si:1519474823309426699> <@${usuarioStaff.id}> ahora es el **Host** de la sesión actual. ¡Dirígete a este usuario si tienes alguna duda o inconveniente dentro del servidor!`;
         } else if (tipo === 'cohost') {
-            textoTraducido = `<@${usuarioStaff.id}> ahora es **Co-Host** de la sesión actual. ¡Dirígete a este usuario si el host está ocupado o no se encuentra disponible!`;
+            textoTraducido = `<a:si:1519474823309426699> <@${usuarioStaff.id}> ahora es **Co-Host** de la sesión actual. ¡Dirígete a este usuario si el host está ocupado o no se encuentra disponible!`;
         }
 
         // Diseño minimalista idéntico a la imagen: sin títulos pesados, solo la barra naranja y el texto
