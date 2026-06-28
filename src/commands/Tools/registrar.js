@@ -71,12 +71,12 @@ export default {
                 .setTitle('📋 SWFL | FORMATO DE MATRICULACIÓN DE VEHÍCULOS')
                 .setDescription(
                     `> El siguiente vehículo ha sido cargado exitosamente en el sistema de patentes de la comunidad y se encuentra apto para circular.\n\n` +
-                    `• **Marca:** \`${marca}\`\n` +
-                    `• **Modelo:** \`${modelo}\`\n` +
-                    `• **Año:** \`${año}\`\n` +
-                    `• **Color:** \`${color}\`\n` +
-                    `• **Matrícula:** \`${patente}\`\n` +
-                    `• **Propietario:** <@${usuarioId}>`
+                    `<:si:1519474590370500608> **Marca:** \`${marca}\`\n` +
+                    `<:si:1519474590370500608> **Modelo:** \`${modelo}\`\n` +
+                    `<:si:1519474590370500608> **Año:** \`${año}\`\n` +
+                    `<:si:1519474590370500608> **Color:** \`${color}\`\n` +
+                    `<:si:1519474590370500608> **Matrícula:** \`${patente}\`\n` +
+                    `<:si:1519474590370500608> **Propietario:** <@${usuarioId}>`
                 )
                 .setColor('#ff6600')
                 .setFooter({ text: 'Sistema de Tránsito Oficial' })
