@@ -39,17 +39,17 @@ export default {
         const infoDescripcion = 
             `> ▬ <@${interaction.user.id}> **¡ha lanzado un Car Meet oficial!** Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
             `**<a:caram00y4nmov:1519474823309426699> Antes de Unirte**\n\n` +
-            `> <:00y4ncirpunto:1519474782117171392> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-            `> <:00y4ncirpunto:1519474782117171392> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627).\n\n` +
+            `> <a:si:1520905604720496843> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+            `> <a:si:1520905604720496843> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627).\n\n` +
             `**<a:caram00y4nmov:1519474823309426699> Información del Car Meet**\n\n` +
-            `<:FlechaHoriz00Y4n:1519474590370500608> **Temática del Meet:** ${tematica}\n` +
-            `<:FlechaHoriz00Y4n:1519474590370500608> **Lugar de Inicio:** ${ubicacion}\n` +
-            `<:FlechaHoriz00Y4n:1519474590370500608> **Spots / Duración:** ${spots}\n` +
-            `<:Flecha_00Y4n:1519473149845045400> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n\n` +
+            `<:uno:1519475036283473980> **Temática del Meet:** ${tematica}\n` +
+            `<:dos:1519475057846521888> **Lugar de Inicio:** ${ubicacion}\n` +
+            `<:tres:1519475081724825690> **Spots / Duración:** ${spots}\n` +
+            `<:cuatro:1519473149845045400> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n\n` +
             `➴ *¡Cualquier miembro descubierto haciendo Choque de vehículos o saboteando el orden será __expulsado__ e ingresará directo a la blacklist!*`;
 
         const embedRelease = new EmbedBuilder()
-            .setTitle('<a:caram00y4nmov:1519474823309426699> Southwest Florida – ***__Car Meet Sesión Lanzada__*** <a:caram00y4nmov:1519474823309426699>')
+            .setTitle('<a:caram00y4nmov:1519475012283666554> Southwest Florida – ***__Car Meet Sesión Lanzada__*** <a:caram00y4nmov:1519475012283666554>')
             .setDescription(infoDescripcion)
             .setColor('#ff6600');
 
