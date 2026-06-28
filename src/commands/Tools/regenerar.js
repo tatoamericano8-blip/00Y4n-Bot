@@ -41,10 +41,10 @@ export default {
         const fotoAdjunta = interaction.options.getAttachment('imagen');
 
         // Traducción exacta y pulida de image_df172e.png al español
-        const textoDescripcion = `• <@${usuarioStaff.id}> ha **regenerado el link de re-invitaciones (x${contador})**! Por favor, sean pacientes, ya que las próximas re-invitaciones se realizarán dentro de los próximos 30 minutes. Molestar al host para pedir el acceso resultará en un aislamiento (timeout).`;
+        const textoDescripcion = `<a:mov:1520905604720496843> <@${usuarioStaff.id}> ha **regenerado el link de re-invitaciones (x${contador})**! Por favor, sean pacientes, ya que las próximas re-invitaciones se realizarán dentro de los próximos 30 minutes. Molestar al host para pedir el acceso resultará en un aislamiento (timeout).`;
 
         const embedRegen = new EmbedBuilder()
-            .setTitle('⚙️ SWFL Roleplay | Link Regenerado ⚙️')
+            .setTitle('<a:si:1520905696697389227> SWFL Roleplay | Link Regenerado <a:si:1520905696697389227>')
             .setDescription(textoDescripcion)
             .setColor('#ff6600'); // Tu naranja insignia
 
