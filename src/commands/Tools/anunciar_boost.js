@@ -42,12 +42,12 @@ export default {
 
         // Armamos el Embed traducido y con la estética 00Y4n
         const embedBoost = new EmbedBuilder()
-            .setTitle(`${EMOJIS.star} 00Y4n SWFL | Notificación de Mejora ${EMOJIS.star}`)
-            .setDescription(`¡Gracias, <@${usuarioMencionado.id}>! ${EMOJIS.coraaMov}\n\n${EMOJIS.flechaH} ¡Has mejorado el servidor **${cantidadBoosts} ${cantidadBoosts === 1 ? 'vez' : 'veces'}**! Lo apreciamos muchísimo. Tu mejora ha sido registrada dentro de 00Y4n SWFL Roleplay, ¡y se han aplicado automáticamente tus beneficios de Booster según el total de mejoras!\n\n${EMOJIS.flechaV} *¿Tienes algún problema o te falta algún beneficio? ¡No dudes en abrir un ticket de asistencia si necesitas soporte adicional!*`)
+            .setTitle(`<a:soad:1520905633757397142> 00Y4n SWFL | Notificación de Mejora <a:soad:1520905633757397142>`)
+            .setDescription(`¡Gracias, <@${usuarioMencionado.id}>! ${EMOJIS.coraaMov}\n\n<a:si:1520905604720496843> ¡Has mejorado el servidor **${cantidadBoosts} ${cantidadBoosts === 1 ? 'vez' : 'veces'}**! Lo apreciamos muchísimo. Tu mejora ha sido registrada dentro de 00Y4n SWFL Roleplay, ¡y se han aplicado automáticamente tus beneficios de Booster según el total de mejoras!\n\n${EMOJIS.flechaV} *¿Tienes algún problema o te falta algún beneficio? ¡No dudes en abrir un ticket de asistencia si necesitas soporte adicional!*`)
             .setColor('#ff6600')
             // Ponemos la foto de perfil del usuario que boosteó como cuadrito (thumbnail)
             .setThumbnail(usuarioMencionado.displayAvatarURL({ dynamic: true, size: 512 }))
-            .setFooter({ text: '00Y4n SWFL Roleplay™', iconURL: interaction.guild.iconURL() });
+            .setFooter({ text: '00Y4n SWFL™', iconURL: interaction.guild.iconURL() });
 
         // Respondemos al Staff diciendo que el mensaje se envió
         await interaction.reply({ content: '✅ Anuncio de Boost enviado correctamente.', ephemeral: true });
