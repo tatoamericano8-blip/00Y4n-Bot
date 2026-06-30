@@ -54,7 +54,7 @@ export default {
 
         // Enviamos el mensaje al canal donde el Staff ejecutó el comando, mencionando al usuario
         await interaction.channel.send({ 
-            content: `¡Miren quién acaba de mejorar el servidor! <@${usuarioMencionado.id}> 🎉`, 
+            content: `> __**¡Miren quién acaba de mejorar el servidor! <@${usuarioMencionado.id}> 🎉**__`, 
             embeds: [embedBoost] 
         });
     }
