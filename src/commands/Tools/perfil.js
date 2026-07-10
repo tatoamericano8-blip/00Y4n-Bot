@@ -94,7 +94,7 @@ export default {
                 `⤷ *Para registrar una nueva unidad en tu garaje utiliza el comando \`/matricula_swfl registrar\` de forma pública.*`
             )
             .setThumbnail(fotoAvatar)
-            .setColor('#ff6600')
+            .setColor('#74d4fc')
             .setFooter({ text: `${interaction.guild.name}`, iconURL: interaction.guild.iconURL() })
             .setTimestamp();
 
@@ -121,9 +121,9 @@ export default {
             // Si no tiene autos registrados
             if (listaAutosActuales.length === 0) {
                 const embedVacio = new EmbedBuilder()
-                    .setTitle('📋 Vehículos Registrados')
+                    .setTitle('<:form:1523041319046479964> Vehículos Registrados')
                     .setDescription(`No se encontraron vehículos ni patentes activas registradas en el sistema para <@${targetId}>.`)
-                    .setColor('#ff6600')
+                    .setColor('#74d4fc')
                     .setFooter({ text: 'Sistema de Tránsito Oficial' });
 
                 return await botonInteraction.reply({ embeds: [embedVacio], ephemeral: true });
@@ -137,7 +137,7 @@ export default {
             ).join('\n\n');
 
             const embedConAutos = new EmbedBuilder()
-                .setTitle('📋 Vehículos Registrados')
+                .setTitle('<:form:1523041319046479964> Vehículos Registrados')
                 .setDescription(`Lista de vehículos activos en el sistema para <@${targetId}>:\n\n${stringAutos}`)
                 .setColor('#74d4fc')
                 .setFooter({ text: 'Sistema de Tránsito Oficial' });
