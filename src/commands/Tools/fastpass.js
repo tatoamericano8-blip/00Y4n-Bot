@@ -53,12 +53,12 @@ export default {
 
         // Embed con estética 00Y4n
         const embedFastPass = new EmbedBuilder()
-            .setTitle(`${EMOJIS.coraaMov} __FastPass de la Sesión__ ${EMOJIS.coraaMov}`)
-            .setDescription(`${EMOJIS.flechaV} El FastPass ha sido **liberado para la sesión**. Los miembros que adquirieron su pase de FastPass y el Equipo de Staff ya pueden unirse utilizando el botón de abajo.\n\n*Compartir este enlace resultará en la revocación permanente de tus permisos de FastPass.*\n\n<a:si:1520905604720496843> ¿Quieres unirte antes que el resto? Adquiere tu pase de **FastPass** correspondiente en el canal de beneficios del servidor.`)
-            .setColor('#ff6600'); // Tu naranja insignia
+            .setTitle(`<a:explosionfloral:1523026616098488320> __FastPass de la Sesión__ <a:explosionfloral:1523026616098488320>`)
+            .setDescription(`<:fle:1523028004983406787> El FastPass ha sido **liberado para la sesión**. Los miembros que adquirieron su pase de FastPass y el Equipo de Staff ya pueden unirse utilizando el botón de abajo.\n\n*Compartir este enlace resultará en la revocación permanente de tus permisos de FastPass.*\n\n<a:si:1523027371735777503> ¿Quieres unirte antes que el resto? Adquiere tu pase de **FastPass** correspondiente en el canal de beneficios del servidor.`)
+            .setColor('#74d4fc'); // Tu naranja insignia
 
         // 🖼️ Imagen por defecto
-        const urlPredeterminada = 'https://cdn.discordapp.com/attachments/1505017301089652898/1515546631360086107/ChatGPT_Image_4_jun_2026_13_02_43.png?ex=6a3fe10a&is=6a3e8f8a&hm=50583c5a9ed9c868a04078af82ac1135f50798218139bd1d05e25b48e2403b34&'; 
+        const urlPredeterminada = 'https://cdn.discordapp.com/attachments/1517331229303902432/1525177116084273272/FastPass_NUEVO23.png?ex=6a526f60&is=6a511de0&hm=ac83511b80f0b0987280ba286669fa9cb9dc0889a9ba75a06e4b6458754e3853'; 
         embedFastPass.setImage(fotoAdjunta ? fotoAdjunta.url : urlPredeterminada);
 
         // Botón gris estático
