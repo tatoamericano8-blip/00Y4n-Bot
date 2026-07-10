@@ -1,4 +1,10 @@
-import { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
+import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, PermissionFlagsBits } from 'discord.js';
+
+// --- DICCIONARIO DE EMOJIS (00Y4n) ---
+const EMOJIS = {
+    mov: '<a:mov:1520905604720496843>',
+    espe: '<a:espe:1520905696697389227>'
+};
 
 export default {
     data: {
@@ -27,7 +33,7 @@ export default {
     },
 
     async execute(interaction) {
-        // 🔒 SEGURIDAD: Solo los miembros del Staff con este permiso pueden tirar el aviso
+        // 🔒 SEGURIDAD: Solo el Staff puede usar este comando
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({ 
                 content: '❌ **No tienes permisos:** Solo el Staff puede anunciar la regeneración de links.', 
@@ -36,24 +42,46 @@ export default {
         }
 
         const contador = interaction.options.getInteger('contador');
-        // Si no se selecciona un usuario, el bot usa por defecto al que ejecutó el comando
         const usuarioStaff = interaction.options.getUser('usuario') || interaction.user;
         const fotoAdjunta = interaction.options.getAttachment('imagen');
 
-        // Adaptación impecable enfocada 100% en Car Meets
-        const textoDescripcion = `<a:mov:1520905604720496843> <@${usuarioStaff.id}> ha **regenerado el link del Car Meet (x${contador})**! Por favor, sean pacientes mientras se acomodan los cupos en el servidor. Molestar al host para pedir el acceso resultará en un aislamiento (timeout).`;
+        // 🔒 LÓGICA ANTI-LEAKS: Buscamos el último lanzamiento de Meet y bloqueamos su botón
+        const ultimoMsgId = global.ultimaSesionMeet;
+        if (ultimoMsgId) {
+            try {
+                const antiguoMsg = await interaction.channel.messages.fetch(ultimoMsgId);
+                if (antiguoMsg) {
+                    const componentesModificados = antiguoMsg.components.map(row => {
+                        const nuevaFila = ActionRowBuilder.from(row);
+                        nuevaFila.components.forEach(componente => {
+                            // Deshabilitamos el botón y cambiamos el texto a bloqueado
+                            componente.setDisabled(true);
+                            componente.setLabel('🔒 Link Regenerated');
+                        });
+                        return nuevaFila;
+                    });
+
+                    // Editamos el mensaje antiguo borrando el acceso
+                    await antiguoMsg.edit({ components: componentesModificados });
+                }
+            } catch (error) {
+                console.log('No se pudo editar el mensaje anterior (puede que haya pasado mucho tiempo o fue eliminado).');
+            }
+        }
+
+        // Armamos el Embed del nuevo aviso
+        const textoDescripcion = `${EMOJIS.mov} <@${usuarioStaff.id}> ha **regenerado el link del Car Meet (x${contador})**! Por favor, sean pacientes mientras se acomodan los cupos en el servidor. Molestar al host para pedir el acceso resultará en un aislamiento (timeout).`;
 
         const embedRegenMeet = new EmbedBuilder()
-            .setTitle('<a:espe:1520905696697389227> SWFL Car Meet | Link Regenerado <a:espe:1520905696697389227>')
+            .setTitle(`${EMOJIS.espe} SWFL Car Meet | Link Regenerado ${EMOJIS.espe}`)
             .setDescription(textoDescripcion)
-            .setColor('#ff6600'); // Tu naranja flama
+            .setColor('#ff6600');
 
         if (fotoAdjunta) embedRegenMeet.setImage(fotoAdjunta.url);
 
-        // Mensaje de confirmación oculto solo para vos
-        await interaction.reply({ content: 'Enviando el aviso de link de meet regenerado...', ephemeral: true });
+        await interaction.reply({ content: 'Modificando el botón anterior y enviando nuevo aviso...', ephemeral: true });
 
-        // Envía SOLO el embed limpio al canal, sin pings molestos
+        // Enviamos el aviso limpio al canal
         await interaction.channel.send({ embeds: [embedRegenMeet] });
     }
 };
