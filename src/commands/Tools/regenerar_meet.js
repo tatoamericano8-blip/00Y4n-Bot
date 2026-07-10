@@ -1,10 +1,4 @@
-import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, PermissionFlagsBits } from 'discord.js';
-
-// --- DICCIONARIO DE EMOJIS (00Y4n) ---
-const EMOJIS = {
-    mov: '<a:mov:1520905604720496843>',
-    espe: '<a:espe:1520905696697389227>'
-};
+import { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
 export default {
     data: {
@@ -33,7 +27,6 @@ export default {
     },
 
     async execute(interaction) {
-        // 🔒 SEGURIDAD: Solo el Staff puede usar este comando
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({ 
                 content: '❌ **No tienes permisos:** Solo el Staff puede anunciar la regeneración de links.', 
@@ -45,43 +38,46 @@ export default {
         const usuarioStaff = interaction.options.getUser('usuario') || interaction.user;
         const fotoAdjunta = interaction.options.getAttachment('imagen');
 
-        // 🔒 LÓGICA ANTI-LEAKS: Buscamos el último lanzamiento de Meet y bloqueamos su botón
-        const ultimoMsgId = global.ultimaSesionMeet;
-        if (ultimoMsgId) {
-            try {
-                const antiguoMsg = await interaction.channel.messages.fetch(ultimoMsgId);
-                if (antiguoMsg) {
-                    const componentesModificados = antiguoMsg.components.map(row => {
-                        const nuevaFila = ActionRowBuilder.from(row);
-                        nuevaFila.components.forEach(componente => {
-                            // Deshabilitamos el botón y cambiamos el texto a bloqueado
-                            componente.setDisabled(true);
-                            componente.setLabel('🔒 Link Regenerated');
-                        });
-                        return nuevaFila;
-                    });
+        // Aviso temporal mientras el bot trabaja en segundo plano
+        await interaction.reply({ content: '🔄 Modificando el botón anterior y enviando nuevo aviso...', ephemeral: true });
 
-                    // Editamos el mensaje antiguo borrando el acceso
-                    await antiguoMsg.edit({ components: componentesModificados });
-                }
-            } catch (error) {
-                console.log('No se pudo editar el mensaje anterior (puede que haya pasado mucho tiempo o fue eliminado).');
+        // 🔒 SISTEMA ANTI-LEAKS: Buscamos el anuncio viejo y destruimos su botón
+        try {
+            // Aumentamos a 100 mensajes para asegurarnos de encontrarlo sin importar el spam
+            const mensajesRecientes = await interaction.channel.messages.fetch({ limit: 100 });
+            
+            // Buscamos el último mensaje del bot que tenga cualquier tipo de componente (botón)
+            const ultimoAnuncioConBotones = mensajesRecientes.find(m => 
+                m.author.id === interaction.client.user.id && m.components && m.components.length > 0
+            );
+
+            if (ultimoAnuncioConBotones) {
+                // Creamos el nuevo botón gris deshabilitado con su ID único
+                const botonBloqueado = new ButtonBuilder()
+                    .setCustomId(`link_meet_bloqueado_${Date.now()}`)
+                    .setLabel('🔒 Link Regenerated')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(true);
+
+                const filaBloqueada = new ActionRowBuilder().addComponents(botonBloqueado);
+
+                // Forzamos la actualización de los componentes en Discord
+                await ultimoAnuncioConBotones.edit({ components: [filaBloqueada] });
             }
+        } catch (error) {
+            console.error('Error al intentar bloquear el botón viejo:', error);
         }
 
-        // Armamos el Embed del nuevo aviso
-        const textoDescripcion = `${EMOJIS.mov} <@${usuarioStaff.id}> ha **regenerado el link del Car Meet (x${contador})**! Por favor, sean pacientes mientras se acomodan los cupos en el servidor. Molestar al host para pedir el acceso resultará en un aislamiento (timeout).`;
+        // --- ENVIAR NUEVO ANUNCIO DE REGENERACIÓN ---
+        const textoDescripcion = `<a:mov:1520905604720496843> <@${usuarioStaff.id}> ha **regenerado el link del Car Meet (x${contador})**! Por favor, sean pacientes mientras se acomodan los cupos en el servidor. Molestar al host para pedir el acceso resultará en un aislamiento (timeout).`;
 
         const embedRegenMeet = new EmbedBuilder()
-            .setTitle(`${EMOJIS.espe} SWFL Car Meet | Link Regenerado ${EMOJIS.espe}`)
+            .setTitle('<a:espe:1520905696697389227> SWFL Car Meet | Link Regenerado <a:espe:1520905696697389227>')
             .setDescription(textoDescripcion)
             .setColor('#ff6600');
 
         if (fotoAdjunta) embedRegenMeet.setImage(fotoAdjunta.url);
 
-        await interaction.reply({ content: 'Modificando el botón anterior y enviando nuevo aviso...', ephemeral: true });
-
-        // Enviamos el aviso limpio al canal
         await interaction.channel.send({ embeds: [embedRegenMeet] });
     }
 };
