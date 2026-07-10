@@ -17,7 +17,7 @@ export default {
         const embedCount = new EmbedBuilder()
             .setTitle('Miembros')
             .setDescription(conteoFormateado)
-            .setColor('#ff6600') // Tu toque flama 00Y4n
+            .setColor('#74d4fc') // Tu toque flama 00Y4n
             .setTimestamp(); // Clava la hora exacta abajo igual que en la foto
 
         // Respondemos de forma pública para que todo el mundo vea el contador
