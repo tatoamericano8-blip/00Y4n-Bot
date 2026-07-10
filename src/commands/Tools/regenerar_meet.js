@@ -55,7 +55,7 @@ export default {
                 // Creamos el nuevo botón gris deshabilitado con su ID único
                 const botonBloqueado = new ButtonBuilder()
                     .setCustomId(`link_meet_bloqueado_${Date.now()}`)
-                    .setLabel('<:lock:1523041298796384418> Link Regenerado')
+                    .setLabel('🔒 Link Regenerado')
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(true);
 
