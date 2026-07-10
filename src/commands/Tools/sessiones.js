@@ -44,28 +44,28 @@ export default {
 
         // --- MAPEO DE EMOJIS CUSTOM (IDs Reales de tu servidor 00Y4n) ---
         const eCoraMov = '<a:Cora_Mov_00Y4n:1519473208334749716>'; // Animado para títulos
-        const ePunto   = '<:00y4ncirpunto:1519474782117171392>';    // Círculo/Punto naranja
+        const ePunto   = '<:00y4ncirpunto:1523041306836996156>';    // Círculo/Punto celeste
         const eFlechaH = '<:FlechaHoriz00Y4n:1519474590370500608>'; // Flecha horizontal naranja
         const eFlechaV = '<:Flecha_00Y4n:1519473149845045400>';     // Flecha curva naranja
-        const idTildeNaranja = '1519476900995666101';               // ID real de tu tilde naranja para las reacciones
+        const idTildeNaranja = '1524936452574806076';               // ID real de tu tilde naranja para las reacciones
 
         // Modificación estética basada de forma estricta en image_45c25c.png con estilo 00Y4n
         if (tipo === 'rp') {
             const embedRP = new EmbedBuilder()
-                .setTitle(`${eCoraMov} Southwest Florida - *_Roleplay Sesión Inicio_* ${eCoraMov}`)
+                .setTitle(`<a:mari:1523027011524624457> Southwest Florida - *_Roleplay Sesión Inicio_* <a:mari:1523027011524624457>`)
                 .setDescription(
                     `> ${ePunto} <@${interaction.user.id}> ¡está organizando una sesión de roleplay! Si tienes la intención de unirte, reacciona abajo con el emoji elegido por el host. ¡Si reaccionas sin unirte, podrías enfrentar consecuencias por parte del equipo de staff!\n\n` +
                     `**Antes de Unirte**\n\n` +
-                    `> <a:felc:1520905604720496843> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-                    `> <a:felc:1520905604720496843> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627)\n` +
-                    `> <a:felc:1520905604720496843> Registra tus vehículos en <#1516832509222981864>!\n\n` +
-                    `> <a:felc:1520905696697389227> El host debe obtener **${reacciones}+** reacciones antes de comenzar.`
+                    `> <:felc:1523041359441952970> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+                    `> <:felc:1523041359441952970> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1525190667545088225)\n` +
+                    `> <:felc:1523041359441952970> Registra tus vehículos en <#1505615426305130657>!\n\n` +
+                    `> <:felc:1523028004983406787> El host debe obtener **${reacciones}+** reacciones antes de comenzar.`
                 )
                 .addFields(
                     { name: '> Límite de Velocidad (FRP)', value: `${dato1}`, inline: true },
                     { name: '> Estado de Peacetime', value: `${dato2}`, inline: true }
                 )
-                .setColor('#ff6600');
+                .setColor('#74d4fc');
 
             if (urlImagen) embedRP.setImage(urlImagen);
 
@@ -80,21 +80,21 @@ export default {
 
         if (tipo === 'meet') {
             const embedMeet = new EmbedBuilder()
-                .setTitle(`${eCoraMov} Southwest Florida - *_Car Meet Sesión Inicio_* ${eCoraMov}`)
+                .setTitle(`<a:mari:1523027011524624457> Southwest Florida - *_Car Meet Sesión Inicio_* <a:mari:1523027011524624457>`)
                 .setDescription(
                     `> ${ePunto} <@${interaction.user.id}> ¡está organizando un car meet oficial! Si tienes la intención de unirte, reacciona abajo con el emoji elegido por el host. ¡Si reaccionas sin unirte, podrías enfrentar consecuencias por parte del equipo de staff!\n\n` +
                     `**Antes de Unirte**\n\n` +
-                    `> <a:felc:1520905604720496843> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-                    `> <a:felc:1520905604720496843> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627)\n` +
-                    `> <a:felc:1520905604720496843> Recuerda evitar colisiones con vehiculos y mantener el realismo!\n\n` +
-                    `> <a:felc:1520905604720496843> El host debe obtener **${reacciones}+** reacciones antes de comenzar.`
+                    `> <:felc:1523041359441952970> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+                    `> <:felc:1523041359441952970> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1525190667545088225)\n` +
+                    `> <:felc:1523041359441952970> Recuerda evitar colisiones con vehiculos y mantener el realismo!\n\n` +
+                    `> <:felc:1523028004983406787> El host debe obtener **${reacciones}+** reacciones antes de comenzar.`
                 )
                 .addFields(
                     { name: '> Temática del Meet', value: `${dato1}`, inline: false },
                     { name: '> Lugar de Inicio', value: `${dato2}`, inline: true },
                     { name: '> Spots / Duración', value: `${spots}`, inline: true }
                 )
-                .setColor('#ff6600');
+                .setColor('#74d4fc');
 
             if (urlImagen) embedMeet.setImage(urlImagen);
 
