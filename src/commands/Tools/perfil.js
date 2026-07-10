@@ -84,12 +84,12 @@ export default {
 
         // 4. ARMADO DEL EMBED PRINCIPAL (Corregido a: Perfil de Civil)
         const perfilEmbed = new EmbedBuilder()
-            .setTitle('🪪 Southwest Florida | *Perfil de Civil*')
+            .setTitle('<:seguro:1523041347869868253> Southwest Florida | *Perfil de Civil*')
             .setDescription(
                 `> Ficha de registro oficial del ciudadano dentro de nuestra base de datos de regulaciones de tránsito.\n\n` +
                 `• **Usuario:** <@${miembro.id}>\n` +
                 `• **Perfil de Roblox:** [${robloxUsername}](https://www.roblox.com/users/${robloxId}/profile)\n` +
-                `• **Estado de Licencia:** ✅ Activa\n` +
+                `• **Estado de Licencia:** <:tilde:1524936452574806076> Activa\n` +
                 `• **Vehículos Registrados:** \`${autosRegistrados.length}\`\n\n` +
                 `⤷ *Para registrar una nueva unidad en tu garaje utiliza el comando \`/matricula_swfl registrar\` de forma pública.*`
             )
@@ -139,7 +139,7 @@ export default {
             const embedConAutos = new EmbedBuilder()
                 .setTitle('📋 Vehículos Registrados')
                 .setDescription(`Lista de vehículos activos en el sistema para <@${targetId}>:\n\n${stringAutos}`)
-                .setColor('#ff6600')
+                .setColor('#74d4fc')
                 .setFooter({ text: 'Sistema de Tránsito Oficial' });
 
             return await botonInteraction.reply({ embeds: [embedConAutos], ephemeral: true });
