@@ -55,7 +55,7 @@ export default {
                 // Creamos el nuevo botón gris deshabilitado con su ID único
                 const botonBloqueado = new ButtonBuilder()
                     .setCustomId(`link_meet_bloqueado_${Date.now()}`)
-                    .setLabel('🔒 Link Regenerated')
+                    .setLabel('<:lock:1523041298796384418> Link Regenerado')
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(true);
 
@@ -69,12 +69,12 @@ export default {
         }
 
         // --- ENVIAR NUEVO ANUNCIO DE REGENERACIÓN ---
-        const textoDescripcion = `<a:mov:1520905604720496843> <@${usuarioStaff.id}> ha **regenerado el link del Car Meet (x${contador})**! Por favor, sean pacientes mientras se acomodan los cupos en el servidor. Molestar al host para pedir el acceso resultará en un aislamiento (timeout).`;
+        const textoDescripcion = `<a:mov:1523027371735777503> <@${usuarioStaff.id}> ha **regenerado el link del Car Meet (x${contador})**! Por favor, sean pacientes mientras se acomodan los cupos en el servidor. Molestar al host para pedir el acceso resultará en un aislamiento (timeout).`;
 
         const embedRegenMeet = new EmbedBuilder()
-            .setTitle('<a:espe:1520905696697389227> SWFL Car Meet | Link Regenerado <a:espe:1520905696697389227>')
+            .setTitle('<a:espe:1523026421512142899> SWFL Car Meet | Link Regenerado <a:espe:1523026421512142899>')
             .setDescription(textoDescripcion)
-            .setColor('#ff6600');
+            .setColor('#74d4fc');
 
         if (fotoAdjunta) embedRegenMeet.setImage(fotoAdjunta.url);
 
