@@ -43,7 +43,7 @@ export default {
         // Armamos el Embed traducido y con la estética 00Y4n
         const embedBoost = new EmbedBuilder()
             .setTitle(`<a:soad:1523026183028084768> 00Y4n SWFL | Notificación de Mejora <a:soad:1523026183028084768>`)
-            .setDescription(`¡Gracias, <@${usuarioMencionado.id}>! <a:cora:1523026545340449002>\n\n<a:si:1523027371735777503> ¡Has mejorado el servidor **${cantidadBoosts} ${cantidadBoosts === 1 ? 'vez' : 'veces'}**! Lo apreciamos muchísimo. Tu mejora ha sido registrada dentro de 00Y4n SWFL, ¡y se han aplicado automáticamente tus beneficios de Booster según el total de mejoras!\n\n$<:afa:1523028004983406787> *¿Tienes algún problema o te falta algún beneficio? ¡No dudes en abrir un ticket de asistencia si necesitas soporte adicional!*`)
+            .setDescription(`¡Gracias, <@${usuarioMencionado.id}>! <a:cora:1523026545340449002>\n\n<a:si:1523027371735777503> ¡Has mejorado el servidor **${cantidadBoosts} ${cantidadBoosts === 1 ? 'vez' : 'veces'}**! Lo apreciamos muchísimo. Tu mejora ha sido registrada dentro de 00Y4n SWFL, ¡y se han aplicado automáticamente tus beneficios de Booster según el total de mejoras!\n\n<:afa:1523028004983406787> *¿Tienes algún problema o te falta algún beneficio? ¡No dudes en abrir un ticket de asistencia si necesitas soporte adicional!*`)
             .setColor('#74d4fc')
             // Ponemos la foto de perfil del usuario que boosteó como cuadrito (thumbnail)
             .setThumbnail(usuarioMencionado.displayAvatarURL({ dynamic: true, size: 512 }))
