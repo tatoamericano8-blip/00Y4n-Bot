@@ -63,19 +63,19 @@ export default {
         // Armamos el listado interno clonando la traducción de image_d2469c.png
         let lineasBlacklist = '';
         listaUsuarios.forEach(u => {
-            lineasBlacklist += `<:punt:1519474782117171392> <@${u.id}> no podés volver a unirte a la sesión.\n`;
+            lineasBlacklist += `<:punt:1523041306836996156> <@${u.id}> no podés volver a unirte a la sesión.\n`;
         });
 
         // Si decidiste agregar un porqué, se los sumamos abajo
         if (motivo) {
-            lineasBlacklist += `\n> <:adv:1519476933988061295> **Razón de la Sanción:** ${motivo}`;
+            lineasBlacklist += `\n> <a:adv:1523027438030946446> **Razón de la Sanción:** ${motivo}`;
         }
 
         // Clonamos el formato limpio de la foto con tu naranja insignia
         const embedBlacklist = new EmbedBuilder()
-            .setTitle('<:cruz:1519476959606734998> Blacklist de la Sesión <:cruz:1519476959606734998>')
+            .setTitle('<:cruz:1523041302764191844> Blacklist de la Sesión <:cruz:1523041302764191844>')
             .setDescription(lineasBlacklist.trim())
-            .setColor('#ff6600')
+            .setColor('#74d4fc')
             .setTimestamp();
 
         // Confirmación privada para vos
