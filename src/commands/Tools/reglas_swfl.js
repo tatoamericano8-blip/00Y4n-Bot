@@ -20,7 +20,6 @@ export default {
         const eTilde     = '<:tilde00y4n:1519476900995666101>';
         const eStar      = '<:star00Y4n:1519474745320669194>';
         const eFlechaH   = '<:FlechaHoriz00Y4n:1519474590370500608>';
-        const eFlechaV   = '<:Flecha_00Y4n:1519473149845045400>';
         const eLink      = '<:link00y4n:1519476984932073482>';
 
         const embedReglas = new EmbedBuilder()
