@@ -231,7 +231,7 @@ export default {
 
             try {
                 const msgInicio = await interaction.channel.messages.fetch(sesion.idInicio);
-                const reaccionTilde = msgInicio.reactions.cache.get('<1523026579662307378>');
+                const reaccionTilde = msgInicio.reactions.cache.get('1523026579662307378');
 
                 let haVotado = false;
                 if (reaccionTilde) {
