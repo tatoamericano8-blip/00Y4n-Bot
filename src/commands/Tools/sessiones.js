@@ -47,7 +47,7 @@ export default {
         const ePunto   = '<:00y4ncirpunto:1523041306836996156>';    // Círculo/Punto celeste
         const eFlechaH = '<:FlechaHoriz00Y4n:1519474590370500608>'; // Flecha horizontal naranja
         const eFlechaV = '<:Flecha_00Y4n:1519473149845045400>';     // Flecha curva naranja
-        const idTildeNaranja = '1524936452574806076';               // ID real de tu tilde naranja para las reacciones
+        const idTildeNaranja = '<a:coraexplotando:1523026579662307378>';               // ID real de tu tilde naranja para las reacciones
 
         // Modificación estética basada de forma estricta en image_45c25c.png con estilo 00Y4n
         if (tipo === 'rp') {
