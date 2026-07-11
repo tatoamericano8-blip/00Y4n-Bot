@@ -1,8 +1,18 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import fs from 'fs';
 
-// Conexión con la base de datos en memoria
-global.baseDatosVehiculos = global.baseDatosVehiculos || new Map();
+// 📂 Conexión con la misma base de datos persistente
+const ARCHIVO_DB = './vehiculos_db.json';
 const BLOXLINK_API_KEY = 'e47f3929-9be2-4179-82b1-e53b4a9a6538'; 
+
+// Función para leer los datos guardados
+function leerBaseDatos() {
+    if (!fs.existsSync(ARCHIVO_DB)) {
+        fs.writeFileSync(ARCHIVO_DB, JSON.stringify({}));
+    }
+    const data = JSON.parse(fs.readFileSync(ARCHIVO_DB, 'utf-8'));
+    return new Map(Object.entries(data));
+}
 
 export default {
     data: {
@@ -79,10 +89,11 @@ export default {
             }
         } catch (err) {}
 
-        // Obtener la cantidad real de autos registrados para el perfil visual
-        const autosRegistrados = global.baseDatosVehiculos.get(miembro.id) || [];
+        // Leemos la base de datos física para obtener la cantidad real de autos
+        const baseDatosVehiculos = leerBaseDatos();
+        const autosRegistrados = baseDatosVehiculos.get(miembro.id) || [];
 
-        // 4. ARMADO DEL EMBED PRINCIPAL (Corregido a: Perfil de Civil)
+        // 4. ARMADO DEL EMBED PRINCIPAL
         const perfilEmbed = new EmbedBuilder()
             .setTitle('<:seguro:1523041347869868253> Southwest Florida | *Perfil de Civil*')
             .setDescription(
@@ -98,7 +109,7 @@ export default {
             .setFooter({ text: `${interaction.guild.name}`, iconURL: interaction.guild.iconURL() })
             .setTimestamp();
 
-        // 5. CREACIÓN DE BOTONERA (Se removió por completo el botón de multas)
+        // 5. CREACIÓN DE BOTONERA
         const botonera = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId(`regs_${miembro.id}`)
@@ -108,7 +119,7 @@ export default {
 
         const mensajePerfil = await interaction.editReply({ embeds: [perfilEmbed], components: [botonera] });
 
-        // 6. RECOLECTOR DE COMPONENTES INTERNO (EFÍMERO)
+        // 6. RECOLECTOR DE COMPONENTES INTERNO
         const recolector = mensajePerfil.createMessageComponentCollector({
             filter: (i) => i.customId.startsWith('regs_'),
             time: 600000
@@ -116,9 +127,11 @@ export default {
 
         recolector.on('collect', async (botonInteraction) => {
             const targetId = botonInteraction.customId.split('_')[1];
-            const listaAutosActuales = global.baseDatosVehiculos.get(targetId) || [];
+            
+            // Volvemos a leer de la DB física por si alguien registró mientras el botón estaba activo
+            const baseActualizada = leerBaseDatos();
+            const listaAutosActuales = baseActualizada.get(targetId) || [];
 
-            // Si no tiene autos registrados
             if (listaAutosActuales.length === 0) {
                 const embedVacio = new EmbedBuilder()
                     .setTitle('<:form:1523041319046479964> Vehículos Registrados')
@@ -129,7 +142,6 @@ export default {
                 return await botonInteraction.reply({ embeds: [embedVacio], ephemeral: true });
             }
 
-            // Si tiene autos, los mapeamos de forma ultra estética en bloque de cita
             const stringAutos = listaAutosActuales.map((auto, index) => 
                 `**${index + 1}. ${auto.marca} ${auto.modelo} (${auto.año})**\n` +
                 `> • Color: ${auto.color}\n` +
