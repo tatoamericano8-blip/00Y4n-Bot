@@ -11,8 +11,8 @@ const EMOJIS = {
     flechaV: '<:Flecha_00Y4n:1519473149845045400>',
     star: '<:star00y4n:1519474745320669194>',
     tilde: {
-        id: '1519476900995666101',
-        tag: '<:tilde00y4n:1519476900995666101>'
+        id: '1524936452574806076',
+        tag: '<:tilde00y4n:1524936452574806076>'
     },
     // Números estáticos
     n1: '<:100y4n:1519475036283473980>',
@@ -66,12 +66,12 @@ export default {
                 const embedSetup = new EmbedBuilder()
                     .setTitle(`${EMOJIS.circMov} Southwest Florida - *_Configuración de Sesión_* ${EMOJIS.circMov}`)
                     .setDescription(
-                        `> ${EMOJIS.cirPunto} <@${startup.hostId}> **ya está configurando el servidor para la sesión oficial de ${nombreSesion}!**\n\n` +
-                        `> ${EMOJIS.flechaH} El Staff, miembros con FastPass, colaboradores y el equipo de servicios publicos ya pueden ir ingresando utilizando el enlace de FastPass.\n\n` +
-                        `> ${EMOJIS.flechaH} Por favor, dale al host un lapso de hasta **10 minutos** para liberar la sesión por completo.\n\n` +
-                        `${EMOJIS.warn} **¡IMPORTANTE!** No molestes ni satures al host con mensajes privados o pings innecesarios durante este proceso. Espera pacientemente el anuncio oficial de apertura.`
+                        `> <:punto:1523041306836996156> <@${startup.hostId}> **ya está configurando el servidor para la sesión oficial de ${nombreSesion}!**\n\n` +
+                        `> <:flecha:1523041359441952970> El Staff, miembros con FastPass, colaboradores y el equipo de servicios publicos ya pueden ir ingresando utilizando el enlace de FastPass.\n\n` +
+                        `> <:replica:1523028004983406787> Por favor, dale al host un lapso de hasta **10 minutos** para liberar la sesión por completo.\n\n` +
+                        `<a:adv:1523027438030946446> **¡IMPORTANTE!** No molestes ni satures al host con mensajes privados o pings innecesarios durante este proceso. Espera pacientemente el anuncio oficial de apertura.`
                     )
-                    .setColor('#ff6600');
+                    .setColor('#74d4fc');
 
                 // Si se pasó un banner opcional al iniciar, lo inyectamos acá
                 if (startup.imagen) {
