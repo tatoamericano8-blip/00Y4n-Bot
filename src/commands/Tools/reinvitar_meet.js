@@ -65,13 +65,13 @@ export default {
 
         // Embed adaptado al español con estilo 00Y4n enfocado en Car Meets
         const embedReinviteMeet = new EmbedBuilder()
-            .setTitle('__<a:flor:1519474632917385296> SWFL Car Meet | Re-Invitación al Meet <a:flor:1519474632917385296>__')
-            .setDescription(`<:punto:1519474782117171392> ¡<@${interaction.user.id}> ha liberado las **re-invitaciones** para el Car Meet! Son más que bienvenidos a unirse utilizando el botón de abajo.\n\n*Asegúrense de traer vehículos que cumplan con la temática actual y respeten las zonas de estacionamiento fijadas.*`)
+            .setTitle('__<a:estrellasduo:1523026735719776388> SWFL Car Meet | Re-Invitación al Meet <a:estrellasduo:1523026735719776388>__')
+            .setDescription(`<:punto:1523041306836996156> ¡<@${interaction.user.id}> ha liberado las **re-invitaciones** para el Car Meet! Son más que bienvenidos a unirse utilizando el botón de abajo.\n\n*Asegúrense de traer vehículos que cumplan con la temática actual y respeten las zonas de estacionamiento fijadas.*`)
             .addFields(
-                { name: '<a:info:1519474823309426699> Información de la Juntada', value: `<a:fle:1520905604720496843> **Temática del Meet:** ${tematica}\n<a:fel:1520905604720496843> **Ubicación Actual:** ${ubicacion}\n<a:fele:1520905604720496843> **Estado del Servidor:** ${estado}`, inline: false }
+                { name: '<:info:1523041319046479964> Información de la Juntada', value: `<:fle:1523041359441952970> **Temática del Meet:** ${tematica}\n<:fel:1523041359441952970> **Ubicación Actual:** ${ubicacion}\n<:fele:1523041359441952970> **Estado del Servidor:** ${estado}`, inline: false }
             )
             .setFooter({ text: '🚗 Eviten hacer un car crash o molestar con el claxon para no ser expulsados.' })
-            .setColor('#ff6600'); // Tu naranja flama
+            .setColor('#74d4fc'); // Tu naranja flama
 
         if (fotoAdjunta) embedReinviteMeet.setImage(fotoAdjunta.url);
 
