@@ -231,7 +231,7 @@ export default {
 
             try {
                 const msgInicio = await interaction.channel.messages.fetch(sesion.idInicio);
-                const reaccionTilde = msgInicio.reactions.cache.get('<a:coraexplotando:1523026579662307378>');
+                const reaccionTilde = msgInicio.reactions.cache.get('<1523026579662307378>');
 
                 let haVotado = false;
                 if (reaccionTilde) {
@@ -241,7 +241,7 @@ export default {
 
                 if (!haVotado) {
                     return await interaction.reply({
-                        content: '<:cruz00y4n:1519476959606734998> **¡No has votado!** Primero debes dejar tu reacción con el tilde naranja en el mensaje de inicio de la sesión para poder acceder al link.',
+                        content: '<:cruz00y4n:1523041302764191844> **¡No has votado!** Primero debes dejar tu reacción con el tilde naranja en el mensaje de inicio de la sesión para poder acceder al link.',
                         ephemeral: true
                     });
                 }
@@ -268,7 +268,7 @@ export default {
             } catch (error) {
                 logger.error(`Error al verificar voto: ${error.message}`);
                 return await interaction.reply({
-                    content: '<:warn00y4n:1519476933988061295> **Error interno:** No se pudo comprobar tu voto. Asegúrate de que el Startup no haya sido eliminado.',
+                    content: '<:warn00y4n:1523041352714158240> **Error interno:** No se pudo comprobar tu voto. Asegúrate de que el Startup no haya sido eliminado.',
                     ephemeral: true
                 });
             }
