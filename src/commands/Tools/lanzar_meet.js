@@ -3,7 +3,7 @@ import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBui
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
 // 🖼️ URL DE LA IMAGEN PREDETERMINADA PARA CAR MEETS
-const IMAGEN_MEET_DEFECTO = 'https://cdn.discordapp.com/attachments/1505017301089652898/1515546632026849341/ChatGPT_Image_29_may_2026_22_32_14.png?ex=6a3fe10a&is=6a3e8f8a&hm=b6741ab53ba48b0b6412b696df662945476ed818e5e4a9ad18991e1cd7c41984&'; 
+const IMAGEN_MEET_DEFECTO = 'https://cdn.discordapp.com/attachments/1517331229303902432/1524843381740540034/Lanzamiento_CM_23NUEVO.png?ex=6a51e150&is=6a508fd0&hm=147ad177d52612dab13a5eeba74cec6be378cb6eeb1b19cd3df25492e7ab3d49&'; 
 
 export default {
     data: {
@@ -37,21 +37,21 @@ export default {
         const urlImagen = interaction.options.getString('imagen');
 
         const infoDescripcion = 
-            `> ▬ <@${interaction.user.id}> **¡ha lanzado un Car Meet oficial!** Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
-            `**<a:caram00y4nmov:1519474823309426699> Antes de Unirte**\n\n` +
-            `> <a:si:1520905604720496843> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-            `> <a:si:1520905604720496843> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627).\n\n` +
-            `**<a:caram00y4nmov:1519474823309426699> Información del Car Meet**\n\n` +
-            `<:uno:1519475036283473980> **Temática del Meet:** ${tematica}\n` +
-            `<:dos:1519475057846521888> **Lugar de Inicio:** ${ubicacion}\n` +
-            `<:tres:1519475081724825690> **Spots / Duración:** ${spots}\n` +
-            `<:cuatro:1519473149845045400> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n\n` +
+            `> <:punto:1523041306836996156> <@${interaction.user.id}> **¡ha lanzado un Car Meet oficial!** Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
+            `**<:caram00y4nmov:1523041315187855470> Antes de Unirte**\n\n` +
+            `> <a:si:1523027371735777503> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+            `> <a:si:1523027371735777503> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1452644461745148049/1524916351733469305).\n\n` +
+            `**<:caram00y4nmov:1523041315187855470> Información del Car Meet**\n\n` +
+            `<:uno:1523028217592676464> **Temática del Meet:** ${tematica}\n` +
+            `<:dos:1523027468385128568> **Lugar de Inicio:** ${ubicacion}\n` +
+            `<:tres:1523027610479759561> **Spots / Duración:** ${spots}\n` +
+            `<:flechareplica:1523028004983406787> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n\n` +
             `➴ *¡Cualquier miembro descubierto haciendo Choque de vehículos o saboteando el orden será __expulsado__ e ingresará directo a la blacklist!*`;
 
         const embedRelease = new EmbedBuilder()
-            .setTitle('<a:caram00y4nmov:1519475012283666554> Southwest Florida – ***__Car Meet Sesión Lanzada__*** <a:caram00y4nmov:1519475012283666554>')
+            .setTitle('<a:confeti:1523026892981145600> Southwest Florida – ***__Car Meet Sesión Lanzada__*** <a:confeti:1523026892981145600>')
             .setDescription(infoDescripcion)
-            .setColor('#ff6600');
+            .setColor('#74d4fc');
 
         if (urlImagen) {
             embedRelease.setImage(urlImagen);
@@ -64,7 +64,7 @@ export default {
                 .setCustomId('verificar_voto_swfl')
                 .setLabel('Link de la Sesión')
                 .setStyle(ButtonStyle.Primary)
-                .setEmoji('1519476984932073482')
+                .setEmoji('1524936452574806076')
         );
 
         await interaction.reply({ content: 'Liberando accesos del Car Meet...', ephemeral: true });
