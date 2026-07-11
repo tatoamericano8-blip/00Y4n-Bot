@@ -64,7 +64,7 @@ export default {
 
                 // Embed estructurado al estilo premium 00Y4n con tus nuevos emojis
                 const embedSetup = new EmbedBuilder()
-                    .setTitle(`${EMOJIS.circMov} Southwest Florida - *_Configuración de Sesión_* ${EMOJIS.circMov}`)
+                    .setTitle(`<a:circesperando:1523026487240954019> Southwest Florida - *_Configuración de Sesión_* <a:circesperando:1523026487240954019>`)
                     .setDescription(
                         `> <:punto:1523041306836996156> <@${startup.hostId}> **ya está configurando el servidor para la sesión oficial de ${nombreSesion}!**\n\n` +
                         `> <:flecha:1523041359441952970> El Staff, miembros con FastPass, colaboradores y el equipo de servicios publicos ya pueden ir ingresando utilizando el enlace de FastPass.\n\n` +
