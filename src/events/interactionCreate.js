@@ -246,18 +246,18 @@ export default {
                     });
                 }
 
-                let tituloEmbed = '<a:caram00y4nmov:1519474823309426699> Southwest Florida - *_Recordatorio de Sesión_* <a:caram00y4nmov:1519474823309426699>';
-                let descripcionEmbed = `> <:00y4ncirpunto:1519474782117171392> **Por favor, asegúrate de registrar tu(s) vehículo(s) en <#1516832509222981864>, ¡ya que podrías ser citado o recibir multas por parte de las Fuerzas del Orden!**\n\n**Enlace de la Sesión**\n> <:link00y4n:1519476984932073482> Haz clic [aquí](${sesion.linkSesion}) para unirte.`;
+                let tituloEmbed = '<a:caram00y4nmov:1523026579662307378> Southwest Florida - *_Recordatorio de Sesión_* <a:caram00y4nmov:1523026579662307378>';
+                let descripcionEmbed = `> <:00y4ncirpunto:1523041306836996156> **Por favor, asegúrate de registrar tu(s) vehículo(s) en <#1505615426305130657>, ¡ya que podrías ser citado o recibir multas por parte de las Fuerzas del Orden!**\n\n**Enlace de la Sesión**\n> <:link00y4n:1525310570041966682> Haz clic [aquí](${sesion.linkSesion}) para unirte.`;
 
                 if (sesion.tipo === 'meet') {
-                    tituloEmbed = '<a:caram00y4nmov:1519474823309426699> Southwest Florida - *_Enlace del Car Meet_* <a:caram00y4nmov:1519474823309426699>';
-                    descripcionEmbed = `> <:00y4ncirpunto:1519474782117171392> **¡Disfruta del Car Meet Oficial! Recuerda respetar las indicaciones del Staff, ingresar despacio a los spots y mantener una buena conducta.**\n\n**Enlace del Car Meet**\n> <:link00y4n:1519476984932073482> Haz clic [aquí](${sesion.linkSesion}) para unirte.`;
+                    tituloEmbed = '<a:caram00y4nmov:1523026579662307378> Southwest Florida - *_Enlace del Car Meet_* <a:caram00y4nmov:1523026579662307378>';
+                    descripcionEmbed = `> <:00y4ncirpunto:1523041306836996156> **¡Disfruta del Car Meet Oficial! Recuerda respetar las indicaciones del Staff, ingresar despacio a los spots y mantener una buena conducta.**\n\n**Enlace del Car Meet**\n> <:link00y4n:1525310570041966682> Haz clic [aquí](${sesion.linkSesion}) para unirte.`;
                 }
 
                 const embedLink = {
                     title: tituloEmbed,
                     description: descripcionEmbed,
-                    color: 0xff6600
+                    color: 0x74d4fc
                 };
 
                 return await interaction.reply({
