@@ -69,7 +69,7 @@ export default {
         }
 
         // --- ENVIAR NUEVO ANUNCIO DE REGENERACIÓN ---
-        const textoDescripcion = `<a:mov:1523027371735777503> <@${usuarioStaff.id}> ha **regenerado el link del Car Meet (x${contador})**! Por favor, sean pacientes mientras se acomodan los cupos en el servidor. Molestar al host para pedir el acceso resultará en un aislamiento (timeout).`;
+        const textoDescripcion = `<a:mov:1523027371735777503> <@${usuarioStaff.id}> ha **regenerado el link del Car Meet (x${contador})**! Por favor, sean pacientes ya que las próximas reinvitaciones serán dentro de 10-15 minutos. Molestar al host para pedir el acceso resultará en un aislamiento (timeout).`;
 
         const embedRegenMeet = new EmbedBuilder()
             .setTitle('<a:espe:1523026421512142899> SWFL Car Meet | Link Regenerado <a:espe:1523026421512142899>')
