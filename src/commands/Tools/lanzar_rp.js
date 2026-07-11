@@ -3,7 +3,7 @@ import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBui
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
 // URL DE LA IMAGEN PREDETERMINADA PARA ROLEPLAY
-const IMAGEN_RP_DEFECTO = 'https://cdn.discordapp.com/attachments/1505017301089652898/1515546633440329869/ChatGPT_Image_31_may_2026_20_26_33.png?ex=6a3fe10a&is=6a3e8f8a&hm=0d56b53821baaf230d874192f4c6e47963ac6653a94abf3e78988da463ceca1e&';
+const IMAGEN_RP_DEFECTO = 'https://cdn.discordapp.com/attachments/1517331229303902432/1524843450678116432/Lanzamiento_RP_2NUEVO3.png?ex=6a51e160&is=6a508fe0&hm=cca9367de3287bd9c34191f59eebbad3b96b48c58d266119050ed9f81b0182a2&';
 
 // --- DICCIONARIO COMPLETO DE EMOJIS CUSTOM (00Y4n) ---
 const EMOJIS = {
@@ -34,7 +34,7 @@ export default {
         // 🔒 SEGURIDAD: Bloqueo de Staff
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
-                content: `${EMOJIS.cruz} **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesión.`,
+                content: `<:cruz:1523041302764191844> **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesión.`,
                 ephemeral: true
             });
         }
@@ -48,21 +48,21 @@ export default {
 
         // Diseño visual Premium unificado
         const infoDescripcion = 
-            `> ${EMOJIS.cirPunto} <@${interaction.user.id}> ¡ha lanzado su sesión! Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
-            `**Antes de Unirte**\n\n` +
-            `> <a:si:1520905604720496843> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-            `> <a:si:1520905604720496843> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516833571883585627).\n` +
-            `> <a:si:1520905604720496843> Registra tus vehículos en <#1516832509222981864>!\n\n` +
-            `**Información del Roleplay**\n\n` +
-            `> <:star:1519475036283473980> **Estado de Peacetime:** ${peacetime}\n` +
-            `> <:dos:1519475057846521888> **Velocidad de Fail Roleplay:** ${limite}\n` +
-            `> ${EMOJIS.flechaV} Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n\n` +
-            `${EMOJIS.warn} *¡Cualquier miembro descubierto haciendo Fail Roleplay de forma excessive será expulsado inmediatamente de la sesión!*`;
+            `> <:punto:1523041306836996156> <@${interaction.user.id}> ¡ha lanzado su sesión! Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
+            ` <:flor:1523041315187855470> **Antes de Unirte**\n\n` +
+            `> <:fle:1523041359441952970> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+            `> <:fle:1523041359441952970> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1525190667545088225).\n` +
+            `> <:fle:1523041359441952970> Registra tus vehículos en <#1505615426305130657>!\n\n` +
+            ` <:flor:1523041315187855470> **Información del Roleplay**\n\n` +
+            `> <:uno:1523028217592676464> **Estado de Peacetime:** ${peacetime}\n` +
+            `> <:dos:1523027468385128568> **Velocidad de Fail Roleplay:** ${limite}\n` +
+            `> <:replica:1523028004983406787> Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n\n` +
+            `<a:adv:1523027438030946446> *¡Cualquier miembro descubierto haciendo Fail Roleplay de forma excessive será expulsado inmediatamente de la sesión!*`;
 
         const embedRelease = new EmbedBuilder()
-            .setTitle(`${EMOJIS.coraMov} Southwest Florida - *_Roleplay Sesión Lanzada_* ${EMOJIS.coraMov}`)
+            .setTitle(`<a:confeti:1523026892981145600> Southwest Florida - *_Roleplay Sesión Lanzada_* <a:confeti:1523026892981145600>`)
             .setDescription(infoDescripcion)
-            .setColor('#ff6600');
+            .setColor('#74d4fc');
 
         if (urlImagen) {
             embedRelease.setImage(urlImagen);
@@ -75,7 +75,7 @@ export default {
                 .setCustomId('verificar_voto_swfl')
                 .setLabel('Link de la Sesión')
                 .setStyle(ButtonStyle.Primary)
-                .setEmoji('1519476984932073482') // ID de tu emoji estático de enlace
+                .setEmoji('1524936452574806076') // ID de tu emoji estático de enlace
         );
 
         await interaction.reply({ content: 'Liberando accesos de Roleplay...', ephemeral: true });
