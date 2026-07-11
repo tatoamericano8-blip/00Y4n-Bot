@@ -224,14 +224,14 @@ export default {
             const sesion = global.coleccionSesiones?.get(interaction.message.id);
             if (!sesion) {
                 return await interaction.reply({
-                    content: '<:cruz00y4n:1519476959606734998> **Error:** No se encontraron los registros de esta sesión en la memoria.',
+                    content: '<:cruz00y4n:1523041302764191844> **Error:** No se encontraron los registros de esta sesión en la memoria.',
                     ephemeral: true
                 });
             }
 
             try {
                 const msgInicio = await interaction.channel.messages.fetch(sesion.idInicio);
-                const reaccionTilde = msgInicio.reactions.cache.get('1519476900995666101');
+                const reaccionTilde = msgInicio.reactions.cache.get('1524936452574806076');
 
                 let haVotado = false;
                 if (reaccionTilde) {
