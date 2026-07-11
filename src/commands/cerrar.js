@@ -30,6 +30,12 @@ export default {
                 required: true
             },
             {
+                name: 'notas',
+                description: 'Añade un comentario final o nota sobre la sesión (opcional).',
+                type: ApplicationCommandOptionType.String,
+                required: false
+            },
+            {
                 name: 'imagen',
                 description: 'Sube la foto o banner de la sesión finalizada (opcional).',
                 type: ApplicationCommandOptionType.Attachment,
@@ -40,18 +46,19 @@ export default {
 
     async execute(interaction) {
         // --- PEGA AQUÍ EL LINK DE TU IMAGEN PREDETERMINADA ---
-        const URL_IMAGEN_DEFAULT = 'https://cdn.discordapp.com/attachments/1505017301089652898/1515546634128457818/session_terminada_00y4n.png?ex=6a3fe10b&is=6a3e8f8b&hm=48d151b6e43796fbe3d66329f18bbab5fbd16c6e583158622c25a3cbe938e0a4&';
+        const URL_IMAGEN_DEFAULT = 'https://cdn.discordapp.com/attachments/1517331229303902432/1524843452494381146/Sesion_Concluida_NUEVO2_1.png?ex=6a51e161&is=6a508fe1&hm=3393d2fe56fe1b5bacafa4f3f227096598fa915b8c1976c7994e49c4ca5c2760&';
 
         const tipo = interaction.options.getString('tipo');
         const duracion = interaction.options.getString('duracion');
+        const notasHost = interaction.options.getString('notas') || 'Sin notas adicionales.';
         const fotoAdjunta = interaction.options.getAttachment('imagen');
 
-        const titulo = tipo === 'rp' ? `${EMOJIS.coraaMov} SWFL Roleplay | Sesión Finalizada ${EMOJIS.coraaMov}` : `${EMOJIS.coraaMov} SWFL Meet | Sesión Finalizada ${EMOJIS.coraaMov}`;
+        const titulo = tipo === 'rp' ? `<a:cadenacora:1523026520740724859> SWFL Roleplay | Sesión Concluida <a:cadenacora:1523026520740724859>` : `<a:cadenacora:1523026520740724859> SWFL Meet | Sesión Concluida <a:cadenacora:1523026520740724859>`;
 
         const embedCierre = new EmbedBuilder()
             .setTitle(titulo)
-            .setDescription(`La sesión ha concluido oficialmente. ¡Muchísimas gracias a todos los que asistieron, respetaron las reglas y compartieron un buen rato con sus naves! 🚗💨\n\n${EMOJIS.flechaV} **Anfitrión:** <@${interaction.user.id}>\n${EMOJIS.flechaV} **Duración Total:** ${duracion}`)
-            .setColor('#ff6600');
+            .setDescription(`<:puntderecha:1523027978123087922> La sesión ha concluido oficialmente. ¡Muchísimas gracias a todos los que asistieron, respetaron las reglas y compartieron un buen rato con sus naves! <:vehiculos:1525172179279282326>\n\n<:fle:1523041359441952970> **Anfitrión:** <@${interaction.user.id}>\n<:fle:1523041359441952970> **Duración Total:** ${duracion}\n<:fle:1523041359441952970> **Notas:** ${notasHost}`)
+            .setColor('#74d4fc');
 
         // Lógica: Usa la foto subida, si no, usa la predeterminada
         if (fotoAdjunta) {
