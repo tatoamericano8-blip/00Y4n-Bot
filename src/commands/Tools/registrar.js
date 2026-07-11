@@ -50,7 +50,7 @@ export default {
             const LIMITE_MAXIMO = 4; 
             if (misAutos.length >= LIMITE_MAXIMO) {
                 return await interaction.reply({
-                    content: `❌ **Límite alcanzado:** Ya tienes el máximo de **${LIMITE_MAXIMO}** vehículos registrados en tu perfil.\n\n*Si quieres registrar una nueva unidad, primero debes dar de baja alguna de tus patentes actuales usando \`/matricula_swfl remover\`.*`,
+                    content: `<:cruz:1523041302764191844> **Límite alcanzado:** Ya tienes el máximo de **${LIMITE_MAXIMO}** vehículos registrados en tu perfil.\n\n*Si quieres registrar una nueva unidad, primero debes dar de baja alguna de tus patentes actuales usando \`/matricula_swfl remover\`.*`,
                     ephemeral: true
                 });
             }
@@ -58,7 +58,7 @@ export default {
             // Evitar que registre dos veces la misma patente
             if (misAutos.some(auto => auto.patente === patente)) {
                 return await interaction.reply({
-                    content: `❌ Ya tienes un vehículo registrado con la matrícula \`${patente}\`.`,
+                    content: `<:cruz:1523041302764191844> Ya tienes un vehículo registrado con la matrícula \`${patente}\`.`,
                     ephemeral: true
                 });
             }
@@ -68,17 +68,17 @@ export default {
             global.baseDatosVehiculos.set(usuarioId, misAutos);
 
             const embedRegistro = new EmbedBuilder()
-                .setTitle('📋 SWFL | FORMATO DE MATRICULACIÓN DE VEHÍCULOS')
+                .setTitle('<:seguro:1523041347869868253> SWFL | FORMATO DE MATRICULACIÓN DE VEHÍCULOS <:seguro:1523041347869868253>')
                 .setDescription(
-                    `> El siguiente vehículo ha sido cargado exitosamente en el sistema de patentes de la comunidad y se encuentra apto para circular.\n\n` +
-                    `<:si:1519474590370500608> **Marca:** \`${marca}\`\n` +
-                    `<:si:1519474590370500608> **Modelo:** \`${modelo}\`\n` +
-                    `<:si:1519474590370500608> **Año:** \`${año}\`\n` +
-                    `<:si:1519474590370500608> **Color:** \`${color}\`\n` +
-                    `<:si:1519474590370500608> **Matrícula:** \`${patente}\`\n` +
-                    `<:si:1519474590370500608> **Propietario:** <@${usuarioId}>`
+                    `> <:punto:1523041306836996156> El siguiente vehículo ha sido cargado exitosamente en el sistema de patentes de la comunidad y se encuentra apto para circular.\n\n` +
+                    `<:si:1523041359441952970> **Marca:** \`${marca}\`\n` +
+                    `<:si:1523041359441952970> **Modelo:** \`${modelo}\`\n` +
+                    `<:si:1523041359441952970> **Año:** \`${año}\`\n` +
+                    `<:si:1523041359441952970> **Color:** \`${color}\`\n` +
+                    `<:si:1523041359441952970> **Matrícula:** \`${patente}\`\n` +
+                    `<:si:1523041359441952970> **Propietario:** <@${usuarioId}>`
                 )
-                .setColor('#ff6600')
+                .setColor('#74d4fc')
                 .setFooter({ text: 'Sistema de Tránsito Oficial' })
                 .setTimestamp();
 
@@ -93,7 +93,7 @@ export default {
             const existe = misAutos.some(auto => auto.patente === patente);
             if (!existe) {
                 return await interaction.reply({
-                    content: `❌ No posees ningún vehículo registrado bajo la matrícula \`${patente}\`.`,
+                    content: `<:cruz:1523041302764191844> No posees ningún vehículo registrado bajo la matrícula \`${patente}\`.`,
                     ephemeral: true
                 });
             }
@@ -103,14 +103,14 @@ export default {
             global.baseDatosVehiculos.set(usuarioId, misAutos);
 
             const embedRemover = new EmbedBuilder()
-                .setTitle('🗑️ SWFL | ANULACIÓN DE MATRICULA')
+                .setTitle('<:no:1523041304911544502> SWFL | ANULACIÓN DE MATRICULA <:no:1523041304911544502>')
                 .setDescription(
                     `> Se ha revocado el permiso de circulación para el vehículo registrado con la siguiente placa:\n\n` +
-                    `<:si:1519474590370500608> **Matrícula Removida:** \`${patente}\`\n` +
-                    `<:si:1519474590370500608> **Solicitante:** <@${usuarioId}>\n\n` +
+                    `<:si:1523041359441952970> **Matrícula Removida:** \`${patente}\`\n` +
+                    `<:si:1523041359441952970> **Solicitante:** <@${usuarioId}>\n\n` +
                     `*Nota: Si vendiste el auto o cambiaste de patente, recuerda volver a usar el subcomando /matricula_swfl registrar.*`
                 )
-                .setColor('#ff6600')
+                .setColor('#74d4fc')
                 .setFooter({ text: 'Bajas del Sistema de Tránsito' })
                 .setTimestamp();
 
