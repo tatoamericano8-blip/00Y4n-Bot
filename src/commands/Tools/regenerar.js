@@ -64,7 +64,7 @@ export default {
         }
 
         // --- ENVIAR NUEVO ANUNCIO DE REGENERACIÓN ---
-        const textoDescripcion = `<a:mov:1523027371735777503> <@${usuarioStaff.id}> ha **regenerado el link de re-invitaciones (x${contador})**! Por favor, sean pacientes, ya que las próximas re-invitaciones se realizarán dentro de los próximos 30 minutos. Molestar al host para pedir el acceso resultará en un aislamiento (timeout).`;
+        const textoDescripcion = `<a:mov:1523027371735777503> <@${usuarioStaff.id}> ha **regenerado el link de re-invitaciones (x${contador})**! Por favor, sean pacientes, ya que las próximas re-invitaciones se realizarán dentro de los próximos 10-15 minutos. Molestar al host para pedir el acceso resultará en un aislamiento (timeout).`;
 
         const embedRegen = new EmbedBuilder()
             .setTitle('<a:si:1523026421512142899> SWFL Roleplay | Link Regenerado <a:si:1523026421512142899>')
