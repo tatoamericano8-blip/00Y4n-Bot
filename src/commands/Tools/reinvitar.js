@@ -97,7 +97,7 @@ export default {
             .addFields(
                 { name: '<:info:1523041319046479964> Información del Roleplay', value: `<a:movfle:1523027371735777503> **Estado del Peacetime:** ${peacetime}\n<a:movfle:1523027371735777503> **Velocidad de Fail Roleplay (FRP):** ${frp}\n<a:movfle:1523027371735777503> **Aplicación de la Ley (S/P):** ${ley}`, inline: false }
             )
-            .setFooter({ text: '<:car:1523041347869868253> Las paradas de tránsito se ejecutan superando el límite establecido.' })
+            .setFooter({ text: 'Las paradas de tránsito se ejecutan superando el límite establecido.' })
             .setColor('#74d4fc');
 
         // 🖼️ LÓGICA DE IMAGEN: Si el usuario sube una foto usa esa, sino, pone la predeterminada "Reinvitaciones_NUEVO23.png"
