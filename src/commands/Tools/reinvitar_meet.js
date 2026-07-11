@@ -65,7 +65,7 @@ export default {
         // Embed adaptado al español con estilo 00Y4n enfocado en Car Meets
         const embedReinviteMeet = new EmbedBuilder()
             .setTitle('__<a:estrellasduo:1523026735719776388> SWFL Car Meet | Re-Invitación al Meet <a:estrellasduo:1523026735719776388>__')
-            .setDescription(`<:punto:1523041306836996156> ¡<@${interaction.user.id}> ha liberado las **re-invitaciones** para el Car Meet! Son más que bienvenidos a unirse utilizando el botón de abajo.\n\n*Asegúrense de traer vehículos que cumplan con la temática actual y respeten las zonas de estacionamiento fijadas.*`)
+            .setDescription(`<:punto:1523041306836996156> ¡<@${interaction.user.id}> ha liberado las **re-invitaciones** para el Car Meet! Son más que bienvenidos a unirse utilizando el botón de abajo.\n\n<:replica:1523028004983406787> *Asegúrense de traer vehículos que cumplan con la temática actual y respeten las zonas de estacionamiento fijadas.*`)
             .addFields(
                 { name: '<:info:1523041319046479964> Información de la Juntada', value: `<:fle:1523041359441952970> **Temática del Meet:** ${tematica}\n<:fel:1523041359441952970> **Ubicación Actual:** ${ubicacion}\n<:fele:1523041359441952970> **Estado del Servidor:** ${estado}`, inline: false }
             )
