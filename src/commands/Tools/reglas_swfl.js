@@ -24,25 +24,25 @@ export default {
         const eLink      = '<:link00y4n:1519476984932073482>';
 
         const embedReglas = new EmbedBuilder()
-            .setTitle(`${eCoraMov} Reglas de la sesión, vigentes de inmediato. ${eCoraMov}`)
+            .setTitle(`<a:nubes:1523026923696165075> Reglas de la sesión, vigentes de inmediato. <a:nubes:1523026923696165075>`)
             .setDescription(
-                `${ePunto} **Si chocas**, __detente y comparte__ la información. Simplemente escribe algo como "-_intercambio_-" en el chat y luego podrás continuar.\n\n` +
-                `${eCruz} Conducir de **forma temeraria** resultará en la expulsión inmediata del juego. Asegúrate de conducir de forma realista y sensata en __todo__ momento.\n\n` +
-                `${eWarn} Está prohibido exceder el **límite de velocidad**. Debes respetar las señales del juego y, si te pillan superando el límite de velocidad permitido, serás expulsado inmediatamente.\n\n` +
-                `${eTilde} Debes __activar__ las **colisiones de vehículos**. Para ello, ve a Ajustes > Vehículo > Colisiones de vehículos y _actívalas_. Si no lo haces, serás _expulsado inmediatamente_ del juego.\n\n` +
-                `${eCruz} No se permiten **vehículos prohibidos**. Sin embargo, si un miembro del equipo te indica que cambies de vehículo, hazlo. Si no sigues las instrucciones del equipo, serás expulsado inmediatamente de la sesión.`
+                `<:punto:1523041306836996156> **Si chocas**, __detente y comparte__ la información. Simplemente escribe algo como "-_intercambio_-" en el chat y luego podrás continuar.\n\n` +
+                `<:cruz:1523041302764191844> Conducir de **forma temeraria** resultará en la expulsión inmediata del juego. Asegúrate de conducir de forma realista y sensata en __todo__ momento.\n\n` +
+                `<:warn:1523041352714158240> Está prohibido exceder el **límite de velocidad**. Debes respetar las señales del juego y, si te pillan superando el límite de velocidad permitido, serás expulsado inmediatamente.\n\n` +
+                `<:tilde:1524936452574806076> Debes __activar__ las **colisiones de vehículos**. Para ello, ve a Ajustes > Vehículo > Colisiones de vehículos y _actívalas_. Si no lo haces, serás _expulsado inmediatamente_ del juego.\n\n` +
+                `<:cruz:1523041302764191844> No se permiten **vehículos prohibidos**. Sin embargo, si un miembro del equipo te indica que cambies de vehículo, hazlo. Si no sigues las instrucciones del equipo, serás expulsado inmediatamente de la sesión.`
             )
             .addFields(
                 {
-                    name: `${eStar} Normativa de Generación de Vehículos`,
-                    value: `> ${eFlechaH} Solo puedes generar tus vehículos en el concesionario, tu casa, la casa de un amigo o tu trabajo. El incumplimiento de estas reglas conllevará una infracción o restricción.`
+                    name: `<:trato:1523041354844864552> Normativa de Generación de Vehículos`,
+                    value: `> <:replica:1523028004983406787> Solo puedes generar tus vehículos en el concesionario, tu casa, la casa de un amigo o tu trabajo. El incumplimiento de estas reglas conllevará una infracción o restricción.`
                 },
                 {
-                    name: `${eLink} Grupo de Roblox Requerido`,
-                    value: `> ${eFlechaV} **Todos** los usuarios deben unirse a nuestro grupo de Roblox antes de participar en una sesión de rol. ¡[Comunidad de Roblox 00Y4n](${linkComunidad})!`
+                    name: `<:hyperlink:1525310570041966682> Grupo de Roblox Requerido`,
+                    value: `> <:replica:1523028004983406787> **Todos** los usuarios deben unirse a nuestro grupo de Roblox antes de participar en una sesión de rol. ¡[Comunidad de Roblox 00Y4n](${linkComunidad})!`
                 }
             )
-            .setColor('#ff6600') // Color naranja característico
+            .setColor('#74d4fc') // Color naranja característico
             .setFooter({ 
                 text: `${interaction.guild.name} | Normas Oficiales`, 
                 iconURL: interaction.guild.iconURL() 
