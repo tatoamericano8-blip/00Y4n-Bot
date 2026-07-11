@@ -34,7 +34,7 @@ export default {
             .addFields(
                 {
                     name: `<:trato:1523041354844864552> Normativa de Generación de Vehículos`,
-                    value: `> <:replica:1523028004983406787> Solo puedes generar tus vehículos en el concesionario, tu casa, la casa de un amigo o tu trabajo. El incumplimiento de estas reglas conllevará una infracción o restricción.`
+                    value: `> <:replica:1523028004983406787> Solo puedes generar tus vehículos en el spawn, tu casa, la casa de un amigo o tu trabajo. El incumplimiento de estas reglas conllevará una infracción o restricción.`
                 },
                 {
                     name: `<:hyperlink:1525310570041966682> Grupo de Roblox Requerido`,
