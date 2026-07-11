@@ -92,7 +92,7 @@ export default {
 
         // Embed adaptado al español con estilo 00Y4n y color celestito
         const embedReinvite = new EmbedBuilder()
-            .setTitle(`<a:coramov:1523026647887122515> SWFL Roleplay | Re-Invitación a la Sesión <a:coramov:1523026647887122515>`)
+            .setTitle(`<a:coramov:1523026647887122515> __SWFL Roleplay | Re-Invitación a la Sesión__ <a:coramov:1523026647887122515>`)
             .setDescription(`<:flecha:1523041359441952970> ¡<@${interaction.user.id}> ha liberado las **re-invitaciones** para su sesión! Son más que bienvenidos a unirse utilizando el botón de abajo.\n\n<:replica:1523028004983406787> *Antes de ingresar a la sesión, asegúrense de haber leído la información detallada aquí abajo respecto al estado del juego.*`)
             .addFields(
                 { name: '<:info:1523041319046479964> Información del Roleplay', value: `<a:movfle:1523027371735777503> **Estado del Peacetime:** ${peacetime}\n<a:movfle:1523027371735777503> **Velocidad de Fail Roleplay (FRP):** ${frp}\n<a:movfle:1523027371735777503> **Aplicación de la Ley (S/P):** ${ley}`, inline: false }
