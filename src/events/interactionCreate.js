@@ -241,7 +241,7 @@ export default {
 
                 if (!haVotado) {
                     return await interaction.reply({
-                        content: '<:cruz00y4n:1523041302764191844> **¡No has votado!** Primero debes dejar tu reacción con el tilde naranja en el mensaje de inicio de la sesión para poder acceder al link.',
+                        content: '<:cruz00y4n:1523041302764191844> **¡No has votado!** Primero debes dejar tu reacción en el mensaje de inicio de la sesión para poder acceder al link.',
                         ephemeral: true
                     });
                 }
