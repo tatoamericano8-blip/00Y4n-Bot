@@ -11,8 +11,8 @@ const EMOJIS = {
     flechaV: '<:Flecha_00Y4n:1519473149845045400>',
     star: '<:star00y4n:1519474745320669194>',
     tilde: {
-        id: '1519476900995666101',
-        tag: '<:tilde00y4n:1519476900995666101>'
+        id: '1524936452574806076',
+        tag: '<:tilde00y4n:1524936452574806076>'
     },
     // Números estáticos
     n1: '<:100y4n:1519475036283473980>',
@@ -32,7 +32,6 @@ const EMOJIS = {
 global.coleccionReinvites = global.coleccionReinvites || new Map();
 
 // 🆔 CONFIGURACIÓN DEL ROL ADICIONAL 
-// (Pegá acá la ID del rol que querés mencionar junto a @everyone, ej: Civiles, Rol de Avisos, etc.)
 const ROL_ADICIONAL_ID = '1503763201274413056'; 
 
 export default {
@@ -91,19 +90,24 @@ export default {
         // Armamos el texto de mención combinando @everyone con la ID de tu rol
         const mencionCompleta = `@everyone <@&${ROL_ADICIONAL_ID}>`;
 
-        // Embed adaptado al español con estilo 00Y4n y color naranja
+        // Embed adaptado al español con estilo 00Y4n y color celestito
         const embedReinvite = new EmbedBuilder()
-            .setTitle(`${EMOJIS.caramMov} SWFL Roleplay | Re-Invitación a la Sesión ${EMOJIS.caramMov}`)
-            .setDescription(`${EMOJIS.flechaH} ¡<@${interaction.user.id}> ha liberado las **re-invitaciones** para su sesión! Son más que bienvenidos a unirse utilizando el botón de abajo.\n\n${EMOJIS.flechaV} *Antes de ingresar a la sesión, asegúrense de haber leído la información detallada aquí abajo respecto al estado del juego.*`)
+            .setTitle(`<a:coramov:1523026647887122515> SWFL Roleplay | Re-Invitación a la Sesión <a:coramov:1523026647887122515>`)
+            .setDescription(`<:flecha:1523041359441952970> ¡<@${interaction.user.id}> ha liberado las **re-invitaciones** para su sesión! Son más que bienvenidos a unirse utilizando el botón de abajo.\n\n<:replica:1523028004983406787> *Antes de ingresar a la sesión, asegúrense de haber leído la información detallada aquí abajo respecto al estado del juego.*`)
             .addFields(
-                { name: '📋 Información del Roleplay', value: `${EMOJIS.flechaH} **Estado del Peacetime:** ${peacetime}\n${EMOJIS.flechaH} **Velocidad de Fail Roleplay (FRP):** ${frp}\n${EMOJIS.flechaH} **Aplicación de la Ley (L.E.O):** ${ley}`, inline: false }
+                { name: '<:info:1523041319046479964> Información del Roleplay', value: `<a:movfle:1523027371735777503> **Estado del Peacetime:** ${peacetime}\n<a:movfle:1523027371735777503> **Velocidad de Fail Roleplay (FRP):** ${frp}\n<a:movfle:1523027371735777503> **Aplicación de la Ley (S/P):** ${ley}`, inline: false }
             )
-            .setFooter({ text: '🚗 Las paradas de tránsito se ejecutan superando el límite establecido.' })
-            .setColor('#ff6600');
+            .setFooter({ text: '<:car:1523041347869868253> Las paradas de tránsito se ejecutan superando el límite establecido.' })
+            .setColor('#74d4fc');
 
-        if (fotoAdjunta) embedReinvite.setImage(fotoAdjunta.url);
+        // 🖼️ LÓGICA DE IMAGEN: Si el usuario sube una foto usa esa, sino, pone la predeterminada "Reinvitaciones_NUEVO23.png"
+        if (fotoAdjunta) {
+            embedReinvite.setImage(fotoAdjunta.url);
+        } else {
+            embedReinvite.setImage('https://cdn.discordapp.com/attachments/1517331229303902432/1525334293155414168/Reinvitaciones_NUEVO23.png?ex=6a5301c2&is=6a51b042&hm=249f0eb4d460911059290ea5519b694da82d349400a99846334ab892f90943ad');
+        }
 
-        // Botón gris estático idéntico al de image_30577e.png
+        // Botón gris estático para obtener el link
         const filaComponentes = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('verificar_reinvite_swfl')
@@ -113,7 +117,7 @@ export default {
 
         await interaction.reply({ content: 'Generando anuncio de re-invitación...', ephemeral: true });
 
-        // Mandamos el ping doble (@everyone + tu rol) y abajo el cuadro naranja con el botón
+        // Mandamos el ping doble (@everyone + tu rol) y abajo el cuadro celestito con el botón
         const msgReinvite = await interaction.channel.send({ 
             content: mencionCompleta, 
             embeds: [embedReinvite], 
