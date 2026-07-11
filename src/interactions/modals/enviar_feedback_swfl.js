@@ -17,7 +17,7 @@ export default {
                 { name: '⭐ Calificación:', value: `**${notaEnviada} / 10**`, inline: true },
                 { name: '💬 Comentarios y sugerencias:', value: `\`\`\`text\n${comentariosEnviados}\n\`\`\``, inline: false }
             )
-            .setColor('#ff6600')
+            .setColor('#74d4fc')
             .setTimestamp();
 
         // Respuesta efímera (oculta) para el usuario que completó el formulario
