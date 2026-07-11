@@ -1,7 +1,23 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
+import fs from 'fs';
 
-// 📂 Inicialización de la base de datos en memoria compartida
-global.baseDatosVehiculos = global.baseDatosVehiculos || new Map();
+// 📂 Inicialización de la base de datos persistente (JSON)
+const ARCHIVO_DB = './vehiculos_db.json';
+
+// Función para leer los datos guardados
+function leerBaseDatos() {
+    if (!fs.existsSync(ARCHIVO_DB)) {
+        fs.writeFileSync(ARCHIVO_DB, JSON.stringify({}));
+    }
+    const data = JSON.parse(fs.readFileSync(ARCHIVO_DB, 'utf-8'));
+    return new Map(Object.entries(data));
+}
+
+// Función para guardar los datos en el archivo
+function guardarBaseDatos(mapa) {
+    const obj = Object.fromEntries(mapa);
+    fs.writeFileSync(ARCHIVO_DB, JSON.stringify(obj, null, 4));
+}
 
 export default {
     data: {
@@ -34,6 +50,10 @@ export default {
     async execute(interaction) {
         const subcomando = interaction.options.getSubcommand();
         const usuarioId = interaction.user.id;
+        
+        // Cargamos la base de datos física
+        const baseDatosVehiculos = leerBaseDatos();
+        let misAutos = baseDatosVehiculos.get(usuarioId) || [];
 
         // 🏎️ LÓGICA DE REGISTRO
         if (subcomando === 'registrar') {
@@ -42,9 +62,6 @@ export default {
             const año = interaction.options.getString('año');
             const color = interaction.options.getString('color');
             const patente = interaction.options.getString('patente').toUpperCase();
-
-            // Obtener lista actual del usuario o crear una nueva
-            const misAutos = global.baseDatosVehiculos.get(usuarioId) || [];
 
             // 🚨 CONTROL DE LÍMITE DE VEHÍCULOS (Máximo 4 unidades)
             const LIMITE_MAXIMO = 4; 
@@ -63,9 +80,10 @@ export default {
                 });
             }
 
-            // Guardar el vehículo en la lista
+            // Guardar el vehículo en la lista y reescribir el JSON
             misAutos.push({ marca, modelo, año, color, patente });
-            global.baseDatosVehiculos.set(usuarioId, misAutos);
+            baseDatosVehiculos.set(usuarioId, misAutos);
+            guardarBaseDatos(baseDatosVehiculos); // Se guarda físicamente
 
             const embedRegistro = new EmbedBuilder()
                 .setTitle('<:seguro:1523041347869868253> SWFL | FORMATO DE MATRICULACIÓN DE VEHÍCULOS <:seguro:1523041347869868253>')
@@ -88,7 +106,6 @@ export default {
         // 🗑️ LÓGICA DE REMOCIÓN
         if (subcomando === 'remover') {
             const patente = interaction.options.getString('patente').toUpperCase();
-            let misAutos = global.baseDatosVehiculos.get(usuarioId) || [];
 
             const existe = misAutos.some(auto => auto.patente === patente);
             if (!existe) {
@@ -98,9 +115,10 @@ export default {
                 });
             }
 
-            // Filtrar y quitar el auto seleccionado
+            // Filtrar y quitar el auto seleccionado, luego guardar en el JSON
             misAutos = misAutos.filter(auto => auto.patente !== patente);
-            global.baseDatosVehiculos.set(usuarioId, misAutos);
+            baseDatosVehiculos.set(usuarioId, misAutos);
+            guardarBaseDatos(baseDatosVehiculos);
 
             const embedRemover = new EmbedBuilder()
                 .setTitle('<:no:1523041304911544502> SWFL | ANULACIÓN DE MATRICULA <:no:1523041304911544502>')
