@@ -4,7 +4,6 @@ import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBui
 global.coleccionReinvitesMeet = global.coleccionReinvitesMeet || new Map();
 
 // 🆔 CONFIGURACIÓN DEL ROL ADICIONAL 
-// (Pegá acá la ID del rol que querés mencionar junto a @everyone, ej: Civiles, Rol de Avisos, etc.)
 const ROL_ADICIONAL_ID = '1491458302993891358'; 
 
 export default {
@@ -71,11 +70,16 @@ export default {
                 { name: '<:info:1523041319046479964> Información de la Juntada', value: `<:fle:1523041359441952970> **Temática del Meet:** ${tematica}\n<:fel:1523041359441952970> **Ubicación Actual:** ${ubicacion}\n<:fele:1523041359441952970> **Estado del Servidor:** ${estado}`, inline: false }
             )
             .setFooter({ text: '🚗 Eviten hacer un car crash o molestar con el claxon para no ser expulsados.' })
-            .setColor('#74d4fc'); // Tu naranja flama
+            .setColor('#74d4fc'); // Tu nuevo color principal celestito
 
-        if (fotoAdjunta) embedReinviteMeet.setImage(fotoAdjunta.url);
+        // 🖼️ LÓGICA DE IMAGEN: Si suben foto usa esa, sino, clava la predeterminada "Reinvitaciones_NUEVO23.png"
+        if (fotoAdjunta) {
+            embedReinviteMeet.setImage(fotoAdjunta.url);
+        } else {
+            embedReinviteMeet.setImage('https://cdn.discordapp.com/attachments/1517331229303902432/1525334293155414168/Reinvitaciones_NUEVO23.png?ex=6a5301c2&is=6a51b042&hm=249f0eb4d460911059290ea5519b694da82d349400a99846334ab892f90943ad');
+        }
 
-        // Botón gris estático clonado de la imagen
+        // Botón gris estático para obtener el link
         const filaComponentes = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('verificar_reinvite_meet_swfl')
@@ -85,7 +89,7 @@ export default {
 
         await interaction.reply({ content: 'Generando anuncio de re-invitación para el Meet...', ephemeral: true });
 
-        // Mandamos el ping doble y abajo el embed naranja con el botón
+        // Mandamos el ping doble y abajo el embed celestito con el botón
         const msgReinviteMeet = await interaction.channel.send({ 
             content: mencionCompleta, 
             embeds: [embedReinviteMeet], 
