@@ -65,13 +65,15 @@ export default {
 
         // --- ENVIAR NUEVO ANUNCIO DE REGENERACIÓN ---
         const textoDescripcion = `<a:mov:1523027371735777503> <@${usuarioStaff.id}> ha **regenerado el link de re-invitaciones (x${contador})**! Por favor, sean pacientes, ya que las próximas re-invitaciones se realizarán dentro de los próximos 10-15 minutos. Molestar al host para pedir el acceso resultará en un aislamiento (timeout).`;
+        
+        // Imagen por defecto si no se proporciona una
+        const urlImagenPredeterminada = 'https://cdn.discordapp.com/attachments/1517331229303902432/1525722876685324368/Link_Regenerado_NUEVO23.png?ex=6a546ba8&is=6a531a28&hm=0d5c2f80951f5909ed7ffede7308abdbe6f9eac502552f1dfc70da38bf3c4117';
 
         const embedRegen = new EmbedBuilder()
             .setTitle('<a:si:1523026421512142899> SWFL Roleplay | Link Regenerado <a:si:1523026421512142899>')
             .setDescription(textoDescripcion)
-            .setColor('#74d4fc');
-
-        if (fotoAdjunta) embedRegen.setImage(fotoAdjunta.url);
+            .setColor('#74d4fc')
+            .setImage(fotoAdjunta ? fotoAdjunta.url : urlImagenPredeterminada);
 
         await interaction.channel.send({ embeds: [embedRegen] });
     }
