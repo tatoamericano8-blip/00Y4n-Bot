@@ -35,7 +35,7 @@ export default {
             `2. Mantente atento a los canales de roleplay para ver el anuncio de una sesión activa.\n` +
             `3. Haz clic en el botón **Link de la Sesión** para obtener el enlace del servidor privado y unirte a través de Roblox.\n\n` +
             `🎮 **Jugadores de Consola**\n` +
-            `1. Registra tu vehículo con \`/registrar_vehiculo\` (mismas reglas que arriba).\n` +
+            `1. Registra tu vehículo con \`/matricula_swfl registrar\` (mismas reglas que arriba).\n` +
             `2. Mantente atento a los canales de roleplay para ver una sesión activa.\n` +
             `3. Los jugadores de consola **no pueden** hacer clic directamente en los enlaces de servidores privados.\n` +
             `<:replica:1523028004983406787> Menciona al **Host de la Sesión** en el chat de la sesión y pídele que te **agregue como amigo** en Roblox, luego únete a través de su perfil.`
