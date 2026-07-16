@@ -14,6 +14,12 @@ export default {
       // 🔒 Si el mensaje es de un bot o no es en un servidor, lo ignoramos
       if (message.author.bot || !message.guild) return;
 
+      // 🔍 [LOG DE DIAGNÓSTICO 1] - Verifica si el bot lee el chat
+      console.log(`📡 [EVENTO DETECTADO] Mensaje de ${message.author.tag} en #${message.channel.name}: "${message.content}"`);
+
+      // Definimos de forma segura el cliente del bot
+      const botClient = client || message.client;
+
       // --- ⬇️ INICIO DEL SISTEMA AUTO-RESPONDER ("CÓMO UNIRSE") ⬇️ ---
       const textoNormalizado = message.content
         .toLowerCase()
@@ -32,6 +38,9 @@ export default {
       const activarAutoResponder = disparadores.some(frase => textoNormalizado.includes(frase));
 
       if (activarAutoResponder) {
+        // 🔍 [LOG DE DIAGNÓSTICO 2] - Verifica si detectó la palabra clave
+        console.log(`🎯 [AUTO-RESPONDER] Palabra clave detectada. Intentando enviar Embed...`);
+
         const embedComoUnirse = new EmbedBuilder()
           .setColor('#74d4fc')
           .setDescription(
@@ -53,15 +62,19 @@ export default {
 
         try {
           await message.reply({ embeds: [embedComoUnirse] });
+          // 🔍 [LOG DE DIAGNÓSTICO 3] - Verifica si Discord aceptó el mensaje
+          console.log(`✅ [AUTO-RESPONDER] Mensaje enviado con éxito.`);
         } catch (errorResponder) {
+          console.error('❌ [ERROR AL RESPONDER]:', errorResponder);
           logger.error('Error enviando el auto-responder:', errorResponder);
         }
       }
       // --- ⬆️ FIN DEL SISTEMA AUTO-RESPONDER ⬆️ ---
 
-      // ⚙️ Ejecución de tu sistema original de niveles
-      await handleLeveling(message, client);
+      // ⚙️ Ejecución de tu sistema original de niveles (usando botClient seguro)
+      await handleLeveling(message, botClient);
     } catch (error) {
+      console.error('❌ [ERROR GENERAL EN EVENTO]:', error);
       logger.error('Error in messageCreate event:', error);
     }
   }
