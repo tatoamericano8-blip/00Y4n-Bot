@@ -25,7 +25,7 @@ export const botConfig = {
     activities: [
       {
         // Text users will see (example: "Playing /help | Titan Bot").
-        name: "00Y4n Comunidad SWFL",
+        name: "Viva /00Y4n",
         // Activity type number (0 = Playing).
         type: 0, 
       },
@@ -88,14 +88,14 @@ export const botConfig = {
   embeds: {
     colors: {
       // Main brand colors.
-      primary: "#ff6600", 
-      secondary: "#ff6600", 
+      primary: "#74d4fc", 
+      secondary: "#74d4fc", 
 
       // Standard status colors for success/error/warning/info messages.
-      success: "#ff6600", 
+      success: "#74d4fc", 
       error: "#ED4245", 
-      warning: "#ff6600", 
-      info: "#ff6600", 
+      warning: "#74d4fc", 
+      info: "#74d4fc", 
 
       // Neutral utility colors.
       light: "#FFFFFF",
@@ -112,18 +112,18 @@ export const botConfig = {
 
       // Feature-specific colors.
       giveaway: {
-        active: "#ff6600",
-        ended: "#ff6600",
+        active: "#74d4fc",
+        ended: "#74d4fc",
       },
       ticket: {
-        open: "#ff6600",
-        claimed: "#ff6600",
-        closed: "#ff6600",
-        pending: "#ff6600",
+        open: "#74d4fc",
+        claimed: "#74d4fc",
+        closed: "#74d4fc",
+        pending: "#74d4fc",
       },
-      economy: "#ff6600",
-      birthday: "#ff6600",
-      moderation: "#ff6600",
+      economy: "#74d4fc",
+      birthday: "#74d4fc",
+      moderation: "#74d4fc",
 
       // Ticket priority color mapping.
       priority: {
