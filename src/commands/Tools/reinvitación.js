@@ -32,14 +32,14 @@ export default {
         // Diseñar el Embed con el estilo 00Y4n
         const embedReinvitacion = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('🔄 Reinvitaciones de la Sesión')
+            .setTitle('<a:esp:1523026487240954019> Reinvitaciones de la Sesión <a:esp:1523026487240954019>')
             .setDescription(
                 `¡Reaccioná a este mensaje para recibir una reinvitación!\n` +
                 `Las mismas se enviarán una vez que el servidor cuente con menos jugadores activos.\n\n` +
-                `🔹 **Reacciones requeridas:** \`${reaccionesRequeridas}\``
+                `<:dot:1523041306836996156> **Reacciones requeridas:** \`${reaccionesRequeridas}\``
             )
             .addFields({ 
-                name: '⏰ Última Regeneración', 
+                name: '<:fle:1523041359441952970> Última Regeneración', 
                 value: `El enlace fue actualizado a las **${horaFormateada}** (<t:${timestampDiscord}:t>)`, 
                 inline: false 
             })
@@ -48,7 +48,7 @@ export default {
 
         // Enviar primero el ping @here fuera del embed
         const mensajeEnviado = await interaction.reply({
-            content: '⚠️ **@here** ¡Atención a las reinvitaciones!',
+            content: '<a:adv:1523027438030946446> **@here** ¡Atención a las reinvitaciones!',
             embeds: [embedReinvitacion],
             allowedMentions: { parse: ['everyone'] }, // <-- AGREGÁ ESTA LÍNEA
             fetchReply: true
