@@ -2,7 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('reinvitar_swfl')
+        .setName('reinvitaciones')
         .setDescription('Envía el aviso de enlace de sesión regenerado y control de reinvitaciones.')
         .addIntegerOption(option =>
             option.setName('reacciones')
