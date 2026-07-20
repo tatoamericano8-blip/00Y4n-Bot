@@ -23,7 +23,7 @@ module.exports = {
             hour: '2-digit',
             minute: '2-digit',
             hour12: false,
-            timeZone: 'America/Argentina/Buenos Aires'
+            timeZone: 'America/Argentina/Buenos_Aires' // <-- Corregido con guion bajo
         });
 
         // Generar el timestamp dinámico de Discord (se adapta a la hora de cada usuario)
