@@ -50,6 +50,7 @@ export default {
         const mensajeEnviado = await interaction.reply({
             content: '⚠️ **@here** ¡Atención a las reinvitaciones!',
             embeds: [embedReinvitacion],
+            allowedMentions: { parse: ['everyone'] }, // <-- AGREGÁ ESTA LÍNEA
             fetchReply: true
         });
 
