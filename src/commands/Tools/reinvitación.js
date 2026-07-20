@@ -1,6 +1,6 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 
-module.exports = {
+export default {
     data: new SlashCommandBuilder()
         .setName('reinvitaciones')
         .setDescription('Envía el aviso de enlace de sesión regenerado y control de reinvitaciones.')
@@ -23,10 +23,10 @@ module.exports = {
             hour: '2-digit',
             minute: '2-digit',
             hour12: false,
-            timeZone: 'America/Argentina/Buenos_Aires' // <-- Corregido con guion bajo
+            timeZone: 'America/Argentina/Buenos_Aires'
         });
 
-        // Generar el timestamp dinámico de Discord (se adapta a la hora de cada usuario)
+        // Generar el timestamp dinámico de Discord
         const timestampDiscord = Math.floor(ahora.getTime() / 1000);
 
         // Diseñar el Embed con el estilo 00Y4n
@@ -46,7 +46,7 @@ module.exports = {
             .setFooter({ text: '00Y4n Comunidad SWFL', iconURL: interaction.guild.iconURL() })
             .setTimestamp();
 
-        // Enviar primero el ping @here fuera del embed para que notifique correctamente
+        // Enviar primero el ping @here fuera del embed
         const mensajeEnviado = await interaction.reply({
             content: '⚠️ **@here** ¡Atención a las reinvitaciones!',
             embeds: [embedReinvitacion],
@@ -58,7 +58,6 @@ module.exports = {
             await mensajeEnviado.react(emojiInput);
         } catch (error) {
             console.error('No se pudo reaccionar con el emoji asignado:', error);
-            // Si el usuario pone un emoji roto o inválido, usa el por defecto para que no se rompa
             if (emojiInput !== '✔️') {
                 await mensajeEnviado.react('✔️');
             }
