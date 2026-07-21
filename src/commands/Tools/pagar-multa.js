@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
-import { multasDB, ROL_WARRANT_ID } from '../../utils/gestorMultas.js'; // 👈 CORREGIDO: Importado desde gestorMultas.js
+import { multasDB, ROL_WARRANT_ID, guardarMultas } from '../../utils/gestorMultas.js';
 import { obtenerSaldo, restarSaldo } from '../../utils/gestorEconomia.js';
 
 export default {
@@ -65,6 +65,9 @@ export default {
         restarSaldo(usuarioId, ticket.monto);
         ticket.estado = 'PAGADA';
         multasDB.set(ticket.id, ticket);
+
+        // 💾 Guardar permanentemente el nuevo estado ('PAGADA') en disco
+        guardarMultas();
 
         // 6. Si tenía orden de arresto por mora, remover el rol
         if (interaction.member.roles.cache.has(ROL_WARRANT_ID)) {
