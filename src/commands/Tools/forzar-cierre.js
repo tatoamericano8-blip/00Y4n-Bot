@@ -21,7 +21,7 @@ export default {
         if (!interaction.member.roles.cache.has(ROL_ALTO_MANDO_ID)) {
             return await interaction.reply({
                 content: '❌ **Acceso denegado.** Este comando es exclusivo para los integrantes del **Alto Mando**.',
-                ephemeral: true // Solo lo ve la persona que intentó usarlo
+                ephemeral: true
             });
         }
 
@@ -43,11 +43,10 @@ export default {
             })
             .setTimestamp();
 
-        // Publicar la alerta pública con ping
+        // Enviar solo el Embed de forma silenciosa (sin ping a nadie)
         await interaction.reply({
-            content: '⚠️ **@here** ¡Atención a la comunidad!',
             embeds: [embedCierreForzado],
-            allowedMentions: { parse: ['everyone'] }
+            allowedMentions: { parse: [] } // Bloquea cualquier tipo de mención
         });
     },
 };
