@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import fs from 'fs';
-import { obtenerSaldo } from '../../utils/gestorEconomia.js'; // 👈 Importamos el sistema de economía
+import { obtenerSaldo, multasDB } from '../../utils/gestorEconomia.js'; // 👈 Importamos el sistema de saldo y multas
 
 // 📂 Conexión con la misma base de datos persistente
 const ARCHIVO_DB = './vehiculos_db.json';
@@ -105,60 +105,109 @@ export default {
                 `• **Usuario:** <@${miembro.id}>\n` +
                 `• **Perfil de Roblox:** [${robloxUsername}](https://www.roblox.com/users/${robloxId}/profile)\n` +
                 `• **Estado de Licencia:** <:tilde:1524936452574806076> Activa\n` +
-                `• **Balance Bancario:** **$${saldoActual.toLocaleString()}**\n` + // 👈 Línea de economía añadida
+                `• **Balance Bancario:** **$${saldoActual.toLocaleString()}**\n` +
                 `• **Vehículos Registrados:** \`${autosRegistrados.length}\`\n\n` +
                 `⤷ *Para registrar una nueva unidad en tu garaje utiliza el comando \`/matricula_swfl registrar\` de forma pública.*`
             )
             .setThumbnail(fotoAvatar)
-            .setColor('#74d4fc') // Color oficial 00Y4n
+            .setColor('#74d4fc')
             .setFooter({ text: `${interaction.guild.name} • Registro Civil`, iconURL: interaction.guild.iconURL() })
             .setTimestamp();
 
-        // 5. CREACIÓN DE BOTONERA
+        // 5. CREACIÓN DE BOTONERA (Matrículas y Multas)
         const botonera = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId(`regs_${miembro.id}`)
-                .setLabel('Matrículas (Registrations)')
-                .setStyle(ButtonStyle.Primary)
+                .setLabel('Matrículas')
+                .setStyle(ButtonStyle.Primary),
+
+            new ButtonBuilder()
+                .setCustomId(`multas_${miembro.id}`)
+                .setLabel('Multas')
+                .setStyle(ButtonStyle.Danger)
         );
 
         const mensajePerfil = await interaction.editReply({ embeds: [perfilEmbed], components: [botonera] });
 
         // 6. RECOLECTOR DE COMPONENTES INTERNO
         const recolector = mensajePerfil.createMessageComponentCollector({
-            filter: (i) => i.customId.startsWith('regs_'),
+            filter: (i) => i.customId.startsWith('regs_') || i.customId.startsWith('multas_'),
             time: 600000
         });
 
         recolector.on('collect', async (botonInteraction) => {
-            const targetId = botonInteraction.customId.split('_')[1];
-            
-            const baseActualizada = leerBaseDatos();
-            const listaAutosActuales = baseActualizada.get(targetId) || [];
+            const [tipo, targetId] = botonInteraction.customId.split('_');
 
-            if (listaAutosActuales.length === 0) {
-                const embedVacio = new EmbedBuilder()
+            // 🚗 BOTÓN DE MATRÍCULAS
+            if (tipo === 'regs') {
+                const baseActualizada = leerBaseDatos();
+                const listaAutosActuales = baseActualizada.get(targetId) || [];
+
+                if (listaAutosActuales.length === 0) {
+                    const embedVacio = new EmbedBuilder()
+                        .setTitle('<:form:1523041319046479964> Vehículos Registrados')
+                        .setDescription(`No se encontraron vehículos ni patentes activas registradas en el sistema para <@${targetId}>.`)
+                        .setColor('#74d4fc')
+                        .setFooter({ text: 'Sistema de Tránsito Oficial' });
+
+                    return await botonInteraction.reply({ embeds: [embedVacio], ephemeral: true });
+                }
+
+                const stringAutos = listaAutosActuales.map((auto, index) => 
+                    `**${index + 1}. ${auto.marca} ${auto.modelo} (${auto.año})**\n` +
+                    `> • Color: ${auto.color}\n` +
+                    `> • Matrícula: \`${auto.patente}\``
+                ).join('\n\n');
+
+                const embedConAutos = new EmbedBuilder()
                     .setTitle('<:form:1523041319046479964> Vehículos Registrados')
-                    .setDescription(`No se encontraron vehículos ni patentes activas registradas en el sistema para <@${targetId}>.`)
+                    .setDescription(`Lista de vehículos activos en el sistema para <@${targetId}>:\n\n${stringAutos}`)
                     .setColor('#74d4fc')
                     .setFooter({ text: 'Sistema de Tránsito Oficial' });
 
-                return await botonInteraction.reply({ embeds: [embedVacio], ephemeral: true });
+                return await botonInteraction.reply({ embeds: [embedConAutos], ephemeral: true });
             }
 
-            const stringAutos = listaAutosActuales.map((auto, index) => 
-                `**${index + 1}. ${auto.marca} ${auto.modelo} (${auto.año})**\n` +
-                `> • Color: ${auto.color}\n` +
-                `> • Matrícula: \`${auto.patente}\``
-            ).join('\n\n');
+            // 🚨 BOTÓN DE MULTAS
+            if (tipo === 'multas') {
+                // Obtenemos todas las multas del usuario
+                const multasUsuario = [];
+                for (const [id, multa] of multasDB.entries()) {
+                    if (multa.usuarioId === targetId) {
+                        multasUsuario.push(multa);
+                    }
+                }
 
-            const embedConAutos = new EmbedBuilder()
-                .setTitle('<:form:1523041319046479964> Vehículos Registrados')
-                .setDescription(`Lista de vehículos activos en el sistema para <@${targetId}>:\n\n${stringAutos}`)
-                .setColor('#74d4fc')
-                .setFooter({ text: 'Sistema de Tránsito Oficial' });
+                // Si no tiene multas registradas
+                if (multasUsuario.length === 0) {
+                    const embedSinMultas = new EmbedBuilder()
+                        .setTitle('🚨 Historial de Multas')
+                        .setDescription(`✅ El usuario <@${targetId}> **no tiene ningún tipo de multa.**`)
+                        .setColor('#74d4fc')
+                        .setFooter({ text: 'Departamento de Policía' })
+                        .setTimestamp();
 
-            return await botonInteraction.reply({ embeds: [embedConAutos], ephemeral: true });
+                    return await botonInteraction.reply({ embeds: [embedSinMultas], ephemeral: true });
+                }
+
+                // Si tiene multas registradas
+                const stringMultas = multasUsuario.map((multa) => {
+                    const estadoTexto = multa.estado === 'PAGADA' ? '🟢 **PAGADA**' : '🔴 **PENDIENTE**';
+                    return `**Multa #${multa.id}** — Estado: ${estadoTexto}\n` +
+                           `> • **Razón:** ${multa.razon}\n` +
+                           `> • **Monto:** $${multa.monto.toLocaleString()}\n` +
+                           `> • **Oficial Emisor:** <@${multa.oficialId}>`;
+                }).join('\n\n');
+
+                const embedConMultas = new EmbedBuilder()
+                    .setTitle('🚨 Historial de Multas')
+                    .setDescription(`Multas de tránsito aplicadas a <@${targetId}>:\n\n${stringMultas}`)
+                    .setColor('#ff3333')
+                    .setFooter({ text: 'Departamento de Policía' })
+                    .setTimestamp();
+
+                return await botonInteraction.reply({ embeds: [embedConMultas], ephemeral: true });
+            }
         });
 
         recolector.on('end', () => {
