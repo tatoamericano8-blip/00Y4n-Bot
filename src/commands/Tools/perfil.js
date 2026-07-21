@@ -1,19 +1,23 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import fs from 'fs';
-import { obtenerSaldo } from '../../utils/gestorEconomia.js'; // 👈 Solo el saldo
-import { multasDB } from '../../utils/gestorMultas.js';     // 👈 IMPORTANTE: Traemos las multas de gestorMultas
+import { obtenerSaldo } from '../../utils/gestorEconomia.js';
+import { multasDB } from '../../utils/gestorMultas.js';
 
-// 📂 Conexión con la base de datos persistente
 const ARCHIVO_DB = './vehiculos_db.json';
 const BLOXLINK_API_KEY = 'e47f3929-9be2-4179-82b1-e53b4a9a6538'; 
 
-// Función para leer los datos guardados
+// Función para leer las matrículas desde el disco
 function leerBaseDatos() {
     if (!fs.existsSync(ARCHIVO_DB)) {
         fs.writeFileSync(ARCHIVO_DB, JSON.stringify({}));
     }
-    const data = JSON.parse(fs.readFileSync(ARCHIVO_DB, 'utf-8'));
-    return new Map(Object.entries(data));
+    try {
+        const data = JSON.parse(fs.readFileSync(ARCHIVO_DB, 'utf-8'));
+        return new Map(Object.entries(data));
+    } catch (error) {
+        console.error("Error leyendo vehículos en perfil:", error);
+        return new Map();
+    }
 }
 
 export default {
@@ -91,11 +95,9 @@ export default {
             }
         } catch (err) {}
 
-        // Leemos la base de datos física de vehículos
+        // Leemos la base de datos física de vehículos y economía
         const baseDatosVehiculos = leerBaseDatos();
         const autosRegistrados = baseDatosVehiculos.get(miembro.id) || [];
-
-        // 💰 OBTENER BALANCE BANCARIO DEL JUGADOR
         const saldoActual = obtenerSaldo(miembro.id);
 
         // 4. ARMADO DEL EMBED PRINCIPAL
@@ -130,10 +132,10 @@ export default {
 
         const mensajePerfil = await interaction.editReply({ embeds: [perfilEmbed], components: [botonera] });
 
-        // 6. RECOLECTOR DE COMPONENTES INTERNO
+        // 6. RECOLECTOR DE COMPONENTES INTERNO (Extendido a 24 Horas)
         const recolector = mensajePerfil.createMessageComponentCollector({
             filter: (i) => i.customId.startsWith('regs_') || i.customId.startsWith('multas_'),
-            time: 600000
+            time: 86400000 // 24 Horas de validez activa
         });
 
         recolector.on('collect', async (botonInteraction) => {
@@ -171,7 +173,6 @@ export default {
 
             // 🚨 BOTÓN DE MULTAS
             if (tipo === 'multas') {
-                // Adaptamos la lectura para Map o Array según cómo esté en gestorMultas.js
                 let todasLasMultas = [];
                 if (multasDB instanceof Map) {
                     todasLasMultas = Array.from(multasDB.values());
@@ -196,7 +197,7 @@ export default {
                     return await botonInteraction.reply({ embeds: [embedSinMultas], ephemeral: true });
                 }
 
-                // Si tiene multas, construimos la lista exacta con los nombres de propiedades de /multar
+                // Si tiene multas registradas
                 const stringMultas = multasUsuario.map((multa) => {
                     const estadoTexto = multa.estado === 'PAGADA' ? '🟢 **PAGADA**' : '🔴 **PENDIENTE**';
                     return `**Multa #${multa.id}** — Estado: ${estadoTexto}\n` +
@@ -214,10 +215,6 @@ export default {
 
                 return await botonInteraction.reply({ embeds: [embedConMultas], ephemeral: true });
             }
-        });
-
-        recolector.on('end', () => {
-            mensajePerfil.edit({ components: [] }).catch(() => null);
         });
     }
 };
