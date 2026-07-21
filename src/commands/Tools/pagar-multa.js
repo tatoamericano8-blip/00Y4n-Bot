@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
-import { multasDB, obtenerSaldo, restarSaldo, ROL_WARRANT_ID } from '../../utils/gestorEconomia.js';
+import { multasDB, ROL_WARRANT_ID } from '../../utils/gestorMultas.js'; // 👈 CORREGIDO: Importado desde gestorMultas.js
+import { obtenerSaldo, restarSaldo } from '../../utils/gestorEconomia.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -11,9 +12,17 @@ export default {
                 .setRequired(true)),
 
     async execute(interaction) {
-        const ticketID = interaction.options.getString('id');
-        const ticket = multasDB.get(ticketID);
+        // Limpiamos el texto ingresado por si ponen "#1" o " 1 "
+        const ticketID = interaction.options.getString('id').replace('#', '').trim();
         const usuarioId = interaction.user.id;
+
+        // Búsqueda directa del ticket
+        let ticket = multasDB.get(ticketID);
+
+        // Búsqueda de respaldo por si se guardó como string/número
+        if (!ticket && multasDB instanceof Map) {
+            ticket = Array.from(multasDB.values()).find(m => String(m.id) === String(ticketID));
+        }
 
         // 1. Validar existencia del ticket
         if (!ticket) {
@@ -52,9 +61,10 @@ export default {
             });
         }
 
-        // 5. Descontar el dinero
+        // 5. Descontar el dinero y actualizar estado de la multa
         restarSaldo(usuarioId, ticket.monto);
         ticket.estado = 'PAGADA';
+        multasDB.set(ticket.id, ticket);
 
         // 6. Si tenía orden de arresto por mora, remover el rol
         if (interaction.member.roles.cache.has(ROL_WARRANT_ID)) {
