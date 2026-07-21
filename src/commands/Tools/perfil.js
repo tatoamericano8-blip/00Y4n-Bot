@@ -1,6 +1,7 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import fs from 'fs';
-import { obtenerSaldo, multasDB } from '../../utils/gestorEconomia.js';
+import { obtenerSaldo } from '../../utils/gestorEconomia.js'; // 👈 Solo el saldo
+import { multasDB } from '../../utils/gestorMultas.js';     // 👈 IMPORTANTE: Traemos las multas de gestorMultas
 
 // 📂 Conexión con la base de datos persistente
 const ARCHIVO_DB = './vehiculos_db.json';
@@ -170,7 +171,7 @@ export default {
 
             // 🚨 BOTÓN DE MULTAS
             if (tipo === 'multas') {
-                // Convertimos multasDB a una lista unificada sin importar la estructura
+                // Adaptamos la lectura para Map o Array según cómo esté en gestorMultas.js
                 let todasLasMultas = [];
                 if (multasDB instanceof Map) {
                     todasLasMultas = Array.from(multasDB.values());
@@ -180,13 +181,10 @@ export default {
                     todasLasMultas = Object.values(multasDB);
                 }
 
-                // Búsqueda flexible de la ID del usuario infractor
-                const multasUsuario = todasLasMultas.filter(multa => {
-                    const idEncontrada = multa.usuarioId || multa.userId || multa.usuario || multa.infractor || multa.user;
-                    return idEncontrada && String(idEncontrada) === String(targetId);
-                });
+                // Filtramos por la ID del usuario objetivo
+                const multasUsuario = todasLasMultas.filter(multa => String(multa.usuarioId) === String(targetId));
 
-                // Caso sin multas
+                // Si no tiene multas registradas
                 if (multasUsuario.length === 0) {
                     const embedSinMultas = new EmbedBuilder()
                         .setTitle('🚨 Historial de Multas')
@@ -198,22 +196,13 @@ export default {
                     return await botonInteraction.reply({ embeds: [embedSinMultas], ephemeral: true });
                 }
 
-                // Caso con multas encontradas
-                const stringMultas = multasUsuario.map((multa, index) => {
-                    const idTicket = multa.id || index + 1;
-                    const razon = multa.razon || multa.reason || 'Sin motivo especificado';
-                    const monto = multa.monto || multa.amount || 0;
-                    const oficialId = multa.oficialId || multa.issuerId || multa.oficial || multa.issuer;
-                    const estado = multa.estado || multa.status || (multa.pagada ? 'PAGADA' : 'PENDIENTE');
-
-                    const esPagada = String(estado).toUpperCase() === 'PAGADA' || estado === true;
-                    const estadoTexto = esPagada ? '🟢 **PAGADA**' : '🔴 **PENDIENTE**';
-                    const oficialTexto = oficialId ? `<@${oficialId}>` : 'Oficial Desconocido';
-
-                    return `**Multa #${idTicket}** — Estado: ${estadoTexto}\n` +
-                           `> • **Razón:** ${razon}\n` +
-                           `> • **Monto:** $${Number(monto).toLocaleString()}\n` +
-                           `> • **Oficial Emisor:** ${oficialTexto}`;
+                // Si tiene multas, construimos la lista exacta con los nombres de propiedades de /multar
+                const stringMultas = multasUsuario.map((multa) => {
+                    const estadoTexto = multa.estado === 'PAGADA' ? '🟢 **PAGADA**' : '🔴 **PENDIENTE**';
+                    return `**Multa #${multa.id}** — Estado: ${estadoTexto}\n` +
+                           `> • **Razón:** ${multa.razon}\n` +
+                           `> • **Monto:** $${multa.monto.toLocaleString()}\n` +
+                           `> • **Oficial Emisor:** <@${multa.oficialId}>`;
                 }).join('\n\n');
 
                 const embedConMultas = new EmbedBuilder()
