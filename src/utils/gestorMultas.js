@@ -1,19 +1,45 @@
-// Map en memoria para almacenar las multas activas
-export const multasDB = new Map();
+import fs from 'fs';
 
-// ID del rol de Orden de Arresto / Warrant
+const ARCHIVO_MULTAS = './multas_db.json';
 export const ROL_WARRANT_ID = '1529152491545952316';
 
-// El contador arranca en 0 para que la primera multa emitida sea la #1
-let contadorID = 0;
+// 📂 Cargar multas desde el archivo al iniciar el bot
+function cargarMultas() {
+    if (!fs.existsSync(ARCHIVO_MULTAS)) {
+        fs.writeFileSync(ARCHIVO_MULTAS, JSON.stringify({}));
+        return new Map();
+    }
+    try {
+        const data = JSON.parse(fs.readFileSync(ARCHIVO_MULTAS, 'utf-8'));
+        return new Map(Object.entries(data));
+    } catch (error) {
+        console.error("Error al cargar la base de datos de multas:", error);
+        return new Map();
+    }
+}
 
+// 💾 Guardar las multas físicamente en el disco
+export function guardarMultas() {
+    try {
+        const objetoMultas = Object.fromEntries(multasDB);
+        fs.writeFileSync(ARCHIVO_MULTAS, JSON.stringify(objetoMultas, null, 2));
+    } catch (error) {
+        console.error("Error al guardar la base de datos de multas:", error);
+    }
+}
+
+// Inicializamos la Map desde el archivo cargado
+export const multasDB = cargarMultas();
+
+// 🔢 Generador inteligente de IDs (no repite IDs al reiniciar el bot)
 export function generarIDMulta() {
-    contadorID += 1;
-    return contadorID.toString();
+    const ids = Array.from(multasDB.keys()).map(id => Number(id)).filter(id => !isNaN(id));
+    const ultimoID = ids.length > 0 ? Math.max(...ids) : 0;
+    return (ultimoID + 1).toString();
 }
 
 /**
- * Programa la asignación del rol de Orden de Arresto a los 7 días
+ * Programar la asignación del rol Warrant (Orden de arresto) a los 7 días
  */
 export function programarWarrant(client, guildId, usuarioId, ticketId) {
     const SIETE_DIAS_MS = 7 * 24 * 60 * 60 * 1000;
@@ -21,7 +47,6 @@ export function programarWarrant(client, guildId, usuarioId, ticketId) {
     setTimeout(async () => {
         const ticket = multasDB.get(ticketId);
 
-        // Si la multa sigue registrada y NO ha sido pagada
         if (ticket && ticket.estado === 'PENDIENTE') {
             try {
                 const guild = await client.guilds.fetch(guildId);
@@ -29,7 +54,7 @@ export function programarWarrant(client, guildId, usuarioId, ticketId) {
 
                 if (miembro) {
                     await miembro.roles.add(ROL_WARRANT_ID);
-                    console.log(`[WARRANT] Rol de Orden de Arresto asignado a ${miembro.user.tag} por la multa #${ticketId}`);
+                    console.log(`[WARRANT] Rol asignado a ${miembro.user.tag} por la multa #${ticketId}`);
                 }
             } catch (error) {
                 console.error(`Error al aplicar la orden de arresto para la multa #${ticketId}:`, error);
