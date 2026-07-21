@@ -1,18 +1,37 @@
-// Base de datos en memoria para Saldos, Cooldowns y Multas
-export const saldosDB = new Map(); // Key: userId -> Value: cantidad ($)
-export const cooldownsWork = new Map(); // Key: userId -> Value: timestamp proximo turno
-export const multasDB = new Map();
+import fs from 'fs';
 
-export const ROL_WARRANT_ID = '1529152491545952316';
+const ARCHIVO_ECONOMIA = './economia_db.json';
 
-let contadorID = 0;
-
-export function generarIDMulta() {
-    contadorID += 1;
-    return contadorID.toString();
+// 📂 Cargar saldos desde el archivo al iniciar el bot
+function cargarSaldos() {
+    if (!fs.existsSync(ARCHIVO_ECONOMIA)) {
+        fs.writeFileSync(ARCHIVO_ECONOMIA, JSON.stringify({}));
+        return new Map();
+    }
+    try {
+        const data = JSON.parse(fs.readFileSync(ARCHIVO_ECONOMIA, 'utf-8'));
+        return new Map(Object.entries(data));
+    } catch (error) {
+        console.error("Error al cargar la base de datos de economía:", error);
+        return new Map();
+    }
 }
 
-// Funciones de Economía
+// 💾 Guardar saldos físicamente en el disco
+export function guardarSaldos() {
+    try {
+        const objetoSaldos = Object.fromEntries(saldosDB);
+        fs.writeFileSync(ARCHIVO_ECONOMIA, JSON.stringify(objetoSaldos, null, 2));
+    } catch (error) {
+        console.error("Error al guardar la base de datos de economía:", error);
+    }
+}
+
+// Mapas en memoria inicializados con persistencia
+export const saldosDB = cargarSaldos();
+export const cooldownsWork = new Map();
+
+// Funciones de Economía Persistentes
 export function obtenerSaldo(usuarioId) {
     return saldosDB.get(usuarioId) || 0;
 }
@@ -21,35 +40,15 @@ export function agregarSaldo(usuarioId, cantidad) {
     const saldoActual = obtenerSaldo(usuarioId);
     const nuevoSaldo = saldoActual + cantidad;
     saldosDB.set(usuarioId, nuevoSaldo);
+    guardarSaldos(); // 👈 Se guarda automáticamente en disco
     return nuevoSaldo;
 }
 
 export function restarSaldo(usuarioId, cantidad) {
     const saldoActual = obtenerSaldo(usuarioId);
     if (saldoActual < cantidad) return false; // No tiene suficiente dinero
-    saldosDB.set(usuarioId, saldoActual - cantidad);
+    const nuevoSaldo = saldoActual - cantidad;
+    saldosDB.set(usuarioId, nuevoSaldo);
+    guardarSaldos(); // 👈 Se guarda automáticamente en disco
     return true;
-}
-
-// Temporizador de Orden de Arresto (7 días)
-export function programarWarrant(client, guildId, usuarioId, ticketId) {
-    const SIETE_DIAS_MS = 7 * 24 * 60 * 60 * 1000;
-
-    setTimeout(async () => {
-        const ticket = multasDB.get(ticketId);
-
-        if (ticket && ticket.estado === 'PENDIENTE') {
-            try {
-                const guild = await client.guilds.fetch(guildId);
-                const miembro = await guild.members.fetch(usuarioId);
-
-                if (miembro) {
-                    await miembro.roles.add(ROL_WARRANT_ID);
-                    console.log(`[WARRANT] Rol asignado a ${miembro.user.tag} por la multa #${ticketId}`);
-                }
-            } catch (error) {
-                console.error(`Error al aplicar la orden de arresto (#${ticketId}):`, error);
-            }
-        }
-    }, SIETE_DIAS_MS);
 }
