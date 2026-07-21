@@ -1,5 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import fs from 'fs';
+import { obtenerSaldo } from '../../utils/gestorEconomia.js'; // 👈 Importamos el sistema de economía
 
 // 📂 Conexión con la misma base de datos persistente
 const ARCHIVO_DB = './vehiculos_db.json';
@@ -17,7 +18,7 @@ function leerBaseDatos() {
 export default {
     data: {
         name: 'perfil_swfl',
-        description: 'Muestra el perfil de ciudadano, su cuenta de Roblox y sus registros vehiculares.',
+        description: 'Muestra el perfil de ciudadano, su balance bancario, cuenta de Roblox y vehículos.',
         options: [
             {
                 name: 'usuario',
@@ -89,24 +90,28 @@ export default {
             }
         } catch (err) {}
 
-        // Leemos la base de datos física para obtener la cantidad real de autos
+        // Leemos la base de datos física de vehículos
         const baseDatosVehiculos = leerBaseDatos();
         const autosRegistrados = baseDatosVehiculos.get(miembro.id) || [];
+
+        // 💰 OBTENER BALANCE BANCARIO DEL JUGADOR
+        const saldoActual = obtenerSaldo(miembro.id);
 
         // 4. ARMADO DEL EMBED PRINCIPAL
         const perfilEmbed = new EmbedBuilder()
             .setTitle('<:seguro:1523041347869868253> Southwest Florida | *Perfil de Civil*')
             .setDescription(
-                `> Ficha de registro oficial del ciudadano dentro de nuestra base de datos de regulaciones de tránsito.\n\n` +
+                `> Ficha de registro oficial del ciudadano dentro de nuestra base de datos de regulaciones de tránsito y economía.\n\n` +
                 `• **Usuario:** <@${miembro.id}>\n` +
                 `• **Perfil de Roblox:** [${robloxUsername}](https://www.roblox.com/users/${robloxId}/profile)\n` +
                 `• **Estado de Licencia:** <:tilde:1524936452574806076> Activa\n` +
+                `• **Balance Bancario:** **$${saldoActual.toLocaleString()}**\n` + // 👈 Línea de economía añadida
                 `• **Vehículos Registrados:** \`${autosRegistrados.length}\`\n\n` +
                 `⤷ *Para registrar una nueva unidad en tu garaje utiliza el comando \`/matricula_swfl registrar\` de forma pública.*`
             )
             .setThumbnail(fotoAvatar)
-            .setColor('#74d4fc')
-            .setFooter({ text: `${interaction.guild.name}`, iconURL: interaction.guild.iconURL() })
+            .setColor('#74d4fc') // Color oficial 00Y4n
+            .setFooter({ text: `${interaction.guild.name} • Registro Civil`, iconURL: interaction.guild.iconURL() })
             .setTimestamp();
 
         // 5. CREACIÓN DE BOTONERA
@@ -128,7 +133,6 @@ export default {
         recolector.on('collect', async (botonInteraction) => {
             const targetId = botonInteraction.customId.split('_')[1];
             
-            // Volvemos a leer de la DB física por si alguien registró mientras el botón estaba activo
             const baseActualizada = leerBaseDatos();
             const listaAutosActuales = baseActualizada.get(targetId) || [];
 
