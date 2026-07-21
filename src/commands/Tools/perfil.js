@@ -1,8 +1,8 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import fs from 'fs';
-import { obtenerSaldo, multasDB } from '../../utils/gestorEconomia.js'; // 👈 Importamos el sistema de saldo y multas
+import { obtenerSaldo, multasDB } from '../../utils/gestorEconomia.js';
 
-// 📂 Conexión con la misma base de datos persistente
+// 📂 Conexión con la base de datos persistente
 const ARCHIVO_DB = './vehiculos_db.json';
 const BLOXLINK_API_KEY = 'e47f3929-9be2-4179-82b1-e53b4a9a6538'; 
 
@@ -114,7 +114,7 @@ export default {
             .setFooter({ text: `${interaction.guild.name} • Registro Civil`, iconURL: interaction.guild.iconURL() })
             .setTimestamp();
 
-        // 5. CREACIÓN DE BOTONERA (Matrículas y Multas)
+        // 5. CREACIÓN DE BOTONERA
         const botonera = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId(`regs_${miembro.id}`)
@@ -170,15 +170,23 @@ export default {
 
             // 🚨 BOTÓN DE MULTAS
             if (tipo === 'multas') {
-                // Obtenemos todas las multas del usuario
-                const multasUsuario = [];
-                for (const [id, multa] of multasDB.entries()) {
-                    if (multa.usuarioId === targetId) {
-                        multasUsuario.push(multa);
-                    }
+                // Convertimos multasDB a una lista unificada sin importar la estructura
+                let todasLasMultas = [];
+                if (multasDB instanceof Map) {
+                    todasLasMultas = Array.from(multasDB.values());
+                } else if (Array.isArray(multasDB)) {
+                    todasLasMultas = multasDB;
+                } else if (typeof multasDB === 'object' && multasDB !== null) {
+                    todasLasMultas = Object.values(multasDB);
                 }
 
-                // Si no tiene multas registradas
+                // Búsqueda flexible de la ID del usuario infractor
+                const multasUsuario = todasLasMultas.filter(multa => {
+                    const idEncontrada = multa.usuarioId || multa.userId || multa.usuario || multa.infractor || multa.user;
+                    return idEncontrada && String(idEncontrada) === String(targetId);
+                });
+
+                // Caso sin multas
                 if (multasUsuario.length === 0) {
                     const embedSinMultas = new EmbedBuilder()
                         .setTitle('🚨 Historial de Multas')
@@ -190,13 +198,22 @@ export default {
                     return await botonInteraction.reply({ embeds: [embedSinMultas], ephemeral: true });
                 }
 
-                // Si tiene multas registradas
-                const stringMultas = multasUsuario.map((multa) => {
-                    const estadoTexto = multa.estado === 'PAGADA' ? '🟢 **PAGADA**' : '🔴 **PENDIENTE**';
-                    return `**Multa #${multa.id}** — Estado: ${estadoTexto}\n` +
-                           `> • **Razón:** ${multa.razon}\n` +
-                           `> • **Monto:** $${multa.monto.toLocaleString()}\n` +
-                           `> • **Oficial Emisor:** <@${multa.oficialId}>`;
+                // Caso con multas encontradas
+                const stringMultas = multasUsuario.map((multa, index) => {
+                    const idTicket = multa.id || index + 1;
+                    const razon = multa.razon || multa.reason || 'Sin motivo especificado';
+                    const monto = multa.monto || multa.amount || 0;
+                    const oficialId = multa.oficialId || multa.issuerId || multa.oficial || multa.issuer;
+                    const estado = multa.estado || multa.status || (multa.pagada ? 'PAGADA' : 'PENDIENTE');
+
+                    const esPagada = String(estado).toUpperCase() === 'PAGADA' || estado === true;
+                    const estadoTexto = esPagada ? '🟢 **PAGADA**' : '🔴 **PENDIENTE**';
+                    const oficialTexto = oficialId ? `<@${oficialId}>` : 'Oficial Desconocido';
+
+                    return `**Multa #${idTicket}** — Estado: ${estadoTexto}\n` +
+                           `> • **Razón:** ${razon}\n` +
+                           `> • **Monto:** $${Number(monto).toLocaleString()}\n` +
+                           `> • **Oficial Emisor:** ${oficialTexto}`;
                 }).join('\n\n');
 
                 const embedConMultas = new EmbedBuilder()
