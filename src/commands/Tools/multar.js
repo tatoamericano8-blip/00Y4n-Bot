@@ -1,90 +1,99 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
-import { multasDB, generarIDMulta, programarWarrant } from '../../utils/gestorMultas.js';
+import { multasDB, ROL_WARRANT_ID } from '../../utils/gestorMultas.js'; // 👈 CORREGIDO: Importado desde gestorMultas.js
+import { obtenerSaldo, restarSaldo } from '../../utils/gestorEconomia.js';
 
 export default {
     data: new SlashCommandBuilder()
-        .setName('multar')
-        .setDescription('Emite una multa oficial de tránsito (Exclusivo Policía de Sarasota).')
-        .addUserOption(option =>
-            option.setName('usuario')
-                .setDescription('El usuario que cometió la infracción.')
-                .setRequired(true))
+        .setName('pagar-multa')
+        .setDescription('Salda una multa de tránsito pendiente descontando de tu saldo.')
         .addStringOption(option =>
-            option.setName('razon')
-                .setDescription('Selecciona la infracción de tránsito exacta.')
-                .setRequired(true)
-                .addChoices(
-                    // --- CLASES DE EXCESO DE VELOCIDAD ---
-                    { name: '🏎️ Exceso de Velocidad Clase A (1 - 15 MPH sobre el límite)', value: 'Exceso de Velocidad Clase A (1-15 MPH sobre límite)' },
-                    { name: '🏎️ Exceso de Velocidad Clase B (16 - 29 MPH sobre el límite)', value: 'Exceso de Velocidad Clase B (16-29 MPH sobre límite)' },
-                    { name: '🏎️ Exceso de Velocidad Clase C (30+ MPH sobre el límite)', value: 'Exceso de Velocidad Clase C (30+ MPH sobre límite)' },
-                    
-                    // --- OTRAS INFRACCIONES DE TRÁNSITO ---
-                    { name: '🚦 § 346.37 - Cruzar Semáforo en Rojo', value: '§ 346.37 - Cruzar Semáforo en Rojo' },
-                    { name: '🛑 Ignorar Señal de PARE (Stop Sign)', value: 'Ignorar Señal de Stop' },
-                    { name: '⚠️ Conducción Imprudente / Temeraria (Reckless Driving)', value: 'Conducción Imprudente' },
-                    { name: '📄 § 341.04 - Vehículo No Registrado / Sin Patente', value: '§ 341.04 - Vehículo No Registrado' },
-                    { name: '🪪 Conducir Sin Licencia de Manejar', value: 'Conducir Sin Licencia' },
-                    { name: '🚨 Huir de la Escena de un Accidente (Hit & Run)', value: 'Huir de la Escena (Hit & Run)' }
-                ))
-        .addIntegerOption(option =>
-            option.setName('monto')
-                .setDescription('Monto en dólares ($) de la multa.')
+            option.setName('id')
+                .setDescription('El número de ID de la multa (ej: 1, 2, 3...).')
                 .setRequired(true)),
 
     async execute(interaction) {
-        // ID del rol del Departamento Policial del Condado de Sarasota
-        const ROL_POLICIA_ID = '1529146302783422706';
+        // Limpiamos el texto ingresado por si ponen "#1" o " 1 "
+        const ticketID = interaction.options.getString('id').replace('#', '').trim();
+        const usuarioId = interaction.user.id;
 
-        // Validar que solo los oficiales de Sarasota puedan usar el comando
-        if (!interaction.member.roles.cache.has(ROL_POLICIA_ID)) {
+        // Búsqueda directa del ticket
+        let ticket = multasDB.get(ticketID);
+
+        // Búsqueda de respaldo por si se guardó como string/número
+        if (!ticket && multasDB instanceof Map) {
+            ticket = Array.from(multasDB.values()).find(m => String(m.id) === String(ticketID));
+        }
+
+        // 1. Validar existencia del ticket
+        if (!ticket) {
             return await interaction.reply({
-                content: '❌ **Acceso denegado.** Solo los oficiales del **Departamento Policial del Condado de Sarasota** pueden emitir multas.',
+                content: `❌ No se encontró ninguna multa registrada con el ID **#${ticketID}**.`,
                 ephemeral: true
             });
         }
 
-        const infractor = interaction.options.getUser('usuario');
-        const razon = interaction.options.getString('razon');
-        const monto = interaction.options.getInteger('monto');
-        const ticketID = generarIDMulta();
+        // 2. Validar estado del ticket
+        if (ticket.estado === 'PAGADA') {
+            return await interaction.reply({
+                content: `⚠️ La multa **#${ticketID}** ya se encuentra completamente abonada.`,
+                ephemeral: true
+            });
+        }
 
-        // Registrar la multa en el sistema
-        multasDB.set(ticketID, {
-            id: ticketID,
-            usuarioId: infractor.id,
-            oficialId: interaction.user.id,
-            razon: razon,
-            monto: monto,
-            estado: 'PENDIENTE',
-            fecha: new Date()
-        });
+        // 3. Validar que la persona que la paga sea el infractor
+        if (ticket.usuarioId !== usuarioId) {
+            return await interaction.reply({
+                content: `❌ Solo el usuario multado (<@${ticket.usuarioId}>) puede abonar esta multa.`,
+                ephemeral: true
+            });
+        }
 
-        // Activar el temporizador de 7 días para la Orden de Arresto
-        programarWarrant(interaction.client, interaction.guildId, infractor.id, ticketID);
+        // 4. VERIFICAR DINERO SUFICIENTE
+        const saldoActual = obtenerSaldo(usuarioId);
 
-        // Diseñar Embed con el estilo oficial 00Y4n (#74d4fc)
-        const embedMulta = new EmbedBuilder()
+        if (saldoActual < ticket.monto) {
+            return await interaction.reply({
+                content: `❌ **Fondos insuficientes.**\n` +
+                         `• Costo de la multa: **$${ticket.monto.toLocaleString()}**\n` +
+                         `• Tu saldo actual: **$${saldoActual.toLocaleString()}**\n\n` +
+                         `💡 *Usa \`/work\` para trabajar y ganar dinero.*`,
+                ephemeral: true
+            });
+        }
+
+        // 5. Descontar el dinero y actualizar estado de la multa
+        restarSaldo(usuarioId, ticket.monto);
+        ticket.estado = 'PAGADA';
+        multasDB.set(ticket.id, ticket);
+
+        // 6. Si tenía orden de arresto por mora, remover el rol
+        if (interaction.member.roles.cache.has(ROL_WARRANT_ID)) {
+            try {
+                await interaction.member.roles.remove(ROL_WARRANT_ID);
+            } catch (err) {
+                console.error("Error al quitar el rol de Warrant:", err);
+            }
+        }
+
+        const saldoRestante = obtenerSaldo(usuarioId);
+
+        // Embed tachado formato GRVU adaptado a 00Y4n (#74d4fc)
+        const embedPagada = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<:folder:1523041295868756008> Ticket de Multa Emitido')
+            .setTitle('✔️ ¡Ticket Pagado Exitosamente!')
             .setDescription(
-                `• **User -** <@${infractor.id}>\n` +
-                `• **Issuer -** <@${interaction.user.id}>\n` +
-                `• **Reason -** ${razon}\n` +
-                `• **Amount -** $${monto.toLocaleString()}\n` +
-                `• **ID -** ${ticketID}\n\n` +
-                `*Usa \`/pagar-multa\` para abonar este ticket dentro de una semana, o recibirás una orden de arresto!*`
+                `~~User — <@${ticket.usuarioId}>~~\n` +
+                `~~Issuer — <@${ticket.oficialId}>~~\n` +
+                `~~Reason — ${ticket.razon}~~\n` +
+                `~~Amount — $${ticket.monto.toLocaleString()}~~\n` +
+                `~~ID — ${ticket.id}~~\n\n` +
+                `💳 **Nuevo saldo en tu cuenta:** $${saldoRestante.toLocaleString()}`
             )
-            .setFooter({ 
-                text: '00Y4n Comunidad SWFL • Departamento Policial de Sarasota', 
-                iconURL: interaction.guild.iconURL() 
-            })
+            .setFooter({ text: '00Y4n Comunidad SWFL • Registro de Pagos', iconURL: interaction.guild.iconURL() })
             .setTimestamp();
 
-        // Enviar la multa sin hacer menciones masivas
         await interaction.reply({
-            embeds: [embedMulta],
-            allowedMentions: { parse: [] }
+            embeds: [embedPagada]
         });
     },
 };
