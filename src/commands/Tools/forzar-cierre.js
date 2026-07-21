@@ -31,11 +31,11 @@ export default {
         // Diseñar el Embed con el estilo 00Y4n (#74d4fc)
         const embedCierreForzado = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('⚠️ Sesión Finalizada Forzosamente')
+            .setTitle('<a:adv:1523027438030946446> Sesión Finalizada Forzosamente')
             .setDescription(
                 `La sesión organizada por <@${hostUsuario.id}> fue cancelada por un integrante del **Alto Mando** (<@${interaction.user.id}>).\n\n` +
-                `📌 **Motivo:** ${motivoCancelacion}\n\n` +
-                `ℹ️ *No se registraron penalizaciones en el historial ni en el perfil del Staff.*`
+                `<:pin:1523041306836996156> **Motivo:** ${motivoCancelacion}\n\n` +
+                `<a:not:1523026703201337436> *No se registraron penalizaciones en el historial ni en el perfil del Staff.*`
             )
             .setFooter({ 
                 text: '00Y4n Comunidad SWFL • Control de Alto Mando', 
