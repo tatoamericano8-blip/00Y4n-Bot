@@ -1,6 +1,5 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
-// 👇 IMPORTANTE: Importa aquí tu conexión a PostgreSQL. Cambia la ruta a la que uses en tus otros comandos.
-// Ejemplo: import pool from '../database.js';
+import pool from './db.js'; // Conexión a PostgreSQL en Render
 
 export default {
     data: {
