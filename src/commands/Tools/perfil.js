@@ -1,7 +1,7 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import pool from '../../../db.js'; // Ajusta la ruta a db.js según corresponda
 import { obtenerSaldo } from '../../utils/gestorEconomia.js';
-import { multasDB } from '../../utils/gestorMultas.js';
+import { obtenerTodasLasMultas } from '../../utils/gestorMultas.js';
 
 const BLOXLINK_API_KEY = 'e47f3929-9be2-4179-82b1-e53b4a9a6538'; 
 
@@ -20,7 +20,7 @@ async function obtenerVehiculosUsuario(usuarioId) {
 export default {
     data: {
         name: 'perfil_swfl',
-        description: 'Muestra el perfil de ciudadano, su balance bancario, cuenta de Roblox y vehículos.',
+        description: 'Muestra el perfil de ciudadano, su balance bancario, cuenta de Roblox, vehículos y multas.',
         options: [
             {
                 name: 'usuario',
@@ -92,11 +92,18 @@ export default {
             }
         } catch (err) {}
 
-        // Leemos PostgreSQL y el sistema de economía
+        // Leemos datos desde PostgreSQL / Gestores (con await)
         const autosRegistrados = await obtenerVehiculosUsuario(miembro.id);
-        const saldoActual = obtenerSaldo(miembro.id);
+        const saldoActual = await obtenerSaldo(miembro.id);
+        
+        // 🚨 Obtener multas del usuario para mostrar el resumen en el perfil
+        const multasData = await obtenerTodasLasMultas();
+        const arrayMultas = Array.isArray(multasData) ? multasData : Object.values(multasData || {});
+        const multasUsuario = arrayMultas.filter(m => String(m.usuarioId || m.usuario_id) === String(miembro.id));
+        const multasPendientes = multasUsuario.filter(m => m.estado === 'PENDIENTE');
+        const deudaTotal = multasPendientes.reduce((acc, m) => acc + (Number(m.monto) || 0), 0);
 
-        // 4. ARMADO DEL EMBED PRINCIPAL
+        // 4. ARMADO DEL EMBED PRINCIPAL (Resumen directo)
         const perfilEmbed = new EmbedBuilder()
             .setTitle('<:seguro:1523041347869868253> Southwest Florida | *Perfil de Civil*')
             .setDescription(
@@ -105,7 +112,8 @@ export default {
                 `• **Perfil de Roblox:** [${robloxUsername}](https://www.roblox.com/users/${robloxId}/profile)\n` +
                 `• **Estado de Licencia:** <:tilde:1524936452574806076> Activa\n` +
                 `• **Balance Bancario:** **$${saldoActual.toLocaleString()}**\n` +
-                `• **Vehículos Registrados:** \`${autosRegistrados.length}\`\n\n` +
+                `• **Vehículos Registrados:** \`${autosRegistrados.length}\`\n` +
+                `• **Multas Pendientes:** \`${multasPendientes.length}\` ${deudaTotal > 0 ? `*(Deuda: $${deudaTotal.toLocaleString()})*` : '*(Al día)*'}\n\n` +
                 `⤷ *Para registrar una nueva unidad en tu garaje utiliza el comando \`/matricula_swfl registrar\` de forma pública.*`
             )
             .setThumbnail(fotoAvatar)
@@ -166,20 +174,13 @@ export default {
                 return await botonInteraction.reply({ embeds: [embedConAutos], ephemeral: true });
             }
 
-            // 🚨 BOTÓN DE MULTAS
+            // 🚨 BOTÓN DE MULTAS (Detalle desplegable)
             if (tipo === 'multas') {
-                let todasLasMultas = [];
-                if (multasDB instanceof Map) {
-                    todasLasMultas = Array.from(multasDB.values());
-                } else if (Array.isArray(multasDB)) {
-                    todasLasMultas = multasDB;
-                } else if (typeof multasDB === 'object' && multasDB !== null) {
-                    todasLasMultas = Object.values(multasDB);
-                }
+                const multasNuevas = await obtenerTodasLasMultas();
+                const arrayMultasActuales = Array.isArray(multasNuevas) ? multasNuevas : Object.values(multasNuevas || {});
+                const multasUsuarioActuales = arrayMultasActuales.filter(multa => String(multa.usuarioId || multa.usuario_id) === String(targetId));
 
-                const multasUsuario = todasLasMultas.filter(multa => String(multa.usuarioId) === String(targetId));
-
-                if (multasUsuario.length === 0) {
+                if (multasUsuarioActuales.length === 0) {
                     const embedSinMultas = new EmbedBuilder()
                         .setTitle('🚨 Historial de Multas')
                         .setDescription(`✅ El usuario <@${targetId}> **no tiene ningún tipo de multa.**`)
@@ -190,12 +191,12 @@ export default {
                     return await botonInteraction.reply({ embeds: [embedSinMultas], ephemeral: true });
                 }
 
-                const stringMultas = multasUsuario.map((multa) => {
+                const stringMultas = multasUsuarioActuales.map((multa) => {
                     const estadoTexto = multa.estado === 'PAGADA' ? '🟢 **PAGADA**' : '🔴 **PENDIENTE**';
                     return `**Multa #${multa.id}** — Estado: ${estadoTexto}\n` +
                            `> • **Razón:** ${multa.razon}\n` +
-                           `> • **Monto:** $${multa.monto.toLocaleString()}\n` +
-                           `> • **Oficial Emisor:** <@${multa.oficialId}>`;
+                           `> • **Monto:** $${Number(multa.monto).toLocaleString()}\n` +
+                           `> • **Oficial Emisor:** <@${multa.oficialId || multa.oficial_id}>`;
                 }).join('\n\n');
 
                 const embedConMultas = new EmbedBuilder()
