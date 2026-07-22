@@ -1,22 +1,19 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import fs from 'fs';
+import pool from '../../../db.js'; // Ajusta la ruta a db.js según corresponda
 import { obtenerSaldo } from '../../utils/gestorEconomia.js';
 import { multasDB } from '../../utils/gestorMultas.js';
 
-const ARCHIVO_DB = './vehiculos_db.json';
 const BLOXLINK_API_KEY = 'e47f3929-9be2-4179-82b1-e53b4a9a6538'; 
 
-// Función para leer las matrículas desde el disco
-function leerBaseDatos() {
-    if (!fs.existsSync(ARCHIVO_DB)) {
-        fs.writeFileSync(ARCHIVO_DB, JSON.stringify({}));
-    }
+// Función para obtener vehículos directamente desde PostgreSQL
+async function obtenerVehiculosUsuario(usuarioId) {
     try {
-        const data = JSON.parse(fs.readFileSync(ARCHIVO_DB, 'utf-8'));
-        return new Map(Object.entries(data));
+        const query = 'SELECT * FROM vehiculos WHERE usuario_id = $1';
+        const res = await pool.query(query, [usuarioId]);
+        return res.rows;
     } catch (error) {
-        console.error("Error leyendo vehículos en perfil:", error);
-        return new Map();
+        console.error("Error consultando vehículos en PostgreSQL:", error);
+        return [];
     }
 }
 
@@ -95,9 +92,8 @@ export default {
             }
         } catch (err) {}
 
-        // Leemos la base de datos física de vehículos y economía
-        const baseDatosVehiculos = leerBaseDatos();
-        const autosRegistrados = baseDatosVehiculos.get(miembro.id) || [];
+        // Leemos PostgreSQL y el sistema de economía
+        const autosRegistrados = await obtenerVehiculosUsuario(miembro.id);
         const saldoActual = obtenerSaldo(miembro.id);
 
         // 4. ARMADO DEL EMBED PRINCIPAL
@@ -132,10 +128,10 @@ export default {
 
         const mensajePerfil = await interaction.editReply({ embeds: [perfilEmbed], components: [botonera] });
 
-        // 6. RECOLECTOR DE COMPONENTES INTERNO (Extendido a 24 Horas)
+        // 6. RECOLECTOR DE COMPONENTES INTERNO (24 Horas)
         const recolector = mensajePerfil.createMessageComponentCollector({
             filter: (i) => i.customId.startsWith('regs_') || i.customId.startsWith('multas_'),
-            time: 86400000 // 24 Horas de validez activa
+            time: 86400000 
         });
 
         recolector.on('collect', async (botonInteraction) => {
@@ -143,8 +139,7 @@ export default {
 
             // 🚗 BOTÓN DE MATRÍCULAS
             if (tipo === 'regs') {
-                const baseActualizada = leerBaseDatos();
-                const listaAutosActuales = baseActualizada.get(targetId) || [];
+                const listaAutosActuales = await obtenerVehiculosUsuario(targetId);
 
                 if (listaAutosActuales.length === 0) {
                     const embedVacio = new EmbedBuilder()
@@ -157,7 +152,7 @@ export default {
                 }
 
                 const stringAutos = listaAutosActuales.map((auto, index) => 
-                    `**${index + 1}. ${auto.marca} ${auto.modelo} (${auto.año})**\n` +
+                    `**${index + 1}. ${auto.marca} ${auto.modelo} (${auto.anio || auto.año})**\n` +
                     `> • Color: ${auto.color}\n` +
                     `> • Matrícula: \`${auto.patente}\``
                 ).join('\n\n');
@@ -182,10 +177,8 @@ export default {
                     todasLasMultas = Object.values(multasDB);
                 }
 
-                // Filtramos por la ID del usuario objetivo
                 const multasUsuario = todasLasMultas.filter(multa => String(multa.usuarioId) === String(targetId));
 
-                // Si no tiene multas registradas
                 if (multasUsuario.length === 0) {
                     const embedSinMultas = new EmbedBuilder()
                         .setTitle('🚨 Historial de Multas')
@@ -197,7 +190,6 @@ export default {
                     return await botonInteraction.reply({ embeds: [embedSinMultas], ephemeral: true });
                 }
 
-                // Si tiene multas registradas
                 const stringMultas = multasUsuario.map((multa) => {
                     const estadoTexto = multa.estado === 'PAGADA' ? '🟢 **PAGADA**' : '🔴 **PENDIENTE**';
                     return `**Multa #${multa.id}** — Estado: ${estadoTexto}\n` +
