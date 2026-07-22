@@ -1,39 +1,38 @@
-import fs from 'fs';
+import { getFromDb, setInDb } from './database.js'; // Ajusta la ruta a database.js si está en otra carpeta
 
-const ARCHIVO_MULTAS = './multas_db.json';
 export const ROL_WARRANT_ID = '1529152491545952316';
+const KEY_MULTAS = 'multas:globales';
 
-// 📂 Cargar multas desde el archivo al iniciar el bot
-function cargarMultas() {
-    if (!fs.existsSync(ARCHIVO_MULTAS)) {
-        fs.writeFileSync(ARCHIVO_MULTAS, JSON.stringify({}));
-        return new Map();
-    }
-    try {
-        const data = JSON.parse(fs.readFileSync(ARCHIVO_MULTAS, 'utf-8'));
-        return new Map(Object.entries(data));
-    } catch (error) {
-        console.error("Error al cargar la base de datos de multas:", error);
-        return new Map();
-    }
+/**
+ * Obtener todas las multas registradas
+ */
+export async function obtenerTodasLasMultas() {
+    return await getFromDb(KEY_MULTAS, {});
 }
 
-// 💾 Guardar las multas físicamente en el disco
-export function guardarMultas() {
-    try {
-        const objetoMultas = Object.fromEntries(multasDB);
-        fs.writeFileSync(ARCHIVO_MULTAS, JSON.stringify(objetoMultas, null, 2));
-    } catch (error) {
-        console.error("Error al guardar la base de datos de multas:", error);
-    }
+/**
+ * Obtener una multa por su ID / TicketID
+ */
+export async function obtenerMulta(ticketId) {
+    const multas = await obtenerTodasLasMultas();
+    return multas[ticketId] || null;
 }
 
-// Inicializamos la Map desde el archivo cargado
-export const multasDB = cargarMultas();
+/**
+ * Guardar o actualizar una multa específica
+ */
+export async function guardarMulta(ticketId, datosMulta) {
+    const multas = await obtenerTodasLasMultas();
+    multas[ticketId] = datosMulta;
+    await setInDb(KEY_MULTAS, multas);
+}
 
-// 🔢 Generador inteligente de IDs (no repite IDs al reiniciar el bot)
-export function generarIDMulta() {
-    const ids = Array.from(multasDB.keys()).map(id => Number(id)).filter(id => !isNaN(id));
+/**
+ * Generar un ID único para la multa
+ */
+export async function generarIDMulta() {
+    const multas = await obtenerTodasLasMultas();
+    const ids = Object.keys(multas).map(id => Number(id)).filter(id => !isNaN(id));
     const ultimoID = ids.length > 0 ? Math.max(...ids) : 0;
     return (ultimoID + 1).toString();
 }
@@ -45,7 +44,7 @@ export function programarWarrant(client, guildId, usuarioId, ticketId) {
     const SIETE_DIAS_MS = 7 * 24 * 60 * 60 * 1000;
 
     setTimeout(async () => {
-        const ticket = multasDB.get(ticketId);
+        const ticket = await obtenerMulta(ticketId);
 
         if (ticket && ticket.estado === 'PENDIENTE') {
             try {
