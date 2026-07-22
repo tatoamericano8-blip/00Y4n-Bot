@@ -20,7 +20,7 @@ export default {
     async execute(interaction) {
         const usuarioId = interaction.user.id;
         const ahora = Date.now();
-        const TIEMPO_ESPERA = 4 * 60 * 60 * 1000; // 4 horas de cooldown
+        const TIEMPO_ESPERA = 8 * 60 * 60 * 1000; // 🛠️ Cambiado a 8 horas de cooldown
         const proximoTrabajo = cooldownsWork.get(usuarioId);
 
         // Verificar si el usuario está en tiempo de espera (Cooldown)
@@ -35,10 +35,10 @@ export default {
         // Generar ganancia aleatoria entre $400 y $1,200
         const ganancia = Math.floor(Math.random() * (1200 - 400 + 1)) + 400;
         
-        // 🛠️ FIX: Agregado await a la función asíncrona de saldo
+        // Agregar saldo a la cuenta del usuario
         const nuevoSaldo = await agregarSaldo(usuarioId, ganancia);
 
-        // Guardar nuevo timestamp de cooldown
+        // Guardar nuevo timestamp de cooldown (8 horas)
         const siguienteTurnoUnix = Math.floor((ahora + TIEMPO_ESPERA) / 1000);
         cooldownsWork.set(usuarioId, ahora + TIEMPO_ESPERA);
 
