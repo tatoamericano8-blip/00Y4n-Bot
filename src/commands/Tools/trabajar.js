@@ -34,7 +34,9 @@ export default {
 
         // Generar ganancia aleatoria entre $400 y $1,200
         const ganancia = Math.floor(Math.random() * (1200 - 400 + 1)) + 400;
-        const nuevoSaldo = agregarSaldo(usuarioId, ganancia);
+        
+        // 🛠️ FIX: Agregado await a la función asíncrona de saldo
+        const nuevoSaldo = await agregarSaldo(usuarioId, ganancia);
 
         // Guardar nuevo timestamp de cooldown
         const siguienteTurnoUnix = Math.floor((ahora + TIEMPO_ESPERA) / 1000);
