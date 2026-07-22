@@ -13,7 +13,7 @@ export default {
         const inputHost = new TextInputBuilder()
             .setCustomId('feedback_host')
             .setLabel('¿Quién fue el anfitrión? *')
-            .setPlaceholder('Ej: 00Y4n')
+            .setPlaceholder('Ej: 00Y4nSub')
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
 
