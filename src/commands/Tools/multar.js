@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
-import { multasDB, generarIDMulta, programarWarrant, guardarMultas } from '../../utils/gestorMultas.js';
+import { generarIDMulta, guardarMulta, programarWarrant } from '../../utils/gestorMultas.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -47,21 +47,23 @@ export default {
         const infractor = interaction.options.getUser('usuario');
         const razon = interaction.options.getString('razon');
         const monto = interaction.options.getInteger('monto');
-        const ticketID = generarIDMulta();
 
-        // Registrar la multa en la base de datos
-        multasDB.set(ticketID, {
+        // 🛠️ FIX 1: Agregado await para resolver la promesa del ID
+        const ticketID = await generarIDMulta();
+
+        // Crear objeto de la multa
+        const datosMulta = {
             id: ticketID,
             usuarioId: infractor.id,
             oficialId: interaction.user.id,
             razon: razon,
             monto: monto,
             estado: 'PENDIENTE',
-            fecha: new Date()
-        });
+            fecha: new Date().toISOString()
+        };
 
-        // 💾 Guardar permanentemente en disco (multas_db.json)
-        guardarMultas();
+        // 🛠️ FIX 2: Guardar directamente en la base de datos PostgreSQL
+        await guardarMulta(ticketID, datosMulta);
 
         // Activar el temporizador de 7 días para la Orden de Arresto
         programarWarrant(interaction.client, interaction.guildId, infractor.id, ticketID);
