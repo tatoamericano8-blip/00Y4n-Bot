@@ -15,8 +15,8 @@ import { loadCommands, registerCommands as registerSlashCommands } from './handl
 
 // 💸 Importamos el sistema de Oportunidades Económicas
 import { lanzarOportunidadEconomica } from './utils/gestorOportunidades.js';
-// 🔸 Importamos el módulo del Recordatorio de Estado
-import { enviarRecordatorioEstado } from './utils/gestorRecordatorios.js';
+// 🔸 Importamos el procesador de recordatorios por conteo de mensajes
+import { procesarMensajeRecordatorio } from './utils/gestorRecordatorios.js';
 
 class TitanBot extends Client {
   constructor() {
@@ -95,7 +95,7 @@ class TitanBot extends Client {
         `ONLINE ✅ | ${this.commands.size} commands loaded | ${handlerSummary} | Database: ${databaseMode}`
       );
       
-      // Iniciar Cron Jobs, Oportunidades y Recordatorios
+      // Iniciar Cron Jobs, Oportunidades y Listeners
       this.setupCronJobs();
       this.setupOportunidades();
       this.setupRecordatorioEstado();
@@ -255,24 +255,13 @@ class TitanBot extends Client {
     startupLog('✅ Sistema de Oportunidades Económicas iniciado.');
   }
 
-  // 🔸 Método para enviar el recordatorio del estado /00Y4n
+  // 🔸 Escuchador de mensajes para el recordatorio del estado /00Y4n (Cada 11 mensajes)
   setupRecordatorioEstado() {
-    const CANAL_GENERAL_ID = '1451939726230683753';
+    this.on('messageCreate', (message) => {
+      procesarMensajeRecordatorio(message);
+    });
 
-    // Intervalo de envío (ejemplo: cada 2 horas)
-    const INTERVALO_MS = 2 * 60 * 60 * 1000; 
-
-    // Enviar primer aviso 10 segundos después del arranque
-    setTimeout(() => {
-      enviarRecordatorioEstado(this, CANAL_GENERAL_ID);
-    }, 10000);
-
-    // Bucle continuo
-    setInterval(() => {
-      enviarRecordatorioEstado(this, CANAL_GENERAL_ID);
-    }, INTERVALO_MS);
-
-    startupLog('✅ Sistema de Recordatorio de Estado (/00Y4n) iniciado.');
+    startupLog('✅ Sistema de Recordatorio de Estado (/00Y4n) por conteo de mensajes iniciado.');
   }
 
   async updateAllCounters() {
