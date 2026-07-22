@@ -1,7 +1,9 @@
-import { getFromDb, setInDb } from './database.js'; // Ajusta la ruta a database.js si está en otra carpeta
+import { getFromDb, setInDb } from './database.js'; // Ajusta la ruta si es necesario
 
 export const ROL_WARRANT_ID = '1529152491545952316';
 const KEY_MULTAS = 'multas:globales';
+
+export const multasDB = new Map(); // Compatibilidad de importación
 
 /**
  * Obtener todas las multas registradas
@@ -25,6 +27,13 @@ export async function guardarMulta(ticketId, datosMulta) {
     const multas = await obtenerTodasLasMultas();
     multas[ticketId] = datosMulta;
     await setInDb(KEY_MULTAS, multas);
+}
+
+/**
+ * Función de compatibilidad (las multas ahora se guardan automáticamente en DB)
+ */
+export async function guardarMultas() {
+    return true;
 }
 
 /**
