@@ -25,7 +25,7 @@ export default {
 
         // 🆔 PONÉ ACÁ EL ID DEL CANAL DONDE QUERÉS QUE LLEGUEN LAS OPINIONES
         // (Dale click derecho al canal en Discord -> "Copiar ID del canal")
-        const idCanalDestino = '1466505897437171936'; 
+        const idCanalDestino = '1529286924362317974'; 
 
         const canalDestino = interaction.client.channels.cache.get(idCanalDestino);
 
