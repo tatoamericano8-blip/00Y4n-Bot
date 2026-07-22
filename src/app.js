@@ -1,4 +1,4 @@
-﻿import 'dotenv/config';
+import 'dotenv/config';
 import { Client, Collection, GatewayIntentBits } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import express from 'express';
@@ -13,6 +13,9 @@ import { checkBirthdays } from './services/birthdayService.js';
 import { checkGiveaways } from './services/giveawayService.js';
 import { loadCommands, registerCommands as registerSlashCommands } from './handlers/commandLoader.js';
 
+// 💸 Importamos el sistema de Oportunidades Económicas
+import { lanzarOportunidadEconomica } from './utils/gestorOportunidades.js';
+
 class TitanBot extends Client {
   constructor() {
     super({
@@ -24,7 +27,7 @@ class TitanBot extends Client {
         GatewayIntentBits.MessageContent,                
         GatewayIntentBits.GuildVoiceStates,              
         GatewayIntentBits.GuildBans,
-        GatewayIntentBits.GuildPresences, // ✅ Aquí está el intent agregado para leer estados
+        GatewayIntentBits.GuildPresences,
       ],
     });
 
@@ -48,7 +51,6 @@ class TitanBot extends Client {
       const dbInstance = await initializeDatabase();
       this.db = dbInstance.db;
       
-      // Check database status and report
       const dbStatus = this.db.getStatus();
       if (dbStatus.isDegraded) {
         logger.warn('');
@@ -57,7 +59,7 @@ class TitanBot extends Client {
         logger.warn('║                                                       ║');
         logger.warn('║ Connection: In-Memory Storage (PostgreSQL unavailable)║');
         logger.warn('║ Data Persistence: DISABLED - data lost on restart     ║');
-        logger.warn('║ Action Required: Fix PostgreSQL and restart bot       ║');
+        logger.warn('║ Action Required: Fix PostgreSQL and restart bot        ║');
         logger.warn('╚═══════════════════════════════════════════════════════╝');
         logger.warn('');
       } else {
@@ -91,7 +93,10 @@ class TitanBot extends Client {
         `ONLINE ✅ | ${this.commands.size} commands loaded | ${handlerSummary} | Database: ${databaseMode}`
       );
       
+      // Iniciar Cron Jobs y Oportunidades del Chat
       this.setupCronJobs();
+      this.setupOportunidades();
+
     } catch (error) {
       logger.error('Failed to start bot:', error);
       process.exit(1);
@@ -228,6 +233,26 @@ class TitanBot extends Client {
     cron.schedule('*/15 * * * *', () => this.updateAllCounters());
   }
 
+  // 💸 Método para manejar las Oportunidades Económicas aleatorias
+  setupOportunidades() {
+    const CANAL_GENERAL_ID = '1451939726230683753';
+
+    const programarSiguiente = () => {
+      // Tiempo aleatorio entre 60 y 180 minutos (1 a 3 horas)
+      const minutosAleatorios = Math.floor(Math.random() * (180 - 60 + 1)) + 60;
+      const msAleatorios = minutosAleatorios * 60 * 1000;
+
+      setTimeout(() => {
+        lanzarOportunidadEconomica(this, CANAL_GENERAL_ID);
+        programarSiguiente(); // Vuelve a programar la siguiente oportunidad
+      }, msAleatorios);
+    };
+
+    // Iniciar el ciclo del temporizador
+    programarSiguiente();
+    startupLog('✅ Sistema de Oportunidades Económicas iniciado.');
+  }
+
   async updateAllCounters() {
     if (!this.db) {
       logger.warn('Database not available for counter updates');
@@ -253,7 +278,6 @@ class TitanBot extends Client {
           }
         }
         
-        // Save cleaned counters if any were orphaned
         if (orphanedCounters.length > 0) {
           await saveServerCounters(this, guildId, validCounters);
           logger.info(`Cleaned up ${orphanedCounters.length} orphaned counter(s) from guild ${guildId} during scheduled update`);
@@ -309,12 +333,10 @@ class TitanBot extends Client {
     logger.info(`${'='.repeat(60)}`);
 
     try {
-      
       logger.info('Stopping cron jobs...');
       cron.getTasks().forEach(task => task.stop());
       logger.info('✅ Cron jobs stopped');
 
-      // Close database connection
       if (this.db && this.db.db) {
         logger.info('Closing database connection...');
         try {
@@ -327,15 +349,12 @@ class TitanBot extends Client {
         }
       }
 
-      
       logger.info('Destroying Discord client...');
       if (this.isReady()) {
         try {
           this.destroy();
           logger.info('✅ Discord client destroyed');
         } catch (error) {
-          
-          
           logger.warn('Discord client destroy warning (non-critical):', error.message);
         }
       }
