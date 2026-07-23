@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
-import Vehiculo from '../../models/Vehiculo.js'; // Ajusta la ruta a tu modelo de Vehiculo
+import Vehiculo from '../../../models/Vehiculo.js'; // Ajusta la ruta a tu modelo de Vehiculo
 
 export default {
     data: {
