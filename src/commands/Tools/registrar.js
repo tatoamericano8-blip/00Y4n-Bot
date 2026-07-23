@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
-import pool from '../../../db.js'; // Conexión a PostgreSQL en Render
+import Vehiculo from '../../models/Vehiculo.js'; // Ajusta la ruta a tu modelo de Vehiculo
 
 export default {
     data: {
@@ -50,9 +50,8 @@ export default {
             }
 
             try {
-                // 1. Verificamos cuántos autos tiene este usuario
-                const resAutos = await pool.query('SELECT COUNT(*) FROM vehiculos WHERE usuario_id = $1', [usuarioId]);
-                const cantidadAutos = parseInt(resAutos.rows[0].count);
+                // 1. Verificamos cuántos autos tiene este usuario en MongoDB
+                const cantidadAutos = await Vehiculo.countDocuments({ usuario_id: usuarioId });
 
                 // 🚨 Control de límite (Máximo 4)
                 const LIMITE_MAXIMO = 4; 
@@ -64,19 +63,23 @@ export default {
                 }
 
                 // 2. Verificamos que OTRA persona no tenga esa patente (patente única global)
-                const resPatente = await pool.query('SELECT * FROM vehiculos WHERE patente = $1', [patente]);
-                if (resPatente.rows.length > 0) {
+                const patenteExistente = await Vehiculo.findOne({ patente: patente });
+                if (patenteExistente) {
                     return await interaction.reply({
                         content: `<:cruz:1523041302764191844> La matrícula \`${patente}\` ya se encuentra registrada en el sistema del estado por otro ciudadano.`,
                         ephemeral: true
                     });
                 }
 
-                // 3. Insertamos el vehículo en PostgreSQL
-                await pool.query(
-                    'INSERT INTO vehiculos (usuario_id, marca, modelo, ano, color, patente) VALUES ($1, $2, $3, $4, $5, $6)',
-                    [usuarioId, marca, modelo, año, color, patente]
-                );
+                // 3. Guardamos el vehículo en MongoDB Atlas
+                await Vehiculo.create({
+                    usuario_id: usuarioId,
+                    marca: marca,
+                    modelo: modelo,
+                    ano: año,
+                    color: color,
+                    patente: patente
+                });
 
                 const embedRegistro = new EmbedBuilder()
                     .setTitle('<:seguro:1523041347869868253> SWFL | FORMATO DE MATRICULACIÓN DE VEHÍCULOS <:seguro:1523041347869868253>')
@@ -96,7 +99,7 @@ export default {
                 return await interaction.reply({ embeds: [embedRegistro] });
 
             } catch (error) {
-                console.error('Error guardando en Postgres:', error);
+                console.error('Error guardando en MongoDB:', error);
                 return await interaction.reply({ content: 'Hubo un error interno al registrar el vehículo.', ephemeral: true });
             }
         }
@@ -106,14 +109,11 @@ export default {
             const patente = interaction.options.getString('patente').toUpperCase();
 
             try {
-                // Borramos y obtenemos el dato borrado en una sola consulta
-                const resBorrado = await pool.query(
-                    'DELETE FROM vehiculos WHERE usuario_id = $1 AND patente = $2 RETURNING *',
-                    [usuarioId, patente]
-                );
+                // Buscamos y eliminamos el vehículo del usuario
+                const autoBorrado = await Vehiculo.findOneAndDelete({ usuario_id: usuarioId, patente: patente });
 
-                // Si no devolvió nada, significa que no existía esa patente a su nombre
-                if (resBorrado.rows.length === 0) {
+                // Si no se encontró el vehículo para ese usuario
+                if (!autoBorrado) {
                     return await interaction.reply({
                         content: `<:cruz:1523041302764191844> No posees ningún vehículo registrado bajo la matrícula \`${patente}\`.`,
                         ephemeral: true
@@ -135,7 +135,7 @@ export default {
                 return await interaction.reply({ embeds: [embedRemover] });
 
             } catch (error) {
-                console.error('Error borrando en Postgres:', error);
+                console.error('Error borrando en MongoDB:', error);
                 return await interaction.reply({ content: 'Hubo un error interno al remover el vehículo.', ephemeral: true });
             }
         }
