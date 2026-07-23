@@ -63,8 +63,8 @@ export default {
             new ButtonBuilder()
                 .setCustomId('verificar_voto_swfl')
                 .setLabel('Link de la Sesión')
-                .setStyle(ButtonStyle.Primary)
-                .setEmoji('1524936452574806076')
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('1529995334883872909')
         );
 
         await interaction.reply({ content: 'Liberando accesos del Car Meet...', ephemeral: true });
