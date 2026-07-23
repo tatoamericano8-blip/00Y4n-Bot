@@ -1,18 +1,17 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import pool from '../../../db.js'; // Ajusta la ruta a db.js según corresponda
+import Vehiculo from '../../../models/Vehiculo.js'; // Conexión a MongoDB
 import { obtenerSaldo } from '../../utils/gestorEconomia.js';
 import { obtenerTodasLasMultas } from '../../utils/gestorMultas.js';
 
 const BLOXLINK_API_KEY = 'e47f3929-9be2-4179-82b1-e53b4a9a6538'; 
 
-// Función para obtener vehículos directamente desde PostgreSQL
+// Función para obtener vehículos directamente desde MongoDB
 async function obtenerVehiculosUsuario(usuarioId) {
     try {
-        const query = 'SELECT * FROM vehiculos WHERE usuario_id = $1';
-        const res = await pool.query(query, [usuarioId]);
-        return res.rows;
+        const vehiculos = await Vehiculo.find({ usuario_id: usuarioId });
+        return vehiculos;
     } catch (error) {
-        console.error("Error consultando vehículos en PostgreSQL:", error);
+        console.error("Error consultando vehículos en MongoDB:", error);
         return [];
     }
 }
@@ -92,7 +91,7 @@ export default {
             }
         } catch (err) {}
 
-        // Leemos datos desde PostgreSQL / Gestores (con await)
+        // Leemos datos desde MongoDB / Gestores (con await)
         const autosRegistrados = await obtenerVehiculosUsuario(miembro.id);
         const saldoActual = await obtenerSaldo(miembro.id);
         
@@ -160,7 +159,7 @@ export default {
                 }
 
                 const stringAutos = listaAutosActuales.map((auto, index) => 
-                    `**${index + 1}. ${auto.marca} ${auto.modelo} (${auto.anio || auto.año})**\n` +
+                    `**${index + 1}. ${auto.marca} ${auto.modelo} (${auto.ano || auto.anio || auto.año})**\n` +
                     `> • Color: ${auto.color}\n` +
                     `> • Matrícula: \`${auto.patente}\``
                 ).join('\n\n');
