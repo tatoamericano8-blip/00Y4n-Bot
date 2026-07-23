@@ -18,11 +18,18 @@ export default {
                     { name: 'Car Meet', value: 'meet' }
                 ]
             },
-            { name: 'reacciones', description: 'Cantidad de reacciones necesarias para abrir.', type: ApplicationCommandOptionType.Integer, required: true },
-            { name: 'tematica_o_limite', description: 'Ejemplo RP: 80 MPH | Ejemplo Meet: JDM, Exóticos, etc.', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'ubicacion_o_peacetime', description: 'Ejemplo RP: Peacetime On/Off | Ejemplo Meet: Spawn, Puerto, etc.', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'spots', description: 'Solo para Car Meets (Ejemplo: 2-3 SPOTS + BOTM). Para RP dejar vacío.', type: ApplicationCommandOptionType.String, required: false },
-            { name: 'imagen', description: 'Link de la foto/banner para el anuncio (opcional).', type: ApplicationCommandOptionType.String, required: false }
+            { 
+                name: 'reacciones', 
+                description: 'Cantidad de reacciones necesarias para abrir.', 
+                type: ApplicationCommandOptionType.Integer, 
+                required: true 
+            },
+            { 
+                name: 'imagen', 
+                description: 'Link de la foto/banner para el anuncio (opcional).', 
+                type: ApplicationCommandOptionType.String, 
+                required: false 
+            }
         ]
     },
 
@@ -37,9 +44,6 @@ export default {
 
         const tipo = interaction.options.getString('tipo');
         const reacciones = interaction.options.getInteger('reacciones');
-        const dato1 = interaction.options.getString('tematica_o_limite');
-        const dato2 = interaction.options.getString('ubicacion_o_peacetime');
-        const spots = interaction.options.getString('spots') || 'N/A';
         const urlImagen = interaction.options.getString('imagen');
 
         // --- MAPEO DE EMOJIS CUSTOM (IDs Reales de tu servidor 00Y4n) ---
@@ -47,9 +51,9 @@ export default {
         const ePunto   = '<:00y4ncirpunto:1523041306836996156>';    // Círculo/Punto celeste
         const eFlechaH = '<:FlechaHoriz00Y4n:1519474590370500608>'; // Flecha horizontal naranja
         const eFlechaV = '<:Flecha_00Y4n:1519473149845045400>';     // Flecha curva naranja
-        const idTildeNaranja = '<a:coraexplotando:1523026579662307378>';               // ID real de tu tilde naranja para las reacciones
+        const idTildeNaranja = '<a:coraexplotando:1523026579662307378>'; // ID real de tu tilde naranja para las reacciones
 
-        // Modificación estética basada de forma estricta en image_45c25c.png con estilo 00Y4n
+        // Modificación estética basada de forma estricta en el estilo 00Y4n
         if (tipo === 'rp') {
             const embedRP = new EmbedBuilder()
                 .setTitle(`<a:mari:1523027011524624457> Southwest Florida - *_Roleplay Sesión Inicio_* <a:mari:1523027011524624457>`)
@@ -61,10 +65,6 @@ export default {
                     `> <:felc:1523041359441952970> Registra tus vehículos en <#1505615426305130657>!\n\n` +
                     `> <:felc:1523028004983406787> El host debe obtener **${reacciones}+** reacciones antes de comenzar.`
                 )
-                .addFields(
-                    { name: '> Límite de Velocidad (FRP)', value: `${dato1}`, inline: true },
-                    { name: '> Estado de Peacetime', value: `${dato2}`, inline: true }
-                )
                 .setColor('#74d4fc');
 
             if (urlImagen) embedRP.setImage(urlImagen);
@@ -72,7 +72,6 @@ export default {
             await interaction.reply({ content: 'Lanzando Startup de Roleplay...', ephemeral: true });
             const msg = await interaction.channel.send({ content: '@everyone', embeds: [embedRP] });
             
-            // CAMBIO AQUÍ: Ahora reacciona con tu tilde naranja personalizado
             await msg.react(idTildeNaranja);
 
             global.coleccionStartups.set(msg.id, { hostId: interaction.user.id, reaccionesRequeridas: reacciones, tipo, imagen: urlImagen, procesado: false });
@@ -89,11 +88,6 @@ export default {
                     `> <:felc:1523041359441952970> Recuerda evitar colisiones con vehiculos y mantener el realismo!\n\n` +
                     `> <:felc:1523028004983406787> El host debe obtener **${reacciones}+** reacciones antes de comenzar.`
                 )
-                .addFields(
-                    { name: '> Temática del Meet', value: `${dato1}`, inline: false },
-                    { name: '> Lugar de Inicio', value: `${dato2}`, inline: true },
-                    { name: '> Spots / Duración', value: `${spots}`, inline: true }
-                )
                 .setColor('#74d4fc');
 
             if (urlImagen) embedMeet.setImage(urlImagen);
@@ -101,7 +95,6 @@ export default {
             await interaction.reply({ content: 'Lanzando Startup de Car Meet...', ephemeral: true });
             const msg = await interaction.channel.send({ content: '@everyone', embeds: [embedMeet] });
             
-            // CAMBIO AQUÍ: También aplica para los Car Meets
             await msg.react(idTildeNaranja);
 
             global.coleccionStartups.set(msg.id, { hostId: interaction.user.id, reaccionesRequeridas: reacciones, tipo, imagen: urlImagen, procesado: false });
