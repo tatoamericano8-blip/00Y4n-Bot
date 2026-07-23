@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
-import Vehiculo from '../../models/Vehiculo.js'; // Ajustá la ruta según la ubicación exacta de tu archivo
+import Vehiculo from '../../../models/Vehiculo.js';
 
 export default {
     data: {
@@ -30,7 +30,7 @@ export default {
     },
 
     async execute(interaction) {
-        // ⏳ Avisamos a Discord que estamos procesando la consulta en la base de datos
+        // ⏳ Avisamos a Discord que estamos procesando la consulta
         await interaction.deferReply();
 
         const subcomando = interaction.options.getSubcommand();
@@ -76,7 +76,7 @@ export default {
                     usuario_id: usuarioId,
                     marca: marca,
                     modelo: modelo,
-                    ano: anio,
+                    anio: anio, // 🟢 Corregido: 'anio' en lugar de 'ano'
                     color: color,
                     patente: patente
                 });
