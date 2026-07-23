@@ -229,14 +229,24 @@ export default {
                 });
             }
 
+            if (!sesion.idInicio) {
+                return await interaction.reply({
+                    content: '<:cruz00y4n:1523041302764191844> **Error:** No se encontró el mensaje de inicio asociado a esta sesión para comprobar tu voto.',
+                    ephemeral: true
+                });
+            }
+
             try {
                 const msgInicio = await interaction.channel.messages.fetch(sesion.idInicio);
-                const reaccionTilde = msgInicio.reactions.cache.get('1523026579662307378');
 
+                // Comprobar si el usuario reaccionó a cualquiera de los emojis en el mensaje de Inicio
                 let haVotado = false;
-                if (reaccionTilde) {
-                    const usuariosQueVotaron = await reaccionTilde.users.fetch();
-                    haVotado = usuariosQueVotaron.has(interaction.user.id);
+                for (const reaction of msgInicio.reactions.cache.values()) {
+                    const usuariosQueVotaron = await reaction.users.fetch();
+                    if (usuariosQueVotaron.has(interaction.user.id)) {
+                        haVotado = true;
+                        break;
+                    }
                 }
 
                 if (!haVotado) {
@@ -252,6 +262,9 @@ export default {
                 if (sesion.tipo === 'meet') {
                     tituloEmbed = '<a:caram00y4nmov:1523026579662307378> Southwest Florida - *_Enlace del Car Meet_* <a:caram00y4nmov:1523026579662307378>';
                     descripcionEmbed = `> <:00y4ncirpunto:1523041306836996156> **¡Disfruta del Car Meet Oficial! Recuerda respetar las indicaciones del Staff, ingresar despacio a los spots y mantener una buena conducta.**\n\n**Enlace del Car Meet**\n> <:link00y4n:1525310570041966682> Haz clic [aquí](${sesion.linkSesion}) para unirte.`;
+                } else if (sesion.tipo === 'reinvitacion') {
+                    tituloEmbed = '<a:caram00y4nmov:1523026579662307378> Southwest Florida - *_Enlace de Reinvitación_* <a:caram00y4nmov:1523026579662307378>';
+                    descripcionEmbed = `> <:00y4ncirpunto:1523041306836996156> **¡Reinvitaciones Liberadas! Recuerda ingresar de inmediato y respetar la normativa vigente.**\n\n**Enlace de la Sesión**\n> <:link00y4n:1525310570041966682> Haz clic [aquí](${sesion.linkSesion}) para unirte.`;
                 }
 
                 const embedLink = {
@@ -443,4 +456,3 @@ export default {
     });
   }
 };
-
