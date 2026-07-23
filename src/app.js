@@ -3,6 +3,7 @@ import { Client, Collection, GatewayIntentBits } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import express from 'express';
 import cron from 'node-cron';
+import mongoose from 'mongoose'; // 👈 Importamos Mongoose para MongoDB
 
 import config from './config/application.js';
 import { initializeDatabase } from './utils/database.js';
@@ -49,7 +50,7 @@ class TitanBot extends Client {
       startupLog('Starting TitanBot...');
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      startupLog('Initializing database...');
+      startupLog('Initializing PostgreSQL database...');
       const dbInstance = await initializeDatabase();
       this.db = dbInstance.db;
       
@@ -65,7 +66,21 @@ class TitanBot extends Client {
         logger.warn('╚═══════════════════════════════════════════════════════╝');
         logger.warn('');
       } else {
-        startupLog(`✅ Database Status: ${dbStatus.connectionType} (fully operational)`);
+        startupLog(`✅ PostgreSQL Status: ${dbStatus.connectionType} (fully operational)`);
+      }
+
+      // 🍃 Inicializar conexión a MongoDB mediante Mongoose
+      startupLog('Initializing MongoDB (Mongoose)...');
+      const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+      if (mongoUri) {
+        try {
+          await mongoose.connect(mongoUri);
+          startupLog('✅ MongoDB Atlas connected via Mongoose successfully');
+        } catch (mongoErr) {
+          logger.error('❌ Failed to connect to MongoDB Atlas:', mongoErr.message);
+        }
+      } else {
+        logger.warn('⚠️ MONGO_URI missing in environment variables. Mongoose features will fail.');
       }
       
       startupLog('Starting web server...');
@@ -163,6 +178,9 @@ class TitanBot extends Client {
           connected: dbStatus.connectionType !== 'none',
           degraded: dbStatus.isDegraded,
           type: dbStatus.connectionType
+        },
+        mongoose: {
+          connected: mongoose.connection.readyState === 1
         }
       };
       res.status(200).json(status);
@@ -349,15 +367,22 @@ class TitanBot extends Client {
       logger.info('✅ Cron jobs stopped');
 
       if (this.db && this.db.db) {
-        logger.info('Closing database connection...');
+        logger.info('Closing PostgreSQL database connection...');
         try {
           if (this.db.db.pool) {
             await this.db.db.pool.end();
-            logger.info('✅ Database connection closed');
+            logger.info('✅ PostgreSQL database connection closed');
           }
         } catch (error) {
           logger.warn('Error closing database pool:', error.message);
         }
+      }
+
+      // Cierre de la conexión de Mongoose
+      if (mongoose.connection.readyState !== 0) {
+        logger.info('Closing Mongoose (MongoDB) connection...');
+        await mongoose.connection.close();
+        logger.info('✅ Mongoose connection closed');
       }
 
       logger.info('Destroying Discord client...');
