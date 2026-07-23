@@ -56,14 +56,14 @@ export default {
         // Modificación estética basada de forma estricta en el estilo 00Y4n
         if (tipo === 'rp') {
             const embedRP = new EmbedBuilder()
-                .setTitle(`<a:mari:1523027011524624457> Southwest Florida - *_Roleplay Sesión Inicio_* <a:mari:1523027011524624457>`)
+                .setTitle(`<a:mari:1523027011524624457> **Southwest Florida** - *__Roleplay Sesión Inicio__* <a:mari:1523027011524624457>`)
                 .setDescription(
-                    `> ${ePunto} <@${interaction.user.id}> ¡está organizando una sesión de roleplay! Si tienes la intención de unirte, reacciona abajo con el emoji elegido por el host. ¡Si reaccionas sin unirte, podrías enfrentar consecuencias por parte del equipo de staff!\n\n` +
+                    `> ${ePunto} <@${interaction.user.id}> ¡está organizando una **sesión de roleplay**! Si tienes la intención de **unirte**, reacciona abajo con el emoji elegido por el host. ¡Si reaccionas sin unirte, podrías enfrentar __**consecuencias**__ por parte del equipo de staff!\n\n` +
                     `**Antes de Unirte**\n\n` +
                     `> <:felc:1523041359441952970> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
                     `> <:felc:1523041359441952970> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1525190667545088225)\n` +
                     `> <:felc:1523041359441952970> Registra tus vehículos en <#1505615426305130657>!\n\n` +
-                    `> <:felc:1523028004983406787> El host debe obtener **${reacciones}+** reacciones antes de comenzar.`
+                    `> <:felc:1523028004983406787> El host debe obtener __**${reacciones}+**__ reacciones antes de comenzar.`
                 )
                 .setColor('#74d4fc');
 
@@ -79,14 +79,14 @@ export default {
 
         if (tipo === 'meet') {
             const embedMeet = new EmbedBuilder()
-                .setTitle(`<a:mari:1523027011524624457> Southwest Florida - *_Car Meet Sesión Inicio_* <a:mari:1523027011524624457>`)
+                .setTitle(`<a:mari:1523027011524624457> Southwest Florida - __*Car Meet Sesión Inicio*__ <a:mari:1523027011524624457>`)
                 .setDescription(
-                    `> ${ePunto} <@${interaction.user.id}> ¡está organizando un car meet oficial! Si tienes la intención de unirte, reacciona abajo con el emoji elegido por el host. ¡Si reaccionas sin unirte, podrías enfrentar consecuencias por parte del equipo de staff!\n\n` +
+                    `> ${ePunto} <@${interaction.user.id}> ¡está organizando un **car meet oficial**! Si tienes la intención de **unirte**, reacciona abajo con el emoji elegido por el host. ¡Si reaccionas sin unirte, podrías enfrentar __**consecuencias**__ por parte del equipo de staff!\n\n` +
                     `**Antes de Unirte**\n\n` +
                     `> <:felc:1523041359441952970> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
                     `> <:felc:1523041359441952970> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1525190667545088225)\n` +
                     `> <:felc:1523041359441952970> Recuerda evitar colisiones con vehiculos y mantener el realismo!\n\n` +
-                    `> <:felc:1523028004983406787> El host debe obtener **${reacciones}+** reacciones antes de comenzar.`
+                    `> <:felc:1523028004983406787> El host debe obtener __**${reacciones}+**__ reacciones antes de comenzar.`
                 )
                 .setColor('#74d4fc');
 
