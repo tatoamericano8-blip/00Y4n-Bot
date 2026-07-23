@@ -74,8 +74,8 @@ export default {
             new ButtonBuilder()
                 .setCustomId('verificar_voto_swfl')
                 .setLabel('Link de la Sesión')
-                .setStyle(ButtonStyle.Primary)
-                .setEmoji('1524936452574806076') // ID de tu emoji estático de enlace
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('1529995334883872909') // ID de tu emoji estático de enlace
         );
 
         await interaction.reply({ content: 'Liberando accesos de Roleplay...', ephemeral: true });
