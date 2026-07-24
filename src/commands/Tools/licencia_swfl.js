@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
-import Licencia from '../../models/Licencia.js'; // Ajusta la ruta a tu modelo
+import Licencia from '../../../models/Licencia.js'; // Ajusta la ruta a tu modelo
 
 // 👮 ID DEL ROL DE POLICÍA
 const ROL_POLICIA_ID = '1529146302783422706';
