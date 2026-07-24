@@ -5,18 +5,6 @@ global.coleccionSesiones = global.coleccionSesiones || new Map();
 // URL DE LA IMAGEN PREDETERMINADA PARA ROLEPLAY
 const IMAGEN_RP_DEFECTO = 'https://cdn.discordapp.com/attachments/1517331229303902432/1524843450678116432/Lanzamiento_RP_2NUEVO3.png?ex=6a51e160&is=6a508fe0&hm=cca9367de3287bd9c34191f59eebbad3b96b48c58d266119050ed9f81b0182a2&';
 
-// --- DICCIONARIO COMPLETO DE EMOJIS CUSTOM (00Y4n) ---
-const EMOJIS = {
-    link: '<:link00y4n:1519476984932073482>',
-    cruz: '<:cruz00y4n:1519476959606734998>',
-    warn: '<:warn00y4n:1519476933988061295>',
-    cirPunto: '<:00y4ncirpunto:1519474782117171392>',
-    flechaH: '<:FlechaHoriz00Y4n:1519474590370500608>',
-    flechaV: '<:Flecha_00Y4n:1519473149845045400>',
-    star: '<:star00y4n:1519474745320669194>',
-    coraMov: '<a:Cora_Mov_00Y4n:1519473208334749716>'
-};
-
 export default {
     data: {
         name: 'lanzar_rp',
@@ -34,12 +22,12 @@ export default {
         // 🔒 SEGURIDAD: Bloqueo de Staff
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
-                content: `<:cruz:1523041302764191844> **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesión.`,
+                content: `<:cruz00y4n:1523041302764191844> **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesión.`,
                 ephemeral: true
             });
         }
 
-        // 📝 Obtenemos la ID de forma manual desde las opciones
+        // 📝 Obtenemos las opciones ingresadas por el usuario
         const idInicio = interaction.options.getString('mensaje_id');
         const linkSesion = interaction.options.getString('acceso');
         const limite = interaction.options.getString('limite_velocidad');
@@ -75,7 +63,7 @@ export default {
                 .setCustomId('verificar_voto_swfl')
                 .setLabel('Link de la Sesión')
                 .setStyle(ButtonStyle.Secondary)
-                .setEmoji('1529995334883872909') // ID de tu emoji estático de enlace
+                .setEmoji('1529995334883872909')
         );
 
         await interaction.reply({ content: 'Liberando accesos de Roleplay...', ephemeral: true });
@@ -90,9 +78,10 @@ export default {
         global.coleccionSesiones.set(msgRelease.id, { 
             idInicio, 
             linkSesion,
+            limite,
+            peacetime,
             guildId: interaction.guildId,
             tipo: 'rp'
         });
     }
 };
-
