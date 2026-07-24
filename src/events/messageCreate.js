@@ -8,13 +8,16 @@ export default {
       // 🔒 Si el mensaje es de un bot o no es en un servidor, lo ignoramos
       if (message.author.bot || !message.guild) return;
 
-      // --- ⬇️ INICIO DEL SISTEMA AUTO-RESPONDER ("CÓMO UNIRSE") ⬇️ ---
+      // Normalizamos el texto (quita tildes y pasa todo a minúsculas)
       const textoNormalizado = message.content
         .toLowerCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "");
 
-      const disparadores = [
+      // -------------------------------------------------------------
+      // 1️⃣ AUTO-RESPONDER: "CÓMO UNIRSE"
+      // -------------------------------------------------------------
+      const disparadoresUnirse = [
         'como unirse',
         'como me uno',
         'como unirme',
@@ -23,9 +26,9 @@ export default {
         'como juego'
       ];
 
-      const activarAutoResponder = disparadores.some(frase => textoNormalizado.includes(frase));
+      const activarUnirse = disparadoresUnirse.some(frase => textoNormalizado.includes(frase));
 
-      if (activarAutoResponder) {
+      if (activarUnirse) {
         const embedComoUnirse = new EmbedBuilder()
           .setColor('#74d4fc')
           .setDescription(
@@ -46,12 +49,53 @@ export default {
           });
 
         try {
-          await message.reply({ embeds: [embedComoUnirse] });
-        } catch (errorResponder) {
-          logger.error('Error enviando el auto-responder:', errorResponder);
+          return await message.reply({ embeds: [embedComoUnirse] });
+        } catch (error) {
+          logger.error('Error enviando auto-responder de cómo unirse:', error);
         }
       }
-      // --- ⬆️ FIN DEL SISTEMA AUTO-RESPONDER ⬆️ ---
+
+      // -------------------------------------------------------------
+      // 2️⃣ AUTO-RESPONDER: "CÓMO REGISTRAR VEHÍCULO"
+      // -------------------------------------------------------------
+      const disparadoresRegistro = [
+        'como registro',
+        'como se registra',
+        'como registrar',
+        'donde registro',
+        'como matriculo',
+        'como matricular',
+        'donde matriculo',
+        'como registro mi auto',
+        'como registro mi vehiculo'
+      ];
+
+      const activarRegistro = disparadoresRegistro.some(frase => textoNormalizado.includes(frase));
+
+      if (activarRegistro) {
+        const embedRegistro = new EmbedBuilder()
+          .setColor('#74d4fc')
+          .setDescription(
+            `┃ __**Cómo Registrar tu Vehículo**__\n\n` +
+            `🚗 **Paso a Paso:**\n` +
+            `1. Escribe el comando **\`/matricula_swfl registrar\`** (o \`/matricular registrar\`) en el chat.\n` +
+            `2. En la opción **patente**, ingresa una combinación de **6 a 7 caracteres** (letras y números sin espacios ni símbolos).\n` +
+            `3. Especifica la **marca y modelo** exacto de tu auto.\n\n` +
+            `⚠️ **Importante:**\n` +
+            `• Revisa el canal de reglas para asegurarte de que tu auto no esté en la lista de **vehículos restringidos o prohibidos**.\n` +
+            `• Tu registro es obligatorio para poder ingresar a las sesiones de roleplay.`
+          )
+          .setFooter({ 
+            text: message.guild.name, 
+            iconURL: message.guild.iconURL({ dynamic: true }) 
+          });
+
+        try {
+          return await message.reply({ embeds: [embedRegistro] });
+        } catch (error) {
+          logger.error('Error enviando auto-responder de registro:', error);
+        }
+      }
 
     } catch (error) {
       logger.error('Error in messageCreate event:', error);
