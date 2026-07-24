@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
-import { obtenerSaldo, agregarSaldo, saldosDB } from '../../utils/gestorEconomia.js';
+import { obtenerSaldo, agregarSaldo } from '../../utils/gestorEconomia.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -56,25 +56,22 @@ export default {
             });
         }
 
-        const saldoActual = obtenerSaldo(objetivo.id);
+        // 1. Usar 'await' para esperar la respuesta de la base de datos
+        const saldoActual = await obtenerSaldo(objetivo.id);
         let nuevoSaldo;
         let accionTexto = '';
 
         // Lógica según el subcomando elegido
         if (subcomando === 'agregar') {
-            nuevoSaldo = agregarSaldo(objetivo.id, cantidad);
-            accionTexto = `✅ Se han depositado **$${cantidad.toLocaleString()}** exitosamente en la cuenta de <@${objetivo.id}>.`;
+            nuevoSaldo = await agregarSaldo(objetivo.id, cantidad);
+            accionTexto = `✅ Se han depositado **$${cantidad.toLocaleString('es-AR')}** exitosamente en la cuenta de <@${objetivo.id}>.`;
             
         } else if (subcomando === 'quitar') {
-            nuevoSaldo = saldoActual - cantidad;
+            // Si intenta quitar más de lo que tiene el usuario, descontamos lo necesario para dejarlo en $0
+            const montoARestar = Math.min(saldoActual, cantidad);
+            nuevoSaldo = await agregarSaldo(objetivo.id, -montoARestar);
             
-            // Prevenir saldos negativos
-            if (nuevoSaldo < 0) nuevoSaldo = 0; 
-            
-            // Forzamos la actualización directa en la DB para saltar la validación de fondos insuficientes
-            saldosDB.set(objetivo.id, nuevoSaldo); 
-            
-            accionTexto = `📉 Se han incautado/retirado **$${cantidad.toLocaleString()}** de la cuenta de <@${objetivo.id}>.`;
+            accionTexto = `📉 Se han incautado/retirado **$${cantidad.toLocaleString('es-AR')}** de la cuenta de <@${objetivo.id}>.`;
         }
 
         // Armar el Embed al estilo 00Y4n (#74d4fc)
@@ -83,20 +80,20 @@ export default {
             .setTitle('🏦 Gestión Bancaria Central | Auditoría')
             .setDescription(
                 `${accionTexto}\n\n` +
-                `• **Balance anterior:** $${saldoActual.toLocaleString()}\n` +
-                `• **Nuevo balance:** **$${nuevoSaldo.toLocaleString()}**\n\n` +
+                `• **Balance anterior:** $${saldoActual.toLocaleString('es-AR')}\n` +
+                `• **Nuevo balance:** **$${nuevoSaldo.toLocaleString('es-AR')}**\n\n` +
                 `> *Operación autorizada por: <@${interaction.user.id}>*`
             )
             .setFooter({ 
-                text: '00Y4n Comunidad SWFL • Auditoría Económica', 
-                iconURL: interaction.guild.iconURL() 
+                text: `${interaction.guild.name} • Auditoría Económica`, 
+                iconURL: interaction.guild.iconURL({ dynamic: true }) 
             })
             .setTimestamp();
 
         // Enviar respuesta
         await interaction.reply({
             embeds: [embedAuditoria],
-            allowedMentions: { parse: [] } // Evita pinear al usuario al que le modifican el balance
+            allowedMentions: { parse: [] } // Evita pingear al objetivo
         });
     },
 };
