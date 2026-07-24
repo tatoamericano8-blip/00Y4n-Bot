@@ -8,9 +8,11 @@ import { getFromDb, setInDb } from '../../utils/database.js';
 // Si un usuario tiene varios roles, se irán sumando.
 // -------------------------------------------------------------
 const ROLES_RECOMPENSAS = [
-    { id: '1506800624493269057', nombre: 'Ciudadano', recompensa: 500 },
-    { id: '1451950096471162992', nombre: 'Miembro_00Y4n', recompensa: 750 },
+    { id: '1506800624493269057', nombre: 'Ciudadano', recompensa: 650 },
+    { id: '1451950096471162992', nombre: 'Miembro_00Y4n', recompensa: 900 },
     { id: '1484294519234105638', nombre: 'Booster', recompensa: 1000 },
+    { id: '1497267661158092973', nombre: 'Sponsor', recompensa: 2500 },
+    { id: '1512120103771050005', nombre: 'Staff', recompensa: 2500 },
     // Podés agregar todos los roles que quieras siguiendo la misma estructura
 ];
 
@@ -67,11 +69,11 @@ export default {
 
         // 5. Crear Embed idéntico al de la imagen
         const embedCollect = new EmbedBuilder()
-            .setTitle('💰 Income Collected')
-            .setColor('#38a0ce')
+            .setTitle('<a:si:1529160799392632832> Ingreso Diario Recolectado')
+            .setColor('#74d4fc')
             .setDescription(
-                `➔ You've collected **$${totalIngreso.toLocaleString('es-AR', { minimumFractionDigits: 2 })}** in daily income. Your updated balance is now **$${nuevoSaldo.toLocaleString('es-AR', { minimumFractionDigits: 2 })}**.\n\n` +
-                `**Next Available:** <t:${proximoReclamoUnix}:F>\n\n` +
+                `<:fle:1523041359441952970> Has recaudado **$${totalIngreso.toLocaleString('es-AR', { minimumFractionDigits: 2 })}** en ingresos diarios. Tu saldo actualizado es ahora **$${nuevoSaldo.toLocaleString('es-AR', { minimumFractionDigits: 2 })}**.\n\n` +
+                `**Siguiente disponible:** <t:${proximoReclamoUnix}:F>\n\n` +
                 `${desgloseRoles.join('\n')}`
             );
 
