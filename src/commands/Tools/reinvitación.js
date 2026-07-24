@@ -176,34 +176,32 @@ export default {
                 });
                 const timestampRelease = Math.floor(Date.now() / 1000);
 
-                // 🔹 Construcción dinámica de la información según el tipo de sesión
-                let bloqueDatosSesion = '';
+                // 🔹 Construcción de los datos dinámicos dentro de "Información de la Reinvitación"
+                let datosExtraSesion = '';
                 let tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Liberadas__*** <a:confeti:1523026892981145600>';
 
                 if (sesionData?.tipo === 'rp') {
                     tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Roleplay Liberadas__*** <a:confeti:1523026892981145600>';
-                    bloqueDatosSesion = 
-                        `<:flor:1523041315187855470> **Información del Roleplay**\n\n` +
-                        `> <:uno:1523028217592676464> **Estado de Peacetime:** ${sesionData.peacetime || 'No especificado'}\n` +
-                        `> <:dos:1523027468385128568> **Velocidad de Fail Roleplay:** ${sesionData.limite || 'No especificada'}\n` +
-                        `> <:replica:1523028004983406787> Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n\n`;
+                    datosExtraSesion = 
+                        `> <:tres:1523027610479759561> **Estado de Peacetime:** ${sesionData.peacetime || 'No especificado'}\n` +
+                        `> <:cuatro:1523027468385128568> **Velocidad de Fail Roleplay:** ${sesionData.limite || 'No especificada'}\n` +
+                        `> <:replica:1523028004983406787> Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n`;
                 } else if (sesionData?.tipo === 'meet') {
                     tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Car Meet Liberadas__*** <a:confeti:1523026892981145600>';
-                    bloqueDatosSesion = 
-                        `**<:caram00y4nmov:1523041315187855470> Información del Car Meet**\n\n` +
-                        `<:uno:1523028217592676464> **Temática del Meet:** ${sesionData.tematica || 'No especificada'}\n` +
-                        `<:dos:1523027468385128568> **Lugar Actual:** ${sesionData.ubicacion || 'No especificado'}\n` +
-                        `<:tres:1523027610479759561> **Spots / Duración:** ${sesionData.spots || 'No especificado'}\n` +
-                        `<:flechareplica:1523028004983406787> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n\n`;
+                    datosExtraSesion = 
+                        `> <:tres:1523027610479759561> **Temática del Meet:** ${sesionData.tematica || 'No especificada'}\n` +
+                        `> <:cuatro:1523027468385128568> **Lugar Actual:** ${sesionData.ubicacion || 'No especificado'}\n` +
+                        `> <:cinco:1523027610479759561> **Spots / Duración:** ${sesionData.spots || 'No especificado'}\n` +
+                        `> <:flechareplica:1523028004983406787> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n`;
                 }
 
                 const infoDescripcion = 
                     `> <:dot:1523041306836996156> <@${interaction.user.id}> **¡ha liberado las reinvitaciones de la sesión!** Se ha alcanzado la meta de reacciones requeridas. Podés unirte al servidor utilizando el botón de abajo.\n\n` +
                     `<:flor:1523041315187855470> **Información de la Reinvitación**\n\n` +
                     `> <:uno:1523028217592676464> **Reacciones Alcanzadas:** \`${reaccionesRequeridas} / ${reaccionesRequeridas}\` <a:si:1523027371735777503>\n` +
-                    `> <:dos:1523027468385128568> **Hora de Liberación:** **${horaRelease}** (<t:${timestampRelease}:t>)\n\n` +
-                    bloqueDatosSesion +
-                    `<:flor:1523041315187855470> **Antes de Unirte**\n\n` +
+                    `> <:dos:1523027468385128568> **Hora de Liberación:** **${horaRelease}** (<t:${timestampRelease}:t>)\n` +
+                    datosExtraSesion +
+                    `\n<:flor:1523041315187855470> **Antes de Unirte**\n\n` +
                     `> <:fle:1523041359441952970> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
                     `> <:fle:1523041359441952970> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & [vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1525190667545088225).\n` +
                     `> <:fle:1523041359441952970> Registra tus vehículos en <#1505615426305130657>!\n\n` +
@@ -216,7 +214,7 @@ export default {
                     .setFooter({ text: '00Y4n Comunidad SWFL', iconURL: interaction.guild.iconURL() || undefined })
                     .setTimestamp();
 
-                // ÚNICO BOTÓN: "Link de la Sesión" para obligar a verificar el voto
+                // ÚNICO BOTÓN: "Link de la Sesión"
                 const fila = new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
                         .setCustomId('verificar_voto_swfl')
