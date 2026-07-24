@@ -1,5 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import Vehiculo from '../../../models/Vehiculo.js'; // Conexión a MongoDB
+import Licencia from '../../../models/Licencia.js'; // Conexión al modelo de Licencias
 import { obtenerSaldo } from '../../utils/gestorEconomia.js';
 import { obtenerTodasLasMultas } from '../../utils/gestorMultas.js';
 
@@ -91,25 +92,36 @@ export default {
             }
         } catch (err) {}
 
-        // Leemos datos desde MongoDB / Gestores (con await)
+        // Leemos datos desde MongoDB / Gestores
         const autosRegistrados = await obtenerVehiculosUsuario(miembro.id);
         const saldoActual = await obtenerSaldo(miembro.id);
         
-        // 🚨 Obtener multas del usuario para mostrar el resumen en el perfil
+        // 🪪 OBTENER ESTADO DE LA LICENCIA DESDE MONGODB
+        let datosLicencia = await Licencia.findOne({ usuario_id: miembro.id });
+        let estadoLicencia = datosLicencia ? datosLicencia.estado : 'Activa';
+
+        let textoLicenciaVisual = '<:tilde:1524936452574806076> Activa';
+        if (estadoLicencia === 'Suspendida') {
+            textoLicenciaVisual = '🟡 Suspendida';
+        } else if (estadoLicencia === 'Revocada') {
+            textoLicenciaVisual = '🔴 Revocada';
+        }
+
+        // 🚨 Obtener multas del usuario
         const multasData = await obtenerTodasLasMultas();
         const arrayMultas = Array.isArray(multasData) ? multasData : Object.values(multasData || {});
         const multasUsuario = arrayMultas.filter(m => String(m.usuarioId || m.usuario_id) === String(miembro.id));
         const multasPendientes = multasUsuario.filter(m => m.estado === 'PENDIENTE');
         const deudaTotal = multasPendientes.reduce((acc, m) => acc + (Number(m.monto) || 0), 0);
 
-        // 4. ARMADO DEL EMBED PRINCIPAL (Resumen directo)
+        // 4. ARMADO DEL EMBED PRINCIPAL
         const perfilEmbed = new EmbedBuilder()
             .setTitle('<:seguro:1523041347869868253> Southwest Florida | *Perfil de Civil*')
             .setDescription(
                 `> Ficha de registro oficial del ciudadano dentro de nuestra base de datos de regulaciones de tránsito y economía.\n\n` +
                 `• **Usuario:** <@${miembro.id}>\n` +
                 `• **Perfil de Roblox:** [${robloxUsername}](https://www.roblox.com/users/${robloxId}/profile)\n` +
-                `• **Estado de Licencia:** <:tilde:1524936452574806076> Activa\n` +
+                `• **Estado de Licencia:** ${textoLicenciaVisual}\n` +
                 `• **Balance Bancario:** **$${saldoActual.toLocaleString()}**\n` +
                 `• **Vehículos Registrados:** \`${autosRegistrados.length}\`\n` +
                 `• **Multas Pendientes:** \`${multasPendientes.length}\` ${deudaTotal > 0 ? `*(Deuda: $${deudaTotal.toLocaleString()})*` : '*(Al día)*'}\n\n` +
@@ -173,7 +185,7 @@ export default {
                 return await botonInteraction.reply({ embeds: [embedConAutos], ephemeral: true });
             }
 
-            // 🚨 BOTÓN DE MULTAS (Detalle desplegable)
+            // 🚨 BOTÓN DE MULTAS
             if (tipo === 'multas') {
                 const multasNuevas = await obtenerTodasLasMultas();
                 const arrayMultasActuales = Array.isArray(multasNuevas) ? multasNuevas : Object.values(multasNuevas || {});
