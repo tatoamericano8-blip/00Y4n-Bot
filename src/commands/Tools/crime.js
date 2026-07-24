@@ -53,7 +53,7 @@ export default {
         const pensamientoAleatorio = pensamientosCrimen[Math.floor(Math.random() * pensamientosCrimen.length)];
         
         await interaction.reply({
-            content: `💀 **Scoping a move...**\n*${pensamientoAleatorio}*`
+            content: `💀 **Planeando el delito...**\n*${pensamientoAleatorio}*`
         });
 
         // 3. Pausa dramática de 3 segundos
