@@ -1,8 +1,8 @@
-import { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
-import Licencia from '../../../models/Licencia.js'; // Ajusta la ruta a tu modelo
+import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
+import Licencia from '../../models/Licencia.js'; // Ajusta la ruta a tu modelo
 
-// ⚙️ COLOCA AQUÍ EL ID DEL ROL DE POLICÍA DE TU SERVIDOR
-const ROL_POLICIA_ID = '1529146302783422706'; 
+// 👮 ID DEL ROL DE POLICÍA
+const ROL_POLICIA_ID = '1529146302783422706';
 
 export default {
     data: {
@@ -36,13 +36,13 @@ export default {
     },
 
     async execute(interaction) {
-        // 🔒 Verificación de Rol de Policía
+        // 🔒 VERIFICACIÓN EXCLUSIVA: ¿Tiene el rol de Policía especificado?
         const tieneRolPolicia = interaction.member.roles.cache.has(ROL_POLICIA_ID);
         
-        if (!tieneRolPolicia && !interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+        if (!tieneRolPolicia) {
             const embedSinPermiso = new EmbedBuilder()
                 .setTitle('❌ ACCESO DENEGADO')
-                .setDescription('Solo el personal autorizado del **Departamento de Policía** puede gestionar las licencias de conducir.')
+                .setDescription('Este comando está reservado únicamente para el personal que posea el rol del **Departamento de Policía**.')
                 .setColor('#ff3333');
 
             return await interaction.reply({ embeds: [embedSinPermiso], ephemeral: true });
@@ -52,7 +52,7 @@ export default {
         const nuevoEstado = interaction.options.getString('estado');
         const motivo = interaction.options.getString('motivo') || 'Sin motivo especificado.';
 
-        // Actualizamos o creamos el registro de la licencia en MongoDB
+        // Guardar/Actualizar en MongoDB
         await Licencia.findOneAndUpdate(
             { usuario_id: usuario.id },
             { 
@@ -64,7 +64,7 @@ export default {
             { upsert: true, new: true }
         );
 
-        // Formato del mensaje de confirmación
+        // Estilos según el estado asignado
         let emojiEstado = '🟢';
         let colorEmbed = '#57f287';
 
@@ -80,7 +80,7 @@ export default {
             .setTitle('📑 Actualización de Licencia de Conducir')
             .setDescription(
                 `Se ha actualizado la documentación del ciudadano <@${usuario.id}>.\n\n` +
-                `• **Estado Actual:** ${emojiEstado} **${nuevoEstado.toUpperCase()}**\n` +
+                `• **Nuevo Estado:** ${emojiEstado} **${nuevoEstado.toUpperCase()}**\n` +
                 `• **Oficial a Cargo:** <@${interaction.user.id}>\n` +
                 `• **Motivo/Observación:** ${motivo}`
             )
