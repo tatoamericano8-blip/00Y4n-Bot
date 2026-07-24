@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
-import { obtenerSaldo, agregarSaldo, cooldownsWork } from '../../utils/gestorEconomia.js';
+import { agregarSaldo } from '../../utils/gestorEconomia.js';
+import { getFromDb, setInDb } from '../../utils/database.js';
 
 // Historias al estilo SWFL / Sarasota RP
 const historiasTrabajo = [
@@ -20,10 +21,13 @@ export default {
     async execute(interaction) {
         const usuarioId = interaction.user.id;
         const ahora = Date.now();
-        const TIEMPO_ESPERA = 8 * 60 * 60 * 1000; // 🛠️ Cambiado a 8 horas de cooldown
-        const proximoTrabajo = cooldownsWork.get(usuarioId);
+        const TIEMPO_ESPERA = 4 * 60 * 60 * 1000; // ⏱️ Cooldown ajustado a 4 Horas
+        const claveCooldown = `cooldown:work:${usuarioId}`;
 
-        // Verificar si el usuario está en tiempo de espera (Cooldown)
+        // 1. Obtener el próximo trabajo guardado en la Base de Datos (persistente)
+        const proximoTrabajo = await getFromDb(claveCooldown, 0);
+
+        // 2. Verificar si el usuario todavía debe esperar
         if (proximoTrabajo && ahora < proximoTrabajo) {
             const timestampUnix = Math.floor(proximoTrabajo / 1000);
             return await interaction.reply({
@@ -32,27 +36,29 @@ export default {
             });
         }
 
-        // Generar ganancia aleatoria entre $400 y $1,200
+        // 3. Generar ganancia aleatoria entre $400 y $1,200
         const ganancia = Math.floor(Math.random() * (1200 - 400 + 1)) + 400;
         
-        // Agregar saldo a la cuenta del usuario
+        // 4. Agregar el dinero a la cuenta del usuario
         const nuevoSaldo = await agregarSaldo(usuarioId, ganancia);
 
-        // Guardar nuevo timestamp de cooldown (8 horas)
-        const siguienteTurnoUnix = Math.floor((ahora + TIEMPO_ESPERA) / 1000);
-        cooldownsWork.set(usuarioId, ahora + TIEMPO_ESPERA);
+        // 5. Guardar el nuevo tiempo de cooldown en MongoDB (4 horas hacia adelante)
+        const tiempoProximoServicio = ahora + TIEMPO_ESPERA;
+        await setInDb(claveCooldown, tiempoProximoServicio);
 
-        // Seleccionar historia aleatoria
+        const siguienteTurnoUnix = Math.floor(tiempoProximoServicio / 1000);
+
+        // 6. Seleccionar historia aleatoria
         const historia = historiasTrabajo[Math.floor(Math.random() * historiasTrabajo.length)];
 
-        // Embed con formato 00Y4n (#74d4fc)
+        // 7. Responder con Embed estilo 00Y4n (#74d4fc)
         const embedWork = new EmbedBuilder()
             .setColor('#74d4fc')
             .setTitle('<a:dinero:1529160799392632832> ¡Fuiste a trabajar!')
             .setDescription(
                 `${historia}\n\n` +
-                `Ganaste **$${ganancia.toLocaleString()}**.\n\n` +
-                `• **Balance:** $${nuevoSaldo.toLocaleString()}\n` +
+                `Ganaste **$${ganancia.toLocaleString('es-AR')}**.\n\n` +
+                `• **Balance:** $${nuevoSaldo.toLocaleString('es-AR')}\n` +
                 `• **Próximo turno:** <t:${siguienteTurnoUnix}:f>`
             )
             .setFooter({ text: '00Y4n Comunidad SWFL • Sistema de Economía', iconURL: interaction.guild.iconURL() })
