@@ -18,8 +18,12 @@ const staffSchema = new mongoose.Schema({
     motivo: String
   },
   cuotas: {
+    // Registro de actividad real de la semana
     horasServicio: { type: Number, default: 0 },
-    sesionesOrganizadas: { type: Number, default: 0 }
+    sesionesOrganizadas: { type: Number, default: 0 },
+    // Metas semanales exigidas a este usuario
+    horasMeta: { type: Number, default: 3 },
+    sesionesMeta: { type: Number, default: 2 }
   },
   ingreso: { type: Date, default: Date.now }
 });
