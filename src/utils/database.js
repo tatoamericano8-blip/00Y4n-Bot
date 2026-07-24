@@ -367,8 +367,8 @@ export async function setGuildConfig(client, guildId, config, context = {}) {
     }
 }
 
-// Exportamos pgDb como alias de mongoDb para mantener compatibilidad si algún módulo aún lo importa
-export { DatabaseWrapper, mongoDb, mongoDb as pgDb };
+// ✅ AHORA
+export { DatabaseWrapper, mongoDb as pgDb };
 
 export const getMessage = (key, replacements = {}) => {
     let message = BotConfig.messages[key] || key;
