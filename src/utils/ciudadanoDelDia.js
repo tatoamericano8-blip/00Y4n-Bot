@@ -3,8 +3,8 @@ import { getFromDb, setInDb } from './database.js';
 import { logger } from './logger.js';
 
 // ⚙️ CONFIGURACIÓN
-const ID_ROL_CIUDADANO_DIA = 'TU_ID_DE_ROL_AQUI'; // Reemplaza con el ID del rol @Ciudadano del Día
-const ID_CANAL_ANUNCIOS = 'TU_ID_DE_CANAL_AQUI';  // Reemplaza con el ID del canal donde se anuncia
+const ID_ROL_CIUDADANO_DIA = '1530287573547880581'; // Reemplaza con el ID del rol @Ciudadano del Día
+const ID_CANAL_ANUNCIOS = '1451939726230683753';  // Reemplaza con el ID del canal donde se anuncia
 
 export async function procesarCiudadanoDelDia(client) {
     try {
