@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
-import { agregarSaldo } from '../utils/gestorEconomia.js'; // Ajusta la ruta si tus utilidades están en otro lado
-import { getFromDb, setInDb } from '../utils/database.js';
+import { agregarSaldo } from '../../utils/gestorEconomia.js';
+import { getFromDb, setInDb } from '../../utils/database.js';
 
 // -------------------------------------------------------------
 // ⚙️ CONFIGURACIÓN DE ROLES Y RECOMPENSAS
