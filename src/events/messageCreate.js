@@ -67,6 +67,9 @@ export default {
         'como matricular',
         'donde matriculo',
         'como registro mi auto',
+        'registrar',
+        'matriculo',
+        'registro',
         'como registro mi vehiculo'
       ];
 
@@ -76,14 +79,14 @@ export default {
         const embedRegistro = new EmbedBuilder()
           .setColor('#74d4fc')
           .setDescription(
-            `┃ __**Cómo Registrar tu Vehículo**__\n\n` +
-            `🚗 **Paso a Paso:**\n` +
-            `1. Escribe el comando **\`/matricula_swfl registrar\`** (o \`/matricular registrar\`) en el chat.\n` +
+            `<a:flota:1525562954983149768>┃ __**Cómo Registrar tu Vehículo**__\n\n` +
+            `<:car:1523041347869868253> **Paso a Paso:**\n` +
+            `1. Escribe el comando **\`/matricular registrar\`** en el canal <#1505615426305130657>.\n` +
             `2. En la opción **patente**, ingresa una combinación de **6 a 7 caracteres** (letras y números sin espacios ni símbolos).\n` +
             `3. Especifica la **marca y modelo** exacto de tu auto.\n\n` +
-            `⚠️ **Importante:**\n` +
-            `• Revisa el canal de reglas para asegurarte de que tu auto no esté en la lista de **vehículos restringidos o prohibidos**.\n` +
-            `• Tu registro es obligatorio para poder ingresar a las sesiones de roleplay.`
+            `<:adv:1523041352714158240> **Importante:**\n` +
+            `- Revisa el canal de reglas para asegurarte de que tu auto no esté en la lista de **vehículos restringidos o prohibidos**.\n` +
+            `- Tu registro es obligatorio para poder ingresar a las sesiones de roleplay y **evitar multas**.`
           )
           .setFooter({ 
             text: message.guild.name, 
