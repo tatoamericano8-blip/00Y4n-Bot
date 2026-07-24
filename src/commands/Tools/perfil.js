@@ -125,7 +125,7 @@ export default {
                 `• **Balance Bancario:** **$${saldoActual.toLocaleString()}**\n` +
                 `• **Vehículos Registrados:** \`${autosRegistrados.length}\`\n` +
                 `• **Multas Pendientes:** \`${multasPendientes.length}\` ${deudaTotal > 0 ? `*(Deuda: $${deudaTotal.toLocaleString()})*` : '*(Al día)*'}\n\n` +
-                `⤷ *Para registrar una nueva unidad en tu garaje utiliza el comando \`/matricula_swfl registrar\` de forma pública.*`
+                `⤷ *Para registrar una nueva unidad en tu garaje utiliza el comando \`/matricula registrar\` de forma pública.*`
             )
             .setThumbnail(fotoAvatar)
             .setColor('#74d4fc')
