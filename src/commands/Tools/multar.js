@@ -48,7 +48,7 @@ export default {
         const razon = interaction.options.getString('razon');
         const monto = interaction.options.getInteger('monto');
 
-        // 🛠️ FIX 1: Agregado await para resolver la promesa del ID
+        // Generar ID único de la multa
         const ticketID = await generarIDMulta();
 
         // Crear objeto de la multa
@@ -62,13 +62,34 @@ export default {
             fecha: new Date().toISOString()
         };
 
-        // 🛠️ FIX 2: Guardar directamente en la base de datos PostgreSQL
+        // Guardar directamente en la base de datos
         await guardarMulta(ticketID, datosMulta);
 
         // Activar el temporizador de 7 días para la Orden de Arresto
         programarWarrant(interaction.client, interaction.guildId, infractor.id, ticketID);
 
-        // Diseñar Embed con el estilo oficial 00Y4n (#74d4fc)
+        // 📩 ENVÍO DE MENSAJE DIRECTO (DM) AL INFRACTOR
+        try {
+            const embedDM = new EmbedBuilder()
+                .setColor('#ff3333')
+                .setTitle('<:folder:1523041295868756008> Notificación Oficial de Multa')
+                .setDescription(
+                    `Has recibido una multa de tránsito en **${interaction.guild.name}**.\n\n` +
+                    `• **Infracción:** ${razon}\n` +
+                    `• **Monto a Pagar:** $${monto.toLocaleString()}\n` +
+                    `• **ID Ticket:** \`${ticketID}\`\n` +
+                    `• **Oficial Emisor:** <@${interaction.user.id}>\n\n` +
+                    `⚠️ *Dispones de **7 días** para abonarla mediante el comando \`/pagar-multa\` antes de que se emita una Orden de Arresto.*`
+                )
+                .setFooter({ text: 'Departamento Policial de Sarasota' })
+                .setTimestamp();
+
+            await infractor.send({ embeds: [embedDM] });
+        } catch (error) {
+            console.log(`No se le pudo enviar el DM a ${infractor.tag} (DMs bloqueados o cerrados).`);
+        }
+
+        // 📄 EMBED PARA EL CANAL PÚBLICO
         const embedMulta = new EmbedBuilder()
             .setColor('#74d4fc')
             .setTitle('<:folder:1523041295868756008> Ticket de Multa Emitido')
@@ -86,10 +107,11 @@ export default {
             })
             .setTimestamp();
 
-        // Enviar la multa sin hacer menciones masivas
+        // 📢 ENVIAR RESPUESTA AL CANAL (Con mención explícita fuera del embed)
         await interaction.reply({
+            content: `🚨 **Atención <@${infractor.id}>, has sido multado oficialmente:**`,
             embeds: [embedMulta],
-            allowedMentions: { parse: [] }
+            allowedMentions: { users: [infractor.id] } // Permitir la notificación al usuario
         });
     },
 };
