@@ -1,4 +1,5 @@
-import mongoose from './db.js';
+// ✅ OPCIÓN 2 (Si db.js está en la raíz del proyecto)
+import mongoose from '../../db.js';
 import { MemoryStorage } from './memoryStorage.js';
 import { logger } from './logger.js';
 import { BotConfig } from '../config/bot.js';
