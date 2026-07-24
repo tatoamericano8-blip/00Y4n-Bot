@@ -18,6 +18,8 @@ import { loadCommands, registerCommands as registerSlashCommands } from './handl
 import { lanzarOportunidadEconomica } from './utils/gestorOportunidades.js';
 // 🔸 Importamos el procesador de recordatorios por conteo de mensajes
 import { procesarMensajeRecordatorio } from './utils/gestorRecordatorios.js';
+// 🏅 Importamos la función para procesar el Ciudadano del Día
+import { procesarCiudadanoDelDia } from './utils/ciudadanoDelDia.js';
 
 class TitanBot extends Client {
   constructor() {
@@ -110,10 +112,11 @@ class TitanBot extends Client {
         `ONLINE ✅ | ${this.commands.size} commands loaded | ${handlerSummary} | Database: ${databaseMode}`
       );
       
-      // Iniciar Cron Jobs, Oportunidades y Listeners
+      // Iniciar Cron Jobs, Oportunidades, Recordatorios y Ciudadano del Día
       this.setupCronJobs();
       this.setupOportunidades();
       this.setupRecordatorioEstado();
+      this.setupCiudadanoDelDia();
 
     } catch (error) {
       logger.error('Failed to start bot:', error);
@@ -259,13 +262,12 @@ class TitanBot extends Client {
     const CANAL_GENERAL_ID = '1451939726230683753';
 
     const programarSiguiente = () => {
-      // Tiempo aleatorio entre 60 y 180 minutos (1 a 3 horas)
       const minutosAleatorios = Math.floor(Math.random() * (180 - 60 + 1)) + 60;
       const msAleatorios = minutosAleatorios * 60 * 1000;
 
       setTimeout(() => {
         lanzarOportunidadEconomica(this, CANAL_GENERAL_ID);
-        programarSiguiente(); // Vuelve a programar la siguiente oportunidad
+        programarSiguiente();
       }, msAleatorios);
     };
 
@@ -280,6 +282,15 @@ class TitanBot extends Client {
     });
 
     startupLog('✅ Sistema de Recordatorio de Estado (/00Y4n) por conteo de mensajes iniciado.');
+  }
+
+  // 🏅 Sistema de Ciudadano del Día (Ejecuta automáticamente a las 00:00 hs cada noche)
+  setupCiudadanoDelDia() {
+    cron.schedule('0 0 * * *', () => {
+      procesarCiudadanoDelDia(this);
+    });
+
+    startupLog('✅ Sistema de Ciudadano del Día iniciado (programado diariamente a las 00:00 hs).');
   }
 
   async updateAllCounters() {
