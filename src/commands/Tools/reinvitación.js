@@ -190,15 +190,15 @@ export default {
                     tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Car Meet Liberadas__*** <a:confeti:1523026892981145600>';
                     datosExtraSesion = 
                         `> <:tres:1523027610479759561> **Temática del Meet:** ${sesionData.tematica || 'No especificada'}\n` +
-                        `> <:cuatro:1523027468385128568> **Lugar Actual:** ${sesionData.ubicacion || 'No especificado'}\n` +
-                        `> <:cinco:1523027610479759561> **Spots / Duración:** ${sesionData.spots || 'No especificado'}\n` +
+                        `> <:cuatro:1530051658942517350> **Lugar Actual:** ${sesionData.ubicacion || 'No especificado'}\n` +
+                        `> <:cinco:1523041311781814362> **Spots / Duración:** ${sesionData.spots || 'No especificado'}\n` +
                         `> <:flechareplica:1523028004983406787> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n`;
                 }
 
                 const infoDescripcion = 
                     `> <:dot:1523041306836996156> <@${interaction.user.id}> **¡ha liberado las reinvitaciones de la sesión!** Se ha alcanzado la meta de reacciones requeridas. Podés unirte al servidor utilizando el botón de abajo.\n\n` +
                     `<:flor:1523041315187855470> **Información de la Reinvitación**\n\n` +
-                    `> <:uno:1523028217592676464> **Reacciones Alcanzadas:** \`${reaccionesRequeridas} / ${reaccionesRequeridas}\` <a:si:1523027371735777503>\n` +
+                    `> <:uno:1523028217592676464> **Reacciones Alcanzadas:** \`${reaccionesRequeridas} / ${reaccionesRequeridas}\` \n` +
                     `> <:dos:1523027468385128568> **Hora de Liberación:** **${horaRelease}** (<t:${timestampRelease}:t>)\n` +
                     datosExtraSesion +
                     `\n<:flor:1523041315187855470> **Antes de Unirte**\n\n` +
@@ -219,7 +219,7 @@ export default {
                     new ButtonBuilder()
                         .setCustomId('verificar_voto_swfl')
                         .setLabel('Link de la Sesión')
-                        .setStyle(ButtonStyle.Primary)
+                        .setStyle(ButtonStyle.Secondary)
                         .setEmoji('1524936452574806076')
                 );
 
