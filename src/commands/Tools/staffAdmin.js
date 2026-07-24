@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import Staff from '../../../models/Staff.js';
-import { logger } from '../utils/logger.js';
+import { logger } from '../../utils/logger.js';
 
 // -------------------------------------------------------------
 // 🔑 CONFIGURACIÓN DE ROLES DE STAFF
