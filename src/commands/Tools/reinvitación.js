@@ -1,185 +1,249 @@
-import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
+import { 
+    SlashCommandBuilder, 
+    EmbedBuilder, 
+    ActionRowBuilder, 
+    ButtonBuilder, 
+    ButtonStyle, 
+    PermissionFlagsBits,
+    MessageFlags 
+} from 'discord.js';
 
+// Inicialización del mapa global para sesiones
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
+// Función auxiliar para verificar si una cadena es una URL bien formada
+function esURLValida(cadena) {
+    try {
+        const url = new URL(cadena);
+        return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+        return false;
+    }
+}
+
 export default {
-    data: {
-        name: 'reinvitacion',
-        description: 'Abre una votación para liberar reinvitaciones y publica automáticamente el embed con el link al llegar a la meta.',
-        options: [
-            { 
-                name: 'mensaje_id', 
-                description: 'ID del mensaje de lanzamiento (Lanzar RP o Lanzar Meet) de esta sesión.', 
-                type: ApplicationCommandOptionType.String, 
-                required: true 
-            },
-            { 
-                name: 'votos', 
-                description: 'Cantidad de votos/reacciones necesarias para abrir las reinvitaciones.', 
-                type: ApplicationCommandOptionType.Integer, 
-                required: true 
-            },
-            { 
-                name: 'emoji', 
-                description: 'El emoji que los usuarios usarán para votar (ej: ✅, 🔥, <:mi_emoji:123456789>).', 
-                type: ApplicationCommandOptionType.String, 
-                required: true 
-            },
-            { 
-                name: 'imagen', 
-                description: 'Link de la foto/banner opcional para el anuncio.', 
-                type: ApplicationCommandOptionType.String, 
-                required: false 
-            }
-        ]
-    },
+    data: new SlashCommandBuilder()
+        .setName('reinvitaciones')
+        .setDescription('Envía el aviso de reinvitaciones y libera los accesos al alcanzar las reacciones requeridas.')
+        .addIntegerOption(option =>
+            option.setName('reacciones')
+                .setDescription('Cantidad de reacciones requeridas para habilitar las reinvitaciones.')
+                .setRequired(true))
+        .addStringOption(option =>
+            option.setName('acceso')
+                .setDescription('Enlace del servidor privado de Roblox para la reinvitación.')
+                .setRequired(true))
+        .addStringOption(option =>
+            option.setName('id_inicio')
+                .setDescription('ID del mensaje de Lanzamiento/Inicio de la sesión (Opcional, se autodetecta).')
+                .setRequired(false))
+        .addStringOption(option =>
+            option.setName('emoji')
+                .setDescription('El emoji con el que reaccionará el bot (por defecto: ✔️).')
+                .setRequired(false)),
 
     async execute(interaction) {
         // 🔒 SEGURIDAD: Bloqueo de Staff
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1519476959606734998> **No tienes permisos:** Solo el Staff puede lanzar reinvitaciones.',
-                ephemeral: true
+                content: `<:cruz00y4n:1519476959606734998> **No tienes permisos:** Solo el Staff puede gestionar las reinvitaciones.`,
+                flags: MessageFlags.Ephemeral
             });
         }
 
-        const idLanzamiento = interaction.options.getString('mensaje_id');
-        const votosRequeridos = interaction.options.getInteger('votos');
-        const emojiVoto = interaction.options.getString('emoji');
-        const urlImagen = interaction.options.getString('imagen');
+        const reaccionesRequeridas = interaction.options.getInteger('reacciones');
+        const rawLink = interaction.options.getString('acceso');
+        const idInicioManual = interaction.options.getString('id_inicio');
+        const emojiInput = interaction.options.getString('emoji') || '✔️';
 
-        // Buscamos la sesión guardada previamente con /lanzar_rp o /lanzar_meet_swfl
-        const sesion = global.coleccionSesiones.get(idLanzamiento);
+        // Buscar los datos guardados de la sesión activa en la colección global
+        let sesionData = null;
+        let targetIdInicio = idInicioManual;
 
-        if (!sesion) {
+        if (idInicioManual) {
+            sesionData = global.coleccionSesiones.get(idInicioManual);
+            if (!sesionData) {
+                for (const [, val] of global.coleccionSesiones) {
+                    if (val.idInicio === idInicioManual) {
+                        sesionData = val;
+                        break;
+                    }
+                }
+            }
+        } else {
+            // Autodetectar la última sesión registrada en el servidor
+            for (const [, val] of global.coleccionSesiones) {
+                if (val.guildId === interaction.guildId) {
+                    sesionData = val;
+                    targetIdInicio = val.idInicio || targetIdInicio;
+                    break;
+                }
+            }
+        }
+
+        // Validar y formatear enlace de Roblox
+        let linkSesion = rawLink.trim();
+        if (!linkSesion.startsWith('http://') && !linkSesion.startsWith('https://')) {
+            linkSesion = `https://${linkSesion}`;
+        }
+
+        if (!esURLValida(linkSesion)) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1519476959606734998> **Error:** No se encontraron registros de esa sesión. Asegúrate de colocar la ID del mensaje de lanzamiento de la sesión (`/lanzar_rp` o `/lanzar_meet_swfl`).',
-                ephemeral: true
+                content: `<:cruz00y4n:1519476959606734998> **Enlace inválido:** El enlace proporcionado (\`${rawLink}\`) no es una URL válida.`,
+                flags: MessageFlags.Ephemeral
             });
         }
 
-        await interaction.reply({ content: 'Iniciando votación de reinvitaciones...', ephemeral: true });
-
-        // Mención de rol según el tipo de sesión
-        const rolMencion = sesion.tipo === 'meet' ? '<@&1491458302993891358>' : '<@&1503763201274413056>';
-
-        // 1️⃣ Mensaje Embed de Votación / Meta
-        const embedVotacion = new EmbedBuilder()
-            .setTitle('<a:confeti:1523026892981145600> Southwest Florida – ***__Votación de Reinvitaciones__*** <a:confeti:1523026892981145600>')
-            .setDescription(
-                `> <:punto:1523041306836996156> <@${interaction.user.id}> **¡ha abierto una votación para liberar reinvitaciones!**\n\n` +
-                `> <:star00y4n:1519474745320669194> **Meta de Votos:** **${votosRequeridos}** reacciones\n` +
-                `> <:Flecha_00Y4n:1519473149845045400> **Reacciona con ${emojiVoto} a este mensaje para llegar a la meta y liberar los accesos.**`
-            )
-            .setColor('#74d4fc');
-
-        if (urlImagen) {
-            embedVotacion.setImage(urlImagen);
-        }
-
-        const msgVotacion = await interaction.channel.send({
-            content: `@everyone ${rolMencion}`,
-            embeds: [embedVotacion]
+        // Obtener la hora actual de Argentina (HH:MM)
+        const ahora = new Date();
+        const horaFormateada = ahora.toLocaleTimeString('es-AR', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+            timeZone: 'America/Argentina/Buenos_Aires'
         });
 
-        // Reacción inicial con el emoji provisto por ti
+        const timestampDiscord = Math.floor(ahora.getTime() / 1000);
+
+        // Diseñar el Embed Inicial de Solicitud de Reacciones
+        const embedReinvitacion = new EmbedBuilder()
+            .setColor('#74d4fc')
+            .setTitle('<a:esp:1523026487240954019> Reinvitaciones de la Sesión <a:esp:1523026487240954019>')
+            .setDescription(
+                `¡Reaccioná a este mensaje para solicitar tu reinvitación!\n` +
+                `Las reinvitaciones se liberarán automáticamente una vez alcanzada la meta de reacciones.\n\n` +
+                `<:dot:1523041306836996156> **Reacciones requeridas:** \`${reaccionesRequeridas}\` ${emojiInput}`
+            )
+            .addFields({ 
+                name: '<:fle:1523041359441952970> Última Regeneración', 
+                value: `El enlace fue actualizado a las **${horaFormateada}** (<t:${timestampDiscord}:t>)`, 
+                inline: false 
+            })
+            .setFooter({ text: '00Y4n Comunidad SWFL', iconURL: interaction.guild.iconURL() || undefined })
+            .setTimestamp();
+
+        // Enviar el aviso inicial con ping @here
+        await interaction.reply({
+            content: '<a:adv:1523027438030946446> **@here** ¡Atención a las reinvitaciones de la sesión!',
+            embeds: [embedReinvitacion],
+            allowedMentions: { parse: ['everyone', 'roles'] }
+        });
+
+        const mensajeEnviado = await interaction.fetchReply();
+
+        // Colocar la reacción del Bot
         try {
-            await msgVotacion.react(emojiVoto);
+            await mensajeEnviado.react(emojiInput);
         } catch (error) {
-            // Si el emoji no se puede reaccionar directamente (formato custom), continúa sin romper
+            console.error('No se pudo reaccionar con el emoji asignado:', error);
+            if (emojiInput !== '✔️') {
+                try { await mensajeEnviado.react('✔️'); } catch (e) {}
+            }
         }
 
-        // 2️⃣ Collector para monitorear las reacciones de la meta
-        const filter = (reaction, user) => {
-            if (user.bot) return false;
-            return (
-                reaction.emoji.name === emojiVoto ||
-                reaction.emoji.id === emojiVoto ||
-                reaction.emoji.toString() === emojiVoto ||
-                `<:${reaction.emoji.name}:${reaction.emoji.id}>` === emojiVoto ||
-                `<a:${reaction.emoji.name}:${reaction.emoji.id}>` === emojiVoto
-            );
-        };
-
-        const collector = msgVotacion.createReactionCollector({
-            filter,
-            dispose: true
+        // Colector de Reacciones
+        const collector = mensajeEnviado.createReactionCollector({
+            filter: (reaction, user) => !user.bot,
+            time: 14400000 // 4 horas
         });
 
         collector.on('collect', async (reaction) => {
-            // Descontamos la reacción del bot si existe
-            const botReacted = reaction.users.cache.has(interaction.client.user.id);
-            const totalVotos = reaction.count - (botReacted ? 1 : 0);
+            try {
+                const users = await reaction.users.fetch();
+                const usuariosReales = users.filter(u => !u.bot).size;
 
-            if (totalVotos >= votosRequeridos) {
-                collector.stop('meta_alcanzada');
+                if (usuariosReales >= reaccionesRequeridas) {
+                    collector.stop('meta_alcanzada');
+                }
+            } catch (err) {
+                console.error('Error al procesar reacciones:', err);
             }
         });
 
         collector.on('end', async (_, reason) => {
             if (reason === 'meta_alcanzada') {
-                // 🗑️ ELIMINAR EL MENSAJE DE VOTACIÓN AL LLEGAR A LA META
-                await msgVotacion.delete().catch(() => {});
-
-                // 3️⃣ Construcción del Embed con datos dinámicos
-                let infoDescripcion = '';
-                let tituloEmbed = '';
-
-                if (sesion.tipo === 'rp') {
-                    tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Roleplay Liberadas__*** <a:confeti:1523026892981145600>';
-                    infoDescripcion = 
-                        `> <:punto:1523041306836996156> **¡Se ha alcanzado la meta de votos!** Reinvitaciones liberadas por <@${interaction.user.id}>. Eres bienvenido a unirte utilizando el botón de abajo.\n\n` +
-                        ` <:flor:1523041315187855470> **Información del Roleplay**\n\n` +
-                        `> <:uno:1523028217592676464> **Estado de Peacetime:** ${sesion.peacetime || 'No especificado'}\n` +
-                        `> <:dos:1523027468385128568> **Velocidad de Fail Roleplay:** ${sesion.limite || 'No especificada'}\n` +
-                        `> <:replica:1523028004983406787> Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n\n` +
-                        `<a:adv:1523027438030946446> *¡Cualquier miembro descubierto haciendo Fail Roleplay de forma excesiva será expulsado inmediatamente!*`;
-                } else if (sesion.tipo === 'meet') {
-                    tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Car Meet Liberadas__*** <a:confeti:1523026892981145600>';
-                    infoDescripcion = 
-                        `> <:punto:1523041306836996156> **¡Se ha alcanzado la meta de votos!** Reinvitaciones liberadas por <@${interaction.user.id}>. Eres bienvenido a unirte utilizando el botón de abajo.\n\n` +
-                        `**<:caram00y4nmov:1523041315187855470> Información del Car Meet**\n\n` +
-                        `<:uno:1523028217592676464> **Temática del Meet:** ${sesion.tematica || 'No especificada'}\n` +
-                        `<:dos:1523027468385128568> **Lugar Actual:** ${sesion.ubicacion || 'No especificado'}\n` +
-                        `<:tres:1523027610479759561> **Spots / Duración:** ${sesion.spots || 'No especificado'}\n` +
-                        `<:flechareplica:1523028004983406787> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n\n` +
-                        `➴ *¡Ingresá de inmediato y mantené el orden en el evento!*`;
-                } else {
-                    tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Liberadas__*** <a:confeti:1523026892981145600>';
-                    infoDescripcion = `> <:punto:1523041306836996156> **¡Se ha alcanzado la meta de votos!** Usá el botón de abajo para ingresar.`;
+                try {
+                    await mensajeEnviado.delete();
+                } catch (error) {
+                    console.error('Error al eliminar mensaje de reinvitación:', error);
                 }
+
+                const horaRelease = new Date().toLocaleTimeString('es-AR', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                    timeZone: 'America/Argentina/Buenos_Aires'
+                });
+                const timestampRelease = Math.floor(Date.now() / 1000);
+
+                // 🔹 Construcción dinámica de la información según el tipo de sesión
+                let bloqueDatosSesion = '';
+                let tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Liberadas__*** <a:confeti:1523026892981145600>';
+
+                if (sesionData?.tipo === 'rp') {
+                    tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Roleplay Liberadas__*** <a:confeti:1523026892981145600>';
+                    bloqueDatosSesion = 
+                        `<:flor:1523041315187855470> **Información del Roleplay**\n\n` +
+                        `> <:uno:1523028217592676464> **Estado de Peacetime:** ${sesionData.peacetime || 'No especificado'}\n` +
+                        `> <:dos:1523027468385128568> **Velocidad de Fail Roleplay:** ${sesionData.limite || 'No especificada'}\n` +
+                        `> <:replica:1523028004983406787> Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n\n`;
+                } else if (sesionData?.tipo === 'meet') {
+                    tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Car Meet Liberadas__*** <a:confeti:1523026892981145600>';
+                    bloqueDatosSesion = 
+                        `**<:caram00y4nmov:1523041315187855470> Información del Car Meet**\n\n` +
+                        `<:uno:1523028217592676464> **Temática del Meet:** ${sesionData.tematica || 'No especificada'}\n` +
+                        `<:dos:1523027468385128568> **Lugar Actual:** ${sesionData.ubicacion || 'No especificado'}\n` +
+                        `<:tres:1523027610479759561> **Spots / Duración:** ${sesionData.spots || 'No especificado'}\n` +
+                        `<:flechareplica:1523028004983406787> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n\n`;
+                }
+
+                const infoDescripcion = 
+                    `> <:dot:1523041306836996156> <@${interaction.user.id}> **¡ha liberado las reinvitaciones de la sesión!** Se ha alcanzado la meta de reacciones requeridas. Podés unirte al servidor utilizando el botón de abajo.\n\n` +
+                    `<:flor:1523041315187855470> **Información de la Reinvitación**\n\n` +
+                    `> <:uno:1523028217592676464> **Reacciones Alcanzadas:** \`${reaccionesRequeridas} / ${reaccionesRequeridas}\` <a:si:1523027371735777503>\n` +
+                    `> <:dos:1523027468385128568> **Hora de Liberación:** **${horaRelease}** (<t:${timestampRelease}:t>)\n\n` +
+                    bloqueDatosSesion +
+                    `<:flor:1523041315187855470> **Antes de Unirte**\n\n` +
+                    `> <:fle:1523041359441952970> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+                    `> <:fle:1523041359441952970> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & [vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1525190667545088225).\n` +
+                    `> <:fle:1523041359441952970> Registra tus vehículos en <#1505615426305130657>!\n\n` +
+                    `<a:adv:1523027438030946446> *¡Ingresá de inmediato antes de que el servidor vuelva a completarse!*`;
 
                 const embedRelease = new EmbedBuilder()
                     .setTitle(tituloEmbed)
                     .setDescription(infoDescripcion)
-                    .setColor('#74d4fc');
+                    .setColor('#74d4fc')
+                    .setFooter({ text: '00Y4n Comunidad SWFL', iconURL: interaction.guild.iconURL() || undefined })
+                    .setTimestamp();
 
-                if (urlImagen) {
-                    embedRelease.setImage(urlImagen);
-                }
-
+                // ÚNICO BOTÓN: "Link de la Sesión" para obligar a verificar el voto
                 const fila = new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
                         .setCustomId('verificar_voto_swfl')
                         .setLabel('Link de la Sesión')
-                        .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('1529995334883872909')
+                        .setStyle(ButtonStyle.Primary)
+                        .setEmoji('1524936452574806076')
                 );
 
-                const msgRelease = await interaction.channel.send({
-                    content: `@everyone ${rolMencion}`,
-                    embeds: [embedRelease],
-                    components: [fila]
-                });
+                try {
+                    const msgRelease = await interaction.channel.send({
+                        content: '@everyone <a:adv:1523027438030946446> ¡Las reinvitaciones han sido **LIBERADAS**!',
+                        embeds: [embedRelease],
+                        components: [fila],
+                        allowedMentions: { parse: ['everyone', 'roles'] }
+                    });
 
-                // Vinculamos la reinvitación en memoria con la ID del startup/inicio original
-                global.coleccionSesiones.set(msgRelease.id, {
-                    idInicio: sesion.idInicio,
-                    linkSesion: sesion.linkSesion,
-                    guildId: interaction.guildId,
-                    tipo: 'reinvitacion'
-                });
+                    // Guardar idInicio junto con el link para que el botón de verificar voto funcione
+                    global.coleccionSesiones.set(msgRelease.id, {
+                        idInicio: targetIdInicio,
+                        linkSesion,
+                        guildId: interaction.guildId,
+                        tipo: 'reinvitacion'
+                    });
+                } catch (sendError) {
+                    console.error('Error al enviar mensaje de liberación de reinvitaciones:', sendError);
+                }
             }
         });
-    }
+    },
 };
