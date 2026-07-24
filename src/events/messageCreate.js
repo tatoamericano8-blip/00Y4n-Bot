@@ -1,5 +1,6 @@
 import { Events, EmbedBuilder } from 'discord.js';
 import { logger } from '../utils/logger.js';
+import { getFromDb, setInDb } from '../utils/database.js';
 
 export default {
   name: Events.MessageCreate,
@@ -8,6 +9,24 @@ export default {
       // 🔒 Si el mensaje es de un bot o no es en un servidor, lo ignoramos
       if (message.author.bot || !message.guild) return;
 
+      // -------------------------------------------------------------
+      // 📊 1. REGISTRO DE ACTIVIDAD (CIUDADANO DEL DÍA)
+      // -------------------------------------------------------------
+      const hoyStr = new Date().toISOString().split('T')[0];
+      const clavePuntos = `puntos_dia:${hoyStr}:${message.author.id}`;
+      const claveListaUsuarios = `usuarios_activos:${hoyStr}`;
+
+      // Sumar +1 mensaje al contador del usuario hoy
+      const puntosActuales = await getFromDb(clavePuntos, 0);
+      await setInDb(clavePuntos, puntosActuales + 1);
+
+      // Registrar la ID del usuario en la lista de activos de hoy si no está
+      const listaUsuarios = await getFromDb(claveListaUsuarios, []);
+      if (!listaUsuarios.includes(message.author.id)) {
+        listaUsuarios.push(message.author.id);
+        await setInDb(claveListaUsuarios, listaUsuarios);
+      }
+
       // Normalizamos el texto (quita tildes y pasa todo a minúsculas)
       const textoNormalizado = message.content
         .toLowerCase()
@@ -15,7 +34,7 @@ export default {
         .replace(/[\u0300-\u036f]/g, "");
 
       // -------------------------------------------------------------
-      // 1️⃣ AUTO-RESPONDER: "CÓMO UNIRSE"
+      // 🤖 2. AUTO-RESPONDER: "CÓMO UNIRSE"
       // -------------------------------------------------------------
       const disparadoresUnirse = [
         'como unirse',
@@ -56,7 +75,7 @@ export default {
       }
 
       // -------------------------------------------------------------
-      // 2️⃣ AUTO-RESPONDER: "CÓMO REGISTRAR VEHÍCULO"
+      // 🤖 3. AUTO-RESPONDER: "CÓMO REGISTRAR VEHÍCULO"
       // -------------------------------------------------------------
       const disparadoresRegistro = [
         'como registro',
@@ -101,7 +120,7 @@ export default {
       }
 
     } catch (error) {
-      logger.error('Error in messageCreate event:', error);
+      logger.error('Error en el evento messageCreate:', error);
     }
   }
 };
