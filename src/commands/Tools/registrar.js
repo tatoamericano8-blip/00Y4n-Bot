@@ -3,7 +3,7 @@ import Vehiculo from '../../../models/Vehiculo.js';
 
 export default {
     data: {
-        name: 'matricula_swfl',
+        name: 'matricular',
         description: 'Gestiona la matriculación de vehículos para el juego.',
         options: [
             {
