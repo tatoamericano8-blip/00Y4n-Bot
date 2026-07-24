@@ -28,7 +28,7 @@ export default {
             });
         }
 
-        // 📝 Obtenemos la ID de forma manual desde las opciones
+        // 📝 Obtenemos las opciones ingresadas por el usuario
         const idInicio = interaction.options.getString('mensaje_id');
         const linkSesion = interaction.options.getString('acceso');
         const tematica = interaction.options.getString('tematica');
@@ -68,9 +68,9 @@ export default {
         );
 
         await interaction.reply({ content: 'Liberando accesos del Car Meet...', ephemeral: true });
-        
+
         const msgRelease = await interaction.channel.send({ 
-            content: '@everyone <@&1491458302993891358>', // ID del rol de anuncios
+            content: '@everyone <@&1491458302993891358>', 
             embeds: [embedRelease], 
             components: [fila] 
         });
@@ -79,6 +79,9 @@ export default {
         global.coleccionSesiones.set(msgRelease.id, { 
             idInicio, 
             linkSesion, 
+            tematica,
+            ubicacion,
+            spots,
             guildId: interaction.guildId, 
             tipo: 'meet' 
         });
