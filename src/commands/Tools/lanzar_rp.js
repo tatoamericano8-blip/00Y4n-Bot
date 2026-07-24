@@ -10,11 +10,46 @@ export default {
         name: 'lanzar_rp',
         description: 'Liberas los accesos para una sesión oficial de Roleplay.',
         options: [
-            { name: 'mensaje_id', description: 'Pegá acá la ID del mensaje de Startup/Inicio de esta sesión.', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'acceso', description: 'Pegá acá el enlace del servidor privado de Roblox.', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'limite_velocidad', description: 'Ejemplo: 75 MPH / 80 MPH', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'peacetime', description: 'Ejemplo: On / Off', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'imagen', description: 'Link de la foto/banner para la apertura (opcional).', type: ApplicationCommandOptionType.String, required: false }
+            { 
+                name: 'mensaje_id', 
+                description: 'Pegá acá la ID del mensaje de Startup/Inicio de esta sesión.', 
+                type: ApplicationCommandOptionType.String, 
+                required: true 
+            },
+            { 
+                name: 'acceso', 
+                description: 'Pegá acá el enlace del servidor privado de Roblox.', 
+                type: ApplicationCommandOptionType.String, 
+                required: true 
+            },
+            { 
+                name: 'limite_velocidad', 
+                description: 'Selecciona el límite de velocidad de la sesión.', 
+                type: ApplicationCommandOptionType.String, 
+                required: true,
+                choices: [
+                    { name: '65 MPH', value: '65 MPH' },
+                    { name: '75 MPH', value: '75 MPH' },
+                    { name: '85 MPH', value: '85 MPH' }
+                ]
+            },
+            { 
+                name: 'peacetime', 
+                description: 'Selecciona el modo de Peacetime.', 
+                type: ApplicationCommandOptionType.String, 
+                required: true,
+                choices: [
+                    { name: 'Estricto', value: 'Estricto' },
+                    { name: 'Normal', value: 'Normal' },
+                    { name: 'Desactivado', value: 'Desactivado' }
+                ]
+            },
+            { 
+                name: 'imagen', 
+                description: 'Link de la foto/banner para la apertura (opcional).', 
+                type: ApplicationCommandOptionType.String, 
+                required: false 
+            }
         ]
     },
 
