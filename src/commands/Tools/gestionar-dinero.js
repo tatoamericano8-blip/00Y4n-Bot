@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
-import { obtenerSaldo, agregarSaldo } from '../../utils/gestorEconomia.js';
+import { obtenerSaldo, agregarSaldo, restarSaldo } from '../../utils/gestorEconomia.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -36,7 +36,7 @@ export default {
         // ID del Rol de Alto Mando
         const ROL_ALTO_MANDO = '1528870731629465752';
 
-        // 🛑 Control de Seguridad: Verificar si tiene el rol de Alto Mando
+        // 🛑 Control de Seguridad
         if (!interaction.member.roles.cache.has(ROL_ALTO_MANDO)) {
             return await interaction.reply({
                 content: '❌ **Acceso denegado.** Esta acción es clasificada y está restringida únicamente para el **Alto Mando**.',
@@ -48,17 +48,17 @@ export default {
         const objetivo = interaction.options.getUser('usuario');
         const cantidad = interaction.options.getInteger('cantidad');
 
-        // Validar que no ingresen números negativos ni ceros en el monto
+        // Validar que no ingresen números negativos ni ceros
         if (cantidad <= 0) {
             return await interaction.reply({ 
-                content: '⚠️ La cantidad modificada debe ser mayor a 0 dólares.', 
+                content: '⚠️ La cantidad a modificar debe ser mayor a 0 dólares.', 
                 ephemeral: true 
             });
         }
 
-        // 1. Usar 'await' para esperar la respuesta de la base de datos
+        // Obtener saldo actual asegurando valor numérico
         const saldoActual = await obtenerSaldo(objetivo.id);
-        let nuevoSaldo;
+        let nuevoSaldo = 0;
         let accionTexto = '';
 
         // Lógica según el subcomando elegido
@@ -67,14 +67,21 @@ export default {
             accionTexto = `✅ Se han depositado **$${cantidad.toLocaleString('es-AR')}** exitosamente en la cuenta de <@${objetivo.id}>.`;
             
         } else if (subcomando === 'quitar') {
-            // Si intenta quitar más de lo que tiene el usuario, descontamos lo necesario para dejarlo en $0
+            if (saldoActual <= 0) {
+                return await interaction.reply({
+                    content: `⚠️ <@${objetivo.id}> no tiene fondos en su cuenta (Saldo actual: **$0**). No es posible retirarle dinero.`,
+                    ephemeral: true
+                });
+            }
+
+            // Calcular cuánto se le puede quitar realmente sin dejar saldo negativo
             const montoARestar = Math.min(saldoActual, cantidad);
-            nuevoSaldo = await agregarSaldo(objetivo.id, -montoARestar);
+            nuevoSaldo = await restarSaldo(objetivo.id, montoARestar);
             
-            accionTexto = `📉 Se han incautado/retirado **$${cantidad.toLocaleString('es-AR')}** de la cuenta de <@${objetivo.id}>.`;
+            accionTexto = `📉 Se han incautado/retirado **$${montoARestar.toLocaleString('es-AR')}** de la cuenta de <@${objetivo.id}>.`;
         }
 
-        // Armar el Embed al estilo 00Y4n (#74d4fc)
+        // Armar el Embed de Auditoría
         const embedAuditoria = new EmbedBuilder()
             .setColor('#74d4fc')
             .setTitle('🏦 Gestión Bancaria Central | Auditoría')
@@ -93,7 +100,7 @@ export default {
         // Enviar respuesta
         await interaction.reply({
             embeds: [embedAuditoria],
-            allowedMentions: { parse: [] } // Evita pingear al objetivo
+            allowedMentions: { parse: [] }
         });
     },
 };
