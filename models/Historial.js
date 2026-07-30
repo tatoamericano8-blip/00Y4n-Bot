@@ -11,7 +11,9 @@ const historialSchema = new mongoose.Schema({
             'REINVITACION_CREADA', 
             'REINVITACION_LIBERADA', 
             'SESION_CERRADA',
-            'SESION_CANCELADA'
+            'SESION_CANCELADA',
+            'SUPERVISION_REGISTRADA', // 🚀 Evento opcional si registras supervisiones
+            'CUOTA_ACTUALIZADA'       // 🚀 Evento opcional si registras cambios de cuotas
         ]
     },
     mensajeId: { type: String, required: true }, // ID del mensaje donde ocurre la acción
