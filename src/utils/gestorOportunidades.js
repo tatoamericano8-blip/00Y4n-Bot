@@ -29,7 +29,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
         // 2. Crear Embed inicial
         const embedInicial = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<a:est:1523027045532045453> ¡Economic Opportunity!')
+            .setTitle('<a:est:1523027045532045453> ¡Oportunidad Economica!')
             .setDescription(`<a:dinero:1529160799392632832> **$${monto.toLocaleString()}** ${historia}`)
             .setFooter({ 
                 text: '00Y4n Comunidad SWFL • Eventos del Chat', 
@@ -43,7 +43,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
                 .setCustomId('reclamar_oportunidad')
                 .setLabel('Reclamar')
                 .setEmoji('💸')
-                .setStyle(ButtonStyle.Success)
+                .setStyle(ButtonStyle.Secondary)
         );
 
         // Enviar el mensaje al canal
@@ -69,17 +69,17 @@ export async function lanzarOportunidadEconomica(client, canalId) {
                 // 2. Embed actualizado con formato oficial
                 const embedGanador = EmbedBuilder.from(embedInicial)
                     .setDescription(
-                        `<a:est:1523027045532045453> **¡Economic Opportunity!**\n` +
+                        `<a:est:1523027045532045453> **¡Oportunidad Economica!**\n` +
                         `<a:dinero:1529160799392632832> **$${monto.toLocaleString()}** ${historia}\n\n` +
-                        `➔ **Claimed By:** <@${usuarioId}>`
+                        `<:fle:1523041359441952970> **Reclamado por:** <@${usuarioId}>`
                     );
 
                 // 3. Botón desactivado (🔒 Claimed)
                 const botonDesactivado = new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
                         .setCustomId('reclamado_done')
-                        .setLabel('Claimed')
-                        .setEmoji('🔒')
+                        .setLabel('Reclamado')
+                        .setEmoji('1523041298796384418')
                         .setStyle(ButtonStyle.Secondary)
                         .setDisabled(true)
                 );
