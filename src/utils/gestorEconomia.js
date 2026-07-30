@@ -42,19 +42,40 @@ export async function restarSaldo(usuarioId, cantidad) {
  */
 export async function resetearTodaLaEconomia() {
     try {
-        // Limpiar la memoria local si aplica
+        // 1. Limpiar memoria local
         saldosDB.clear();
 
-        // Borrar todos los registros con clave 'economy:*' en la BD de MongoDB
+        // 2. Borrar datos en MongoDB de forma segura
         if (mongoose.connection && mongoose.connection.readyState === 1) {
-            const collections = await mongoose.connection.db.collections();
-            for (const collection of collections) {
-                await collection.deleteMany({
-                    $or: [
-                        { key: { $regex: '^economy:' } },
-                        { _id: { $regex: '^economy:' } }
-                    ]
-                });
+            // Intentar borrar en todos los modelos cargados de Mongoose
+            for (const modelName of Object.keys(mongoose.models)) {
+                try {
+                    await mongoose.models[modelName].deleteMany({
+                        $or: [
+                            { key: { $regex: '^economy:' } },
+                            { _id: { $regex: '^economy:' } }
+                        ]
+                    });
+                } catch (e) {
+                    // Ignorar modelos que no compartan este esquema
+                }
+            }
+
+            // Intentar borrar directamente en las colecciones nativas de la BD
+            if (mongoose.connection.db) {
+                const collections = await mongoose.connection.db.collections().catch(() => []);
+                for (const col of collections) {
+                    try {
+                        await col.deleteMany({
+                            $or: [
+                                { key: { $regex: '^economy:' } },
+                                { _id: { $regex: '^economy:' } }
+                            ]
+                        });
+                    } catch (e) {
+                        // Ignorar errores de índices o colecciones del sistema
+                    }
+                }
             }
         }
         return true;
