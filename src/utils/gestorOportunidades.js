@@ -29,7 +29,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
         // 2. Crear Embed inicial
         const embedInicial = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<a:est:1523027045532045453> ¡Oportunidad Economica!')
+            .setTitle('<a:est:1523027045532045453> ¡Economic Opportunity!')
             .setDescription(`<a:dinero:1529160799392632832> **$${monto.toLocaleString()}** ${historia}`)
             .setFooter({ 
                 text: '00Y4n Comunidad SWFL • Eventos del Chat', 
@@ -42,7 +42,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
             new ButtonBuilder()
                 .setCustomId('reclamar_oportunidad')
                 .setLabel('Reclamar')
-                .setEmoji('1523041362214256700')
+                .setEmoji('💸')
                 .setStyle(ButtonStyle.Success)
         );
 
@@ -61,37 +61,41 @@ export async function lanzarOportunidadEconomica(client, canalId) {
 
         collector.on('collect', async (interaction) => {
             try {
-                // Prevenir errores si la interacción ya fue respondida
-                if (interaction.replied || interaction.deferred) return;
-
                 const usuarioId = interaction.user.id;
 
-                // Sumar dinero a la cuenta del ganador
+                // 1. Sumar dinero a la cuenta del ganador
                 await agregarSaldo(usuarioId, monto);
 
-                // Embed actualizado estilo visual oficial
+                // 2. Embed actualizado con formato oficial
                 const embedGanador = EmbedBuilder.from(embedInicial)
                     .setDescription(
-                        `<a:est:1523027045532045453> **¡Oportunidad Economica!**\n` +
+                        `<a:est:1523027045532045453> **¡Economic Opportunity!**\n` +
                         `<a:dinero:1529160799392632832> **$${monto.toLocaleString()}** ${historia}\n\n` +
-                        `➔ **Reclamado por:** <@${usuarioId}>`
+                        `➔ **Claimed By:** <@${usuarioId}>`
                     );
 
-                // Botón desactivado (🔒 Claimed)
+                // 3. Botón desactivado (🔒 Claimed)
                 const botonDesactivado = new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
                         .setCustomId('reclamado_done')
-                        .setLabel('Reclamado')
-                        .setEmoji('1523041298796384418')
+                        .setLabel('Claimed')
+                        .setEmoji('🔒')
                         .setStyle(ButtonStyle.Secondary)
                         .setDisabled(true)
                 );
 
-                // Actualizar mensaje de forma segura
-                await interaction.update({
-                    embeds: [embedGanador],
-                    components: [botonDesactivado]
-                });
+                // 4. Editar mensaje dependiendo de si la interacción fue diferida previamente
+                if (interaction.deferred) {
+                    await interaction.editReply({
+                        embeds: [embedGanador],
+                        components: [botonDesactivado]
+                    });
+                } else if (!interaction.replied) {
+                    await interaction.update({
+                        embeds: [embedGanador],
+                        components: [botonDesactivado]
+                    });
+                }
 
             } catch (error) {
                 console.error("Error al procesar el reclamo en el collector:", error);
