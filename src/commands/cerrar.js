@@ -1,4 +1,7 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import Staff from '../../models/Staff.js';
+import Historial from '../../models/Historial.js';
+import Session from '../../models/Session.js';
 
 // --- DICCIONARIO DE EMOJIS ---
 const EMOJIS = {
@@ -7,6 +10,33 @@ const EMOJIS = {
     circMov: '<a:circmovim00y4n:1519476873959178380>',
     coraaMov: '<a:coraamov00y4n:1519475012283666554>'
 };
+
+/**
+ * Función auxiliar para convertir textos de duración ("1 hora y 30 minutos", "45 mins", "2.5h")
+ * a un número decimal de horas para el conteo de la cuota.
+ */
+function parsearDuracionAHoras(textoDuracion) {
+    let horas = 0;
+    const matchHoras = textoDuracion.match(/(\d+(?:[\.,]\d+)?)\s*(?:h|hora|horas)/i);
+    const matchMins = textoDuracion.match(/(\d+)\s*(?:m|min|minuto|minutos)/i);
+
+    if (matchHoras) {
+        horas += parseFloat(matchHoras[1].replace(',', '.'));
+    }
+    if (matchMins) {
+        horas += parseInt(matchMins[1], 10) / 60;
+    }
+
+    // Si el usuario escribió únicamente un número sin letras (ej: "2" o "1.5")
+    if (!matchHoras && !matchMins) {
+        const numeroDirecto = parseFloat(textoDuracion.replace(',', '.'));
+        if (!isNaN(numeroDirecto)) {
+            horas = numeroDirecto;
+        }
+    }
+
+    return Number(horas.toFixed(2));
+}
 
 export default {
     data: {
@@ -53,7 +83,62 @@ export default {
         const notasHost = interaction.options.getString('notas') || 'Sin notas adicionales.';
         const fotoAdjunta = interaction.options.getAttachment('imagen');
 
-        await interaction.reply({ content: 'Cerrando la sesión, limpiando el canal y generando el anuncio...', ephemeral: true });
+        await interaction.reply({ content: 'Cerrando la sesión, limpiando el canal y actualizando base de datos...', ephemeral: true });
+
+        // ⏱️ PARSEO Y CÁLCULO DE HORAS PARA LA CUOTA
+        const horasCalculadas = parsearDuracionAHoras(duracion);
+        const minutosCalculados = Math.round(horasCalculadas * 60);
+
+        // 🗄️ ACTUALIZACIÓN DE BASE DE DATOS
+        try {
+            const guildId = interaction.guild.id;
+            const hostId = interaction.user.id;
+
+            // 1. Sumar sesión y horas en la ficha del Staff (Cuota semanal e histórico)
+            await Staff.findOneAndUpdate(
+                { guildId, userId: hostId },
+                {
+                    $inc: {
+                        'cuotas.sesionesOrganizadas': 1,
+                        'cuotas.horasServicio': horasCalculadas,
+                        'estadisticasHistoricas.sesionesHosteadasTotales': 1,
+                        'estadisticasHistoricas.horasTotales': horasCalculadas
+                    }
+                },
+                { upsert: true, new: true }
+            );
+
+            // 2. Marcar la última sesión activa como CERRADA en Session.js
+            const sesionActiva = await Session.findOneAndUpdate(
+                { guildId, hostId, estado: 'activa' },
+                {
+                    estado: 'cerrada',
+                    fechaCierre: new Date(),
+                    duracionMinutos: minutosCalculados
+                },
+                { sort: { fechaInicio: -1 }, new: true }
+            );
+
+            // 3. Crear el log en Historial.js
+            await Historial.create({
+                evento: 'SESION_CERRADA',
+                mensajeId: interaction.id,
+                idInicio: sesionActiva?.idInicio || interaction.id,
+                guildId,
+                hostId,
+                hostTag: interaction.user.tag,
+                tipo,
+                detalles: {
+                    duracionTexto: duracion,
+                    duracionMinutos: minutosCalculados,
+                    horasSumadas: horasCalculadas,
+                    motivo: notasHost
+                }
+            });
+
+        } catch (dbError) {
+            console.error('Error actualizando la base de datos en /cerrar_swfl:', dbError);
+        }
 
         // 🧹 LIMPIEZA AUTOMÁTICA: Eliminar mensajes de las últimas 2 horas
         try {
