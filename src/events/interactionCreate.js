@@ -9,7 +9,7 @@ import { InteractionHelper } from '../utils/interactionHelper.js';
 import { createInteractionTraceContext, runWithTraceContext } from '../utils/traceContext.js';
 import { validateChatInputPayloadOrThrow } from '../utils/commandInputValidation.js';
 import { enforceAbuseProtection, formatCooldownDuration } from '../utils/abuseProtection.js';
-import Sesion from '../../models/Session.js'; // 🚀 Modelo de Mongoose
+import Sesion from '../../models/Session.js';
 
 function withTraceContext(context = {}, traceContext = {}) {
   return {
@@ -221,7 +221,7 @@ export default {
             }
           }
 
-// ==========================================
+        // ==========================================
         // 3. ESCUCHADOR DE BOTONES
         // ==========================================
         } else if (interaction.isButton()) {
@@ -319,7 +319,6 @@ export default {
           const [idBase, ...argsColon] = customIdRaw.split(':');
           const partsUnderscore = customIdRaw.split('_');
 
-          // Probar coincidencia por mapa
           let button = client.buttons.get(customIdRaw) 
                     || client.buttons.get(idBase)
                     || client.buttons.get(partsUnderscore.slice(0, 2).join('_'))
@@ -331,6 +330,10 @@ export default {
               await button.execute(interaction, client, args);
               return;
             } catch (error) {
+              logger.error(`Error executando botón ${interaction.customId}:`, {
+                message: error.message,
+                stack: error.stack
+              });
               await handleInteractionError(interaction, error, withTraceContext({
                 type: 'button',
                 customId: interaction.customId,
@@ -347,6 +350,7 @@ export default {
             'Este botón no está disponible o no tiene un controlador registrado.',
             withTraceContext({ customId: interaction.customId }, interactionTraceContext)
           );
+
         // ==========================================
         // 4. MENÚS DE SELECCIÓN (StringSelectMenu)
         // ==========================================
@@ -444,7 +448,8 @@ export default {
         logger.error('Unhandled error in interactionCreate:', {
           event: 'interaction.unhandled_error',
           errorCode: 'INTERACTION_UNHANDLED_ERROR',
-          error,
+          message: error?.message,
+          stack: error?.stack,
           traceId: interactionTraceContext.traceId,
           interactionId: interaction.id,
           guildId: interaction.guildId,
