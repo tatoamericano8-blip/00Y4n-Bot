@@ -1,8 +1,8 @@
-import { Schema, model } from 'mongoose';
+import mongoose from 'mongoose';
 
-const sesionSchema = new Schema({
+const sesionSchema = new mongoose.Schema({
     idInicio: { type: String, required: true, unique: true }, // ID del mensaje de /inicio_swfl
-    idLanzamiento: { type: String, default: null },          // ID del mensaje de /lanzar_rp o /lanzar_meet
+    idLanzamiento: { type: String, default: null },           // ID del mensaje de /lanzar_rp o /lanzar_meet
     guildId: { type: String, required: true },
     hostId: { type: String, required: true },
     tipo: { type: String, enum: ['rp', 'meet'], required: true },
@@ -26,7 +26,7 @@ const sesionSchema = new Schema({
     ubicacion: { type: String, default: null },
     spots: { type: String, default: null },
 
-    // Historial de reinvitaciones
+    // Historial de reinvitaciones dentro de la misma sesión
     reinvitaciones: [{
         idMensaje: String,
         fecha: { type: Date, default: Date.now },
@@ -41,4 +41,4 @@ const sesionSchema = new Schema({
     duracionMinutos: { type: Number, default: 0 }
 });
 
-export default model('Sesion', sesionSchema);
+export default mongoose.models.Sesion || mongoose.model('Sesion', sesionSchema);
