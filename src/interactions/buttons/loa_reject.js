@@ -17,9 +17,9 @@ async function cargarModelo(nombre, ruta1, ruta2) {
 }
 
 export default {
-  id: 'loa_rechazar',
-  customId: 'loa_rechazar',
-  name: 'loa_rechazar',
+  id: 'loa_reject',
+  customId: 'loa_reject',
+  name: 'loa_reject',
   async execute(interaction, client, args) {
     if (!interaction.deferred && !interaction.replied) {
       await interaction.deferUpdate().catch(() => {});
