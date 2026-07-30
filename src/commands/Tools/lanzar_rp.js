@@ -4,7 +4,6 @@ import Historial from '../../../models/Historial.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
-// URL DE LA IMAGEN PREDETERMINADA PARA ROLEPLAY
 const IMAGEN_RP_DEFECTO = 'https://cdn.discordapp.com/attachments/1517331229303902432/1524843450678116432/Lanzamiento_RP_2NUEVO3.png?ex=6a51e160&is=6a508fe0&hm=cca9367de3287bd9c34191f59eebbad3b96b48c58d266119050ed9f81b0182a2&';
 
 export default {
@@ -56,7 +55,6 @@ export default {
     },
 
     async execute(interaction) {
-        // 🔒 SEGURIDAD: Bloqueo de Staff
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
                 content: `<:cruz00y4n:1523041302764191844> **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesión.`,
@@ -64,14 +62,12 @@ export default {
             });
         }
 
-        // 📝 Obtenemos las opciones ingresadas por el usuario
         const idInicio = interaction.options.getString('mensaje_id');
         const linkSesion = interaction.options.getString('acceso');
         const limite = interaction.options.getString('limite_velocidad');
         const peacetime = interaction.options.getString('peacetime');
         const urlImagen = interaction.options.getString('imagen');
 
-        // Diseño visual Premium unificado
         const infoDescripcion = 
             `> <:punto:1523041306836996156> <@${interaction.user.id}> ¡ha lanzado su sesión! Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
             ` <:flor:1523041315187855470> **Antes de Unirte**\n\n` +
@@ -82,7 +78,7 @@ export default {
             `> <:uno:1523028217592676464> **Estado de Peacetime:** ${peacetime}\n` +
             `> <:dos:1523027468385128568> **Velocidad de Fail Roleplay:** ${limite}\n` +
             `> <:replica:1523028004983406787> Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n\n` +
-            `<a:adv:1523027438030946446> *¡Cualquier miembro descubierto haciendo Fail Roleplay de forma excessive será expulsado inmediatamente de la sesión!*`;
+            `<a:adv:1523027438030946446> *¡Cualquier miembro descubierto haciendo Fail Roleplay de forma excesiva será expulsado inmediatamente de la sesión!*`;
 
         const embedRelease = new EmbedBuilder()
             .setTitle(`<a:confeti:1523026892981145600> Southwest Florida - *_Roleplay Sesión Lanzada_* <a:confeti:1523026892981145600>`)
@@ -111,7 +107,6 @@ export default {
             components: [fila]
         });
 
-        // Guardamos los datos mapeando de forma segura en la memoria
         global.coleccionSesiones.set(msgRelease.id, { 
             idInicio, 
             linkSesion,
@@ -121,23 +116,23 @@ export default {
             tipo: 'rp'
         });
 
-        // 💾 GUARDAR EN MONGODB Y HISTORIAL
+        // 💾 ACTUALIZAR EN MONGODB Y HISTORIAL
         try {
-            await Sesion.create({
-                mensajeId: msgRelease.id,
-                idInicio,
-                hostId: interaction.user.id,
-                tipo: 'rp',
-                linkSesion,
-                limite,
-                peacetime,
-                imagen: urlImagen || IMAGEN_RP_DEFECTO,
-                procesado: true,
-                guildId: interaction.guildId
-            });
-
-            // Marcar el startup como procesado
-            await Sesion.updateOne({ mensajeId: idInicio }, { $set: { procesado: true } });
+            await Sesion.findOneAndUpdate(
+                { idInicio },
+                {
+                    $set: {
+                        idLanzamiento: msgRelease.id,
+                        linkSesion,
+                        limiteVelocidad: limite, // Nombre mapeado correctamente con el Schema
+                        peacetime,
+                        imagen: urlImagen || IMAGEN_RP_DEFECTO,
+                        estado: 'activa',
+                        fechaLanzamiento: new Date()
+                    }
+                },
+                { upsert: true, new: true }
+            );
 
             await Historial.create({
                 evento: 'SESION_LANZADA_RP',
