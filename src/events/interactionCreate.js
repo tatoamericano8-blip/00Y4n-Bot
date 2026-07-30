@@ -9,7 +9,7 @@ import { InteractionHelper } from '../utils/interactionHelper.js';
 import { createInteractionTraceContext, runWithTraceContext } from '../utils/traceContext.js';
 import { validateChatInputPayloadOrThrow } from '../utils/commandInputValidation.js';
 import { enforceAbuseProtection, formatCooldownDuration } from '../utils/abuseProtection.js';
-import Sesion from '../models/Sesion.js'; // 🚀 Importamos el modelo de Mongoose
+import Sesion from '../../../models/Session.js'; // 🚀 Importamos el modelo de Mongoose
 
 function withTraceContext(context = {}, traceContext = {}) {
   return {
