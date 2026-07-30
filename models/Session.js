@@ -7,6 +7,7 @@ const sesionSchema = new mongoose.Schema({
     hostId: { type: String, required: true },
     tipo: { type: String, enum: ['rp', 'meet'], required: true },
     reaccionesRequeridas: { type: Number, default: 0 },
+    imagen: { type: String, default: null },
     
     estado: { 
         type: String, 
