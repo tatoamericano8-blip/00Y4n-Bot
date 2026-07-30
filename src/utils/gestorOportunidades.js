@@ -29,7 +29,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
         // 2. Crear Embed inicial
         const embedInicial = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<a:est:1523027045532045453>¡Oportunidad Económica!')
+            .setTitle('<a:est:1523027045532045453> ¡Oportunidad Economica!')
             .setDescription(`<a:dinero:1529160799392632832> **$${monto.toLocaleString()}** ${historia}`)
             .setFooter({ 
                 text: '00Y4n Comunidad SWFL • Eventos del Chat', 
@@ -42,7 +42,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
             new ButtonBuilder()
                 .setCustomId('reclamar_oportunidad')
                 .setLabel('Reclamar')
-                .setEmoji('💸')
+                .setEmoji('1523041362214256700')
                 .setStyle(ButtonStyle.Success)
         );
 
@@ -56,57 +56,70 @@ export async function lanzarOportunidadEconomica(client, canalId) {
         const collector = mensaje.createMessageComponentCollector({
             filter: (i) => i.customId === 'reclamar_oportunidad',
             time: 120000, // 2 minutos para reclamar
-            max: 1        // Solo el PRIMERO gana
+            max: 1         // Solo el PRIMERO gana
         });
 
         collector.on('collect', async (interaction) => {
-            const usuarioId = interaction.user.id;
+            try {
+                // Prevenir errores si la interacción ya fue respondida
+                if (interaction.replied || interaction.deferred) return;
 
-            // Sumar dinero a la cuenta del ganador
-            const nuevoSaldo = await agregarSaldo(usuarioId, monto);
+                const usuarioId = interaction.user.id;
 
-            // Embed actualizado (con el formato de la imagen)
-            const embedGanador = EmbedBuilder.from(embedInicial)
-                .setDescription(
-                    `<a:dinero:1529160799392632832> **$${monto.toLocaleString()}** ${historia}\n\n` +
-                    `<:fle:1523041359441952970> **Reclamado por:** <@${usuarioId}> (\`${interaction.user.username}\`)`
-                );
+                // Sumar dinero a la cuenta del ganador
+                await agregarSaldo(usuarioId, monto);
 
-            // Botón desactivado (Claimed)
-            const botonDesactivado = new ActionRowBuilder().addComponents(
-                new ButtonBuilder()
-                    .setCustomId('reclamado_done')
-                    .setLabel('Reclamado')
-                    .setEmoji('1523041298796384418')
-                    .setStyle(ButtonStyle.Secondary)
-                    .setDisabled(true)
-            );
+                // Embed actualizado estilo visual oficial
+                const embedGanador = EmbedBuilder.from(embedInicial)
+                    .setDescription(
+                        `<a:est:1523027045532045453> **¡Oportunidad Economica!**\n` +
+                        `<a:dinero:1529160799392632832> **$${monto.toLocaleString()}** ${historia}\n\n` +
+                        `➔ **Reclamado por:** <@${usuarioId}>`
+                    );
 
-            // Responder al usuario y editar mensaje
-            await interaction.update({
-                embeds: [embedGanador],
-                components: [botonDesactivado]
-            });
-        });
-
-        collector.on('end', async (collected, reason) => {
-            // Si nadie lo reclamó en 2 minutos
-            if (collected.size === 0) {
-                const embedExpirado = EmbedBuilder.from(embedInicial)
-                    .setDescription(`~~💵 **$${monto.toLocaleString()}** ${historia}~~\n\n⏰ *Esta oportunidad ha expirado.*`);
-
-                const botonExpirado = new ActionRowBuilder().addComponents(
+                // Botón desactivado (🔒 Claimed)
+                const botonDesactivado = new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
-                        .setCustomId('expirado_done')
-                        .setLabel('Expirado')
-                        .setStyle(ButtonStyle.Danger)
+                        .setCustomId('reclamado_done')
+                        .setLabel('Reclamado')
+                        .setEmoji('1523041298796384418')
+                        .setStyle(ButtonStyle.Secondary)
                         .setDisabled(true)
                 );
 
-                await mensaje.edit({
-                    embeds: [embedExpirado],
-                    components: [botonExpirado]
-                }).catch(() => {});
+                // Actualizar mensaje de forma segura
+                await interaction.update({
+                    embeds: [embedGanador],
+                    components: [botonDesactivado]
+                });
+
+            } catch (error) {
+                console.error("Error al procesar el reclamo en el collector:", error);
+            }
+        });
+
+        collector.on('end', async (collected, reason) => {
+            try {
+                // Si nadie lo reclamó en 2 minutos
+                if (collected.size === 0) {
+                    const embedExpirado = EmbedBuilder.from(embedInicial)
+                        .setDescription(`~~💵 **$${monto.toLocaleString()}** ${historia}~~\n\n⏰ *Esta oportunidad ha expirado.*`);
+
+                    const botonExpirado = new ActionRowBuilder().addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('expirado_done')
+                            .setLabel('Expirado')
+                            .setStyle(ButtonStyle.Danger)
+                            .setDisabled(true)
+                    );
+
+                    await mensaje.edit({
+                        embeds: [embedExpirado],
+                        components: [botonExpirado]
+                    }).catch(() => {});
+                }
+            } catch (error) {
+                console.error("Error al finalizar el collector de oportunidades:", error);
             }
         });
 
