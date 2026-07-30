@@ -66,7 +66,7 @@ export default {
             sesionData = global.coleccionSesiones.get(idInicioManual);
             if (!sesionData) {
                 for (const [, val] of global.coleccionSesiones) {
-                    if (val.idInicio === idInicioManual) {
+                    if (val.idInicio === idInicioManual || val.idLanzamiento === idInicioManual) {
                         sesionData = val;
                         break;
                     }
@@ -75,7 +75,9 @@ export default {
             // Si no está en memoria, buscar en MongoDB
             if (!sesionData) {
                 try {
-                    const doc = await Sesion.findOne({ $or: [{ mensajeId: idInicioManual }, { idInicio: idInicioManual }] }).lean();
+                    const doc = await Sesion.findOne({ 
+                        $or: [{ idLanzamiento: idInicioManual }, { idInicio: idInicioManual }] 
+                    }).lean();
                     if (doc) sesionData = doc;
                 } catch (e) {
                     console.error('Error al consultar MongoDB:', e);
@@ -92,10 +94,12 @@ export default {
             }
             if (!sesionData) {
                 try {
-                    const doc = await Sesion.findOne({ guildId: interaction.guildId }).sort({ fecha: -1 }).lean();
+                    const doc = await Sesion.findOne({ guildId: interaction.guildId })
+                        .sort({ fechaInicio: -1 })
+                        .lean();
                     if (doc) {
                         sesionData = doc;
-                        targetIdInicio = doc.idInicio || doc.mensajeId;
+                        targetIdInicio = doc.idInicio;
                     }
                 } catch (e) {
                     console.error('Error al consultar MongoDB:', e);
@@ -204,9 +208,10 @@ export default {
 
                 if (sesionData?.tipo === 'rp') {
                     tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Roleplay Liberadas__*** <a:confeti:1523026892981145600>';
+                    const limiteVel = sesionData.limiteVelocidad || sesionData.limite || 'No especificada';
                     datosExtraSesion = 
                         `> <:tres:1523027610479759561> **Estado de Peacetime:** ${sesionData.peacetime || 'No especificado'}\n` +
-                        `> <:cuatro:1523027468385128568> **Velocidad de Fail Roleplay:** ${sesionData.limite || 'No especificada'}\n` +
+                        `> <:cuatro:1523027468385128568> **Velocidad de Fail Roleplay:** ${limiteVel}\n` +
                         `> <:replica:1523028004983406787> Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n`;
                 } else if (sesionData?.tipo === 'meet') {
                     tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Car Meet Liberadas__*** <a:confeti:1523026892981145600>';
@@ -253,7 +258,7 @@ export default {
                         allowedMentions: { parse: ['everyone', 'roles'] }
                     });
 
-                    // Guardar idInicio junto con el link para que el botón de verificar voto funcione
+                    // Guardar en memoria global
                     global.coleccionSesiones.set(msgRelease.id, {
                         idInicio: targetIdInicio,
                         linkSesion,
@@ -261,21 +266,28 @@ export default {
                         tipo: 'reinvitacion'
                     });
 
-                    // 💾 GUARDAR EN MONGODB Y HISTORIAL
-                    await Sesion.create({
-                        mensajeId: msgRelease.id,
-                        idInicio: targetIdInicio,
-                        hostId: interaction.user.id,
-                        tipo: 'reinvitacion',
-                        linkSesion,
-                        reaccionesRequeridas,
-                        guildId: interaction.guildId
-                    });
+                    // 💾 ACTUALIZAR EN MONGODB Y REGISTRAR EN HISTORIAL
+                    if (targetIdInicio) {
+                        await Sesion.updateOne(
+                            { idInicio: targetIdInicio },
+                            {
+                                $set: { linkSesion },
+                                $push: {
+                                    reinvitaciones: {
+                                        idMensaje: msgRelease.id,
+                                        fecha: new Date(),
+                                        reaccionesMeta: reaccionesRequeridas,
+                                        link: linkSesion
+                                    }
+                                }
+                            }
+                        );
+                    }
 
                     await Historial.create({
                         evento: 'REINVITACION_LIBERADA',
                         mensajeId: msgRelease.id,
-                        idInicio: targetIdInicio,
+                        idInicio: targetIdInicio || 'S/N',
                         hostId: interaction.user.id,
                         hostTag: interaction.user.tag,
                         tipo: sesionData?.tipo || 'reinvitacion',
