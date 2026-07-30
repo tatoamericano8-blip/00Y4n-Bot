@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
-import Sesion from '../../../models/Sesion.js';
+import Sesion from '../../../models/Session.js';
 import Historial from '../../../models/Historial.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
