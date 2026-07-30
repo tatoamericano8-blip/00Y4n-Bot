@@ -1,4 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
+import Sesion from '../../../models/Sesion.js';
+import Historial from '../../../models/Historial.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
@@ -85,5 +87,38 @@ export default {
             guildId: interaction.guildId, 
             tipo: 'meet' 
         });
+
+        // 💾 GUARDAR EN MONGODB Y HISTORIAL
+        try {
+            await Sesion.create({
+                mensajeId: msgRelease.id,
+                idInicio,
+                hostId: interaction.user.id,
+                tipo: 'meet',
+                linkSesion,
+                tematica,
+                ubicacion,
+                spots,
+                imagen: urlImagen || IMAGEN_MEET_DEFECTO,
+                procesado: true,
+                guildId: interaction.guildId
+            });
+
+            // Marcar el startup como procesado
+            await Sesion.updateOne({ mensajeId: idInicio }, { $set: { procesado: true } });
+
+            await Historial.create({
+                evento: 'SESION_LANZADA_MEET',
+                mensajeId: msgRelease.id,
+                idInicio,
+                hostId: interaction.user.id,
+                hostTag: interaction.user.tag,
+                tipo: 'meet',
+                detalles: { linkSesion, tematica, ubicacion, spots },
+                guildId: interaction.guildId
+            });
+        } catch (error) {
+            console.error('Error al guardar lanzamiento de Car Meet en MongoDB:', error);
+        }
     }
 };
