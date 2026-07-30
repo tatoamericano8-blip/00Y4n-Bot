@@ -5,6 +5,34 @@ import Staff from '../../../models/Staff.js';
 const ROLE_HIGH_COMMAND = '1528870731629465752';
 const CHANNEL_LOGS = '1505015805891579934';
 
+// 🎯 IDs de los roles de Staff Strike
+const ROLES_STRIKE = {
+    1: '1532457181696364544', // Staff Strike 1/3
+    2: '1532457243315011806', // Staff Strike 2/3
+    3: '1532457348818272506'  // Staff Strike 3/3
+};
+
+// Función auxiliar para actualizar los roles de strike en el usuario
+async function sincronizarRolesStrike(member, strikesActivos) {
+    if (!member) return;
+
+    const listaRolesStrike = Object.values(ROLES_STRIKE);
+
+    try {
+        // 1. Quitar todos los roles de strike que posea actualmente
+        await member.roles.remove(listaRolesStrike).catch(() => null);
+
+        // 2. Asignar el rol correspondiente a la cantidad actual de strikes
+        const rolAsignar = ROLES_STRIKE[strikesActivos] || (strikesActivos >= 3 ? ROLES_STRIKE[3] : null);
+
+        if (rolAsignar) {
+            await member.roles.add(rolAsignar).catch(() => null);
+        }
+    } catch (error) {
+        console.error('Error al sincronizar roles de strike:', error);
+    }
+}
+
 export default {
     data: new SlashCommandBuilder()
         .setName('staffstrike')
@@ -37,11 +65,15 @@ export default {
 
         let staffData = await Staff.findOne({ guildId: interaction.guildId, userId: targetUser.id });
         if (!staffData) {
-            return await interaction.reply({ content: '<:cruz00y4n:1523041302764191844> El usuario no posee registro de Staff en la base de datos.', flags: MessageFlags.Ephemeral });
+            return await interaction.reply({ 
+                content: '<:cruz00y4n:1523041302764191844> El usuario no posee registro de Staff en la base de datos.', 
+                flags: MessageFlags.Ephemeral 
+            });
         }
 
         await interaction.deferReply();
         const logsChannel = interaction.guild.channels.cache.get(CHANNEL_LOGS);
+        const targetMember = await interaction.guild.members.fetch(targetUser.id).catch(() => null);
 
         if (sub === 'aplicar') {
             const idStrike = `STK-${randomBytes(3).toString('hex').toUpperCase()}`;
@@ -54,6 +86,9 @@ export default {
             await staffData.save();
 
             const strikesActivos = staffData.strikes.filter(s => s.activo).length;
+
+            // 🔄 Sincronizar los roles de Discord
+            await sincronizarRolesStrike(targetMember, strikesActivos);
 
             const embedLog = new EmbedBuilder()
                 .setTitle('<:advertencia:1525172022475489472> Sanción Aplicada – Staff Strike')
@@ -78,7 +113,9 @@ export default {
             const strikeObj = staffData.strikes.find(s => s.idStrike === idStrike && s.activo);
 
             if (!strikeObj) {
-                return await interaction.editReply({ content: `<a:cruz00y4n:1523027120538910830> No se encontró un strike activo con el ID \`${idStrike}\` para este usuario.` });
+                return await interaction.editReply({ 
+                    content: `<a:cruz00y4n:1523027120538910830> No se encontró un strike activo con el ID \`${idStrike}\` para este usuario.` 
+                });
             }
 
             strikeObj.activo = false;
@@ -87,6 +124,11 @@ export default {
             strikeObj.motivoRemocion = motivo;
             await staffData.save();
 
+            const strikesActivos = staffData.strikes.filter(s => s.activo).length;
+
+            // 🔄 Sincronizar los roles de Discord tras remover el strike
+            await sincronizarRolesStrike(targetMember, strikesActivos);
+
             const embedLog = new EmbedBuilder()
                 .setTitle('<a:verificacion:1523027148326047878> Sanción Removida – Staff Strike')
                 .setColor('#57f287')
@@ -94,14 +136,15 @@ export default {
                     `> **Staff:** <@${targetUser.id}>\n` +
                     `> **ID de Strike Removido:** \`${idStrike}\`\n` +
                     `> **Motivo Remoción:** ${motivo}\n` +
-                    `> **Removido por:** <@${interaction.user.id}>`
+                    `> **Removido por:** <@${interaction.user.id}>\n` +
+                    `> **Strikes Activos Restantes:** \`${strikesActivos}\``
                 )
                 .setTimestamp();
 
             if (logsChannel) await logsChannel.send({ embeds: [embedLog] });
 
             await interaction.editReply({
-                content: `<a:verificacion:1523027148326047878> El strike \`${idStrike}\` fue desactivado correctamente.`
+                content: `<a:verificacion:1523027148326047878> El strike \`${idStrike}\` fue desactivado correctamente. Total activos: **${strikesActivos}**.`
             });
         }
     }
