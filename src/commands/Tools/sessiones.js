@@ -1,4 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
+import Sesion from '../models/Sesion.js';
+import Historial from '../models/Historial.js';
 
 // Inicializamos la memoria global para registrar los inicios activos
 global.coleccionStartups = global.coleccionStartups || new Map();
@@ -74,7 +76,33 @@ export default {
             
             await msg.react(idTildeNaranja);
 
+            // Guardamos en la memoria local
             global.coleccionStartups.set(msg.id, { hostId: interaction.user.id, reaccionesRequeridas: reacciones, tipo, imagen: urlImagen, procesado: false });
+
+            // 💾 GUARDAR EN MONGODB Y REGISTRAR EN EL HISTORIAL
+            try {
+                await Sesion.create({
+                    mensajeId: msg.id,
+                    hostId: interaction.user.id,
+                    tipo,
+                    reaccionesRequeridas: reacciones,
+                    imagen: urlImagen,
+                    procesado: false,
+                    guildId: interaction.guildId
+                });
+
+                await Historial.create({
+                    evento: 'STARTUP_INICIADO',
+                    mensajeId: msg.id,
+                    hostId: interaction.user.id,
+                    hostTag: interaction.user.tag,
+                    tipo,
+                    detalles: { reaccionesRequeridas: reacciones, imagen: urlImagen },
+                    guildId: interaction.guildId
+                });
+            } catch (error) {
+                console.error('Error al guardar Startup RP en MongoDB:', error);
+            }
         }
 
         if (tipo === 'meet') {
@@ -97,7 +125,33 @@ export default {
             
             await msg.react(idTildeNaranja);
 
+            // Guardamos en memoria local
             global.coleccionStartups.set(msg.id, { hostId: interaction.user.id, reaccionesRequeridas: reacciones, tipo, imagen: urlImagen, procesado: false });
+
+            // 💾 GUARDAR EN MONGODB Y REGISTRAR EN EL HISTORIAL
+            try {
+                await Sesion.create({
+                    mensajeId: msg.id,
+                    hostId: interaction.user.id,
+                    tipo,
+                    reaccionesRequeridas: reacciones,
+                    imagen: urlImagen,
+                    procesado: false,
+                    guildId: interaction.guildId
+                });
+
+                await Historial.create({
+                    evento: 'STARTUP_INICIADO',
+                    mensajeId: msg.id,
+                    hostId: interaction.user.id,
+                    hostTag: interaction.user.tag,
+                    tipo,
+                    detalles: { reaccionesRequeridas: reacciones, imagen: urlImagen },
+                    guildId: interaction.guildId
+                });
+            } catch (error) {
+                console.error('Error al guardar Startup Meet en MongoDB:', error);
+            }
         }
     }
 };
