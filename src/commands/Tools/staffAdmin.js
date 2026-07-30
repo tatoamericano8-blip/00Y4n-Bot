@@ -1,12 +1,13 @@
-import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
+import crypto from 'crypto';
 import Staff from '../../../models/Staff.js';
 import { logger } from '../../utils/logger.js';
 
 // -------------------------------------------------------------
 // 🔑 CONFIGURACIÓN DE ROLES DE STAFF
 // -------------------------------------------------------------
-const ID_ROL_STAFF_BAJO_MANDO = '1528870664612614184'; // Coloca aquí la ID del rol de Staff Junior / Bajo Mando
-const ID_ROL_ALTO_MANDO = '1528870731629465752'; // ID del rol de Alto Mando
+const ID_ROL_STAFF_BAJO_MANDO = '1528870664612614184'; // ID Staff Junior / Bajo Mando
+const ID_ROL_ALTO_MANDO = '1528870731629465752';       // ID Alto Mando
 
 export default {
   data: new SlashCommandBuilder()
@@ -82,7 +83,7 @@ export default {
       // 🛡️ CANDADO 1: VERIFICACIÓN GENERAL DE PERTENENCIA A STAFF
       // =========================================================
       const esBajoMando = memberRoles.has(ID_ROL_STAFF_BAJO_MANDO);
-      const esAltoMando = memberRoles.has(ID_ROL_ALTO_MANDO);
+      const esAltoMando = memberRoles.has(ID_ROL_ALTO_MANDO) || interaction.member.permissions.has(PermissionFlagsBits.Administrator);
 
       if (!esBajoMando && !esAltoMando) {
         return await interaction.reply({
@@ -104,9 +105,20 @@ export default {
         const fin = new Date();
         fin.setDate(inicio.getDate() + dias);
 
+        const loaObj = { inicio, fin, motivo };
+
         await Staff.findOneAndUpdate(
           { userId: interaction.user.id, guildId },
-          { loa: { activo: true, inicio, fin, motivo } },
+          {
+            $set: {
+              estado: 'LOA',
+              'loa.activo': true,
+              'loa.inicio': inicio,
+              'loa.fin': fin,
+              'loa.motivo': motivo
+            },
+            $push: { 'loa.historial': loaObj }
+          },
           { upsert: true, new: true }
         );
 
@@ -128,7 +140,7 @@ export default {
       // 🔹 CONSULTAR PERFIL / EXPEDIENTE
       if (sub === 'perfil') {
         const objetivo = interaction.options.getUser('usuario') || interaction.user;
-        const staffData = await Staff.findOne({ userId: objetivo.id, guildId });
+        let staffData = await Staff.findOne({ userId: objetivo.id, guildId });
 
         if (!staffData) {
           return await interaction.reply({
@@ -137,24 +149,38 @@ export default {
           });
         }
 
+        // Auto-expiración de LOA si ya pasó la fecha de fin
+        if (staffData.loa?.activo && new Date() > new Date(staffData.loa.fin)) {
+          staffData.loa.activo = false;
+          staffData.estado = 'ACTIVO';
+          await staffData.save();
+        }
+
         const horas = staffData.cuotas?.horasServicio || 0;
         const sesiones = staffData.cuotas?.sesionesOrganizadas || 0;
         const horasMeta = staffData.cuotas?.horasMeta || 3;
         const sesionesMeta = staffData.cuotas?.sesionesMeta || 2;
 
         const cumpleCuota = horas >= horasMeta && sesiones >= sesionesMeta;
+        const strikesActivos = staffData.strikes ? staffData.strikes.filter(s => s.activo).length : 0;
+
+        let estadoTexto = '🟢 ACTIVO';
+        if (staffData.estado === 'LOA') estadoTexto = '🌴 EN LICENCIA (LOA)';
+        if (staffData.estado === 'DESPEDIDO') estadoTexto = '🔴 DESPEDIDO';
+        if (staffData.estado === 'RENUNCIADO') estadoTexto = '⚪ RENUNCIADO';
 
         const embedPerfil = new EmbedBuilder()
           .setTitle(`📂 Expediente de Staff — ${objetivo.username}`)
           .setThumbnail(objetivo.displayAvatarURL())
-          .setColor(cumpleCuota ? '#2ECC71' : '#E74C3C')
+          .setColor(staffData.estado === 'DESPEDIDO' ? '#900C3F' : cumpleCuota ? '#2ECC71' : '#E74C3C')
           .addFields(
             { name: '🎖️ Rango', value: staffData.rango || 'Staff Trainee', inline: true },
-            { name: '⚠️ Strikes Activos', value: `${staffData.strikes ? staffData.strikes.length : 0}/3`, inline: true },
-            { name: '🌴 Estado LOA', value: staffData.loa?.activo ? '🟢 Ausente' : '🔴 Activo', inline: true },
+            { name: '📌 Estado General', value: estadoTexto, inline: true },
+            { name: '⚠️ Strikes Activos', value: `${strikesActivos}/3`, inline: true },
             { name: '⏱️ Horas Trabajadas', value: `${horas} / ${horasMeta} hrs`, inline: true },
             { name: '🚗 Sesiones Hosteadas', value: `${sesiones} / ${sesionesMeta}`, inline: true },
-            { name: '📌 Estado de Cuota', value: cumpleCuota ? '✅ **CUMPLIDA**' : '❌ **INCOMPLETA**', inline: true }
+            { name: '📊 Cumplimiento', value: cumpleCuota ? '✅ **CUMPLIDA**' : '❌ **INCOMPLETA**', inline: true },
+            { name: '🌐 Histórico Total', value: `⏱️ ${staffData.estadisticasHistoricas?.horasTotales || 0} hrs | 🚗 ${staffData.estadisticasHistoricas?.sesionesHosteadasTotales || 0} sesiones`, inline: false }
           )
           .setTimestamp();
 
@@ -176,24 +202,30 @@ export default {
         const usuario = interaction.options.getUser('usuario');
         const motivo = interaction.options.getString('motivo');
 
+        const nuevoStrike = {
+          idStrike: `STK-${crypto.randomUUID().substring(0, 5).toUpperCase()}`,
+          motivo,
+          aplicadoPor: interaction.user.id,
+          fecha: new Date(),
+          activo: true
+        };
+
         const staffData = await Staff.findOneAndUpdate(
           { userId: usuario.id, guildId },
-          { 
-            $push: { strikes: { motivo, aplicadoPor: interaction.user.id, fecha: new Date() } } 
-          },
+          { $push: { strikes: nuevoStrike } },
           { upsert: true, new: true }
         );
 
-        const totalStrikes = staffData.strikes.length;
-        const riesgoExpulsion = totalStrikes >= 3 ? '\n⚠️ **¡ATENCIÓN! El usuario alcanzó el límite máximo de 3 strikes.**' : '';
+        const strikesActivos = staffData.strikes.filter(s => s.activo).length;
+        const riesgoExpulsion = strikesActivos >= 3 ? '\n⚠️ **¡ATENCIÓN! El usuario alcanzó el límite máximo de 3 strikes activos.**' : '';
 
         const embedStrike = new EmbedBuilder()
           .setTitle('⚠️ Sanción a Staff Aplicada')
           .setColor('#E74C3C')
-          .setDescription(`Se ha registrado una sanción oficial.${riesgoExpulsion}`)
+          .setDescription(`Se ha registrado una sanción oficial con ID \`${nuevoStrike.idStrike}\`.${riesgoExpulsion}`)
           .addFields(
             { name: '👤 Staff Sancionado', value: `<@${usuario.id}>`, inline: true },
-            { name: '📊 Total Strikes', value: `${totalStrikes}/3`, inline: true },
+            { name: '📊 Strikes Activos', value: `${strikesActivos}/3`, inline: true },
             { name: '📝 Motivo', value: motivo },
             { name: '🛡️ Aplicado por', value: `<@${interaction.user.id}>` }
           )
@@ -207,12 +239,25 @@ export default {
         const usuario = interaction.options.getUser('usuario');
         const motivo = interaction.options.getString('motivo');
 
-        await Staff.findOneAndDelete({ userId: usuario.id, guildId });
+        await Staff.findOneAndUpdate(
+          { userId: usuario.id, guildId },
+          {
+            $set: {
+              estado: 'DESPEDIDO',
+              despido: {
+                fecha: new Date(),
+                motivo,
+                realizadoPor: interaction.user.id
+              }
+            }
+          },
+          { upsert: true }
+        );
 
         const embedDespido = new EmbedBuilder()
           .setTitle('🛑 Despido de Staff (Terminate)')
           .setColor('#900C3F')
-          .setDescription(`El usuario ha sido desvinculado del equipo de Staff y su expediente fue archivado.`)
+          .setDescription(`El usuario ha sido desvinculado del equipo de Staff. Se conserva su registro para auditorías futuras.`)
           .addFields(
             { name: '👤 Usuario Despedido', value: `<@${usuario.id}>`, inline: true },
             { name: '📝 Motivo del Despido', value: motivo },
@@ -229,11 +274,17 @@ export default {
         const tipo = interaction.options.getString('tipo');
         const cantidad = interaction.options.getNumber('cantidad');
 
-        const campoActualizar = tipo === 'horas' ? 'cuotas.horasServicio' : 'cuotas.sesionesOrganizadas';
+        const campoSemanal = tipo === 'horas' ? 'cuotas.horasServicio' : 'cuotas.sesionesOrganizadas';
+        const campoHistorico = tipo === 'horas' ? 'estadisticasHistoricas.horasTotales' : 'estadisticasHistoricas.sesionesHosteadasTotales';
 
         const staffActualizado = await Staff.findOneAndUpdate(
           { userId: usuario.id, guildId },
-          { $inc: { [campoActualizar]: cantidad } },
+          { 
+            $inc: { 
+              [campoSemanal]: cantidad,
+              [campoHistorico]: cantidad
+            } 
+          },
           { upsert: true, new: true }
         );
 
@@ -243,10 +294,10 @@ export default {
         const embedLog = new EmbedBuilder()
           .setTitle('📊 Registro de Cuota Actualizado')
           .setColor('#3498DB')
-          .setDescription(`Se añadieron **+${cantidad} ${tipo}** al historial de <@${usuario.id}>.`)
+          .setDescription(`Se añadieron **+${cantidad} ${tipo}** al expediente de <@${usuario.id}>.`)
           .addFields(
-            { name: '⏱️ Horas Totales', value: `${horas} / ${staffActualizado.cuotas.horasMeta || 3} hrs`, inline: true },
-            { name: '🚗 Sesiones Totales', value: `${sesiones} / ${staffActualizado.cuotas.sesionesMeta || 2}`, inline: true }
+            { name: '⏱️ Horas Semanales', value: `${horas} / ${staffActualizado.cuotas.horasMeta || 3} hrs`, inline: true },
+            { name: '🚗 Sesiones Semanales', value: `${sesiones} / ${staffActualizado.cuotas.sesionesMeta || 2}`, inline: true }
           )
           .setTimestamp();
 
@@ -261,15 +312,17 @@ export default {
 
         await Staff.findOneAndUpdate(
           { userId: usuario.id, guildId },
-          { 
-            'cuotas.horasMeta': horasMeta,
-            'cuotas.sesionesMeta': sesionesMeta
+          {
+            $set: {
+              'cuotas.horasMeta': horasMeta,
+              'cuotas.sesionesMeta': sesionesMeta
+            }
           },
           { upsert: true, new: true }
         );
 
         return await interaction.reply({
-          content: `✅ Metas de cuota para <@${usuario.id}> actualizadas: **${horasMeta} hrs de servicio** y **${sesionesMeta} sesiones** por semana.`
+          content: `✅ Metas de cuota para <@${usuario.id}> actualizadas: **${horasMeta} hrs de servicio** y **${sesionesMeta} sesiones** semanales.`
         });
       }
 
@@ -277,14 +330,14 @@ export default {
       if (sub === 'reset-cuotas') {
         await Staff.updateMany(
           { guildId },
-          { $set: { 'cuotas.horasServicio': 0, 'cuotas.sesionesOrganizadas': 0 } }
+          { $set: { 'cuotas.horasServicio': 0, 'cuotas.sesionesOrganizadas': 0, 'cuotas.sesionesSupervisadas': 0 } }
         );
 
         const embedReset = new EmbedBuilder()
           .setTitle('🔄 Reinicio de Cuotas Semanales')
           .setColor('#2ECC71')
-          .setDescription('Se han reiniciado los contadores de **horas de servicio** y **sesiones organizadas** de todo el equipo de Staff.')
-          .setFooter({ text: 'Semana limpia iniciada correctamente.' })
+          .setDescription('Se han reiniciado los contadores semanales de **horas de servicio** y **sesiones** de todo el equipo de Staff.')
+          .setFooter({ text: 'Las estadísticas históricas se mantuvieron intactas.' })
           .setTimestamp();
 
         return await interaction.reply({ embeds: [embedReset] });
@@ -293,7 +346,7 @@ export default {
     } catch (error) {
       logger.error('Error en el comando staff-admin:', error);
       return await interaction.reply({
-        content: '❌ Ocurrió un error al procesar la solicitud de administración.',
+        content: '❌ Ocurrió un error al procesar la solicitud de administración de Staff.',
         ephemeral: true
       });
     }
