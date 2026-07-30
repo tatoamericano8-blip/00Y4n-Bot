@@ -63,7 +63,7 @@ export async function procesarCiudadanoDelDia(client) {
         // 🎨 EMBED TRADUCIDO Y ESTILIZADO (Igual a la imagen)
         const embedCiudadano = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<:trofeo:1529548996396322888> Ciudadano del Día')
+            .setTitle('<:trofeo:1532128254516006963> Ciudadano del Día')
             .setDescription(
                 `➔ Cada día, **${guild.name}** muestra su agradecimiento al ciudadano más activo en los canales de texto y voz.\n\n` +
                 `¡Este usuario recibe el rol de <@&${ID_ROL_CIUDADANO_DIA}>, otorgándole **exención de vehículos restringidos**, **acceso anticipado** y **permiso para enviar imágenes** durante todo el día!\n\n` +
