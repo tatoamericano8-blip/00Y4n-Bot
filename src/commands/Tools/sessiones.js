@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
-import Sesion from '../../../models/Sesion.js';
+import Sesion from '../../../models/Session.js';
 import Historial from '../../../models/Historial.js';
 
 // Inicializamos la memoria global para registrar los inicios activos
