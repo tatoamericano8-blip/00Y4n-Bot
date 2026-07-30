@@ -2,7 +2,6 @@ import { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits } from 
 import Sesion from '../../../models/Session.js';
 import Historial from '../../../models/Historial.js';
 
-// Inicializamos la memoria global para registrar los inicios activos
 global.coleccionStartups = global.coleccionStartups || new Map();
 
 export default {
@@ -36,7 +35,6 @@ export default {
     },
 
     async execute(interaction) {
-        // 🔒 SEGURIDAD: Bloqueo de Staff
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
                 content: '❌ **No tienes permisos:** Solo el Staff autorizado puede iniciar sesiones.',
@@ -48,110 +46,66 @@ export default {
         const reacciones = interaction.options.getInteger('reacciones');
         const urlImagen = interaction.options.getString('imagen');
 
-        // --- MAPEO DE EMOJIS CUSTOM (IDs Reales de tu servidor 00Y4n) ---
-        const eCoraMov = '<a:Cora_Mov_00Y4n:1519473208334749716>'; // Animado para títulos
-        const ePunto   = '<:00y4ncirpunto:1523041306836996156>';    // Círculo/Punto celeste
-        const eFlechaH = '<:FlechaHoriz00Y4n:1519474590370500608>'; // Flecha horizontal naranja
-        const eFlechaV = '<:Flecha_00Y4n:1519473149845045400>';     // Flecha curva naranja
-        const idTildeNaranja = '<a:coraexplotando:1523026579662307378>'; // ID real de tu tilde naranja para las reacciones
+        const ePunto = '<:00y4ncirpunto:1523041306836996156>';
+        const idTildeNaranja = '1523026579662307378'; // ID extraído para msg.react()
 
-        // Modificación estética basada de forma estricta en el estilo 00Y4n
-        if (tipo === 'rp') {
-            const embedRP = new EmbedBuilder()
-                .setTitle(`<a:mari:1523027011524624457> **Southwest Florida** - *__Roleplay Sesión Inicio__* <a:mari:1523027011524624457>`)
-                .setDescription(
-                    `> ${ePunto} <@${interaction.user.id}> ¡está organizando una **sesión de roleplay**! Si tienes la intención de **unirte**, reacciona abajo con el emoji elegido por el host. ¡Si reaccionas sin unirte, podrías enfrentar __**consecuencias**__ por parte del equipo de staff!\n\n` +
-                    `**Antes de Unirte**\n\n` +
-                    `> <:felc:1523041359441952970> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-                    `> <:felc:1523041359441952970> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1525190667545088225)\n` +
-                    `> <:felc:1523041359441952970> Registra tus vehículos en <#1505615426305130657>!\n\n` +
-                    `> <:felc:1523028004983406787> El host debe obtener __**${reacciones}+**__ reacciones antes de comenzar.`
-                )
-                .setColor('#74d4fc');
+        const esRP = tipo === 'rp';
+        const titulo = esRP 
+            ? '<a:mari:1523027011524624457> **Southwest Florida** - *__Roleplay Sesión Inicio__* <a:mari:1523027011524624457>'
+            : '<a:mari:1523027011524624457> Southwest Florida - __*Car Meet Sesión Inicio*__ <a:mari:1523027011524624457>';
 
-            if (urlImagen) embedRP.setImage(urlImagen);
+        const descExtra = esRP
+            ? `> <:felc:1523041359441952970> Registra tus vehículos en <#1505615426305130657>!\n\n`
+            : `> <:felc:1523041359441952970> Recuerda evitar colisiones con vehículos y mantener el realismo!\n\n`;
 
-            await interaction.reply({ content: 'Lanzando Startup de Roleplay...', ephemeral: true });
-            const msg = await interaction.channel.send({ content: '@everyone', embeds: [embedRP] });
-            
+        const embed = new EmbedBuilder()
+            .setTitle(titulo)
+            .setDescription(
+                `> ${ePunto} <@${interaction.user.id}> ¡está organizando una **sesión de ${esRP ? 'roleplay' : 'car meet oficial'}**! Si tienes la intención de **unirte**, reacciona abajo con el emoji elegido por el host. ¡Si reaccionas sin unirte, podrías enfrentar __**consecuencias**__ por parte del equipo de staff!\n\n` +
+                `**Antes de Unirte**\n\n` +
+                `> <:felc:1523041359441952970> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+                `> <:felc:1523041359441952970> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1525190667545088225)\n` +
+                descExtra +
+                `> <:felc:1523028004983406787> El host debe obtener __**${reacciones}+**__ reacciones antes de comenzar.`
+            )
+            .setColor('#74d4fc');
+
+        if (urlImagen) embed.setImage(urlImagen);
+
+        await interaction.reply({ content: `Lanzando Startup de ${esRP ? 'Roleplay' : 'Car Meet'}...`, ephemeral: true });
+        const msg = await interaction.channel.send({ content: '@everyone', embeds: [embed] });
+        
+        try {
             await msg.react(idTildeNaranja);
-
-            // Guardamos en la memoria local
-            global.coleccionStartups.set(msg.id, { hostId: interaction.user.id, reaccionesRequeridas: reacciones, tipo, imagen: urlImagen, procesado: false });
-
-            // 💾 GUARDAR EN MONGODB Y REGISTRAR EN EL HISTORIAL
-            try {
-                await Sesion.create({
-                    mensajeId: msg.id,
-                    hostId: interaction.user.id,
-                    tipo,
-                    reaccionesRequeridas: reacciones,
-                    imagen: urlImagen,
-                    procesado: false,
-                    guildId: interaction.guildId
-                });
-
-                await Historial.create({
-                    evento: 'STARTUP_INICIADO',
-                    mensajeId: msg.id,
-                    hostId: interaction.user.id,
-                    hostTag: interaction.user.tag,
-                    tipo,
-                    detalles: { reaccionesRequeridas: reacciones, imagen: urlImagen },
-                    guildId: interaction.guildId
-                });
-            } catch (error) {
-                console.error('Error al guardar Startup RP en MongoDB:', error);
-            }
+        } catch (e) {
+            console.error('Error al agregar reacción inicial:', e);
         }
 
-        if (tipo === 'meet') {
-            const embedMeet = new EmbedBuilder()
-                .setTitle(`<a:mari:1523027011524624457> Southwest Florida - __*Car Meet Sesión Inicio*__ <a:mari:1523027011524624457>`)
-                .setDescription(
-                    `> ${ePunto} <@${interaction.user.id}> ¡está organizando un **car meet oficial**! Si tienes la intención de **unirte**, reacciona abajo con el emoji elegido por el host. ¡Si reaccionas sin unirte, podrías enfrentar __**consecuencias**__ por parte del equipo de staff!\n\n` +
-                    `**Antes de Unirte**\n\n` +
-                    `> <:felc:1523041359441952970> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-                    `> <:felc:1523041359441952970> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1525190667545088225)\n` +
-                    `> <:felc:1523041359441952970> Recuerda evitar colisiones con vehiculos y mantener el realismo!\n\n` +
-                    `> <:felc:1523028004983406787> El host debe obtener __**${reacciones}+**__ reacciones antes de comenzar.`
-                )
-                .setColor('#74d4fc');
+        global.coleccionStartups.set(msg.id, { hostId: interaction.user.id, reaccionesRequeridas: reacciones, tipo, imagen: urlImagen });
 
-            if (urlImagen) embedMeet.setImage(urlImagen);
+        // 💾 GUARDAR EN MONGODB Y HISTORIAL
+        try {
+            await Sesion.create({
+                idInicio: msg.id,
+                hostId: interaction.user.id,
+                tipo,
+                reaccionesRequeridas: reacciones,
+                imagen: urlImagen,
+                estado: 'esperando_reacciones',
+                guildId: interaction.guildId
+            });
 
-            await interaction.reply({ content: 'Lanzando Startup de Car Meet...', ephemeral: true });
-            const msg = await interaction.channel.send({ content: '@everyone', embeds: [embedMeet] });
-            
-            await msg.react(idTildeNaranja);
-
-            // Guardamos en memoria local
-            global.coleccionStartups.set(msg.id, { hostId: interaction.user.id, reaccionesRequeridas: reacciones, tipo, imagen: urlImagen, procesado: false });
-
-            // 💾 GUARDAR EN MONGODB Y REGISTRAR EN EL HISTORIAL
-            try {
-                await Sesion.create({
-                    mensajeId: msg.id,
-                    hostId: interaction.user.id,
-                    tipo,
-                    reaccionesRequeridas: reacciones,
-                    imagen: urlImagen,
-                    procesado: false,
-                    guildId: interaction.guildId
-                });
-
-                await Historial.create({
-                    evento: 'STARTUP_INICIADO',
-                    mensajeId: msg.id,
-                    hostId: interaction.user.id,
-                    hostTag: interaction.user.tag,
-                    tipo,
-                    detalles: { reaccionesRequeridas: reacciones, imagen: urlImagen },
-                    guildId: interaction.guildId
-                });
-            } catch (error) {
-                console.error('Error al guardar Startup Meet en MongoDB:', error);
-            }
+            await Historial.create({
+                evento: 'STARTUP_INICIADO',
+                mensajeId: msg.id,
+                hostId: interaction.user.id,
+                hostTag: interaction.user.tag,
+                tipo,
+                detalles: { reaccionesRequeridas: reacciones, imagen: urlImagen },
+                guildId: interaction.guildId
+            });
+        } catch (error) {
+            console.error('Error al guardar Startup en MongoDB:', error);
         }
     }
 };
