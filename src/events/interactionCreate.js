@@ -9,6 +9,7 @@ import { InteractionHelper } from '../utils/interactionHelper.js';
 import { createInteractionTraceContext, runWithTraceContext } from '../utils/traceContext.js';
 import { validateChatInputPayloadOrThrow } from '../utils/commandInputValidation.js';
 import { enforceAbuseProtection, formatCooldownDuration } from '../utils/abuseProtection.js';
+import Sesion from '../models/Sesion.js'; // 🚀 Importamos el modelo de Mongoose
 
 function withTraceContext(context = {}, traceContext = {}) {
   return {
@@ -105,7 +106,6 @@ export default {
               const roles = await getApplicationRoles(client, interaction.guildId);
               const roleName = interaction.options.getString('application', false);
               
-              // Filter: only show enabled applications
               const filtered = roles.filter(role =>
                 role.enabled !== false && 
                 role.name.toLowerCase().startsWith(roleName?.toLowerCase() || '')
@@ -131,7 +131,6 @@ export default {
               const roles = await getApplicationRoles(client, interaction.guildId);
               const appName = interaction.options.getString('application', false);
               
-              // Show all applications (enabled and disabled), but mark disabled ones
               const filtered = roles.filter(role =>
                 role.name.toLowerCase().startsWith(appName?.toLowerCase() || '')
               );
@@ -163,12 +162,9 @@ export default {
                 return;
               }
               
-              // Filter out panels whose messages no longer exist
               const validPanels = [];
               for (const panel of panels) {
-                if (!panel.messageId || !panel.channelId) {
-                  continue;
-                }
+                if (!panel.messageId || !panel.channelId) continue;
                 
                 const channel = guild.channels.cache.get(panel.channelId);
                 if (!channel) {
@@ -219,75 +215,99 @@ export default {
             }
           }
         } else if (interaction.isButton()) {
-          // 00Y4n: Interceptamos el botón de la sesión de SWFL antes de que busque en otros lados
+          // 🚀 Verificación de Voto para Sesiones de SWFL
           if (interaction.customId === 'verificar_voto_swfl') {
-            const sesion = global.coleccionSesiones?.get(interaction.message.id);
+            let sesion = global.coleccionSesiones?.get(interaction.message.id);
+
+            // 💾 FALLBACK A MONGO DB: Si no existe en RAM (por reinicio), lo buscamos en la base de datos
             if (!sesion) {
-                return await interaction.reply({
-                    content: '<:cruz00y4n:1523041302764191844> **Error:** No se encontraron los registros de esta sesión en la memoria.',
-                    ephemeral: true
+              try {
+                sesion = await Sesion.findOne({
+                  $or: [
+                    { idLanzamiento: interaction.message.id },
+                    { idInicio: interaction.message.id },
+                    { 'reinvitaciones.idMensaje': interaction.message.id }
+                  ]
                 });
+
+                // Si se encuentra en DB, se restaura opcionalmente en el Map global de memoria
+                if (sesion && global.coleccionSesiones) {
+                  global.coleccionSesiones.set(interaction.message.id, sesion);
+                }
+              } catch (dbErr) {
+                logger.error(`Error consultando MongoDB en verificar_voto_swfl: ${dbErr.message}`);
+              }
+            }
+
+            if (!sesion) {
+              return await interaction.reply({
+                content: '<:cruz00y4n:1523041302764191844> **Error:** No se encontraron los registros de esta sesión activa.',
+                ephemeral: true
+              });
             }
 
             if (!sesion.idInicio) {
-                return await interaction.reply({
-                    content: '<:cruz00y4n:1523041302764191844> **Error:** No se encontró el mensaje de inicio asociado a esta sesión para comprobar tu voto.',
-                    ephemeral: true
-                });
+              return await interaction.reply({
+                content: '<:cruz00y4n:1523041302764191844> **Error:** No se encontró el mensaje de inicio asociado a esta sesión para comprobar tu voto.',
+                ephemeral: true
+              });
             }
 
             try {
-                const msgInicio = await interaction.channel.messages.fetch(sesion.idInicio);
+              const msgInicio = await interaction.channel.messages.fetch(sesion.idInicio);
 
-                // Comprobar si el usuario reaccionó a cualquiera de los emojis en el mensaje de Inicio
-                let haVotado = false;
-                for (const reaction of msgInicio.reactions.cache.values()) {
-                    const usuariosQueVotaron = await reaction.users.fetch();
-                    if (usuariosQueVotaron.has(interaction.user.id)) {
-                        haVotado = true;
-                        break;
-                    }
+              // Comprobar si el usuario reaccionó a cualquiera de los emojis en el mensaje de Inicio
+              let haVotado = false;
+              for (const reaction of msgInicio.reactions.cache.values()) {
+                const usuariosQueVotaron = await reaction.users.fetch();
+                if (usuariosQueVotaron.has(interaction.user.id)) {
+                  haVotado = true;
+                  break;
                 }
+              }
 
-                if (!haVotado) {
-                    return await interaction.reply({
-                        content: '<:cruz00y4n:1523041302764191844> **¡No has votado!** Primero debes dejar tu reacción en el mensaje de inicio de la sesión para poder acceder al link.',
-                        ephemeral: true
-                    });
-                }
-
-                let tituloEmbed = '<a:caram00y4nmov:1523026579662307378> Southwest Florida - *_Recordatorio de Sesión_* <a:caram00y4nmov:1523026579662307378>';
-                let descripcionEmbed = `> <:00y4ncirpunto:1523041306836996156> **Por favor, asegúrate de registrar tu(s) vehículo(s) en <#1505615426305130657>, ¡ya que podrías ser citado o recibir multas por parte de las Fuerzas del Orden!**\n\n**Enlace de la Sesión**\n> <:link00y4n:1525310570041966682> Haz clic [aquí](${sesion.linkSesion}) para unirte.`;
-
-                if (sesion.tipo === 'meet') {
-                    tituloEmbed = '<a:caram00y4nmov:1523026579662307378> Southwest Florida - *_Enlace del Car Meet_* <a:caram00y4nmov:1523026579662307378>';
-                    descripcionEmbed = `> <:00y4ncirpunto:1523041306836996156> **¡Disfruta del Car Meet Oficial! Recuerda respetar las indicaciones del Staff, ingresar despacio a los spots y mantener una buena conducta.**\n\n**Enlace del Car Meet**\n> <:link00y4n:1525310570041966682> Haz clic [aquí](${sesion.linkSesion}) para unirte.`;
-                } else if (sesion.tipo === 'reinvitacion') {
-                    tituloEmbed = '<a:caram00y4nmov:1523026579662307378> Southwest Florida - *_Enlace de Reinvitación_* <a:caram00y4nmov:1523026579662307378>';
-                    descripcionEmbed = `> <:00y4ncirpunto:1523041306836996156> **¡Reinvitaciones Liberadas! Recuerda ingresar de inmediato y respetar la normativa vigente.**\n\n**Enlace de la Sesión**\n> <:link00y4n:1525310570041966682> Haz clic [aquí](${sesion.linkSesion}) para unirte.`;
-                }
-
-                const embedLink = {
-                    title: tituloEmbed,
-                    description: descripcionEmbed,
-                    color: 0x74d4fc
-                };
-
+              if (!haVotado) {
                 return await interaction.reply({
-                    embeds: [embedLink],
-                    ephemeral: true
+                  content: '<:cruz00y4n:1523041302764191844> **¡No has votado!** Primero debes dejar tu reacción en el mensaje de inicio de la sesión para poder acceder al link.',
+                  ephemeral: true
                 });
+              }
+
+              // Detectar si la interacción viene desde un mensaje de reinvitación
+              const esReinvitacion = sesion.reinvitaciones?.some(r => r.idMensaje === interaction.message.id);
+
+              let tituloEmbed = '<a:caram00y4nmov:1523026579662307378> Southwest Florida - *_Recordatorio de Sesión_* <a:caram00y4nmov:1523026579662307378>';
+              let descripcionEmbed = `> <:00y4ncirpunto:1523041306836996156> **Por favor, asegúrate de registrar tu(s) vehículo(s) en <#1505615426305130657>, ¡ya que podrías ser citado o recibir multas por parte de las Fuerzas del Orden!**\n\n**Enlace de la Sesión**\n> <:link00y4n:1525310570041966682> Haz clic [aquí](${sesion.linkSesion}) para unirte.`;
+
+              if (esReinvitacion) {
+                tituloEmbed = '<a:caram00y4nmov:1523026579662307378> Southwest Florida - *_Enlace de Reinvitación_* <a:caram00y4nmov:1523026579662307378>';
+                descripcionEmbed = `> <:00y4ncirpunto:1523041306836996156> **¡Reinvitaciones Liberadas! Recuerda ingresar de inmediato y respetar la normativa vigente.**\n\n**Enlace de la Sesión**\n> <:link00y4n:1525310570041966682> Haz clic [aquí](${sesion.linkSesion}) para unirte.`;
+              } else if (sesion.tipo === 'meet') {
+                tituloEmbed = '<a:caram00y4nmov:1523026579662307378> Southwest Florida - *_Enlace del Car Meet_* <a:caram00y4nmov:1523026579662307378>';
+                descripcionEmbed = `> <:00y4ncirpunto:1523041306836996156> **¡Disfruta del Car Meet Oficial! Recuerda respetar las indicaciones del Staff, ingresar despacio a los spots y mantener una buena conducta.**\n\n**Enlace del Car Meet**\n> <:link00y4n:1525310570041966682> Haz clic [aquí](${sesion.linkSesion}) para unirte.`;
+              }
+
+              const embedLink = {
+                title: tituloEmbed,
+                description: descripcionEmbed,
+                color: 0x74d4fc
+              };
+
+              return await interaction.reply({
+                embeds: [embedLink],
+                ephemeral: true
+              });
 
             } catch (error) {
-                logger.error(`Error al verificar voto: ${error.message}`);
-                return await interaction.reply({
-                    content: '<:warn00y4n:1523041352714158240> **Error interno:** No se pudo comprobar tu voto. Asegúrate de que el Startup no haya sido eliminado.',
-                    ephemeral: true
-                });
+              logger.error(`Error al verificar voto: ${error.message}`);
+              return await interaction.reply({
+                content: '<:warn00y4n:1523041352714158240> **Error interno:** No se pudo comprobar tu voto. Asegúrate de que el Startup no haya sido eliminado.',
+                ephemeral: true
+              });
             }
           }
 
-          // Check for underscore-delimited button format (e.g., todo_list_item_123)
+          // Check for underscore-delimited button format
           const parts = interaction.customId.split('_');
           if (parts.length >= 4) {
             const buttonType = parts.slice(0, 3).join('_');
@@ -309,7 +329,7 @@ export default {
             }
           }
 
-          // Check for colon-delimited button format (e.g., button_name:arg1:arg2)
+          // Check for colon-delimited button format
           const [customId, ...args] = interaction.customId.split(':');
           const button = client.buttons.get(customId);
 
