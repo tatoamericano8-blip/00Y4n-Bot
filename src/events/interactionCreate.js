@@ -9,7 +9,7 @@ import { InteractionHelper } from '../utils/interactionHelper.js';
 import { createInteractionTraceContext, runWithTraceContext } from '../utils/traceContext.js';
 import { validateChatInputPayloadOrThrow } from '../utils/commandInputValidation.js';
 import { enforceAbuseProtection, formatCooldownDuration } from '../utils/abuseProtection.js';
-import Sesion from '../../models/Session.js'; // 🚀 Importamos el modelo de Mongoose
+import Sesion from '../../models/Session.js'; // 🚀 Modelo de Mongoose
 
 function withTraceContext(context = {}, traceContext = {}) {
   return {
@@ -32,6 +32,9 @@ export default {
       try {
         InteractionHelper.patchInteractionResponses(interaction);
 
+        // ==========================================
+        // 1. COMANDOS DE BARRA DIAGONAL (/slash)
+        // ==========================================
         if (interaction.isChatInputCommand()) {
           try {
             logger.info(`Command executed: /${interaction.commandName} by ${interaction.user.tag}`, {
@@ -96,8 +99,11 @@ export default {
               commandName: interaction.commandName
             }, interactionTraceContext));
           }
+
+        // ==========================================
+        // 2. AUTOCOMPLETADO
+        // ==========================================
         } else if (interaction.isAutocomplete()) {
-          // Handle autocomplete interactions
           const focusedOption = interaction.options.getFocused(true);
           
           if (interaction.commandName === 'apply' && focusedOption.name === 'application') {
@@ -214,12 +220,16 @@ export default {
               await interaction.respond([]);
             }
           }
+
+        // ==========================================
+        // 3. ESCUCHADOR DE BOTONES
+        // ==========================================
         } else if (interaction.isButton()) {
-          // 🚀 Verificación de Voto para Sesiones de SWFL
+          // A. Lógica especial: Verificación de Voto para Sesiones de SWFL
           if (interaction.customId === 'verificar_voto_swfl') {
             let sesion = global.coleccionSesiones?.get(interaction.message.id);
 
-            // 💾 FALLBACK A MONGO DB: Si no existe en RAM (por reinicio), lo buscamos en la base de datos
+            // Fallback a MongoDB si no está en RAM
             if (!sesion) {
               try {
                 sesion = await Sesion.findOne({
@@ -230,7 +240,6 @@ export default {
                   ]
                 });
 
-                // Si se encuentra en DB, se restaura opcionalmente en el Map global de memoria
                 if (sesion && global.coleccionSesiones) {
                   global.coleccionSesiones.set(interaction.message.id, sesion);
                 }
@@ -256,7 +265,6 @@ export default {
             try {
               const msgInicio = await interaction.channel.messages.fetch(sesion.idInicio);
 
-              // Comprobar si el usuario reaccionó a cualquiera de los emojis en el mensaje de Inicio
               let haVotado = false;
               for (const reaction of msgInicio.reactions.cache.values()) {
                 const usuariosQueVotaron = await reaction.users.fetch();
@@ -273,7 +281,6 @@ export default {
                 });
               }
 
-              // Detectar si la interacción viene desde un mensaje de reinvitación
               const esReinvitacion = sesion.reinvitaciones?.some(r => r.idMensaje === interaction.message.id);
 
               let tituloEmbed = '<a:caram00y4nmov:1523026579662307378> Southwest Florida - *_Recordatorio de Sesión_* <a:caram00y4nmov:1523026579662307378>';
@@ -307,7 +314,7 @@ export default {
             }
           }
 
-          // Check for underscore-delimited button format
+          // B. Botones con formato delimitado por guiones bajos (ej: tipo_tipo_tipo_id)
           const parts = interaction.customId.split('_');
           if (parts.length >= 4) {
             const buttonType = parts.slice(0, 3).join('_');
@@ -329,31 +336,38 @@ export default {
             }
           }
 
-          // Check for colon-delimited button format
+          // C. Botones con formato delimitado por dos puntos (ej: customId:arg1:arg2) o Búsqueda Directa
           const [customId, ...args] = interaction.customId.split(':');
-          const button = client.buttons.get(customId);
+          const button = client.buttons.get(customId) || client.buttons.get(interaction.customId);
 
           if (button) {
             try {
               await button.execute(interaction, client, args);
+              return;
             } catch (error) {
               await handleInteractionError(interaction, error, withTraceContext({
                 type: 'button',
                 customId: interaction.customId,
                 handler: 'general'
               }, interactionTraceContext));
+              return;
             }
-          } else if (interaction.customId.includes(':')) {
-            throw createError(
-              `No button handler found for ${customId}`,
-              ErrorTypes.CONFIGURATION,
-              'This button is not available.',
-              withTraceContext({ customId }, interactionTraceContext)
-            );
           }
+
+          // D. Si ningún controlador registró el botón
+          throw createError(
+            `No button handler found for customId: ${interaction.customId}`,
+            ErrorTypes.CONFIGURATION,
+            'Este botón no está disponible o no tiene un controlador registrado.',
+            withTraceContext({ customId: interaction.customId }, interactionTraceContext)
+          );
+
+        // ==========================================
+        // 4. MENÚS DE SELECCIÓN (StringSelectMenu)
+        // ==========================================
         } else if (interaction.isStringSelectMenu()) {
           const [customId, ...args] = interaction.customId.split(':');
-          const selectMenu = client.selectMenus.get(customId);
+          const selectMenu = client.selectMenus.get(customId) || client.selectMenus.get(interaction.customId);
 
           if (!selectMenu) {
             if (!interaction.customId.includes(':')) {
@@ -376,6 +390,10 @@ export default {
               customId: interaction.customId
             }, interactionTraceContext));
           }
+
+        // ==========================================
+        // 5. MODALES (ModalSubmit)
+        // ==========================================
         } else if (interaction.isModalSubmit()) {
           if (interaction.customId.startsWith('app_modal_')) {
             try {
@@ -412,7 +430,7 @@ export default {
           }
 
           const [customId, ...args] = interaction.customId.split(':');
-          const modal = client.modals.get(customId);
+          const modal = client.modals.get(customId) || client.modals.get(interaction.customId);
 
           if (!modal) {
             if (!interaction.customId.includes(':')) {
