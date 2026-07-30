@@ -4,7 +4,6 @@ import Historial from '../../../models/Historial.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
-// 🖼️ URL DE LA IMAGEN PREDETERMINADA PARA CAR MEETS
 const IMAGEN_MEET_DEFECTO = 'https://cdn.discordapp.com/attachments/1517331229303902432/1524843381740540034/Lanzamiento_CM_23NUEVO.png?ex=6a51e150&is=6a508fd0&hm=147ad177d52612dab13a5eeba74cec6be378cb6eeb1b19cd3df25492e7ab3d49&'; 
 
 export default {
@@ -22,7 +21,6 @@ export default {
     },
 
     async execute(interaction) {
-        // 🔒 SEGURIDAD: Bloqueo de Staff
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
                 content: '<:cruz00y4n:1519476959606734998> **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesión.',
@@ -30,7 +28,6 @@ export default {
             });
         }
 
-        // 📝 Obtenemos las opciones ingresadas por el usuario
         const idInicio = interaction.options.getString('mensaje_id');
         const linkSesion = interaction.options.getString('acceso');
         const tematica = interaction.options.getString('tematica');
@@ -77,7 +74,6 @@ export default {
             components: [fila] 
         });
 
-        // Guardamos los datos en la memoria vinculando la ID manual y seteando tipo 'meet'
         global.coleccionSesiones.set(msgRelease.id, { 
             idInicio, 
             linkSesion, 
@@ -88,24 +84,24 @@ export default {
             tipo: 'meet' 
         });
 
-        // 💾 GUARDAR EN MONGODB Y HISTORIAL
+        // 💾 ACTUALIZAR EN MONGODB Y HISTORIAL (Uso de findOneAndUpdate para evitar duplicados)
         try {
-            await Sesion.create({
-                mensajeId: msgRelease.id,
-                idInicio,
-                hostId: interaction.user.id,
-                tipo: 'meet',
-                linkSesion,
-                tematica,
-                ubicacion,
-                spots,
-                imagen: urlImagen || IMAGEN_MEET_DEFECTO,
-                procesado: true,
-                guildId: interaction.guildId
-            });
-
-            // Marcar el startup como procesado
-            await Sesion.updateOne({ mensajeId: idInicio }, { $set: { procesado: true } });
+            await Sesion.findOneAndUpdate(
+                { idInicio },
+                {
+                    $set: {
+                        idLanzamiento: msgRelease.id,
+                        linkSesion,
+                        tematica,
+                        ubicacion,
+                        spots,
+                        imagen: urlImagen || IMAGEN_MEET_DEFECTO,
+                        estado: 'activa',
+                        fechaLanzamiento: new Date()
+                    }
+                },
+                { upsert: true, new: true }
+            );
 
             await Historial.create({
                 evento: 'SESION_LANZADA_MEET',
