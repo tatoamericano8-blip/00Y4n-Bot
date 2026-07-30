@@ -7,6 +7,8 @@ import {
     PermissionFlagsBits,
     MessageFlags 
 } from 'discord.js';
+import Sesion from '../../../models/Session.js';
+import Historial from '../../../models/Historial.js';
 
 // Inicialización del mapa global para sesiones
 global.coleccionSesiones = global.coleccionSesiones || new Map();
@@ -56,7 +58,7 @@ export default {
         const idInicioManual = interaction.options.getString('id_inicio');
         const emojiInput = interaction.options.getString('emoji') || '✔️';
 
-        // Buscar los datos guardados de la sesión activa en la colección global
+        // Buscar los datos guardados de la sesión activa en la colección global o en MongoDB
         let sesionData = null;
         let targetIdInicio = idInicioManual;
 
@@ -70,13 +72,33 @@ export default {
                     }
                 }
             }
+            // Si no está en memoria, buscar en MongoDB
+            if (!sesionData) {
+                try {
+                    const doc = await Sesion.findOne({ $or: [{ mensajeId: idInicioManual }, { idInicio: idInicioManual }] }).lean();
+                    if (doc) sesionData = doc;
+                } catch (e) {
+                    console.error('Error al consultar MongoDB:', e);
+                }
+            }
         } else {
-            // Autodetectar la última sesión registrada en el servidor
+            // Autodetectar la última sesión registrada en el servidor desde la memoria o MongoDB
             for (const [, val] of global.coleccionSesiones) {
                 if (val.guildId === interaction.guildId) {
                     sesionData = val;
                     targetIdInicio = val.idInicio || targetIdInicio;
                     break;
+                }
+            }
+            if (!sesionData) {
+                try {
+                    const doc = await Sesion.findOne({ guildId: interaction.guildId }).sort({ fecha: -1 }).lean();
+                    if (doc) {
+                        sesionData = doc;
+                        targetIdInicio = doc.idInicio || doc.mensajeId;
+                    }
+                } catch (e) {
+                    console.error('Error al consultar MongoDB:', e);
                 }
             }
         }
@@ -237,6 +259,28 @@ export default {
                         linkSesion,
                         guildId: interaction.guildId,
                         tipo: 'reinvitacion'
+                    });
+
+                    // 💾 GUARDAR EN MONGODB Y HISTORIAL
+                    await Sesion.create({
+                        mensajeId: msgRelease.id,
+                        idInicio: targetIdInicio,
+                        hostId: interaction.user.id,
+                        tipo: 'reinvitacion',
+                        linkSesion,
+                        reaccionesRequeridas,
+                        guildId: interaction.guildId
+                    });
+
+                    await Historial.create({
+                        evento: 'REINVITACION_LIBERADA',
+                        mensajeId: msgRelease.id,
+                        idInicio: targetIdInicio,
+                        hostId: interaction.user.id,
+                        hostTag: interaction.user.tag,
+                        tipo: sesionData?.tipo || 'reinvitacion',
+                        detalles: { reaccionesRequeridas, linkSesion },
+                        guildId: interaction.guildId
                     });
                 } catch (sendError) {
                     console.error('Error al enviar mensaje de liberación de reinvitaciones:', sendError);
