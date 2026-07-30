@@ -17,9 +17,9 @@ async function cargarModelo(nombre, ruta1, ruta2) {
 }
 
 export default {
-  id: 'loa_aprobar',
-  customId: 'loa_aprobar',
-  name: 'loa_aprobar',
+  id: 'loa_approve',
+  customId: 'loa_approve',
+  name: 'loa_approve',
   async execute(interaction, client, args) {
     if (!interaction.deferred && !interaction.replied) {
       await interaction.deferUpdate().catch(() => {});
