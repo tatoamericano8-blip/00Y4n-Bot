@@ -1,26 +1,44 @@
-import mongoose from 'mongoose';
+import { Schema, model } from 'mongoose';
 
-const sessionSchema = new mongoose.Schema({
-  sessionId: { type: String, required: true, unique: true },
-  guildId: { type: String, required: true },
-  hostId: { type: String, required: true },
-  coHostIds: [{ type: String }],
-  supervisorId: { type: String, default: null },
-  
-  estado: { 
-    type: String, 
-    enum: ['ANUNCIADA', 'EARLY_ACCESS', 'LIBERADA', 'REINVITE', 'FINALIZADA', 'CANCELADA'], 
-    default: 'ANUNCIADA' 
-  },
-  
-  codigoServidor: { type: String, default: '' },
-  linkServidor: { type: String, default: '' },
-  
-  inicio: { type: Date, default: Date.now },
-  fin: { type: Date, default: null },
-  duracionMinutos: { type: Number, default: 0 },
-  
-  blacklistSesion: [{ type: String }] // IDs de usuarios vetados de esta sesión
+const sesionSchema = new Schema({
+    idInicio: { type: String, required: true, unique: true }, // ID del mensaje de /inicio_swfl
+    idLanzamiento: { type: String, default: null },          // ID del mensaje de /lanzar_rp o /lanzar_meet
+    guildId: { type: String, required: true },
+    hostId: { type: String, required: true },
+    tipo: { type: String, enum: ['rp', 'meet'], required: true },
+    reaccionesRequeridas: { type: Number, default: 0 },
+    
+    estado: { 
+        type: String, 
+        enum: ['esperando_reacciones', 'activa', 'cerrada'], 
+        default: 'esperando_reacciones' 
+    },
+
+    // Enlace de Roblox
+    linkSesion: { type: String, default: null },
+
+    // Datos específicos de RP
+    limiteVelocidad: { type: String, default: null },
+    peacetime: { type: String, default: null },
+
+    // Datos específicos de Car Meet
+    tematica: { type: String, default: null },
+    ubicacion: { type: String, default: null },
+    spots: { type: String, default: null },
+
+    // Historial de reinvitaciones
+    reinvitaciones: [{
+        idMensaje: String,
+        fecha: { type: Date, default: Date.now },
+        reaccionesMeta: Number,
+        link: String
+    }],
+
+    // Tiempos para métricas y cuotas de Staff
+    fechaInicio: { type: Date, default: Date.now },
+    fechaLanzamiento: { type: Date, default: null },
+    fechaCierre: { type: Date, default: null },
+    duracionMinutos: { type: Number, default: 0 }
 });
 
-export default mongoose.model('Session', sessionSchema);
+export default model('Sesion', sesionSchema);
