@@ -221,7 +221,7 @@ export default {
             }
           }
 
-        // ==========================================
+// ==========================================
         // 3. ESCUCHADOR DE BOTONES
         // ==========================================
         } else if (interaction.isButton()) {
@@ -314,34 +314,20 @@ export default {
             }
           }
 
-          // B. Botones con formato delimitado por guiones bajos (ej: tipo_tipo_tipo_id)
-          const parts = interaction.customId.split('_');
-          if (parts.length >= 4) {
-            const buttonType = parts.slice(0, 3).join('_');
-            const listId = parts[3];
-            const button = client.buttons.get(buttonType);
+          // B. Búsqueda flexible de controladores de botones (por ':', '_' o nombre exacto)
+          const customIdRaw = interaction.customId;
+          const [idBase, ...argsColon] = customIdRaw.split(':');
+          const partsUnderscore = customIdRaw.split('_');
 
-            if (button) {
-              try {
-                await button.execute(interaction, client, [listId]);
-                return;
-              } catch (error) {
-                await handleInteractionError(interaction, error, withTraceContext({
-                  type: 'button',
-                  customId: interaction.customId,
-                  handler: 'todo'
-                }, interactionTraceContext));
-                return;
-              }
-            }
-          }
-
-          // C. Botones con formato delimitado por dos puntos (ej: customId:arg1:arg2) o Búsqueda Directa
-          const [customId, ...args] = interaction.customId.split(':');
-          const button = client.buttons.get(customId) || client.buttons.get(interaction.customId);
+          // Probar coincidencia por mapa
+          let button = client.buttons.get(customIdRaw) 
+                    || client.buttons.get(idBase)
+                    || client.buttons.get(partsUnderscore.slice(0, 2).join('_'))
+                    || client.buttons.get(partsUnderscore.slice(0, 3).join('_'));
 
           if (button) {
             try {
+              const args = argsColon.length > 0 ? argsColon : partsUnderscore.slice(2);
               await button.execute(interaction, client, args);
               return;
             } catch (error) {
@@ -354,14 +340,13 @@ export default {
             }
           }
 
-          // D. Si ningún controlador registró el botón
+          // C. Si ningún controlador registró el botón
           throw createError(
             `No button handler found for customId: ${interaction.customId}`,
             ErrorTypes.CONFIGURATION,
             'Este botón no está disponible o no tiene un controlador registrado.',
             withTraceContext({ customId: interaction.customId }, interactionTraceContext)
           );
-
         // ==========================================
         // 4. MENÚS DE SELECCIÓN (StringSelectMenu)
         // ==========================================
