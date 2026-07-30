@@ -1,4 +1,5 @@
 import { getFromDb, setInDb } from './database.js'; // Ajusta la ruta si es necesario
+import mongoose from 'mongoose';
 
 export const cooldownsWork = new Map();
 export const saldosDB = new Map(); // Variable de compatibilidad
@@ -34,4 +35,31 @@ export async function restarSaldo(usuarioId, cantidad) {
     const key = `economy:${usuarioId}`;
     await setInDb(key, nuevoSaldo);
     return nuevoSaldo;
+}
+
+/**
+ * Reiniciar por completo toda la economía a $0
+ */
+export async function resetearTodaLaEconomia() {
+    try {
+        // Limpiar la memoria local si aplica
+        saldosDB.clear();
+
+        // Borrar todos los registros con clave 'economy:*' en la BD de MongoDB
+        if (mongoose.connection && mongoose.connection.readyState === 1) {
+            const collections = await mongoose.connection.db.collections();
+            for (const collection of collections) {
+                await collection.deleteMany({
+                    $or: [
+                        { key: { $regex: '^economy:' } },
+                        { _id: { $regex: '^economy:' } }
+                    ]
+                });
+            }
+        }
+        return true;
+    } catch (error) {
+        console.error('Error al resetear la economía en la base de datos:', error);
+        throw error;
+    }
 }
