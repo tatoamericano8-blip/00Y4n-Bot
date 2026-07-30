@@ -5,7 +5,7 @@ const ROLE_HIGH_COMMAND = '1528870731629465752';
 
 export default {
     data: new SlashCommandBuilder()
-        .setName('add-award')
+        .setName('staff-reconocimiento')
         .setDescription('Asigna premios o reconocimientos a ejecutivos y asociados.')
         .addUserOption(opt => opt.setName('member').setDescription('Staff galardonado.').setRequired(true))
         .addStringOption(opt => opt.setName('last_award').setDescription('Título del premio o medalla.').setRequired(true))
