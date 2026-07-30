@@ -1,4 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
+import Sesion from '../models/Sesion.js';
+import Historial from '../models/Historial.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
@@ -109,7 +111,7 @@ export default {
             components: [fila]
         });
 
-        // Guardamos los datos mapeando de forma segura
+        // Guardamos los datos mapeando de forma segura en la memoria
         global.coleccionSesiones.set(msgRelease.id, { 
             idInicio, 
             linkSesion,
@@ -118,5 +120,37 @@ export default {
             guildId: interaction.guildId,
             tipo: 'rp'
         });
+
+        // 💾 GUARDAR EN MONGODB Y HISTORIAL
+        try {
+            await Sesion.create({
+                mensajeId: msgRelease.id,
+                idInicio,
+                hostId: interaction.user.id,
+                tipo: 'rp',
+                linkSesion,
+                limite,
+                peacetime,
+                imagen: urlImagen || IMAGEN_RP_DEFECTO,
+                procesado: true,
+                guildId: interaction.guildId
+            });
+
+            // Marcar el startup como procesado
+            await Sesion.updateOne({ mensajeId: idInicio }, { $set: { procesado: true } });
+
+            await Historial.create({
+                evento: 'SESION_LANZADA_RP',
+                mensajeId: msgRelease.id,
+                idInicio,
+                hostId: interaction.user.id,
+                hostTag: interaction.user.tag,
+                tipo: 'rp',
+                detalles: { linkSesion, limite, peacetime },
+                guildId: interaction.guildId
+            });
+        } catch (error) {
+            console.error('Error al guardar lanzamiento de Roleplay en MongoDB:', error);
+        }
     }
 };
