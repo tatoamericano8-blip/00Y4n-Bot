@@ -12,17 +12,12 @@ const ROLES_STRIKE = {
     3: '1532457348818272506'  // Staff Strike 3/3
 };
 
-// Función auxiliar para actualizar los roles de strike en el usuario
 async function sincronizarRolesStrike(member, strikesActivos) {
     if (!member) return;
-
     const listaRolesStrike = Object.values(ROLES_STRIKE);
 
     try {
-        // 1. Quitar todos los roles de strike que posea actualmente
         await member.roles.remove(listaRolesStrike).catch(() => null);
-
-        // 2. Asignar el rol correspondiente a la cantidad actual de strikes
         const rolAsignar = ROLES_STRIKE[strikesActivos] || (strikesActivos >= 3 ? ROLES_STRIKE[3] : null);
 
         if (rolAsignar) {
@@ -81,32 +76,37 @@ export default {
                 idStrike,
                 motivo,
                 aplicadoPor: interaction.user.id,
-                activo: true
+                activo: true,
+                fecha: new Date()
             });
+
+            staffData.markModified('strikes');
             await staffData.save();
 
             const strikesActivos = staffData.strikes.filter(s => s.activo).length;
-
-            // 🔄 Sincronizar los roles de Discord
             await sincronizarRolesStrike(targetMember, strikesActivos);
 
             const embedLog = new EmbedBuilder()
                 .setTitle('<:advertencia:1525172022475489472> Sanción Aplicada – Staff Strike')
-                .setColor('#ed4245')
+                .setColor(strikesActivos >= 3 ? '#992d22' : '#ed4245')
                 .setDescription(
                     `> **Staff Sancionado:** <@${targetUser.id}>\n` +
                     `> **ID de Strike:** \`${idStrike}\`\n` +
                     `> **Motivo:** ${motivo}\n` +
                     `> **Sancionado por:** <@${interaction.user.id}>\n` +
-                    `> **Strikes Activos Actuales:** \`${strikesActivos}\``
+                    `> **Strikes Activos Actuales:** \`${strikesActivos}/3\`\n` +
+                    (strikesActivos >= 3 ? '\n⚠️ **ATENCIÓN:** El usuario ha alcanzado el límite máximo de 3/3 strikes activos (Proceso de Baja/Unstaff requerido).' : '')
                 )
                 .setTimestamp();
 
             if (logsChannel) await logsChannel.send({ embeds: [embedLog] });
 
-            await interaction.editReply({
-                content: `<a:verificacion:1523027148326047878> Strike \`${idStrike}\` aplicado correctamente a <@${targetUser.id}>. Total activos: **${strikesActivos}**.`
-            });
+            let mensajeRespuesta = `<a:verificacion:1523027148326047878> Strike \`${idStrike}\` aplicado correctamente a <@${targetUser.id}>. Total activos: **${strikesActivos}/3**.`;
+            if (strikesActivos >= 3) {
+                mensajeRespuesta += '\n🚨 **ALERTA:** Este miembro ha alcanzado los **3 strikes**. Se recomienda evaluar su expulsión del equipo de Staff.';
+            }
+
+            await interaction.editReply({ content: mensajeRespuesta });
 
         } else if (sub === 'remover') {
             const idStrike = interaction.options.getString('id_strike');
@@ -122,11 +122,11 @@ export default {
             strikeObj.removidoPor = interaction.user.id;
             strikeObj.fechaRemovido = new Date();
             strikeObj.motivoRemocion = motivo;
+
+            staffData.markModified('strikes');
             await staffData.save();
 
             const strikesActivos = staffData.strikes.filter(s => s.activo).length;
-
-            // 🔄 Sincronizar los roles de Discord tras remover el strike
             await sincronizarRolesStrike(targetMember, strikesActivos);
 
             const embedLog = new EmbedBuilder()
@@ -137,14 +137,14 @@ export default {
                     `> **ID de Strike Removido:** \`${idStrike}\`\n` +
                     `> **Motivo Remoción:** ${motivo}\n` +
                     `> **Removido por:** <@${interaction.user.id}>\n` +
-                    `> **Strikes Activos Restantes:** \`${strikesActivos}\``
+                    `> **Strikes Activos Restantes:** \`${strikesActivos}/3\``
                 )
                 .setTimestamp();
 
             if (logsChannel) await logsChannel.send({ embeds: [embedLog] });
 
             await interaction.editReply({
-                content: `<a:verificacion:1523027148326047878> El strike \`${idStrike}\` fue desactivado correctamente. Total activos: **${strikesActivos}**.`
+                content: `<a:verificacion:1523027148326047878> El strike \`${idStrike}\` fue desactivado correctamente. Total activos: **${strikesActivos}/3**.`
             });
         }
     }
