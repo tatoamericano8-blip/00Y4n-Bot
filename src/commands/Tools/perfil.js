@@ -1,12 +1,11 @@
-import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import Vehiculo from '../../../models/Vehiculo.js'; // Conexión a MongoDB
-import Licencia from '../../../models/Licencia.js'; // Conexión al modelo de Licencias
+import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from 'discord.js';
+import Vehiculo from '../../../models/Vehiculo.js'; 
+import Licencia from '../../../models/Licencia.js'; 
 import { obtenerSaldo } from '../../utils/gestorEconomia.js';
 import { obtenerTodasLasMultas } from '../../utils/gestorMultas.js';
 
 const BLOXLINK_API_KEY = 'e47f3929-9be2-4179-82b1-e53b4a9a6538'; 
 
-// Función para obtener vehículos directamente desde MongoDB
 async function obtenerVehiculosUsuario(usuarioId) {
     try {
         const vehiculos = await Vehiculo.find({ usuario_id: usuarioId });
@@ -56,7 +55,7 @@ export default {
             console.error('Error al conectar con Bloxlink:', error);
         }
 
-        // 🛑 CONDICIONAL: Si el usuario no está verificado
+        // Si el usuario no está verificado
         if (!robloxId) {
             const embedError = new EmbedBuilder()
                 .setTitle('❌ CONTROL DE VERIFICACIÓN')
@@ -92,11 +91,9 @@ export default {
             }
         } catch (err) {}
 
-        // Leemos datos desde MongoDB / Gestores
         const autosRegistrados = await obtenerVehiculosUsuario(miembro.id);
         const saldoActual = await obtenerSaldo(miembro.id);
         
-        // 🪪 OBTENER ESTADO DE LA LICENCIA DESDE MONGODB
         let datosLicencia = await Licencia.findOne({ usuario_id: miembro.id });
         let estadoLicencia = datosLicencia ? datosLicencia.estado : 'Activa';
 
@@ -107,14 +104,13 @@ export default {
             textoLicenciaVisual = '🔴 Revocada';
         }
 
-        // 🚨 Obtener multas del usuario
         const multasData = await obtenerTodasLasMultas();
         const arrayMultas = Array.isArray(multasData) ? multasData : Object.values(multasData || {});
         const multasUsuario = arrayMultas.filter(m => String(m.usuarioId || m.usuario_id) === String(miembro.id));
         const multasPendientes = multasUsuario.filter(m => m.estado === 'PENDIENTE');
         const deudaTotal = multasPendientes.reduce((acc, m) => acc + (Number(m.monto) || 0), 0);
 
-        // 4. ARMADO DEL EMBED PRINCIPAL
+        // 4. EMBED PRINCIPAL
         const perfilEmbed = new EmbedBuilder()
             .setTitle('<:seguro:1523041347869868253> Southwest Florida | *Perfil de Civil*')
             .setDescription(
@@ -132,7 +128,7 @@ export default {
             .setFooter({ text: `${interaction.guild.name} • Registro Civil`, iconURL: interaction.guild.iconURL() })
             .setTimestamp();
 
-        // 5. CREACIÓN DE BOTONERA
+        // 5. BOTONERA
         const botonera = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId(`regs_${miembro.id}`)
@@ -147,7 +143,7 @@ export default {
 
         const mensajePerfil = await interaction.editReply({ embeds: [perfilEmbed], components: [botonera] });
 
-        // 6. RECOLECTOR DE COMPONENTES INTERNO (24 Horas)
+        // 6. RECOLECTOR INTERNO (24 Horas)
         const recolector = mensajePerfil.createMessageComponentCollector({
             filter: (i) => i.customId.startsWith('regs_') || i.customId.startsWith('multas_'),
             time: 86400000 
@@ -167,7 +163,7 @@ export default {
                         .setColor('#74d4fc')
                         .setFooter({ text: 'Sistema de Tránsito Oficial' });
 
-                    return await botonInteraction.reply({ embeds: [embedVacio], ephemeral: true });
+                    return await botonInteraction.reply({ embeds: [embedVacio], flags: MessageFlags.Ephemeral });
                 }
 
                 const stringAutos = listaAutosActuales.map((auto, index) => 
@@ -182,7 +178,7 @@ export default {
                     .setColor('#74d4fc')
                     .setFooter({ text: 'Sistema de Tránsito Oficial' });
 
-                return await botonInteraction.reply({ embeds: [embedConAutos], ephemeral: true });
+                return await botonInteraction.reply({ embeds: [embedConAutos], flags: MessageFlags.Ephemeral });
             }
 
             // 🚨 BOTÓN DE MULTAS
@@ -199,7 +195,7 @@ export default {
                         .setFooter({ text: 'Departamento de Policía' })
                         .setTimestamp();
 
-                    return await botonInteraction.reply({ embeds: [embedSinMultas], ephemeral: true });
+                    return await botonInteraction.reply({ embeds: [embedSinMultas], flags: MessageFlags.Ephemeral });
                 }
 
                 const stringMultas = multasUsuarioActuales.map((multa) => {
@@ -217,7 +213,7 @@ export default {
                     .setFooter({ text: 'Departamento de Policía' })
                     .setTimestamp();
 
-                return await botonInteraction.reply({ embeds: [embedConMultas], ephemeral: true });
+                return await botonInteraction.reply({ embeds: [embedConMultas], flags: MessageFlags.Ephemeral });
             }
         });
     }
