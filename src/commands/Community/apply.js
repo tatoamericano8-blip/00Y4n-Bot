@@ -31,86 +31,82 @@ function getApplicationStatusPresentation(statusValue) {
     return { normalized, statusLabel, statusEmoji };
 }
 
-export default {
-    data: new SlashCommandBuilder()
-        .setName("apply")
-        .setDescription("Manage role applications")
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("submit")
-                .setDescription("Submit an application for a role")
-                .addStringOption((option) =>
-                    option
-                        .setName("application")
-                        .setDescription("The application you want to submit")
-                        .setRequired(true)
-                        .setAutocomplete(true),
-                ),
-        )
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("status")
-                .setDescription("Check the status of your application")
-                .addStringOption((option) =>
-                    option
-                        .setName("id")
-                        .setDescription("Application ID (leave empty to see all)")
-                        .setRequired(false),
-                ),
-        )
-        .addSubcommand((subcommand) =>
-            subcommand
-                .setName("list")
-                .setDescription("List available applications to apply for"),
-        ),
+export const data = new SlashCommandBuilder()
+    .setName("apply")
+    .setDescription("Manage role applications")
+    .addSubcommand((subcommand) =>
+        subcommand
+            .setName("submit")
+            .setDescription("Submit an application for a role")
+            .addStringOption((option) =>
+                option
+                    .setName("application")
+                    .setDescription("The application you want to submit")
+                    .setRequired(true)
+                    .setAutocomplete(true),
+            ),
+    )
+    .addSubcommand((subcommand) =>
+        subcommand
+            .setName("status")
+            .setDescription("Check the status of your application")
+            .addStringOption((option) =>
+                option
+                    .setName("id")
+                    .setDescription("Application ID (leave empty to see all)")
+                    .setRequired(false),
+            ),
+    )
+    .addSubcommand((subcommand) =>
+        subcommand
+            .setName("list")
+            .setDescription("List available applications to apply for"),
+    );
 
-    category: "Community",
-
-    execute: withErrorHandling(async (interaction) => {
-        if (!interaction.inGuild()) {
-            return InteractionHelper.safeReply(interaction, {
-                embeds: [errorEmbed("This command can only be used in a server.")],
-                flags: ["Ephemeral"],
-            });
-        }
-
-        const { options, guild, member } = interaction;
-        const subcommand = options.getSubcommand();
-
-        if (subcommand !== "submit") {
-            const isListCommand = subcommand === "list";
-            await InteractionHelper.safeDefer(interaction, { flags: isListCommand ? [] : ["Ephemeral"] });
-        }
-
-        logger.info(`Apply command executed: ${subcommand}`, {
-            userId: interaction.user.id,
-            guildId: guild.id,
-            subcommand
+export const execute = withErrorHandling(async (interaction) => {
+    if (!interaction.inGuild()) {
+        return InteractionHelper.safeReply(interaction, {
+            embeds: [errorEmbed("This command can only be used in a server.")],
+            flags: ["Ephemeral"],
         });
+    }
 
-        const settings = await getApplicationSettings(
-            interaction.client,
-            guild.id,
+    const { options, guild, member } = interaction;
+    const subcommand = options.getSubcommand();
+
+    if (subcommand !== "submit") {
+        const isListCommand = subcommand === "list";
+        await InteractionHelper.safeDefer(interaction, { flags: isListCommand ? [] : ["Ephemeral"] });
+    }
+
+    logger.info(`Apply command executed: ${subcommand}`, {
+        userId: interaction.user.id,
+        guildId: guild.id,
+        subcommand
+    });
+
+    const settings = await getApplicationSettings(
+        interaction.client,
+        guild.id,
+    );
+    
+    if (!settings.enabled) {
+        throw createError(
+            'Applications are disabled',
+            ErrorTypes.CONFIGURATION,
+            'Applications are currently disabled in this server.',
+            { guildId: guild.id }
         );
-        
-        if (!settings.enabled) {
-            throw createError(
-                'Applications are disabled',
-                ErrorTypes.CONFIGURATION,
-                'Applications are currently disabled in this server.',
-                { guildId: guild.id }
-            );
-        }
+    }
 
-        if (subcommand === "submit") {
-            await handleSubmit(interaction, settings);
-        } else if (subcommand === "status") {
-            await handleStatus(interaction);
-        } else if (subcommand === "list") {
-            await handleList(interaction);
-        }
-    }, { type: 'command', commandName: 'apply' })
-};
+    if (subcommand === "submit") {
+        await handleSubmit(interaction, settings);
+    } else if (subcommand === "status") {
+        await handleStatus(interaction);
+    } else if (subcommand === "list") {
+        await handleList(interaction);
+    }
+}, { type: 'command', commandName: 'apply' });
 
 export async function handleApplicationModal(interaction) {
     if (!interaction.isModalSubmit()) return;
@@ -428,6 +424,3 @@ async function handleStatus(interaction) {
         return InteractionHelper.safeEditReply(interaction, { embeds: [embed], flags: ["Ephemeral"] });
     }
 }
-
-
-
