@@ -3,10 +3,10 @@ import { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits, Messag
 export default {
     data: {
         name: 'promote',
-        description: 'Promote a staff member',
+        description: 'Promueve a un miembro del Staff',
         options: [
             {
-                name: 'user',
+                name: 'usuario',
                 description: 'Selecciona al miembro del staff que deseas ascender.',
                 type: ApplicationCommandOptionType.User,
                 required: true
@@ -34,7 +34,8 @@ export default {
 
     async execute(interaction, guildConfig, client) {
         // 1. Verificación de permisos de quien ejecuta el comando
-        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageRoles)) {
+        const permissions = interaction.memberPermissions || interaction.member?.permissions;
+        if (!permissions?.has(PermissionFlagsBits.ManageRoles)) {
             return await interaction.reply({
                 content: '<:cruz00y4n:1523041302764191844> No tienes permisos suficientes (**Administrar Roles**) para utilizar este comando.',
                 flags: MessageFlags.Ephemeral
@@ -46,6 +47,13 @@ export default {
         const razon = interaction.options.getString('reason') || 'Desempeño destacado y cumplimiento de objetivos.';
         const notas = interaction.options.getString('notes') || 'Ninguna nota adicional.';
 
+        if (!nuevoRol) {
+            return await interaction.reply({
+                content: '<:cruz00y4n:1523041302764191844> No se pudo obtener la información del rol seleccionado.',
+                flags: MessageFlags.Ephemeral
+            });
+        }
+
         const miembroTarget = await interaction.guild.members.fetch(usuario.id).catch(() => null);
 
         if (!miembroTarget) {
@@ -55,8 +63,17 @@ export default {
             });
         }
 
-        // 2. Comprobar jerarquía del rol del Bot
-        const botMember = interaction.guild.members.me;
+        // 2. Obtener los datos del Bot en el servidor de forma asíncrona (Evita error null en Render)
+        const botMember = await interaction.guild.members.fetchMe().catch(() => null);
+
+        if (!botMember) {
+            return await interaction.reply({
+                content: '<:cruz00y4n:1523041302764191844> Error al consultar los permisos del bot en el servidor.',
+                flags: MessageFlags.Ephemeral
+            });
+        }
+
+        // 3. Comprobar jerarquía del rol del Bot
         if (nuevoRol.position >= botMember.roles.highest.position) {
             return await interaction.reply({
                 content: `<:cruz00y4n:1523041302764191844> No puedo otorgar el rol ${nuevoRol} porque está ubicado por encima o en el mismo nivel que mi rol más alto.`,
@@ -64,7 +81,7 @@ export default {
             });
         }
 
-        // 3. Comprobar si ya tiene el rol
+        // 4. Comprobar si el usuario ya tiene el rol
         if (miembroTarget.roles.cache.has(nuevoRol.id)) {
             return await interaction.reply({
                 content: `<:warn00y4n:1523041352714158240> <@${usuario.id}> ya posee el rol ${nuevoRol}.`,
@@ -76,7 +93,7 @@ export default {
             // Asignar el nuevo rango/rol
             await miembroTarget.roles.add(nuevoRol);
 
-            // 4. Armar el Embed del Registro de Ascenso
+            // 5. Armar el Embed del Registro de Ascenso
             const embedPromote = new EmbedBuilder()
                 .setTitle('<a:caram00y4nmov:1523026579662307378> ASCENSO DE STAFF')
                 .setDescription(`> Se ha registrado un ascenso oficial dentro del equipo administrativo.`)
@@ -94,7 +111,7 @@ export default {
 
             await interaction.reply({ embeds: [embedPromote] });
 
-            // 5. Notificación por mensaje privado al usuario ascencido (Opcional)
+            // 6. Notificación por mensaje privado al usuario ascendido
             try {
                 const embedDM = new EmbedBuilder()
                     .setTitle('<a:si:1523026892981145600> ¡Felicidades por tu Ascenso!')
@@ -108,7 +125,7 @@ export default {
 
                 await usuario.send({ embeds: [embedDM] });
             } catch (dmErr) {
-                // Si el usuario tiene los DMs cerrados se ignora de forma silenciosa
+                // Si el usuario tiene los DMs cerrados, se ignora silenciosamente
             }
 
         } catch (error) {
