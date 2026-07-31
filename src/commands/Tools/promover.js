@@ -2,29 +2,29 @@ import { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits, Messag
 
 export default {
     data: {
-        name: 'promote',
+        name: 'promovar',
         description: 'Promote a staff member',
         options: [
             {
-                name: 'user',
+                name: 'usuario',
                 description: 'Selecciona al miembro del staff que deseas ascender.',
                 type: ApplicationCommandOptionType.User,
                 required: true
             },
             {
-                name: 'rank',
+                name: 'rango',
                 description: 'Selecciona el nuevo rol/rango que se le asignará.',
                 type: ApplicationCommandOptionType.Role,
                 required: true
             },
             {
-                name: 'reason',
+                name: 'razon',
                 description: 'Razón o motivo del ascenso.',
                 type: ApplicationCommandOptionType.String,
                 required: false
             },
             {
-                name: 'notes',
+                name: 'notas',
                 description: 'Notas adicionales sobre el desempeño o registro.',
                 type: ApplicationCommandOptionType.String,
                 required: false
@@ -112,7 +112,7 @@ export default {
                     { name: '📋 Razón del Ascenso', value: `\`\`\`${razon}\`\`\``, inline: false },
                     { name: '📝 Notas Adicionales', value: `\`\`\`${notas}\`\`\``, inline: false }
                 )
-                .setColor('#57F287')
+                .setColor('#74d4fc')
                 .setThumbnail(usuario.displayAvatarURL({ dynamic: true }))
                 .setFooter({ text: `${interaction.guild.name} • Gestión de Staff`, iconURL: interaction.guild.iconURL() })
                 .setTimestamp();
@@ -128,7 +128,7 @@ export default {
                         { name: 'Rango Otorgado', value: `${nuevoRol.name}`, inline: true },
                         { name: 'Motivo', value: razon, inline: false }
                     )
-                    .setColor('#57F287')
+                    .setColor('#74d4fc')
                     .setTimestamp();
 
                 await usuario.send({ embeds: [embedDM] });
