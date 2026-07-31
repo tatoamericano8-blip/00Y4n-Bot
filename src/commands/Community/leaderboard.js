@@ -303,7 +303,7 @@ function createSelectMenu(currentCategory = 'economy') {
   );
 }
 
-export const command = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
   .setName('tabla-posiciones')
   .setDescription('Muestra la tabla de posiciones del servidor')
   .addStringOption((option) =>
