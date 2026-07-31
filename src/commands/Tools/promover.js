@@ -3,28 +3,28 @@ import { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits, Messag
 export default {
     data: {
         name: 'promote',
-        description: 'Promueve a un miembro del Staff',
+        description: 'Promote a staff member',
         options: [
             {
-                name: 'usuario',
+                name: 'user',
                 description: 'Selecciona al miembro del staff que deseas ascender.',
                 type: ApplicationCommandOptionType.User,
                 required: true
             },
             {
-                name: 'rango',
+                name: 'rank',
                 description: 'Selecciona el nuevo rol/rango que se le asignará.',
                 type: ApplicationCommandOptionType.Role,
                 required: true
             },
             {
-                name: 'razon',
+                name: 'reason',
                 description: 'Razón o motivo del ascenso.',
                 type: ApplicationCommandOptionType.String,
                 required: false
             },
             {
-                name: 'notas',
+                name: 'notes',
                 description: 'Notas adicionales sobre el desempeño o registro.',
                 type: ApplicationCommandOptionType.String,
                 required: false
@@ -43,13 +43,21 @@ export default {
         }
 
         const usuario = interaction.options.getUser('user');
-        const nuevoRol = interaction.options.getRole('rank');
+        
+        // Obtención de rol robusta (intenta leer el objeto y si da null busca el ID directo en la guild)
+        const rankOption = interaction.options.get('rank');
+        let nuevoRol = interaction.options.getRole('rank');
+
+        if (!nuevoRol && rankOption?.value) {
+            nuevoRol = await interaction.guild.roles.fetch(rankOption.value).catch(() => null);
+        }
+
         const razon = interaction.options.getString('reason') || 'Desempeño destacado y cumplimiento de objetivos.';
         const notas = interaction.options.getString('notes') || 'Ninguna nota adicional.';
 
         if (!nuevoRol) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1523041302764191844> No se pudo obtener la información del rol seleccionado.',
+                content: '<:cruz00y4n:1523041302764191844> No se pudo obtener la información del rol seleccionado. Intenta seleccionarlo nuevamente.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -63,7 +71,7 @@ export default {
             });
         }
 
-        // 2. Obtener los datos del Bot en el servidor de forma asíncrona (Evita error null en Render)
+        // 2. Obtener los datos del Bot en el servidor de forma asíncrona
         const botMember = await interaction.guild.members.fetchMe().catch(() => null);
 
         if (!botMember) {
@@ -104,7 +112,7 @@ export default {
                     { name: '📋 Razón del Ascenso', value: `\`\`\`${razon}\`\`\``, inline: false },
                     { name: '📝 Notas Adicionales', value: `\`\`\`${notas}\`\`\``, inline: false }
                 )
-                .setColor('#74d4fc')
+                .setColor('#57F287')
                 .setThumbnail(usuario.displayAvatarURL({ dynamic: true }))
                 .setFooter({ text: `${interaction.guild.name} • Gestión de Staff`, iconURL: interaction.guild.iconURL() })
                 .setTimestamp();
@@ -114,13 +122,13 @@ export default {
             // 6. Notificación por mensaje privado al usuario ascendido
             try {
                 const embedDM = new EmbedBuilder()
-                    .setTitle('<a:si:1523026892981145600> ¡Felicidades por tu Ascenso!')
+                    .setTitle('🎉 ¡Felicidades por tu Ascenso!')
                     .setDescription(`Has recibido un nuevo rango en **${interaction.guild.name}**.`)
                     .addFields(
                         { name: 'Rango Otorgado', value: `${nuevoRol.name}`, inline: true },
                         { name: 'Motivo', value: razon, inline: false }
                     )
-                    .setColor('#74d4fc')
+                    .setColor('#57F287')
                     .setTimestamp();
 
                 await usuario.send({ embeds: [embedDM] });
