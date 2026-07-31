@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits, PermissionsBitField, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ComponentType, LabelBuilder, RoleSelectMenuBuilder } from 'discord.js';
+import { SlashCommandBuilder, PermissionFlagsBits, PermissionsBitField, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ComponentType, RoleSelectMenuBuilder, LabelBuilder } from 'discord.js';
 import { createEmbed, errorEmbed, successEmbed } from '../../utils/embeds.js';
 import { getColor } from '../../config/bot.js';
 import { logger } from '../../utils/logger.js';
@@ -35,8 +35,7 @@ function getApplicationStatusPresentation(statusValue) {
     return { normalized, statusLabel, statusEmoji };
 }
 
-export default {
-    data: new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
     .setName("app-admin")
     .setDescription("Manage staff applications")
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
@@ -97,47 +96,44 @@ export default {
                     .setRequired(false)
                     .setAutocomplete(true),
             ),
-    ),
+    );
 
-    category: "Community",
-
-    execute: withErrorHandling(async (interaction) => {
-        if (!interaction.inGuild()) {
-            return InteractionHelper.safeReply(interaction, {
-                embeds: [errorEmbed("This command can only be used in a server.")],
-                flags: ["Ephemeral"],
-            });
-        }
-
-        const { options, guild, member } = interaction;
-        const subcommand = options.getSubcommand();
-
-        if (subcommand !== 'dashboard' && subcommand !== 'setup') {
-            await InteractionHelper.safeDefer(interaction, { flags: ['Ephemeral'] });
-        }
-
-        logger.info(`App-admin command executed: ${subcommand}`, {
-            userId: interaction.user.id,
-            guildId: guild.id,
-            subcommand
+export const execute = withErrorHandling(async (interaction) => {
+    if (!interaction.inGuild()) {
+        return InteractionHelper.safeReply(interaction, {
+            embeds: [errorEmbed("This command can only be used in a server.")],
+            flags: ["Ephemeral"],
         });
+    }
 
-        // ✓ Permission check: User must have ManageGuild permission or a configured manager role
-        // This prevents unauthorized users from accessing admin functions
-        await ApplicationService.checkManagerPermission(interaction.client, guild.id, member);
+    const { options, guild, member } = interaction;
+    const subcommand = options.getSubcommand();
 
-        if (subcommand === "setup") {
-            await handleSetup(interaction);
-        } else if (subcommand === "review") {
-            await handleReview(interaction);
-        } else if (subcommand === "list") {
-            await handleList(interaction);
-        } else if (subcommand === "dashboard") {
-            const selectedAppName = interaction.options.getString("application");
-            await appDashboard.execute(interaction, null, interaction.client, selectedAppName);
-        }
-    }, { type: 'command', commandName: 'app-admin' })
-};
+    if (subcommand !== 'dashboard' && subcommand !== 'setup') {
+        await InteractionHelper.safeDefer(interaction, { flags: ['Ephemeral'] });
+    }
+
+    logger.info(`App-admin command executed: ${subcommand}`, {
+        userId: interaction.user.id,
+        guildId: guild.id,
+        subcommand
+    });
+
+    // ✓ Permission check: User must have ManageGuild permission or a configured manager role
+    // This prevents unauthorized users from accessing admin functions
+    await ApplicationService.checkManagerPermission(interaction.client, guild.id, member);
+
+    if (subcommand === "setup") {
+        await handleSetup(interaction);
+    } else if (subcommand === "review") {
+        await handleReview(interaction);
+    } else if (subcommand === "list") {
+        await handleList(interaction);
+    } else if (subcommand === "dashboard") {
+        const selectedAppName = interaction.options.getString("application");
+        await appDashboard.execute(interaction, null, interaction.client, selectedAppName);
+    }
+}, { type: 'command', commandName: 'app-admin' });
 
 async function handleSetup(interaction) {
     // Ensure interaction hasn't been deferred/replied yet (safety check)
@@ -728,6 +724,3 @@ export async function handleApplicationReviewModal(interaction) {
         });
     }
 }
-
-
-
