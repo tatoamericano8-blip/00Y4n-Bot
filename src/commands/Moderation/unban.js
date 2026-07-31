@@ -1,65 +1,61 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
-import { createEmbed, errorEmbed, successEmbed, infoEmbed, warningEmbed } from '../../utils/embeds.js';
-import { logModerationAction } from '../../utils/moderation.js';
+import { successEmbed } from '../../utils/embeds.js';
 import { logger } from '../../utils/logger.js';
 import { ModerationService } from '../../services/moderationService.js';
 import { handleInteractionError } from '../../utils/errorHandler.js';
 import { InteractionHelper } from '../../utils/interactionHelper.js';
+
 export default {
     data: new SlashCommandBuilder()
-        .setName("unban")
-        .setDescription("Unban a user from the server")
+        .setName('unban')
+        .setDescription('Desbanea a un usuario del servidor.')
         .addUserOption(option =>
             option
-                .setName("target")
-                .setDescription("The user to unban (can be ID or mention)")
+                .setName('usuario')
+                .setDescription('Usuario a desbanear (mención o ID).')
                 .setRequired(true)
         )
         .addStringOption(option =>
-            option.setName("reason")
-                .setDescription("Reason for the unban")
+            option
+                .setName('motivo')
+                .setDescription('Motivo del desbaneo.')
                 .setRequired(false)
         )
         .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
-    category: "moderation",
+    category: 'moderation',
 
     async execute(interaction, config, client) {
         const deferSuccess = await InteractionHelper.safeDefer(interaction);
         if (!deferSuccess) {
-            logger.warn(`Unban interaction defer failed`, {
+            logger.warn('Unban: falló el defer', {
                 userId: interaction.user.id,
-                guildId: interaction.guildId,
-                commandName: 'unban'
+                guildId: interaction.guildId
             });
             return;
         }
 
         try {
-                const targetUser = interaction.options.getUser("target");
-                const reason = interaction.options.getString("reason") || "No reason provided";
+            const targetUser = interaction.options.getUser('usuario');
+            const reason = interaction.options.getString('motivo') || 'Sin motivo especificado';
 
-                
-                const result = await ModerationService.unbanUser({
-                    guild: interaction.guild,
-                    user: targetUser,
-                    moderator: interaction.member,
-                    reason
-                });
+            const result = await ModerationService.unbanUser({
+                guild: interaction.guild,
+                user: targetUser,
+                moderator: interaction.member,
+                reason
+            });
 
-                await InteractionHelper.safeEditReply(interaction, {
-                    embeds: [
-                        successEmbed(
-                            "✅ User Unbanned",
-                            `Successfully unbanned **${targetUser.tag}** from the server.\n\n**Reason:** ${reason}\n**Case ID:** #${result.caseId}`
-                        )
-                    ]
-                });
+            await InteractionHelper.safeEditReply(interaction, {
+                embeds: [
+                    successEmbed(
+                        '✅ Usuario desbaneado',
+                        `Se desbaneó a **${targetUser.tag}**.\n\n**Motivo:** ${reason}\n**Caso:** #${result.caseId}`
+                    )
+                ]
+            });
         } catch (error) {
-            logger.error('Unban command error:', error);
+            logger.error('Error en comando unban:', error);
             await handleInteractionError(interaction, error, { subtype: 'unban_failed' });
         }
     }
 };
-
-
-

@@ -1,51 +1,51 @@
-import { SlashCommandBuilder, PermissionFlagsBits, PermissionsBitField, ChannelType } from 'discord.js';
-import { createEmbed, errorEmbed, successEmbed, infoEmbed, warningEmbed } from '../../utils/embeds.js';
+import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import { errorEmbed, successEmbed } from '../../utils/embeds.js';
 import { logModerationAction } from '../../utils/moderation.js';
 import { logger } from '../../utils/logger.js';
 import { TitanBotError, ErrorTypes } from '../../utils/errorHandler.js';
-
-
 import { InteractionHelper } from '../../utils/interactionHelper.js';
+
 const durationChoices = [
-    { name: "5 minutes", value: 5 },
-    { name: "10 minutes", value: 10 },
-    { name: "30 minutes", value: 30 },
-    { name: "1 hour", value: 60 },
-    { name: "6 hours", value: 360 },
-    { name: "1 day", value: 1440 },
-    { name: "1 week", value: 10080 },
+    { name: '5 minutos', value: 5 },
+    { name: '10 minutos', value: 10 },
+    { name: '30 minutos', value: 30 },
+    { name: '1 hora', value: 60 },
+    { name: '6 horas', value: 360 },
+    { name: '1 día', value: 1440 },
+    { name: '1 semana', value: 10080 }
 ];
+
 export default {
     data: new SlashCommandBuilder()
-        .setName("timeout")
-        .setDescription("Timeout a user for a specific duration.")
-        .addUserOption((option) =>
+        .setName('timeout')
+        .setDescription('Silencia temporalmente a un usuario (timeout).')
+        .addUserOption(option =>
             option
-                .setName("target")
-                .setDescription("User to timeout")
-                .setRequired(true),
+                .setName('usuario')
+                .setDescription('Usuario a silenciar.')
+                .setRequired(true)
         )
-        .addIntegerOption(
-            (option) =>
-                option
-                    .setName("duration")
-                    .setDescription("Duration of the timeout")
-                    .setRequired(true)
-.addChoices(...durationChoices),
+        .addIntegerOption(option =>
+            option
+                .setName('duracion')
+                .setDescription('Duración del silencio.')
+                .setRequired(true)
+                .addChoices(...durationChoices)
         )
-        .addStringOption((option) =>
-            option.setName("reason").setDescription("Reason for the timeout"),
+        .addStringOption(option =>
+            option
+                .setName('motivo')
+                .setDescription('Motivo del timeout.')
         )
-.setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
-    category: "moderation",
+        .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
+    category: 'moderation',
 
     async execute(interaction, config, client) {
         const deferSuccess = await InteractionHelper.safeDefer(interaction);
         if (!deferSuccess) {
-            logger.warn(`Timeout interaction defer failed`, {
+            logger.warn('Timeout: falló el defer', {
                 userId: interaction.user.id,
-                guildId: interaction.guildId,
-                commandName: 'timeout'
+                guildId: interaction.guildId
             });
             return;
         }
@@ -53,44 +53,43 @@ export default {
         try {
             if (!interaction.member.permissions.has(PermissionFlagsBits.ModerateMembers)) {
                 throw new TitanBotError(
-                    "User lacks permission",
+                    'Sin permiso',
                     ErrorTypes.PERMISSION,
-                    "You need the `Moderate Members` permission to set a timeout."
+                    'Necesitás el permiso **Moderar Miembros** para usar timeout.'
                 );
             }
 
-            const targetUser = interaction.options.getUser("target");
-            const member = interaction.options.getMember("target");
-            const durationMinutes = interaction.options.getInteger("duration");
-            const reason = interaction.options.getString("reason") || "No reason provided";
+            const targetUser = interaction.options.getUser('usuario');
+            const member = interaction.options.getMember('usuario');
+            const durationMinutes = interaction.options.getInteger('duracion');
+            const reason = interaction.options.getString('motivo') || 'Sin motivo especificado';
 
             if (targetUser.id === interaction.user.id) {
                 throw new TitanBotError(
-                    "Cannot timeout self",
+                    'Auto-timeout',
                     ErrorTypes.VALIDATION,
-                    "You cannot timeout yourself."
+                    'No podés silenciarte a vos mismo.'
                 );
             }
             if (targetUser.id === client.user.id) {
                 throw new TitanBotError(
-                    "Cannot timeout bot",
+                    'Timeout al bot',
                     ErrorTypes.VALIDATION,
-                    "You cannot timeout the bot."
+                    'No podés silenciar al bot.'
                 );
             }
             if (!member) {
                 throw new TitanBotError(
-                    "Target not found",
+                    'Usuario no encontrado',
                     ErrorTypes.USER_INPUT,
-                    "The target user is not currently in this server."
+                    'Ese usuario no está en el servidor.'
                 );
             }
-
             if (!member.moderatable) {
                 throw new TitanBotError(
-                    "Cannot timeout member",
+                    'No moderable',
                     ErrorTypes.PERMISSION,
-                    "I cannot timeout this user. They might have a higher role than me or you."
+                    'No puedo silenciar a este usuario. Puede tener un rol más alto que el mío o el tuyo.'
                 );
             }
 
@@ -98,17 +97,17 @@ export default {
             await member.timeout(durationMs, reason);
 
             const durationDisplay =
-                durationChoices.find((c) => c.value === durationMinutes)
-                    ?.name || `${durationMinutes} minutes`;
+                durationChoices.find(c => c.value === durationMinutes)?.name ||
+                `${durationMinutes} minutos`;
 
             const caseId = await logModerationAction({
                 client,
                 guild: interaction.guild,
                 event: {
-                    action: "Member Timed Out",
+                    action: 'Member Timed Out',
                     target: `${targetUser.tag} (${targetUser.id})`,
                     executor: `${interaction.user.tag} (${interaction.user.id})`,
-                    reason: `${reason}\nDuration: ${durationDisplay}`,
+                    reason: `${reason}\nDuración: ${durationDisplay}`,
                     duration: durationDisplay,
                     metadata: {
                         userId: targetUser.id,
@@ -122,23 +121,21 @@ export default {
             await InteractionHelper.safeEditReply(interaction, {
                 embeds: [
                     successEmbed(
-                        `⏳ **Timed out** ${targetUser.tag} for ${durationDisplay}.`,
-                        `**Reason:** ${reason}\n**Case ID:** #${caseId}`,
-                    ),
-                ],
+                        `⏳ **Silenciado** ${targetUser.tag} por ${durationDisplay}.`,
+                        `**Motivo:** ${reason}\n**Caso:** #${caseId}`
+                    )
+                ]
             });
         } catch (error) {
-            logger.error('Timeout command error:', error);
+            logger.error('Error en comando timeout:', error);
             await InteractionHelper.safeEditReply(interaction, {
                 embeds: [
                     errorEmbed(
-                        error.userMessage || "An unexpected error occurred during the timeout action. Please check my role permissions.",
-                    ),
-                ],
+                        error.userMessage ||
+                            'Ocurrió un error al aplicar el timeout. Revisá los permisos del bot.'
+                    )
+                ]
             });
         }
     }
 };
-
-
-

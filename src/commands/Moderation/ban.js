@@ -1,39 +1,40 @@
-import { SlashCommandBuilder, PermissionFlagsBits, PermissionsBitField, ChannelType } from 'discord.js';
-import { createEmbed, errorEmbed, successEmbed, infoEmbed, warningEmbed } from '../../utils/embeds.js';
-import { logModerationAction } from '../../utils/moderation.js';
+import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import { successEmbed } from '../../utils/embeds.js';
 import { logger } from '../../utils/logger.js';
 import { InteractionHelper } from '../../utils/interactionHelper.js';
 import { ModerationService } from '../../services/moderationService.js';
 import { handleInteractionError } from '../../utils/errorHandler.js';
+
 export default {
     data: new SlashCommandBuilder()
-        .setName("ban")
-        .setDescription("Ban a user from the server")
-        .addUserOption((option) =>
+        .setName('ban')
+        .setDescription('Banea a un usuario del servidor.')
+        .addUserOption(option =>
             option
-                .setName("target")
-                .setDescription("The user to ban")
-                .setRequired(true),
+                .setName('usuario')
+                .setDescription('Usuario a banear.')
+                .setRequired(true)
         )
-        .addStringOption((option) =>
-            option.setName("reason").setDescription("Reason for the ban"),
+        .addStringOption(option =>
+            option
+                .setName('motivo')
+                .setDescription('Motivo del ban.')
         )
-.setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
-    category: "moderation",
+        .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
+    category: 'moderation',
 
     async execute(interaction, config, client) {
         try {
-            const user = interaction.options.getUser("target");
-            const reason = interaction.options.getString("reason") || "No reason provided";
+            const user = interaction.options.getUser('usuario');
+            const reason = interaction.options.getString('motivo') || 'Sin motivo especificado';
 
             if (user.id === interaction.user.id) {
-                throw new Error("You cannot ban yourself.");
+                throw new Error('No podés banearte a vos mismo.');
             }
             if (user.id === client.user.id) {
-                throw new Error("You cannot ban the bot.");
+                throw new Error('No podés banear al bot.');
             }
 
-            
             const result = await ModerationService.banUser({
                 guild: interaction.guild,
                 user,
@@ -44,17 +45,14 @@ export default {
             await InteractionHelper.universalReply(interaction, {
                 embeds: [
                     successEmbed(
-                        `🚫 **Banned** ${user.tag}`,
-                        `**Reason:** ${reason}\n**Case ID:** #${result.caseId}`,
-                    ),
-                ],
+                        `🚫 **Baneado** ${user.tag}`,
+                        `**Motivo:** ${reason}\n**Caso:** #${result.caseId}`
+                    )
+                ]
             });
         } catch (error) {
-            logger.error('Ban command error:', error);
+            logger.error('Error en comando ban:', error);
             await handleInteractionError(interaction, error, { subtype: 'ban_failed' });
         }
-    },
+    }
 };
-
-
-
