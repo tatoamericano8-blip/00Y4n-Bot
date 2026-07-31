@@ -9,7 +9,7 @@ import { InteractionHelper } from '../utils/interactionHelper.js';
 import { createInteractionTraceContext, runWithTraceContext } from '../utils/traceContext.js';
 import { validateChatInputPayloadOrThrow } from '../utils/commandInputValidation.js';
 import { enforceAbuseProtection, formatCooldownDuration } from '../utils/abuseProtection.js';
-import Sesion from '../../models/Session.js';
+import Sesion from '../../models/Session.js'; // 🚀 Modelo de Mongoose para Fallback
 
 function withTraceContext(context = {}, traceContext = {}) {
   return {
@@ -216,7 +216,7 @@ export default {
               const validChoices = choices.filter(c => c !== null);
               await interaction.respond(validChoices);
             } catch (error) {
-              logger.error(`Error al verificar voto: ${error.message}`);
+              logger.error(`Error al verificar voto en autocomplete: ${error.message}`);
               await interaction.respond([]);
             }
           }
@@ -229,7 +229,7 @@ export default {
           if (interaction.customId === 'verificar_voto_swfl') {
             let sesion = global.coleccionSesiones?.get(interaction.message.id);
 
-            // Fallback a MongoDB si no está en RAM
+            // Fallback a MongoDB si no está disponible en memoria RAM
             if (!sesion) {
               try {
                 sesion = await Sesion.findOne({
@@ -314,23 +314,50 @@ export default {
             }
           }
 
-          // B. Búsqueda flexible de controladores de botones (por ':', '_' o nombre exacto)
+          // B. Resolución Unificada de Controladores de Botones
           const customIdRaw = interaction.customId;
-          const [idBase, ...argsColon] = customIdRaw.split(':');
-          const partsUnderscore = customIdRaw.split('_');
+          let button = null;
+          let args = [];
 
-          let button = client.buttons.get(customIdRaw) 
-                    || client.buttons.get(idBase)
-                    || client.buttons.get(partsUnderscore.slice(0, 2).join('_'))
-                    || client.buttons.get(partsUnderscore.slice(0, 3).join('_'));
+          // 1. Coincidencia exacta por ID completo
+          if (client.buttons.has(customIdRaw)) {
+            button = client.buttons.get(customIdRaw);
+            args = [];
+          } 
+          // 2. Formato delimitado por guiones bajos de 4+ partes (ej: "todo_list_item_1234")
+          else if (customIdRaw.split('_').length >= 4) {
+            const parts = customIdRaw.split('_');
+            const buttonType = parts.slice(0, 3).join('_');
+            button = client.buttons.get(buttonType);
+            if (button) {
+              args = parts.slice(3); // extrae los argumentos reales sin corromper el nombre del comando
+            }
+          }
 
+          // 3. Formato delimitado por dos puntos (ej: "customId:arg1:arg2")
+          if (!button && customIdRaw.includes(':')) {
+            const [customId, ...colonArgs] = customIdRaw.split(':');
+            button = client.buttons.get(customId);
+            args = colonArgs;
+          }
+
+          // 4. Formato delimitado por guiones bajos de 2 o 3 partes (ej: "prefix_action_id")
+          if (!button && customIdRaw.includes('_')) {
+            const parts = customIdRaw.split('_');
+            const buttonType2 = parts.slice(0, 2).join('_');
+            button = client.buttons.get(buttonType2);
+            if (button) {
+              args = parts.slice(2);
+            }
+          }
+
+          // Ejecución del botón si fue encontrado
           if (button) {
             try {
-              const args = argsColon.length > 0 ? argsColon : partsUnderscore.slice(2);
               await button.execute(interaction, client, args);
               return;
             } catch (error) {
-              logger.error(`Error executando botón ${interaction.customId}:`, {
+              logger.error(`Error ejecutando botón ${interaction.customId}:`, {
                 message: error.message,
                 stack: error.stack
               });
@@ -343,13 +370,15 @@ export default {
             }
           }
 
-          // C. Si ningún controlador registró el botón
-          throw createError(
-            `No button handler found for customId: ${interaction.customId}`,
-            ErrorTypes.CONFIGURATION,
-            'Este botón no está disponible o no tiene un controlador registrado.',
-            withTraceContext({ customId: interaction.customId }, interactionTraceContext)
-          );
+          // Si el botón no existe y tenía delimitador, lanzar error controlado
+          if (customIdRaw.includes(':') || customIdRaw.includes('_')) {
+            throw createError(
+              `No button handler found for customId: ${interaction.customId}`,
+              ErrorTypes.CONFIGURATION,
+              'Este botón no está disponible o no tiene un controlador registrado.',
+              withTraceContext({ customId: interaction.customId }, interactionTraceContext)
+            );
+          }
 
         // ==========================================
         // 4. MENÚS DE SELECCIÓN (StringSelectMenu)
