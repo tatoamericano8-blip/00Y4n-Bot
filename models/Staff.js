@@ -5,10 +5,10 @@ const staffSchema = new mongoose.Schema(
     userId: { type: String, required: true },
     guildId: { type: String, required: true },
     rango: { type: String, default: 'Staff Trainee' },
-    estado: { 
-      type: String, 
-      enum: ['ACTIVO', 'LOA', 'DESPEDIDO', 'RENUNCIADO'], 
-      default: 'ACTIVO' 
+    estado: {
+      type: String,
+      enum: ['ACTIVO', 'LOA', 'DESPEDIDO', 'RENUNCIADO'],
+      default: 'ACTIVO'
     },
 
     // Historial de Sanciones / Strikes
@@ -72,7 +72,8 @@ const staffSchema = new mongoose.Schema(
     despido: {
       fecha: Date,
       motivo: String,
-      realizadoPor: String
+      realizadoPor: String,
+      blacklist: { type: Boolean, default: false }
     },
     renuncia: {
       fecha: Date,
