@@ -187,11 +187,11 @@ export default {
         .setDescription('Organiza o únete a un robo al banco de Sarasota.')
         .addSubcommand(sub =>
             sub.setName('iniciar')
-                .setDescription('Inicia un heist (necesitas 2-3 personas).')
+                .setDescription('Inicia un robo al Banco (necesitas 2-3 personas).')
         )
         .addSubcommand(sub =>
             sub.setName('unirse')
-                .setDescription('Únete a un heist activo en este servidor.')
+                .setDescription('Únete a un robo al banco activo en este servidor.')
         ),
 
     async execute(interaction) {
@@ -238,7 +238,7 @@ export default {
                     `• **Tiempo para unirse:** 80 segundos\n` +
                     `• **Recompensa:** $10.000 – $25.000 (dividido)\n` +
                     `• **Riesgo:** 40% de fallo → Orden de Arresto\n\n` +
-                    `Usá \`/heist unirse\` para sumarte.`
+                    `Usá \`/robar-banco unirse\` para sumarte.`
                 )
                 .setFooter({
                     text: '00Y4n Comunidad SWFL • Sistema de Economía',
