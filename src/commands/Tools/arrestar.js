@@ -40,7 +40,6 @@ export default {
 
         await guardarArresto(arrestoID, datosArresto);
 
-        // Embed público
         const embedArresto = new EmbedBuilder()
             .setColor('#74d4fc')
             .setTitle('<:folder:1523041295868756008> Arresto Registrado')
@@ -63,7 +62,6 @@ export default {
             allowedMentions: { users: [ciudadano.id] }
         });
 
-        // Log en canal policial
         const logsChannel = interaction.guild.channels.cache.get(CHANNEL_LOGS);
         if (logsChannel) {
             const embedLog = new EmbedBuilder()
@@ -80,7 +78,6 @@ export default {
             await logsChannel.send({ embeds: [embedLog] });
         }
 
-        // DM al ciudadano (opcional)
         try {
             const embedDM = new EmbedBuilder()
                 .setColor('#ff3333')
