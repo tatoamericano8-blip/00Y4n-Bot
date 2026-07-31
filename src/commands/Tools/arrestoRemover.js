@@ -62,7 +62,6 @@ export default {
 
         await interaction.reply({ embeds: [embed] });
 
-        // Log
         const logsChannel = interaction.guild.channels.cache.get(CHANNEL_LOGS);
         if (logsChannel) {
             const embedLog = new EmbedBuilder()
