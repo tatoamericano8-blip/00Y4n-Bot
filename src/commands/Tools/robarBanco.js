@@ -95,7 +95,7 @@ async function resolverHeist(interaction, heist) {
 
         const embedExito = new EmbedBuilder()
             .setColor('#57f287')
-            .setTitle('🏦 ¡Heist exitoso!')
+            .setTitle('🏦 ¡Robo al Banco exitoso!')
             .setDescription(
                 `El equipo logró robar el banco de Sarasota.\n\n` +
                 `• **Participantes:** ${menciones}\n` +
@@ -105,7 +105,7 @@ async function resolverHeist(interaction, heist) {
                 `• **Chance de éxito:** ${chanceExito}%`
             )
             .setFooter({
-                text: '00Y4n Comunidad SWFL • Sistema de Heists',
+                text: '00Y4n Comunidad SWFL • Sistema de Economía',
                 iconURL: interaction.guild.iconURL()
             })
             .setTimestamp();
@@ -117,7 +117,7 @@ async function resolverHeist(interaction, heist) {
                 embeds: [
                     new EmbedBuilder()
                         .setColor('#57f287')
-                        .setTitle('🏦 Heist Exitoso')
+                        .setTitle('🏦 Robo al Banco Exitoso')
                         .setDescription(
                             `> **Líder:** <@${leaderId}>\n` +
                             `> **Participantes:** ${menciones}\n` +
@@ -144,7 +144,7 @@ async function resolverHeist(interaction, heist) {
 
         const embedFallo = new EmbedBuilder()
             .setColor('#ed4245')
-            .setTitle('🚨 Heist fallido')
+            .setTitle('🚨 Robo al Banco fallido')
             .setDescription(
                 `${razonFallo}\n\n` +
                 `• **Participantes:** ${menciones}\n` +
@@ -153,7 +153,7 @@ async function resolverHeist(interaction, heist) {
                 `• **Chance de éxito:** ${chanceExito}%`
             )
             .setFooter({
-                text: '00Y4n Comunidad SWFL • Sistema de Heists',
+                text: '00Y4n Comunidad SWFL • Sistema de Economía',
                 iconURL: interaction.guild.iconURL()
             })
             .setTimestamp();
@@ -165,7 +165,7 @@ async function resolverHeist(interaction, heist) {
                 embeds: [
                     new EmbedBuilder()
                         .setColor('#ed4245')
-                        .setTitle('🚨 Heist Fallido')
+                        .setTitle('🚨 Robo al Banco Fallido')
                         .setDescription(
                             `> **Líder:** <@${leaderId}>\n` +
                             `> **Participantes:** ${menciones}\n` +
@@ -206,7 +206,7 @@ export default {
             if (cooldown) {
                 const ts = Math.floor(cooldown / 1000);
                 return interaction.reply({
-                    content: `<:lock:1523041298796384418> Todavía estás en cooldown de heist. Podrás volver a participar <t:${ts}:R>.`,
+                    content: `<:lock:1523041298796384418> Todavía estás en cooldown de robar el banco. Podrás volver a participar <t:${ts}:R>.`,
                     ephemeral: true
                 });
             }
@@ -214,7 +214,7 @@ export default {
             // Ya hay un heist activo
             if (heistsActivos.has(guildId)) {
                 return interaction.reply({
-                    content: '❌ Ya hay un heist en curso en este servidor. Usá `/heist unirse` para sumarte.',
+                    content: '❌ Ya hay un robo al banco en curso en este servidor. Usá `/robar-banco unirse` para sumarte.',
                     ephemeral: true
                 });
             }
@@ -230,7 +230,7 @@ export default {
 
             const embed = new EmbedBuilder()
                 .setColor('#74d4fc')
-                .setTitle('🏦 Heist iniciado – Banco de Sarasota')
+                .setTitle('🏦 Robo al Banco iniciado – Banco de Sarasota')
                 .setDescription(
                     `<@${usuarioId}> está organizando un **robo al banco**.\n\n` +
                     `• **Participantes:** 1/${MAX_PERSONAS}\n` +
@@ -241,7 +241,7 @@ export default {
                     `Usá \`/heist unirse\` para sumarte.`
                 )
                 .setFooter({
-                    text: '00Y4n Comunidad SWFL • Sistema de Heists',
+                    text: '00Y4n Comunidad SWFL • Sistema de Economía',
                     iconURL: interaction.guild.iconURL()
                 })
                 .setTimestamp();
@@ -259,7 +259,7 @@ export default {
                         const channel = interaction.guild.channels.cache.get(actual.channelId);
                         if (channel) {
                             await channel.send({
-                                content: '❌ El heist fue **cancelado**: no se alcanzó el mínimo de 2 personas.'
+                                content: '❌ El robo fue **cancelado**: no se alcanzó el mínimo de 2 personas.'
                             });
                         }
                     } catch {}
@@ -279,7 +279,7 @@ export default {
 
             if (!heist) {
                 return interaction.reply({
-                    content: '❌ No hay ningún heist activo en este momento. Usá `/heist iniciar` para comenzar uno.',
+                    content: '❌ No hay ningún robo al banco activo en este momento. Usá `/robar-banco iniciar` para comenzar uno.',
                     ephemeral: true
                 });
             }
@@ -289,7 +289,7 @@ export default {
             if (cooldown) {
                 const ts = Math.floor(cooldown / 1000);
                 return interaction.reply({
-                    content: `<:lock:1523041298796384418> Todavía estás en cooldown de heist. Podrás volver a participar <t:${ts}:R>.`,
+                    content: `<:lock:1523041298796384418> Todavía estás en cooldown de robar el banco. Podrás volver a participar <t:${ts}:R>.`,
                     ephemeral: true
                 });
             }
@@ -297,7 +297,7 @@ export default {
             // Ya está adentro
             if (heist.participantes.has(usuarioId)) {
                 return interaction.reply({
-                    content: '❌ Ya estás participando de este heist.',
+                    content: '❌ Ya estás participando de este robo.',
                     ephemeral: true
                 });
             }
@@ -305,7 +305,7 @@ export default {
             // Lleno
             if (heist.participantes.size >= MAX_PERSONAS) {
                 return interaction.reply({
-                    content: '❌ El heist ya está completo (máximo 3 personas).',
+                    content: '❌ El robo al banco ya está completo (máximo 3 personas).',
                     ephemeral: true
                 });
             }
@@ -318,14 +318,14 @@ export default {
 
             const embed = new EmbedBuilder()
                 .setColor('#f1c40f')
-                .setTitle('🏦 Alguien se unió al heist')
+                .setTitle('🏦 Alguien se unió al robo')
                 .setDescription(
                     `<@${usuarioId}> se sumó al robo.\n\n` +
                     `• **Participantes (${cantidad}/${MAX_PERSONAS}):** ${menciones}\n` +
                     `• **Tiempo restante:** unos segundos...`
                 )
                 .setFooter({
-                    text: '00Y4n Comunidad SWFL • Sistema de Heists',
+                    text: '00Y4n Comunidad SWFL • Sistema de Economía',
                     iconURL: interaction.guild.iconURL()
                 })
                 .setTimestamp();
