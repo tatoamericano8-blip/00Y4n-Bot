@@ -9,7 +9,7 @@ import { InteractionHelper } from '../utils/interactionHelper.js';
 import { createInteractionTraceContext, runWithTraceContext } from '../utils/traceContext.js';
 import { validateChatInputPayloadOrThrow } from '../utils/commandInputValidation.js';
 import { enforceAbuseProtection, formatCooldownDuration } from '../utils/abuseProtection.js';
-import Sesion from '../../models/Session.js'; // 🚀 Modelo de Mongoose para Fallback
+import Sesion from '../../models/Session.js';
 
 function withTraceContext(context = {}, traceContext = {}) {
   return {
@@ -216,7 +216,7 @@ export default {
               const validChoices = choices.filter(c => c !== null);
               await interaction.respond(validChoices);
             } catch (error) {
-              logger.error(`Error al verificar voto en autocomplete: ${error.message}`);
+              logger.error(`Error en reactroles autocomplete: ${error.message}`);
               await interaction.respond([]);
             }
           }
@@ -251,14 +251,14 @@ export default {
             if (!sesion) {
               return await interaction.reply({
                 content: '<:cruz00y4n:1523041302764191844> **Error:** No se encontraron los registros de esta sesión activa.',
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
               });
             }
 
             if (!sesion.idInicio) {
               return await interaction.reply({
                 content: '<:cruz00y4n:1523041302764191844> **Error:** No se encontró el mensaje de inicio asociado a esta sesión para comprobar tu voto.',
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
               });
             }
 
@@ -277,7 +277,7 @@ export default {
               if (!haVotado) {
                 return await interaction.reply({
                   content: '<:cruz00y4n:1523041302764191844> **¡No has votado!** Primero debes dejar tu reacción en el mensaje de inicio de la sesión para poder acceder al link.',
-                  ephemeral: true
+                  flags: MessageFlags.Ephemeral
                 });
               }
 
@@ -302,14 +302,14 @@ export default {
 
               return await interaction.reply({
                 embeds: [embedLink],
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
               });
 
             } catch (error) {
               logger.error(`Error al verificar voto: ${error.message}`);
               return await interaction.reply({
                 content: '<:warn00y4n:1523041352714158240> **Error interno:** No se pudo comprobar tu voto. Asegúrate de que el Startup no haya sido eliminado.',
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
               });
             }
           }
@@ -324,34 +324,34 @@ export default {
             button = client.buttons.get(customIdRaw);
             args = [];
           } 
-          // 2. Formato delimitado por guiones bajos de 4+ partes (ej: "todo_list_item_1234")
+          // 2. Formato delimitado por guiones bajos de 4+ partes
           else if (customIdRaw.split('_').length >= 4) {
             const parts = customIdRaw.split('_');
             const buttonType = parts.slice(0, 3).join('_');
             button = client.buttons.get(buttonType);
             if (button) {
-              args = parts.slice(3); // extrae los argumentos reales sin corromper el nombre del comando
+              args = parts.slice(3);
             }
           }
 
-          // 3. Formato delimitado por dos puntos (ej: "customId:arg1:arg2")
+          // 3. Formato delimitado por dos puntos
           if (!button && customIdRaw.includes(':')) {
             const [customId, ...colonArgs] = customIdRaw.split(':');
             button = client.buttons.get(customId);
             args = colonArgs;
           }
 
-          // 4. Formato delimitado por guiones bajos de 2 o 3 partes (ej: "prefix_action_id")
+          // 4. Formato delimitado por guiones bajos de 2 o 3 partes
           if (!button && customIdRaw.includes('_')) {
             const parts = customIdRaw.split('_');
             const buttonType2 = parts.slice(0, 2).join('_');
-            button = client.buttons.get(buttonType2);
+            button = client.buttons.get(buttonType2) || client.buttons.get(parts[0]);
             if (button) {
-              args = parts.slice(2);
+              args = parts.slice(parts.length > 2 ? 2 : 1);
             }
           }
 
-          // Ejecución del botón si fue encontrado
+          // Ejecución del botón si existe un controlador global registrado
           if (button) {
             try {
               await button.execute(interaction, client, args);
@@ -370,15 +370,9 @@ export default {
             }
           }
 
-          // Si el botón no existe y tenía delimitador, lanzar error controlado
-          if (customIdRaw.includes(':') || customIdRaw.includes('_')) {
-            throw createError(
-              `No button handler found for customId: ${interaction.customId}`,
-              ErrorTypes.CONFIGURATION,
-              'Este botón no está disponible o no tiene un controlador registrado.',
-              withTraceContext({ customId: interaction.customId }, interactionTraceContext)
-            );
-          }
+          // Si no hay un handler registrado en client.buttons, salimos silenciosamente
+          // para permitir que los Collectors (como los de perfil_swfl) procesen la interacción.
+          return;
 
         // ==========================================
         // 4. MENÚS DE SELECCIÓN (StringSelectMenu)
