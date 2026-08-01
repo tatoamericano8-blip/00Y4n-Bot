@@ -61,7 +61,7 @@ export default {
         const embed = new EmbedBuilder()
             .setTitle(titulo)
             .setDescription(
-                `> ${ePunto} <@${interaction.user.id}> ¡está organizando una **sesión de ${esRP ? 'roleplay' : 'car meet oficial'}**! Si tienes la intención de **unirte**, reacciona abajo con 🟠\n\n` +
+                `> ${ePunto} <@${interaction.user.id}> ¡está organizando una **sesión de ${esRP ? 'roleplay' : 'car meet oficial'}**! Antes de unirte a la sesión, asegúrate de que la configuración de privacidad de tu cuenta esté establecida en **«Everyone»**. Al unirte, confirmas que has leído todas las normas del servidor. Cuando la sesión esté disponible, el host enviará otro mensaje con una notificación.\n\n` +
                 `**Antes de Unirte**\n\n` +
                 `> <:felc:1523041359441952970> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
                 `> <:felc:1523041359441952970> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516591020813615109).\n` +
