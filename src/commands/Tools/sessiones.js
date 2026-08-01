@@ -1,6 +1,7 @@
 import { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import Sesion from '../../../models/Session.js';
 import Historial from '../../../models/Historial.js';
+import { puedeUsarSesiones } from '../../utils/gestorSesionesRestricciones.js';
 
 global.coleccionStartups = global.coleccionStartups || new Map();
 
@@ -19,17 +20,17 @@ export default {
                     { name: 'Car Meet', value: 'meet' }
                 ]
             },
-            { 
-                name: 'reacciones', 
-                description: 'Cantidad de reacciones necesarias para abrir.', 
-                type: ApplicationCommandOptionType.Integer, 
-                required: true 
+            {
+                name: 'reacciones',
+                description: 'Cantidad de reacciones necesarias para abrir.',
+                type: ApplicationCommandOptionType.Integer,
+                required: true
             },
-            { 
-                name: 'imagen', 
-                description: 'Link de la foto/banner para el anuncio (opcional).', 
-                type: ApplicationCommandOptionType.String, 
-                required: false 
+            {
+                name: 'imagen',
+                description: 'Link de la foto/banner para el anuncio (opcional).',
+                type: ApplicationCommandOptionType.String,
+                required: false
             }
         ]
     },
@@ -42,15 +43,31 @@ export default {
             });
         }
 
+        // Blacklist / suspensión de sesiones
+        const check = await puedeUsarSesiones(interaction.guildId, interaction.user.id);
+        if (!check.ok) {
+            if (check.razon === 'blacklist') {
+                return interaction.reply({
+                    content: '🚫 Estás en la **blacklist permanente de sesiones**. No puedes iniciar ni participar.',
+                    ephemeral: true
+                });
+            }
+            const hasta = check.hasta ? `<t:${Math.floor(new Date(check.hasta).getTime() / 1000)}:R>` : 'pronto';
+            return interaction.reply({
+                content: `⏸️ Estás **suspendido de sesiones** hasta ${hasta}. Motivo: ${check.motivo || '—'}`,
+                ephemeral: true
+            });
+        }
+
         const tipo = interaction.options.getString('tipo');
         const reacciones = interaction.options.getInteger('reacciones');
         const urlImagen = interaction.options.getString('imagen');
 
         const ePunto = '<:00y4ncirpunto:1523041306836996156>';
-        const idTildeNaranja = '1523026579662307378'; // ID extraído para msg.react()
+        const idTildeNaranja = '1523026579662307378';
 
         const esRP = tipo === 'rp';
-        const titulo = esRP 
+        const titulo = esRP
             ? '<a:mari:1523027011524624457> **Southwest Florida** - *__Roleplay Sesión Inicio__* <a:mari:1523027011524624457>'
             : '<a:mari:1523027011524624457> Southwest Florida - __*Car Meet Sesión Inicio*__ <a:mari:1523027011524624457>';
 
@@ -62,11 +79,11 @@ export default {
             .setTitle(titulo)
             .setDescription(
                 `> ${ePunto} <@${interaction.user.id}> ¡está organizando una **sesión de ${esRP ? 'roleplay' : 'car meet oficial'}**! Antes de unirte a la sesión, asegúrate de que la configuración de privacidad de tu cuenta esté establecida en **«Everyone»**. Al unirte, confirmas que has leído todas las normas del servidor. Cuando la sesión esté disponible, el host enviará otro mensaje con una notificación.\n\n` +
-                `**Antes de Unirte**\n\n` +
-                `> <:felc:1523041359441952970> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-                `> <:felc:1523041359441952970> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516591020813615109).\n` +
-                descExtra +
-                `> <:felc:1523028004983406787> El host debe obtener __**${reacciones}+**__ reacciones antes de comenzar.`
+                    `**Antes de Unirte**\n\n` +
+                    `> <:felc:1523041359441952970> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+                    `> <:felc:1523041359441952970> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516591020813615109).\n` +
+                    descExtra +
+                    `> <:felc:1523028004983406787> El host debe obtener __**${reacciones}+**__ reacciones antes de comenzar.`
             )
             .setColor('#74d4fc');
 
@@ -74,14 +91,13 @@ export default {
 
         await interaction.reply({ content: `Lanzando Startup de ${esRP ? 'Roleplay' : 'Car Meet'}...`, ephemeral: true });
         const msg = await interaction.channel.send({ content: '@everyone', embeds: [embed] });
-        
+
         try {
             await msg.react(idTildeNaranja);
         } catch (e) {
             console.error('Error al agregar reacción inicial:', e);
         }
 
-        // 💾 GUARDAR EN MONGODB CON ARRAY DE REACCIONES VACÍO
         try {
             const sesionData = await Sesion.create({
                 idInicio: msg.id,
@@ -91,21 +107,20 @@ export default {
                 imagen: urlImagen,
                 estado: 'esperando_reacciones',
                 guildId: interaction.guildId,
-                reacciones: [] // Array vacío para tracking de reacciones
+                reacciones: []
             });
 
-            // Guardar en la colección global también
-            global.coleccionStartups.set(msg.id, { 
-                hostId: interaction.user.id, 
-                reaccionesRequeridas: reacciones, 
-                tipo, 
+            global.coleccionStartups.set(msg.id, {
+                hostId: interaction.user.id,
+                reaccionesRequeridas: reacciones,
+                tipo,
                 imagen: urlImagen,
-                sesionId: sesionData._id // Guardar el ID de Mongoose
+                sesionId: sesionData._id
             });
 
             await Historial.create({
                 evento: 'STARTUP_INICIADO',
-                idInicio: msg.id,      // 👈 agregar
+                idInicio: msg.id,
                 mensajeId: msg.id,
                 hostId: interaction.user.id,
                 hostTag: interaction.user.tag,

@@ -2,8 +2,10 @@ import { Events } from 'discord.js';
 import { logEvent, EVENT_TYPES } from '../services/loggingService.js';
 import { logger } from '../utils/logger.js';
 import { getReactionRoleMessage, deleteReactionRoleMessage } from '../services/reactionRoleService.js';
+import { guardarSnipe } from '../utils/gestorSnipe.js';
 
 const MAX_LOGGED_MESSAGE_CONTENT_LENGTH = 1024;
+const ROLE_STAFF = '1512120103771050005';
 
 export default {
   name: Events.MessageDelete,
@@ -54,11 +56,42 @@ export default {
         logger.warn(`Failed to clean up reaction role data for deleted message ${message.id}:`, reactionRoleCleanupError);
       }
 
+      // Snipe: guardar último mensaje borrado del canal (sin bots, solo texto)
+      try {
+        if (message.author && !message.author.bot && message.channel?.id) {
+          // Opcional: no snippear mensajes de staff si el autor tiene el rol
+          // (pedido: ignorar staff). Si partial message no tiene member, intentamos cache.
+          let esStaff = false;
+          try {
+            const member =
+              message.member ||
+              (await message.guild.members.fetch(message.author.id).catch(() => null));
+            esStaff = member?.roles?.cache?.has(ROLE_STAFF) || false;
+          } catch {}
+
+          if (!esStaff) {
+            const content = message.content
+              ? message.content.slice(0, 1900)
+              : '';
+            if (content.trim().length > 0) {
+              guardarSnipe(message.channel.id, {
+                content,
+                authorId: message.author.id,
+                authorTag: message.author.tag,
+                authorAvatar: message.author.displayAvatarURL?.({ size: 64 }) || null,
+                createdAt: message.createdTimestamp || Date.now()
+              });
+            }
+          }
+        }
+      } catch (snipeErr) {
+        logger.warn('No se pudo guardar snipe:', snipeErr.message);
+      }
+
       if (message.author?.bot) return;
 
       const fields = [];
 
-      
       if (message.author) {
         fields.push({
           name: '👤 Author',
@@ -67,18 +100,17 @@ export default {
         });
       }
 
-      
       fields.push({
         name: '💬 Channel',
         value: `${message.channel.toString()} (${message.channel.id})`,
         inline: true
       });
 
-      
       if (message.content) {
-        const content = message.content.length > MAX_LOGGED_MESSAGE_CONTENT_LENGTH 
-          ? message.content.substring(0, MAX_LOGGED_MESSAGE_CONTENT_LENGTH - 3) + '...' 
-          : message.content;
+        const content =
+          message.content.length > MAX_LOGGED_MESSAGE_CONTENT_LENGTH
+            ? message.content.substring(0, MAX_LOGGED_MESSAGE_CONTENT_LENGTH - 3) + '...'
+            : message.content;
         fields.push({
           name: '📝 Content',
           value: content || '*(empty message)*',
@@ -86,21 +118,18 @@ export default {
         });
       }
 
-      
       fields.push({
         name: '🆔 Message ID',
         value: message.id,
         inline: true
       });
 
-      
       fields.push({
         name: '📅 Created',
         value: `<t:${Math.floor(message.createdTimestamp / 1000)}:R>`,
         inline: true
       });
 
-      
       if (message.attachments.size > 0) {
         fields.push({
           name: '📎 Attachments',
@@ -120,7 +149,6 @@ export default {
           fields
         }
       });
-
     } catch (error) {
       logger.error('Error in messageDelete event:', error);
     }
