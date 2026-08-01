@@ -3,6 +3,7 @@ import Staff from '../../../models/Staff.js';
 import StaffLog from '../../../models/StaffLog.js';
 import { getFromDb } from '../../utils/database.js';
 import { obtenerRangoDeUsuario } from '../../utils/rangoStaff.js';
+import { formatearHoras } from '../../utils/formatearTiempo.js';
 
 const ROLE_HIGH_COMMAND = '1528870731629465752';
 
@@ -140,7 +141,7 @@ export default {
                 {
                     name: '📊 Cuota semanal',
                     value:
-                        `• Horas: \`${cuotas.horasServicio || 0}/${cuotas.horasMeta || 3}\`\n` +
+                        `• Horas: \`${formatearHoras(cuotas.horasServicio || 0)} / ${formatearHoras(cuotas.horasMeta || 3)}\`\n` +
                         `• Sesiones host: \`${cuotas.sesionesOrganizadas || 0}/${cuotas.sesionesMeta || 2}\`\n` +
                         `• Supervisadas: \`${cuotas.sesionesSupervisadas || 0}\`\n` +
                         `• Tickets cerrados: \`${cuotas.ticketsCerrados || 0}\``,
@@ -149,7 +150,7 @@ export default {
                 {
                     name: '📈 Histórico total',
                     value:
-                        `• Horas: \`${hist.horasTotales || 0}h\`\n` +
+                        `• Horas: \`${formatearHoras(hist.horasTotales || 0)}\`\n` +
                         `• Sesiones host: \`${hist.sesionesHosteadasTotales || 0}\`\n` +
                         `• Supervisadas: \`${hist.sesionesSupervisadasTotales || 0}\`\n` +
                         `• Tickets: \`${hist.ticketsCerradosTotales || 0}\``,

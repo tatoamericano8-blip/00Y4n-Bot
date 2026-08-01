@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import Staff from '../../../models/Staff.js';
 import { obtenerRangoDeUsuario } from '../../utils/rangoStaff.js';
+import { formatearHoras, formatearHorasProgreso } from '../../utils/formatearTiempo.js';
 
 function crearBarraProgreso(actual, meta, tamaño = 10) {
   if (meta <= 0) meta = 1;
@@ -9,7 +10,7 @@ function crearBarraProgreso(actual, meta, tamaño = 10) {
   const vacio = tamaño - rellenado;
   const barra = '🟩'.repeat(rellenado) + '⬛'.repeat(vacio);
   const porcentajeTexto = Math.floor(porcentaje * 100);
-  return `${barra} **${porcentajeTexto}%** (${actual}/${meta})`;
+  return `${barra} **${porcentajeTexto}%** (${formatearHorasProgreso(actual, meta)})`;
 }
 
 export default {
@@ -39,7 +40,6 @@ export default {
 
     const { cuotas, estadisticasHistoricas, estado, loa } = staffData;
 
-    // Rango real según roles de Discord (el más alto)
     const { rango } = await obtenerRangoDeUsuario(
       interaction.guild,
       usuarioObjetivo.id,
@@ -51,7 +51,9 @@ export default {
     else if (estado === 'DESPEDIDO') estadoTexto = '🔴 **Despedido**';
     else if (estado === 'RENUNCIADO') estadoTexto = '⚪ **Renunciado**';
 
-    const barraHoras = crearBarraProgreso(cuotas.horasServicio || 0, cuotas.horasMeta || 3);
+    const horasSemana = cuotas.horasServicio || 0;
+    const horasMeta = cuotas.horasMeta || 3;
+    const barraHoras = crearBarraProgreso(horasSemana, horasMeta);
     const barraSesiones = crearBarraProgreso(cuotas.sesionesOrganizadas || 0, cuotas.sesionesMeta || 2);
 
     const embed = new EmbedBuilder()
@@ -87,7 +89,7 @@ export default {
         {
           name: '📈 Histórico Total Acumulado',
           value:
-            `> ⏱️ **Horas Totales:** ${estadisticasHistoricas?.horasTotales || 0}h\n` +
+            `> ⏱️ **Horas Totales:** ${formatearHoras(estadisticasHistoricas?.horasTotales || 0)}\n` +
             `> 🚗 **Sesiones Organizadas:** ${estadisticasHistoricas?.sesionesHosteadasTotales || 0}\n` +
             `> 👁️ **Sesiones Supervisadas:** ${estadisticasHistoricas?.sesionesSupervisadasTotales || 0}\n` +
             `> 🎫 **Tickets Cerrados:** ${estadisticasHistoricas?.ticketsCerradosTotales || 0}`,

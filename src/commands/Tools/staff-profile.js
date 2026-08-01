@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 import Staff from '../../../models/Staff.js';
 import { obtenerRangoDeUsuario } from '../../utils/rangoStaff.js';
+import { formatearHoras } from '../../utils/formatearTiempo.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -55,7 +56,7 @@ export default {
                     name: '📊 Cuota Semanal Actual',
                     value:
                         `> **Sesiones Hosteadas:** \`${c.sesionesOrganizadas || 0} / ${c.sesionesMeta || 2}\`\n` +
-                        `> **Horas de Servicio:** \`${c.horasServicio || 0}h / ${c.horasMeta || 3}h\`\n` +
+                        `> **Horas de Servicio:** \`${formatearHoras(c.horasServicio || 0)} / ${formatearHoras(c.horasMeta || 3)}\`\n` +
                         `> **Supervisadas:** \`${c.sesionesSupervisadas || 0}\`\n` +
                         `> **Tickets cerrados:** \`${c.ticketsCerrados || 0}\``,
                     inline: true
@@ -64,7 +65,7 @@ export default {
                     name: '📈 Acumulado Histórico',
                     value:
                         `> **Sesiones Totales:** \`${h.sesionesHosteadasTotales || 0}\`\n` +
-                        `> **Horas Totales:** \`${h.horasTotales || 0}h\`\n` +
+                        `> **Horas Totales:** \`${formatearHoras(h.horasTotales || 0)}\`\n` +
                         `> **Supervisadas:** \`${h.sesionesSupervisadasTotales || 0}\`\n` +
                         `> **Tickets totales:** \`${h.ticketsCerradosTotales || 0}\``,
                     inline: true
