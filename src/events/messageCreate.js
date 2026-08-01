@@ -1,6 +1,6 @@
 import { Events, EmbedBuilder } from 'discord.js';
 import { logger } from '../utils/logger.js';
-import { getFromDb, setInDb } from '../utils/database.js';
+import { getFromDb, setInDb, db } from '../utils/database.js';
 
 export default {
   name: Events.MessageCreate,
@@ -25,6 +25,16 @@ export default {
       if (!listaUsuarios.includes(message.author.id)) {
         listaUsuarios.push(message.author.id);
         await setInDb(claveListaUsuarios, listaUsuarios);
+      }
+
+      // -------------------------------------------------------------
+      // 🏆 1.1 CONTADOR TOTAL DE MENSAJES (para /tabla_posiciones)
+      // -------------------------------------------------------------
+      try {
+        const claveMensajesTotales = `mensajes_totales:${message.guild.id}:${message.author.id}`;
+        await db.increment(claveMensajesTotales, 1);
+      } catch (error) {
+        logger.error('Error al incrementar el contador de mensajes totales:', error);
       }
 
       // Normalizamos el texto (quita tildes y pasa todo a minúsculas)
