@@ -1,6 +1,7 @@
 import { Events } from 'discord.js';
 import { logger } from '../utils/logger.js';
-import { getFromDb, setInDb } from '../utils/database.js';
+import { getFromDb, setInDb, db } from '../utils/database.js';
+import Sesion from '../../models/Session.js';
 
 export default {
   name: Events.MessageReactionAdd,
@@ -35,6 +36,25 @@ export default {
       if (!listaUsuarios.includes(user.id)) {
         listaUsuarios.push(user.id);
         await setInDb(claveListaUsuarios, listaUsuarios);
+      }
+
+      // -------------------------------------------------------------
+      // 🚗 TRACKING DE REACCIONES EN SESIONES (para /tabla_posiciones)
+      // Cuenta cada reacción hecha sobre un mensaje de /inicio_swfl,
+      // para saber quién reacciona más para unirse a las sesiones.
+      // -------------------------------------------------------------
+      try {
+        const sesion = await Sesion.findOne({
+          idInicio: reaction.message.id,
+          guildId: reaction.message.guild.id
+        }).lean();
+
+        if (sesion) {
+          const claveReaccionesSesion = `reacciones_sesiones:${reaction.message.guild.id}:${user.id}`;
+          await db.increment(claveReaccionesSesion, 1);
+        }
+      } catch (error) {
+        logger.error('Error al trackear reacción en mensaje de sesión:', error);
       }
 
     } catch (error) {
