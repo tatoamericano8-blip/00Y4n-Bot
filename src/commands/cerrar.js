@@ -22,7 +22,7 @@ function parsearDuracionAHoras(textoDuracion) {
 export default {
     data: {
         name: 'cerrar_swfl',
-        description: 'Cierra oficialmente la sesión de SWFL, elimina avisos de las últimas 2hs y muestra el resumen.',
+        description: 'Cierra oficialmente la sesión de SWFL, elimina avisos de las últimas 4hs y muestra el resumen.',
         options: [
             {
                 name: 'tipo',
@@ -76,7 +76,6 @@ export default {
         let sesionActiva = null;
 
         try {
-            // Buscar sesión activa o en espera (la más reciente)
             sesionActiva = await Session.findOneAndUpdate(
                 {
                     guildId,
@@ -90,12 +89,10 @@ export default {
                 { sort: { fechaInicio: -1 }, new: true }
             );
 
-            // Host que cierra (quien ejecuta el comando) o el host registrado en la sesión
             const hostId = sesionActiva?.hostId || interaction.user.id;
             const supervisorId = sesionActiva?.supervisorId || null;
             const coHostId = sesionActiva?.coHostId || null;
 
-            // Auto-cuota HOST
             await sumarCuotaStaff(guildId, hostId, {
                 horas: horasCalculadas,
                 sesionesOrganizadas: 1,
@@ -103,7 +100,6 @@ export default {
                 executorId: interaction.user.id
             });
 
-            // Auto-cuota CO-HOST (media sesión si es distinto del host)
             if (coHostId && coHostId !== hostId) {
                 await sumarCuotaStaff(guildId, coHostId, {
                     horas: Number((horasCalculadas * 0.5).toFixed(2)),
@@ -113,7 +109,6 @@ export default {
                 });
             }
 
-            // Auto-cuota SUPERVISOR
             if (supervisorId && supervisorId !== hostId) {
                 await sumarCuotaStaff(guildId, supervisorId, {
                     sesionesSupervisadas: 1,
@@ -144,16 +139,37 @@ export default {
             console.error('Error actualizando la base de datos en /cerrar_swfl:', dbError);
         }
 
-        // Limpieza de mensajes (últimas 2 horas)
+        // Limpieza de mensajes (últimas 4 horas)
+        // Discord solo permite bulkDelete de mensajes con menos de 14 días
         try {
-            const dosHorasAtras = Date.now() - 2 * 60 * 60 * 1000;
-            const mensajes = await interaction.channel.messages.fetch({ limit: 100 });
-            const mensajesAEliminar = mensajes.filter(
-                msg => msg.createdTimestamp >= dosHorasAtras && !msg.pinned
-            );
-            if (mensajesAEliminar.size > 0) {
-                await interaction.channel.bulkDelete(mensajesAEliminar, true);
+            const cuatroHorasAtras = Date.now() - 4 * 60 * 60 * 1000;
+            let eliminados = 0;
+            let lastId = undefined;
+
+            // Hasta 3 pasadas de 100 mensajes para cubrir sesiones largas
+            for (let i = 0; i < 3; i++) {
+                const mensajes = await interaction.channel.messages.fetch({
+                    limit: 100,
+                    ...(lastId ? { before: lastId } : {})
+                });
+                if (mensajes.size === 0) break;
+
+                lastId = mensajes.last()?.id;
+                const aEliminar = mensajes.filter(
+                    msg => msg.createdTimestamp >= cuatroHorasAtras && !msg.pinned
+                );
+
+                if (aEliminar.size > 0) {
+                    const borrados = await interaction.channel.bulkDelete(aEliminar, true);
+                    eliminados += borrados.size;
+                }
+
+                // Si el mensaje más viejo del batch ya es anterior a 4h, paramos
+                const oldest = mensajes.last();
+                if (oldest && oldest.createdTimestamp < cuatroHorasAtras) break;
             }
+
+            console.log(`[cerrar_swfl] Mensajes eliminados (últimas 4h): ${eliminados}`);
         } catch (error) {
             console.error('Error al purgar mensajes en /cerrar_swfl:', error);
         }
