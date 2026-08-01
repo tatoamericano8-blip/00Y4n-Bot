@@ -238,6 +238,7 @@ export default {
             new ButtonBuilder()
                 .setCustomId('abrir_feedback_swfl')
                 .setLabel('Opinión de la Sesión')
+                .setEmoji('1523041319046479964')
                 .setStyle(ButtonStyle.Secondary)
         );
 
