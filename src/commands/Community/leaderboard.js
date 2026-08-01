@@ -17,38 +17,55 @@ const LEADERBOARD_CATEGORIES = {
     emoji: '💰',
     icon: '💸',
     fetch: async (client, guildId) => {
-      const prefix = `guild:${guildId}:economy:`;
-      let keys = await client.db.list(prefix);
+      try {
+        const prefix = `economy:`;
+        let allKeys = [];
 
-      if (!Array.isArray(keys)) {
-        if (typeof keys === 'object' && keys !== null) {
-          keys = Object.keys(keys).filter(key => key.startsWith(prefix));
-        } else {
+        // Intentar obtener desde Redis/in-memory DB
+        if (client.db && typeof client.db.list === 'function') {
+          try {
+            let keys = await client.db.list(prefix);
+            if (!Array.isArray(keys)) {
+              if (typeof keys === 'object' && keys !== null) {
+                keys = Object.keys(keys).filter(key => key.startsWith(prefix));
+              } else {
+                keys = [];
+              }
+            }
+            allKeys = keys;
+          } catch (e) {
+            logger.debug('Redis economy list failed:', e.message);
+          }
+        }
+
+        if (allKeys.length === 0) {
           return [];
         }
+
+        const userDataPromises = allKeys.map(async (key) => {
+          try {
+            const data = await client.db.get(key);
+            if (!data) return null;
+
+            return {
+              userId: key.replace(prefix, ''),
+              value: data.wallet || 0,
+              displayValue: `$${(data.wallet || 0).toLocaleString()}`,
+              secondary: `Banco: $${(data.bank || 0).toLocaleString()}`,
+            };
+          } catch (error) {
+            logger.debug(`Error processing economy leaderboard key ${key}:`, error);
+            return null;
+          }
+        });
+
+        const userData = (await Promise.all(userDataPromises)).filter(Boolean);
+        userData.sort((a, b) => b.value - a.value);
+        return userData;
+      } catch (error) {
+        logger.error('Error fetching economy leaderboard:', error);
+        return [];
       }
-
-      const userDataPromises = keys.map(async (key) => {
-        try {
-          const userId = key.replace(prefix, '');
-          const data = await client.db.get(key);
-          if (!data) return null;
-
-          return {
-            userId,
-            value: data.wallet || 0,
-            displayValue: `$${(data.wallet || 0).toLocaleString()}`,
-            secondary: `Banco: $${(data.bank || 0).toLocaleString()}`,
-          };
-        } catch (error) {
-          logger.debug(`Error processing economy leaderboard key ${key}:`, error);
-          return null;
-        }
-      });
-
-      const userData = (await Promise.all(userDataPromises)).filter(Boolean);
-      userData.sort((a, b) => b.value - a.value);
-      return userData;
     },
   },
 
@@ -58,37 +75,54 @@ const LEADERBOARD_CATEGORIES = {
     emoji: '😊',
     icon: '👍',
     fetch: async (client, guildId) => {
-      const prefix = `guild:${guildId}:reactions:`;
-      let keys = await client.db.list(prefix);
+      try {
+        const prefix = `guild:${guildId}:reactions:`;
+        let allKeys = [];
 
-      if (!Array.isArray(keys)) {
-        if (typeof keys === 'object' && keys !== null) {
-          keys = Object.keys(keys).filter(key => key.startsWith(prefix));
-        } else {
+        if (client.db && typeof client.db.list === 'function') {
+          try {
+            let keys = await client.db.list(prefix);
+            if (!Array.isArray(keys)) {
+              if (typeof keys === 'object' && keys !== null) {
+                keys = Object.keys(keys).filter(key => key.startsWith(prefix));
+              } else {
+                keys = [];
+              }
+            }
+            allKeys = keys;
+          } catch (e) {
+            logger.debug('Redis reactions list failed:', e.message);
+          }
+        }
+
+        if (allKeys.length === 0) {
           return [];
         }
+
+        const userDataPromises = allKeys.map(async (key) => {
+          try {
+            const userId = key.replace(prefix, '');
+            const data = await client.db.get(key);
+            if (!data) return null;
+
+            return {
+              userId,
+              value: data.totalReactions || 0,
+              displayValue: `${(data.totalReactions || 0).toLocaleString()} reacciones`,
+            };
+          } catch (error) {
+            logger.debug(`Error processing reactions leaderboard key ${key}:`, error);
+            return null;
+          }
+        });
+
+        const userData = (await Promise.all(userDataPromises)).filter(Boolean);
+        userData.sort((a, b) => b.value - a.value);
+        return userData;
+      } catch (error) {
+        logger.error('Error fetching reactions leaderboard:', error);
+        return [];
       }
-
-      const userDataPromises = keys.map(async (key) => {
-        try {
-          const userId = key.replace(prefix, '');
-          const data = await client.db.get(key);
-          if (!data) return null;
-
-          return {
-            userId,
-            value: data.totalReactions || 0,
-            displayValue: `${(data.totalReactions || 0).toLocaleString()} reacciones`,
-          };
-        } catch (error) {
-          logger.debug(`Error processing reactions leaderboard key ${key}:`, error);
-          return null;
-        }
-      });
-
-      const userData = (await Promise.all(userDataPromises)).filter(Boolean);
-      userData.sort((a, b) => b.value - a.value);
-      return userData;
     },
   },
 
@@ -98,37 +132,54 @@ const LEADERBOARD_CATEGORIES = {
     emoji: '💬',
     icon: '📝',
     fetch: async (client, guildId) => {
-      const prefix = `guild:${guildId}:messages:`;
-      let keys = await client.db.list(prefix);
+      try {
+        const prefix = `guild:${guildId}:messages:`;
+        let allKeys = [];
 
-      if (!Array.isArray(keys)) {
-        if (typeof keys === 'object' && keys !== null) {
-          keys = Object.keys(keys).filter(key => key.startsWith(prefix));
-        } else {
+        if (client.db && typeof client.db.list === 'function') {
+          try {
+            let keys = await client.db.list(prefix);
+            if (!Array.isArray(keys)) {
+              if (typeof keys === 'object' && keys !== null) {
+                keys = Object.keys(keys).filter(key => key.startsWith(prefix));
+              } else {
+                keys = [];
+              }
+            }
+            allKeys = keys;
+          } catch (e) {
+            logger.debug('Redis messages list failed:', e.message);
+          }
+        }
+
+        if (allKeys.length === 0) {
           return [];
         }
+
+        const userDataPromises = allKeys.map(async (key) => {
+          try {
+            const userId = key.replace(prefix, '');
+            const data = await client.db.get(key);
+            if (!data) return null;
+
+            return {
+              userId,
+              value: data.messageCount || 0,
+              displayValue: `${(data.messageCount || 0).toLocaleString()} mensajes`,
+            };
+          } catch (error) {
+            logger.debug(`Error processing messages leaderboard key ${key}:`, error);
+            return null;
+          }
+        });
+
+        const userData = (await Promise.all(userDataPromises)).filter(Boolean);
+        userData.sort((a, b) => b.value - a.value);
+        return userData;
+      } catch (error) {
+        logger.error('Error fetching messages leaderboard:', error);
+        return [];
       }
-
-      const userDataPromises = keys.map(async (key) => {
-        try {
-          const userId = key.replace(prefix, '');
-          const data = await client.db.get(key);
-          if (!data) return null;
-
-          return {
-            userId,
-            value: data.messageCount || 0,
-            displayValue: `${(data.messageCount || 0).toLocaleString()} mensajes`,
-          };
-        } catch (error) {
-          logger.debug(`Error processing messages leaderboard key ${key}:`, error);
-          return null;
-        }
-      });
-
-      const userData = (await Promise.all(userDataPromises)).filter(Boolean);
-      userData.sort((a, b) => b.value - a.value);
-      return userData;
     },
   },
 
@@ -138,37 +189,54 @@ const LEADERBOARD_CATEGORIES = {
     emoji: '⚠️',
     icon: '🚨',
     fetch: async (client, guildId) => {
-      const prefix = `guild:${guildId}:warnings:`;
-      let keys = await client.db.list(prefix);
+      try {
+        const prefix = `guild:${guildId}:warnings:`;
+        let allKeys = [];
 
-      if (!Array.isArray(keys)) {
-        if (typeof keys === 'object' && keys !== null) {
-          keys = Object.keys(keys).filter(key => key.startsWith(prefix));
-        } else {
+        if (client.db && typeof client.db.list === 'function') {
+          try {
+            let keys = await client.db.list(prefix);
+            if (!Array.isArray(keys)) {
+              if (typeof keys === 'object' && keys !== null) {
+                keys = Object.keys(keys).filter(key => key.startsWith(prefix));
+              } else {
+                keys = [];
+              }
+            }
+            allKeys = keys;
+          } catch (e) {
+            logger.debug('Redis warnings list failed:', e.message);
+          }
+        }
+
+        if (allKeys.length === 0) {
           return [];
         }
+
+        const userDataPromises = allKeys.map(async (key) => {
+          try {
+            const userId = key.replace(prefix, '');
+            const data = await client.db.get(key);
+            if (!data) return null;
+
+            return {
+              userId,
+              value: data.count || 0,
+              displayValue: `${(data.count || 0).toLocaleString()} advertencias`,
+            };
+          } catch (error) {
+            logger.debug(`Error processing warnings leaderboard key ${key}:`, error);
+            return null;
+          }
+        });
+
+        const userData = (await Promise.all(userDataPromises)).filter(Boolean);
+        userData.sort((a, b) => b.value - a.value);
+        return userData;
+      } catch (error) {
+        logger.error('Error fetching warnings leaderboard:', error);
+        return [];
       }
-
-      const userDataPromises = keys.map(async (key) => {
-        try {
-          const userId = key.replace(prefix, '');
-          const data = await client.db.get(key);
-          if (!data) return null;
-
-          return {
-            userId,
-            value: data.count || 0,
-            displayValue: `${(data.count || 0).toLocaleString()} advertencias`,
-          };
-        } catch (error) {
-          logger.debug(`Error processing warnings leaderboard key ${key}:`, error);
-          return null;
-        }
-      });
-
-      const userData = (await Promise.all(userDataPromises)).filter(Boolean);
-      userData.sort((a, b) => b.value - a.value);
-      return userData;
     },
   },
 
@@ -178,38 +246,55 @@ const LEADERBOARD_CATEGORIES = {
     emoji: '⭐',
     icon: '✨',
     fetch: async (client, guildId) => {
-      const prefix = `guild:${guildId}:leveling:users:`;
-      let keys = await client.db.list(prefix);
+      try {
+        const prefix = `guild:${guildId}:leveling:users:`;
+        let allKeys = [];
 
-      if (!Array.isArray(keys)) {
-        if (typeof keys === 'object' && keys !== null) {
-          keys = Object.keys(keys).filter(key => key.startsWith(prefix));
-        } else {
+        if (client.db && typeof client.db.list === 'function') {
+          try {
+            let keys = await client.db.list(prefix);
+            if (!Array.isArray(keys)) {
+              if (typeof keys === 'object' && keys !== null) {
+                keys = Object.keys(keys).filter(key => key.startsWith(prefix));
+              } else {
+                keys = [];
+              }
+            }
+            allKeys = keys;
+          } catch (e) {
+            logger.debug('Redis xp list failed:', e.message);
+          }
+        }
+
+        if (allKeys.length === 0) {
           return [];
         }
+
+        const userDataPromises = allKeys.map(async (key) => {
+          try {
+            const userId = key.replace(prefix, '');
+            const data = await client.db.get(key);
+            if (!data) return null;
+
+            return {
+              userId,
+              value: data.totalXp || 0,
+              displayValue: `${(data.totalXp || 0).toLocaleString()} XP`,
+              secondary: `Nivel ${data.level || 0}`,
+            };
+          } catch (error) {
+            logger.debug(`Error processing xp leaderboard key ${key}:`, error);
+            return null;
+          }
+        });
+
+        const userData = (await Promise.all(userDataPromises)).filter(Boolean);
+        userData.sort((a, b) => b.value - a.value);
+        return userData;
+      } catch (error) {
+        logger.error('Error fetching xp leaderboard:', error);
+        return [];
       }
-
-      const userDataPromises = keys.map(async (key) => {
-        try {
-          const userId = key.replace(prefix, '');
-          const data = await client.db.get(key);
-          if (!data) return null;
-
-          return {
-            userId,
-            value: data.totalXp || 0,
-            displayValue: `${(data.totalXp || 0).toLocaleString()} XP`,
-            secondary: `Nivel ${data.level || 0}`,
-          };
-        } catch (error) {
-          logger.debug(`Error processing xp leaderboard key ${key}:`, error);
-          return null;
-        }
-      });
-
-      const userData = (await Promise.all(userDataPromises)).filter(Boolean);
-      userData.sort((a, b) => b.value - a.value);
-      return userData;
     },
   },
 };
