@@ -1,12 +1,10 @@
-import { getFromDb, setInDb } from './database.js'; // Ajusta la ruta si es necesario
+import { getFromDb, setInDb } from './database.js';
 import mongoose from 'mongoose';
+import { registrarMovimiento } from './gestorAuditoriaFinanciera.js';
 
 export const cooldownsWork = new Map();
-export const saldosDB = new Map(); // Variable de compatibilidad
+export const saldosDB = new Map();
 
-/**
- * Obtener el saldo de un usuario desde la Base de Datos
- */
 export async function obtenerSaldo(usuarioId) {
     const key = `economy:${usuarioId}`;
     const saldo = await getFromDb(key, 0);
@@ -14,40 +12,58 @@ export async function obtenerSaldo(usuarioId) {
 }
 
 /**
- * Agregar saldo a un usuario
+ * Agregar saldo. meta opcional: { tipo, motivo, executorId }
  */
-export async function agregarSaldo(usuarioId, cantidad) {
+export async function agregarSaldo(usuarioId, cantidad, meta = {}) {
     const saldoActual = await obtenerSaldo(usuarioId);
     const monto = Number(cantidad) || 0;
     const nuevoSaldo = saldoActual + monto;
     const key = `economy:${usuarioId}`;
     await setInDb(key, nuevoSaldo);
+
+    if (monto !== 0) {
+        await registrarMovimiento({
+            usuarioId,
+            tipo: meta.tipo || 'INGRESO',
+            monto,
+            saldoAnterior: saldoActual,
+            saldoNuevo: nuevoSaldo,
+            motivo: meta.motivo || '',
+            executorId: meta.executorId || null
+        });
+    }
     return nuevoSaldo;
 }
 
 /**
- * Restar saldo a un usuario (evitando saldos negativos)
+ * Restar saldo. meta opcional: { tipo, motivo, executorId }
  */
-export async function restarSaldo(usuarioId, cantidad) {
+export async function restarSaldo(usuarioId, cantidad, meta = {}) {
     const saldoActual = await obtenerSaldo(usuarioId);
     const monto = Number(cantidad) || 0;
     const nuevoSaldo = Math.max(0, saldoActual - monto);
+    const real = saldoActual - nuevoSaldo;
     const key = `economy:${usuarioId}`;
     await setInDb(key, nuevoSaldo);
+
+    if (real !== 0) {
+        await registrarMovimiento({
+            usuarioId,
+            tipo: meta.tipo || 'EGRESO',
+            monto: -real,
+            saldoAnterior: saldoActual,
+            saldoNuevo: nuevoSaldo,
+            motivo: meta.motivo || '',
+            executorId: meta.executorId || null
+        });
+    }
     return nuevoSaldo;
 }
 
-/**
- * Reiniciar por completo toda la economía a $0
- */
 export async function resetearTodaLaEconomia() {
     try {
-        // 1. Limpiar memoria local
         saldosDB.clear();
-
-        // 2. Borrar datos en MongoDB de forma segura
         if (mongoose.connection && mongoose.connection.readyState === 1) {
-            // Intentar borrar en todos los modelos cargados de Mongoose
             for (const modelName of Object.keys(mongoose.models)) {
                 try {
                     await mongoose.models[modelName].deleteMany({
@@ -56,12 +72,8 @@ export async function resetearTodaLaEconomia() {
                             { _id: { $regex: '^economy:' } }
                         ]
                     });
-                } catch (e) {
-                    // Ignorar modelos que no compartan este esquema
-                }
+                } catch (e) {}
             }
-
-            // Intentar borrar directamente en las colecciones nativas de la BD
             if (mongoose.connection.db) {
                 const collections = await mongoose.connection.db.collections().catch(() => []);
                 for (const col of collections) {
@@ -72,9 +84,7 @@ export async function resetearTodaLaEconomia() {
                                 { _id: { $regex: '^economy:' } }
                             ]
                         });
-                    } catch (e) {
-                        // Ignorar errores de índices o colecciones del sistema
-                    }
+                    } catch (e) {}
                 }
             }
         }
