@@ -1,4 +1,5 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
+import Session from '../../../models/Session.js';
 
 export default {
     data: {
@@ -15,17 +16,28 @@ export default {
     },
 
     async execute(interaction) {
-        // Determinamos quién es el supervisor (el mencionado o el que escribió el comando)
         const supervisor = interaction.options.getUser('supervisor') || interaction.user;
 
-        // Creamos el embed minimalista, traducido y con tu color celestito
+        // Guardar supervisor en la sesión activa del servidor para auto-cuota al cerrar
+        try {
+            await Session.findOneAndUpdate(
+                {
+                    guildId: interaction.guildId,
+                    estado: { $in: ['esperando_reacciones', 'activa'] }
+                },
+                { supervisorId: supervisor.id },
+                { sort: { fechaInicio: -1 } }
+            );
+        } catch (err) {
+            console.error('Error guardando supervisor en sesión:', err);
+        }
+
         const embedSupervision = new EmbedBuilder()
             .setDescription(`<a:flecha:1523027371735777503> <@${supervisor.id}> está **supervisando** la sesión.`)
             .setColor('#74d4fc');
 
-        // Enviamos el mensaje
-        await interaction.reply({ 
-            embeds: [embedSupervision] 
+        await interaction.reply({
+            embeds: [embedSupervision]
         });
     }
 };

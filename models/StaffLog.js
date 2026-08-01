@@ -2,10 +2,22 @@ import mongoose from 'mongoose';
 
 const staffLogSchema = new mongoose.Schema({
   guildId: { type: String, required: true },
-  tipo: { 
-    type: String, 
-    enum: ['STRIKE_ADD', 'STRIKE_REMOVE', 'DESPIDO', 'RENUNCIA', 'LOA_INICIO', 'LOA_FIN', 'HANDPICK', 'PREMIO', 'SESION_LOG'], 
-    required: true 
+  tipo: {
+    type: String,
+    enum: [
+      'STRIKE_ADD',
+      'STRIKE_REMOVE',
+      'DESPIDO',
+      'RENUNCIA',
+      'LOA_INICIO',
+      'LOA_FIN',
+      'HANDPICK',
+      'PREMIO',
+      'SESION_LOG',
+      'CUOTA_RESET',
+      'TICKET_CERRADO'
+    ],
+    required: true
   },
   targetUserId: { type: String, required: true },
   executorId: { type: String, required: true },

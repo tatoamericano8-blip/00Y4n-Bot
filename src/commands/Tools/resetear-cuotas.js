@@ -14,7 +14,6 @@ export default {
     const guildId = interaction.guild.id;
 
     try {
-      // Buscar todo el staff con cuotas activas
       const listaStaff = await Staff.find({ guildId });
 
       if (!listaStaff || listaStaff.length === 0) {
@@ -23,25 +22,25 @@ export default {
         });
       }
 
-      // Reiniciar las cuotas semanales a 0 para todos
       const resultado = await Staff.updateMany(
         { guildId },
         {
           $set: {
             'cuotas.horasServicio': 0,
             'cuotas.sesionesOrganizadas': 0,
-            'cuotas.sesionesSupervisadas': 0
+            'cuotas.sesionesSupervisadas': 0,
+            'cuotas.ticketsCerrados': 0
           }
         }
       );
 
-      // Auditoría en StaffLog
       await StaffLog.create({
         guildId,
         tipo: 'CUOTA_RESET',
+        targetUserId: interaction.user.id,
         executorId: interaction.user.id,
         detalles: {
-          motivo: 'Reinicio semanal automático/manual de cuotas',
+          motivo: 'Reinicio semanal de cuotas',
           usuariosAfectados: resultado.modifiedCount
         }
       });
@@ -51,7 +50,7 @@ export default {
         .setColor(0x3498DB)
         .setDescription(
           `Se han reseteado con éxito las cuotas semanales de **${resultado.modifiedCount}** miembros del Staff.\n\n` +
-          `*Las estadísticas históricas acumuladas se mantienen intactas.*`
+            `*Las estadísticas históricas acumuladas se mantienen intactas.*`
         )
         .setFooter({ text: `Ejecutado por ${interaction.user.tag}` })
         .setTimestamp();

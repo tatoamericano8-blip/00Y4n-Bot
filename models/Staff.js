@@ -11,7 +11,6 @@ const staffSchema = new mongoose.Schema(
       default: 'ACTIVO'
     },
 
-    // Historial de Sanciones / Strikes
     strikes: [
       {
         idStrike: { type: String, required: true },
@@ -25,7 +24,6 @@ const staffSchema = new mongoose.Schema(
       }
     ],
 
-    // Permisos de Ausencia (LOA)
     loa: {
       activo: { type: Boolean, default: false },
       inicio: Date,
@@ -41,7 +39,6 @@ const staffSchema = new mongoose.Schema(
       ]
     },
 
-    // Premios y Condecoraciones
     premios: [
       {
         titulo: String,
@@ -51,23 +48,22 @@ const staffSchema = new mongoose.Schema(
       }
     ],
 
-    // Cuota Semanal Actual
     cuotas: {
       horasServicio: { type: Number, default: 0 },
       sesionesOrganizadas: { type: Number, default: 0 },
       sesionesSupervisadas: { type: Number, default: 0 },
+      ticketsCerrados: { type: Number, default: 0 },
       horasMeta: { type: Number, default: 3 },
       sesionesMeta: { type: Number, default: 2 }
     },
 
-    // Estadísticas Históricas Acumuladas
     estadisticasHistoricas: {
       horasTotales: { type: Number, default: 0 },
       sesionesHosteadasTotales: { type: Number, default: 0 },
-      sesionesSupervisadasTotales: { type: Number, default: 0 }
+      sesionesSupervisadasTotales: { type: Number, default: 0 },
+      ticketsCerradosTotales: { type: Number, default: 0 }
     },
 
-    // Fechas Clave de Auditoría
     ingreso: { type: Date, default: Date.now },
     despido: {
       fecha: Date,
@@ -83,7 +79,6 @@ const staffSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Índice compuesto único por usuario y servidor
 staffSchema.index({ guildId: 1, userId: 1 }, { unique: true });
 
 export default mongoose.model('Staff', staffSchema);
