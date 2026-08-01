@@ -105,6 +105,7 @@ export default {
 
             await Historial.create({
                 evento: 'STARTUP_INICIADO',
+                idInicio: msg.id,      // 👈 agregar
                 mensajeId: msg.id,
                 hostId: interaction.user.id,
                 hostTag: interaction.user.tag,
