@@ -15,8 +15,8 @@ import Staff from '../../../models/Staff.js';
 // -------------------------------------------------------------------
 const CATEGORIAS = {
     economia: {
-        label: '💰 Economía',
-        emoji: '💰',
+        label: '<:gift:1523041327950856334> Economía',
+        emoji: '1523041327950856334',
         async fetch() {
             // ⚠️ El saldo se guarda como economy:{userId} SIN guildId,
             // por lo que este top es global (no exclusivo de este servidor).
@@ -34,8 +34,8 @@ const CATEGORIAS = {
     },
 
     mensajes: {
-        label: '💬 Mensajes Totales',
-        emoji: '💬',
+        label: '<:msj:1523041309139533954> Mensajes Totales',
+        emoji: '1523041309139533954',
         async fetch(guildId) {
             const prefix = `mensajes_totales:${guildId}:`;
             const keys = await db.list(prefix);
@@ -52,8 +52,8 @@ const CATEGORIAS = {
     },
 
     reacciones_sesiones: {
-        label: '🙋 Reacciones en Sesiones',
-        emoji: '🙋',
+        label: '<:tilde:1524936452574806076> Reacciones en Sesiones',
+        emoji: '1524936452574806076',
         async fetch(guildId) {
             const prefix = `reacciones_sesiones:${guildId}:`;
             const keys = await db.list(prefix);
@@ -70,8 +70,8 @@ const CATEGORIAS = {
     },
 
     sesiones_hosteadas: {
-        label: '🎬 Sesiones Hosteadas (Staff)',
-        emoji: '🎬',
+        label: '<:staff:1523027764104659144> Sesiones Hosteadas (Staff)',
+        emoji: '1523027764104659144',
         async fetch(guildId) {
             const staff = await Staff.find({ guildId }).lean();
             return staff
@@ -85,8 +85,8 @@ const CATEGORIAS = {
     },
 
     horas_servicio: {
-        label: '⏱️ Horas de Servicio (Staff)',
-        emoji: '⏱️',
+        label: '<:reloj:1532127960939888700> Horas de Servicio (Staff)',
+        emoji: '1532127960939888700',
         async fetch(guildId) {
             const staff = await Staff.find({ guildId }).lean();
             return staff
@@ -144,7 +144,7 @@ function construirMenu(categoriaActual) {
 
 export default {
     data: {
-        name: 'tabla_posiciones',
+        name: 'tabla-posiciones',
         description: 'Muestra la tabla de posiciones (leaderboard) del servidor.',
         options: [
             {
