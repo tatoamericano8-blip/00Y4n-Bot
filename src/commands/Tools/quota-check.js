@@ -3,14 +3,17 @@ import Staff from '../../../models/Staff.js';
 import { obtenerRangoDeUsuario } from '../../utils/rangoStaff.js';
 import { formatearHoras, formatearHorasProgreso } from '../../utils/formatearTiempo.js';
 
-function crearBarraProgreso(actual, meta, tamaño = 10) {
+function crearBarraProgreso(actual, meta, tamaño = 10, formatear = null) {
   if (meta <= 0) meta = 1;
   const porcentaje = Math.min(Math.max(actual / meta, 0), 1);
   const rellenado = Math.round(tamaño * porcentaje);
   const vacio = tamaño - rellenado;
   const barra = '🟩'.repeat(rellenado) + '⬛'.repeat(vacio);
   const porcentajeTexto = Math.floor(porcentaje * 100);
-  return `${barra} **${porcentajeTexto}%** (${formatearHorasProgreso(actual, meta)})`;
+  const textoValores = formatear
+    ? formatear(actual, meta)
+    : `${actual}/${meta}`;
+  return `${barra} **${porcentajeTexto}%** (${textoValores})`;
 }
 
 export default {
@@ -53,8 +56,11 @@ export default {
 
     const horasSemana = cuotas.horasServicio || 0;
     const horasMeta = cuotas.horasMeta || 3;
-    const barraHoras = crearBarraProgreso(horasSemana, horasMeta);
-    const barraSesiones = crearBarraProgreso(cuotas.sesionesOrganizadas || 0, cuotas.sesionesMeta || 2);
+    const barraHoras = crearBarraProgreso(horasSemana, horasMeta, 10, formatearHorasProgreso);
+    const barraSesiones = crearBarraProgreso(
+      cuotas.sesionesOrganizadas || 0,
+      cuotas.sesionesMeta || 2
+    );
 
     const embed = new EmbedBuilder()
       .setTitle(`📊 Registro de Cuota — ${usuarioObjetivo.username}`)
