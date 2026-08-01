@@ -4,6 +4,7 @@ import StaffLog from '../../../models/StaffLog.js';
 import { getFromDb } from '../../utils/database.js';
 import { obtenerRangoDeUsuario } from '../../utils/rangoStaff.js';
 import { formatearHoras } from '../../utils/formatearTiempo.js';
+import { obtenerMetasPorRango, sesionesSemana } from '../../utils/metasCuota.js';
 
 const ROLE_HIGH_COMMAND = '1528870731629465752';
 
@@ -45,6 +46,9 @@ export default {
             targetUser.id,
             staffData.rango || 'Sin rango'
         );
+
+        const metas = obtenerMetasPorRango(rango);
+        const sesActual = sesionesSemana(staffData.cuotas || {});
 
         const listaStrikes =
             staffData.strikes
@@ -123,6 +127,13 @@ export default {
         const cuotas = staffData.cuotas || {};
         const hist = staffData.estadisticasHistoricas || {};
 
+        const sesMetaTxt =
+            metas.sesionesMeta > 0 ? `${sesActual}/${metas.sesionesMeta}` : `${sesActual} (sin meta)`;
+        const tktMetaTxt =
+            metas.ticketsMeta > 0
+                ? `${cuotas.ticketsCerrados || 0}/${metas.ticketsMeta}`
+                : `${cuotas.ticketsCerrados || 0} (sin meta)`;
+
         const embed = new EmbedBuilder()
             .setTitle(`🗄️ Expediente Auditable – ${targetUser.username}`)
             .setColor('#74d4fc')
@@ -141,10 +152,10 @@ export default {
                 {
                     name: '📊 Cuota semanal',
                     value:
-                        `• Horas: \`${formatearHoras(cuotas.horasServicio || 0)} / ${formatearHoras(cuotas.horasMeta || 3)}\`\n` +
-                        `• Sesiones host: \`${cuotas.sesionesOrganizadas || 0}/${cuotas.sesionesMeta || 2}\`\n` +
-                        `• Supervisadas: \`${cuotas.sesionesSupervisadas || 0}\`\n` +
-                        `• Tickets cerrados: \`${cuotas.ticketsCerrados || 0}\``,
+                        `• Sesiones (host+sup): \`${sesMetaTxt}\`\n` +
+                        `• Tickets: \`${tktMetaTxt}\`\n` +
+                        `• Tiempo: \`${formatearHoras(cuotas.horasServicio || 0)}\`\n` +
+                        `• Meta rango: **${metas.etiqueta}**`,
                     inline: true
                 },
                 {

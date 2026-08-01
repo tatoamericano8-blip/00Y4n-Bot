@@ -2,6 +2,7 @@ import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 import Staff from '../../../models/Staff.js';
 import { obtenerRangoDeUsuario } from '../../utils/rangoStaff.js';
 import { formatearHoras } from '../../utils/formatearTiempo.js';
+import { obtenerMetasPorRango, sesionesSemana } from '../../utils/metasCuota.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -32,12 +33,21 @@ export default {
             staffData.rango || 'Sin rango'
         );
 
+        const metas = obtenerMetasPorRango(rango);
+        const sesActual = sesionesSemana(staffData.cuotas || {});
         const strikesActivos = staffData.strikes
             ? staffData.strikes.filter(s => s.activo).length
             : 0;
         const totalPremios = staffData.premios ? staffData.premios.length : 0;
         const c = staffData.cuotas || {};
         const h = staffData.estadisticasHistoricas || {};
+
+        const metaSesTxt =
+            metas.sesionesMeta > 0 ? `${sesActual} / ${metas.sesionesMeta}` : `${sesActual} (sin meta)`;
+        const metaTktTxt =
+            metas.ticketsMeta > 0
+                ? `${c.ticketsCerrados || 0} / ${metas.ticketsMeta}`
+                : `${c.ticketsCerrados || 0} (sin meta)`;
 
         const embedProfile = new EmbedBuilder()
             .setTitle(`👤 Perfil de Staff – ${targetUser.username}`)
@@ -55,10 +65,10 @@ export default {
                 {
                     name: '📊 Cuota Semanal Actual',
                     value:
-                        `> **Sesiones Hosteadas:** \`${c.sesionesOrganizadas || 0} / ${c.sesionesMeta || 2}\`\n` +
-                        `> **Horas de Servicio:** \`${formatearHoras(c.horasServicio || 0)} / ${formatearHoras(c.horasMeta || 3)}\`\n` +
-                        `> **Supervisadas:** \`${c.sesionesSupervisadas || 0}\`\n` +
-                        `> **Tickets cerrados:** \`${c.ticketsCerrados || 0}\``,
+                        `> **Sesiones (host+sup):** \`${metaSesTxt}\`\n` +
+                        `> **Tickets cerrados:** \`${metaTktTxt}\`\n` +
+                        `> **Tiempo de servicio:** \`${formatearHoras(c.horasServicio || 0)}\`\n` +
+                        `> Hosteadas: \`${c.sesionesOrganizadas || 0}\` · Supervisadas: \`${c.sesionesSupervisadas || 0}\``,
                     inline: true
                 },
                 {
@@ -81,7 +91,7 @@ export default {
                     staffData.ingreso
                         ? new Date(staffData.ingreso).toLocaleDateString('es-AR')
                         : 'Sin fecha'
-                }`
+                } • Meta: ${metas.etiqueta}`
             })
             .setTimestamp();
 

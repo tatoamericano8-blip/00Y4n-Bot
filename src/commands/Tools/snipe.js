@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
-import { obtenerSnipe, limpiarSnipe } from '../../utils/gestorSnipe.js';
+import { obtenerSnipe } from '../../utils/gestorSnipe.js';
 
 const ROLE_STAFF = '1512120103771050005';
 const ROLE_HIGH_COMMAND = '1528870731629465752';
@@ -7,7 +7,7 @@ const ROLE_HIGH_COMMAND = '1528870731629465752';
 export default {
   data: new SlashCommandBuilder()
     .setName('snipe')
-    .setDescription('Muestra el último mensaje borrado de este canal.'),
+    .setDescription('Muestra el último mensaje borrado de este canal (solo visible para vos).'),
 
   async execute(interaction) {
     const esStaff =
@@ -42,10 +42,13 @@ export default {
         value: `<#${interaction.channelId}>`,
         inline: true
       })
-      .setFooter({ text: 'Mensaje borrado' })
+      .setFooter({ text: 'Mensaje borrado • Solo vos podés ver esto' })
       .setTimestamp(data.createdAt ? new Date(data.createdAt) : new Date(data.guardadoEn));
 
-    // Un solo uso visual opcional: no limpiamos para permitir re-snipe corto
-    return interaction.reply({ embeds: [embed] });
+    // Efímero: solo lo ve quien ejecutó el comando
+    return interaction.reply({
+      embeds: [embed],
+      flags: MessageFlags.Ephemeral
+    });
   }
 };

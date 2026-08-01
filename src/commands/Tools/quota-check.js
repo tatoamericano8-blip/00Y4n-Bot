@@ -1,19 +1,19 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import Staff from '../../../models/Staff.js';
 import { obtenerRangoDeUsuario } from '../../utils/rangoStaff.js';
-import { formatearHoras, formatearHorasProgreso } from '../../utils/formatearTiempo.js';
+import { formatearHoras } from '../../utils/formatearTiempo.js';
+import { obtenerMetasPorRango, sesionesSemana } from '../../utils/metasCuota.js';
 
-function crearBarraProgreso(actual, meta, tamaño = 10, formatear = null) {
-  if (meta <= 0) meta = 1;
+function crearBarraProgreso(actual, meta, tamaño = 10) {
+  if (!meta || meta <= 0) {
+    return `🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩 **OK** (${actual}/— sin meta)`;
+  }
   const porcentaje = Math.min(Math.max(actual / meta, 0), 1);
   const rellenado = Math.round(tamaño * porcentaje);
   const vacio = tamaño - rellenado;
   const barra = '🟩'.repeat(rellenado) + '⬛'.repeat(vacio);
   const porcentajeTexto = Math.floor(porcentaje * 100);
-  const textoValores = formatear
-    ? formatear(actual, meta)
-    : `${actual}/${meta}`;
-  return `${barra} **${porcentajeTexto}%** (${textoValores})`;
+  return `${barra} **${porcentajeTexto}%** (${actual}/${meta})`;
 }
 
 export default {
@@ -49,18 +49,26 @@ export default {
       staffData.rango || 'Sin rango'
     );
 
+    const metas = obtenerMetasPorRango(rango);
+    const sesActual = sesionesSemana(cuotas);
+    const ticketsActual = cuotas.ticketsCerrados || 0;
+
     let estadoTexto = '🟢 **Activo**';
     if (estado === 'LOA' || loa?.activo) estadoTexto = '🟡 **En Permiso (LOA)**';
     else if (estado === 'DESPEDIDO') estadoTexto = '🔴 **Despedido**';
     else if (estado === 'RENUNCIADO') estadoTexto = '⚪ **Renunciado**';
 
-    const horasSemana = cuotas.horasServicio || 0;
-    const horasMeta = cuotas.horasMeta || 3;
-    const barraHoras = crearBarraProgreso(horasSemana, horasMeta, 10, formatearHorasProgreso);
-    const barraSesiones = crearBarraProgreso(
-      cuotas.sesionesOrganizadas || 0,
-      cuotas.sesionesMeta || 2
-    );
+    const barraSesiones = crearBarraProgreso(sesActual, metas.sesionesMeta);
+    const barraTickets = crearBarraProgreso(ticketsActual, metas.ticketsMeta);
+
+    const detalleMeta =
+      metas.sesionesMeta > 0
+        ? `> Meta de **${metas.etiqueta}**: **${metas.sesionesMeta}** sesiones` +
+          (metas.ticketsMeta > 0
+            ? ` + **${metas.ticketsMeta}** ticket(s) (si hay disponibles)`
+            : '') +
+          '.'
+        : `> **${metas.etiqueta}**: sin cuota mínima obligatoria de rango.`;
 
     const embed = new EmbedBuilder()
       .setTitle(`📊 Registro de Cuota — ${usuarioObjetivo.username}`)
@@ -69,27 +77,32 @@ export default {
       .addFields(
         {
           name: '👤 Información de Staff',
-          value: `> **Rango:** ${rango}\n> **Estado:** ${estadoTexto}`,
+          value: `> **Rango:** ${rango}\n> **Estado:** ${estadoTexto}\n${detalleMeta}`,
           inline: false
         },
         {
-          name: '⏱️ Horas de Servicio Semanales',
-          value: `${barraHoras}`,
+          name: '🚗 Sesiones (host + supervisadas)',
+          value: barraSesiones,
           inline: false
-        },
-        {
-          name: '🚗 Sesiones Organizadas',
-          value: `${barraSesiones}`,
-          inline: false
-        },
-        {
-          name: '👁️ Sesiones Supervisadas',
-          value: `> **${cuotas.sesionesSupervisadas || 0}** sesión(es)`,
-          inline: true
         },
         {
           name: '🎫 Tickets Cerrados (semana)',
-          value: `> **${cuotas.ticketsCerrados || 0}** ticket(s)`,
+          value:
+            metas.ticketsMeta > 0
+              ? barraTickets
+              : `> **${ticketsActual}** ticket(s) · sin meta obligatoria para este rango`,
+          inline: false
+        },
+        {
+          name: '⏱️ Tiempo de servicio (semana)',
+          value: `> **${formatearHoras(cuotas.horasServicio || 0)}** registradas`,
+          inline: true
+        },
+        {
+          name: '📋 Desglose sesiones',
+          value:
+            `> Hosteadas: **${cuotas.sesionesOrganizadas || 0}**\n` +
+            `> Supervisadas: **${cuotas.sesionesSupervisadas || 0}**`,
           inline: true
         },
         {
@@ -103,7 +116,7 @@ export default {
         }
       )
       .setFooter({
-        text: `Solicitado por ${interaction.user.tag}`,
+        text: `Solicitado por ${interaction.user.tag} • Reinicio: Domingos 22:00`,
         iconURL: interaction.user.displayAvatarURL()
       })
       .setTimestamp();
