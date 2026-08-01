@@ -2,10 +2,9 @@ import { Events } from 'discord.js';
 import { logEvent, EVENT_TYPES } from '../services/loggingService.js';
 import { logger } from '../utils/logger.js';
 import { getReactionRoleMessage, deleteReactionRoleMessage } from '../services/reactionRoleService.js';
-import { guardarSnipe } from '../utils/gestorSnipe.js';
+import { guardarSnipe, obtenerMensajeCacheado } from '../utils/gestorSnipe.js';
 
 const MAX_LOGGED_MESSAGE_CONTENT_LENGTH = 1024;
-const ROLE_STAFF = '1512120103771050005';
 
 export default {
   name: Events.MessageDelete,
@@ -15,11 +14,52 @@ export default {
     try {
       if (!message.guild) return;
 
+      // —— Snipe (ANTES de filtrar bots en logs) ——
       try {
-        const reactionRoleData = await getReactionRoleMessage(message.client, message.guild.id, message.id);
+        const channelId = message.channel?.id;
+        if (channelId) {
+          // Si el mensaje viene partial (sin content), usar cache de messageCreate
+          const cached = obtenerMensajeCacheado(channelId, message.id);
+
+          const author = message.author || null;
+          const isBot = author?.bot || false;
+
+          if (!isBot) {
+            const content = (message.content || cached?.content || '').slice(0, 1900);
+            const authorId = author?.id || cached?.authorId || null;
+            const authorTag = author?.tag || cached?.authorTag || 'Usuario desconocido';
+            const authorAvatar =
+              author?.displayAvatarURL?.({ size: 64 }) || cached?.authorAvatar || null;
+            const createdAt =
+              message.createdTimestamp || cached?.createdAt || Date.now();
+
+            // Guardar aunque el texto esté vacío solo si hay autor identificado
+            if (authorId || content.trim().length > 0) {
+              guardarSnipe(channelId, {
+                content: content.trim().length > 0 ? content : '*Sin texto*',
+                authorId,
+                authorTag,
+                authorAvatar,
+                createdAt
+              });
+            }
+          }
+        }
+      } catch (snipeErr) {
+        logger.warn('No se pudo guardar snipe:', snipeErr.message);
+      }
+
+      try {
+        const reactionRoleData = await getReactionRoleMessage(
+          message.client,
+          message.guild.id,
+          message.id
+        );
         if (reactionRoleData) {
           await deleteReactionRoleMessage(message.client, message.guild.id, message.id);
-          logger.info(`Cleaned up reaction role database entry for manually deleted message ${message.id} in guild ${message.guild.id}`);
+          logger.info(
+            `Cleaned up reaction role database entry for manually deleted message ${message.id} in guild ${message.guild.id}`
+          );
 
           try {
             await logEvent({
@@ -30,14 +70,12 @@ export default {
                 description: `Reaction role message was deleted manually and removed from database.`,
                 channelId: message.channel?.id,
                 fields: [
-                  {
-                    name: '🗑️ Message ID',
-                    value: message.id,
-                    inline: true
-                  },
+                  { name: '🗑️ Message ID', value: message.id, inline: true },
                   {
                     name: '📍 Channel',
-                    value: message.channel ? `${message.channel.toString()} (${message.channel.id})` : 'Unknown',
+                    value: message.channel
+                      ? `${message.channel.toString()} (${message.channel.id})`
+                      : 'Unknown',
                     inline: true
                   },
                   {
@@ -49,43 +87,17 @@ export default {
               }
             });
           } catch (logCleanupError) {
-            logger.warn('Failed to log reaction role cleanup after manual message deletion:', logCleanupError);
+            logger.warn(
+              'Failed to log reaction role cleanup after manual message deletion:',
+              logCleanupError
+            );
           }
         }
       } catch (reactionRoleCleanupError) {
-        logger.warn(`Failed to clean up reaction role data for deleted message ${message.id}:`, reactionRoleCleanupError);
-      }
-
-      // Snipe: guardar último mensaje borrado del canal (sin bots, solo texto)
-      try {
-        if (message.author && !message.author.bot && message.channel?.id) {
-          // Opcional: no snippear mensajes de staff si el autor tiene el rol
-          // (pedido: ignorar staff). Si partial message no tiene member, intentamos cache.
-          let esStaff = false;
-          try {
-            const member =
-              message.member ||
-              (await message.guild.members.fetch(message.author.id).catch(() => null));
-            esStaff = member?.roles?.cache?.has(ROLE_STAFF) || false;
-          } catch {}
-
-          if (!esStaff) {
-            const content = message.content
-              ? message.content.slice(0, 1900)
-              : '';
-            if (content.trim().length > 0) {
-              guardarSnipe(message.channel.id, {
-                content,
-                authorId: message.author.id,
-                authorTag: message.author.tag,
-                authorAvatar: message.author.displayAvatarURL?.({ size: 64 }) || null,
-                createdAt: message.createdTimestamp || Date.now()
-              });
-            }
-          }
-        }
-      } catch (snipeErr) {
-        logger.warn('No se pudo guardar snipe:', snipeErr.message);
+        logger.warn(
+          `Failed to clean up reaction role data for deleted message ${message.id}:`,
+          reactionRoleCleanupError
+        );
       }
 
       if (message.author?.bot) return;
@@ -130,7 +142,7 @@ export default {
         inline: true
       });
 
-      if (message.attachments.size > 0) {
+      if (message.attachments?.size > 0) {
         fields.push({
           name: '📎 Attachments',
           value: message.attachments.size.toString(),
