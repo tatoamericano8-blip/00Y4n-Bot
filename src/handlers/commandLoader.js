@@ -80,15 +80,33 @@ export async function loadCommands(client) {
             const category = path.basename(commandDir);
             
             const commandModule = await import(`file://${filePath}`);
-            const command = commandModule.default || commandModule;
+            
+            // Handle both default exports and named exports
+            let command;
+            if (commandModule.default) {
+                command = commandModule.default;
+            } else if (commandModule.data && commandModule.execute) {
+                // Create an object with named exports for compatibility
+                command = {
+                    data: commandModule.data,
+                    execute: commandModule.execute
+                };
+            } else {
+                command = commandModule;
+            }
             
             if (!command.data || !command.execute) {
                 logger.warn(`Command at ${filePath} is missing required "data" or "execute" property.`);
                 continue;
             }
             
-            command.category = category;
-            command.filePath = normalizedPath;
+            // Set category from directory, don't try to mutate imported module
+            if (!command.category) {
+                command.category = category;
+            }
+            if (!command.filePath) {
+                command.filePath = normalizedPath;
+            }
             
             const primaryCommandName = command.data.name;
             
