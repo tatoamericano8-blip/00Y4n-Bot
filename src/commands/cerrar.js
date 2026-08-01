@@ -19,6 +19,17 @@ function parsearDuracionAHoras(textoDuracion) {
     return Number(horas.toFixed(2));
 }
 
+function formatearDuracionMs(ms) {
+    if (!ms || ms < 0) return 'No disponible';
+    const totalMin = Math.round(ms / 60000);
+    const horas = Math.floor(totalMin / 60);
+    const minutos = totalMin % 60;
+    const partes = [];
+    if (horas > 0) partes.push(`${horas} hora${horas !== 1 ? 's' : ''}`);
+    if (minutos > 0 || horas === 0) partes.push(`${minutos} minuto${minutos !== 1 ? 's' : ''}`);
+    return partes.join(' y ');
+}
+
 export default {
     data: {
         name: 'cerrar_swfl',
@@ -36,9 +47,9 @@ export default {
             },
             {
                 name: 'duracion',
-                description: '¿Cuánto tiempo duró la sesión? (Ej: 1 hora y 15 minutos)',
+                description: 'Duración reportada (opcional si hay /inicio_swfl). Ej: 1 hora y 15 minutos',
                 type: ApplicationCommandOptionType.String,
-                required: true
+                required: false
             },
             {
                 name: 'notas',
@@ -60,7 +71,7 @@ export default {
             'https://cdn.discordapp.com/attachments/1517331229303902432/1524843452494381146/Sesion_Concluida_NUEVO2_1.png?ex=6a51e161&is=6a508fe1&hm=3393d2fe56fe1b5bacafa4f3f227096598fa915b8c1976c7994e49c4ca5c2760&';
 
         const tipo = interaction.options.getString('tipo');
-        const duracion = interaction.options.getString('duracion');
+        const duracionTexto = interaction.options.getString('duracion');
         const notasHost = interaction.options.getString('notas') || 'Sin notas adicionales.';
         const fotoAdjunta = interaction.options.getAttachment('imagen');
 
@@ -69,11 +80,14 @@ export default {
             ephemeral: true
         });
 
-        const horasCalculadas = parsearDuracionAHoras(duracion);
-        const minutosCalculados = Math.round(horasCalculadas * 60);
+        const fechaFin = new Date();
         const guildId = interaction.guild.id;
 
         let sesionActiva = null;
+        let fechaInicio = null;
+        let horasCalculadas = 0;
+        let minutosCalculados = 0;
+        let duracionMostrar = 'No disponible';
 
         try {
             sesionActiva = await Session.findOneAndUpdate(
@@ -83,37 +97,63 @@ export default {
                 },
                 {
                     estado: 'cerrada',
-                    fechaCierre: new Date(),
-                    duracionMinutos: minutosCalculados
+                    fechaCierre: fechaFin
                 },
                 { sort: { fechaInicio: -1 }, new: true }
             );
+
+            if (sesionActiva?.fechaInicio) {
+                fechaInicio = new Date(sesionActiva.fechaInicio);
+                const ms = fechaFin.getTime() - fechaInicio.getTime();
+                horasCalculadas = Number((ms / 3600000).toFixed(2));
+                minutosCalculados = Math.max(0, Math.round(ms / 60000));
+                duracionMostrar = formatearDuracionMs(ms);
+
+                sesionActiva.duracionMinutos = minutosCalculados;
+                await sesionActiva.save().catch(() => null);
+            } else if (duracionTexto) {
+                horasCalculadas = parsearDuracionAHoras(duracionTexto);
+                minutosCalculados = Math.round(horasCalculadas * 60);
+                duracionMostrar = duracionTexto;
+            } else {
+                horasCalculadas = 0;
+                minutosCalculados = 0;
+                duracionMostrar = 'No registrada';
+            }
 
             const hostId = sesionActiva?.hostId || interaction.user.id;
             const supervisorId = sesionActiva?.supervisorId || null;
             const coHostId = sesionActiva?.coHostId || null;
 
-            await sumarCuotaStaff(guildId, hostId, {
-                horas: horasCalculadas,
-                sesionesOrganizadas: 1,
-                motivo: `Cierre de sesión ${tipo} — ${duracion}`,
-                executorId: interaction.user.id
-            });
-
-            if (coHostId && coHostId !== hostId) {
-                await sumarCuotaStaff(guildId, coHostId, {
-                    horas: Number((horasCalculadas * 0.5).toFixed(2)),
+            if (horasCalculadas > 0 || minutosCalculados > 0) {
+                await sumarCuotaStaff(guildId, hostId, {
+                    horas: horasCalculadas,
                     sesionesOrganizadas: 1,
-                    motivo: `Co-Host sesión ${tipo} — ${duracion}`,
+                    motivo: `Cierre de sesión ${tipo} — ${duracionMostrar}`,
                     executorId: interaction.user.id
                 });
-            }
 
-            if (supervisorId && supervisorId !== hostId) {
-                await sumarCuotaStaff(guildId, supervisorId, {
-                    sesionesSupervisadas: 1,
-                    horas: Number((horasCalculadas * 0.25).toFixed(2)),
-                    motivo: `Supervisión sesión ${tipo} — ${duracion}`,
+                if (coHostId && coHostId !== hostId) {
+                    await sumarCuotaStaff(guildId, coHostId, {
+                        horas: Number((horasCalculadas * 0.5).toFixed(2)),
+                        sesionesOrganizadas: 1,
+                        motivo: `Co-Host sesión ${tipo} — ${duracionMostrar}`,
+                        executorId: interaction.user.id
+                    });
+                }
+
+                if (supervisorId && supervisorId !== hostId) {
+                    await sumarCuotaStaff(guildId, supervisorId, {
+                        sesionesSupervisadas: 1,
+                        horas: Number((horasCalculadas * 0.25).toFixed(2)),
+                        motivo: `Supervisión sesión ${tipo} — ${duracionMostrar}`,
+                        executorId: interaction.user.id
+                    });
+                }
+            } else {
+                await sumarCuotaStaff(guildId, hostId, {
+                    sesionesOrganizadas: 1,
+                    motivo: `Cierre de sesión ${tipo} (sin duración registrada)`,
                     executorId: interaction.user.id
                 });
             }
@@ -127,9 +167,11 @@ export default {
                 hostTag: interaction.user.tag,
                 tipo,
                 detalles: {
-                    duracionTexto: duracion,
+                    duracionTexto: duracionMostrar,
                     duracionMinutos: minutosCalculados,
                     horasSumadas: horasCalculadas,
+                    fechaInicio: fechaInicio?.toISOString() || null,
+                    fechaFin: fechaFin.toISOString(),
                     supervisorId,
                     coHostId,
                     motivo: notasHost
@@ -139,37 +181,25 @@ export default {
             console.error('Error actualizando la base de datos en /cerrar_swfl:', dbError);
         }
 
-        // Limpieza de mensajes (últimas 4 horas)
-        // Discord solo permite bulkDelete de mensajes con menos de 14 días
         try {
             const cuatroHorasAtras = Date.now() - 4 * 60 * 60 * 1000;
-            let eliminados = 0;
             let lastId = undefined;
-
-            // Hasta 3 pasadas de 100 mensajes para cubrir sesiones largas
             for (let i = 0; i < 3; i++) {
                 const mensajes = await interaction.channel.messages.fetch({
                     limit: 100,
                     ...(lastId ? { before: lastId } : {})
                 });
                 if (mensajes.size === 0) break;
-
                 lastId = mensajes.last()?.id;
                 const aEliminar = mensajes.filter(
                     msg => msg.createdTimestamp >= cuatroHorasAtras && !msg.pinned
                 );
-
                 if (aEliminar.size > 0) {
-                    const borrados = await interaction.channel.bulkDelete(aEliminar, true);
-                    eliminados += borrados.size;
+                    await interaction.channel.bulkDelete(aEliminar, true);
                 }
-
-                // Si el mensaje más viejo del batch ya es anterior a 4h, paramos
                 const oldest = mensajes.last();
                 if (oldest && oldest.createdTimestamp < cuatroHorasAtras) break;
             }
-
-            console.log(`[cerrar_swfl] Mensajes eliminados (últimas 4h): ${eliminados}`);
         } catch (error) {
             console.error('Error al purgar mensajes en /cerrar_swfl:', error);
         }
@@ -179,13 +209,25 @@ export default {
                 ? `<a:cadenacora:1523026520740724859> SWFL Roleplay | Sesión Concluida <a:cadenacora:1523026520740724859>`
                 : `<a:cadenacora:1523026520740724859> SWFL Meet | Sesión Concluida <a:cadenacora:1523026520740724859>`;
 
+        const inicioUnix = fechaInicio ? Math.floor(fechaInicio.getTime() / 1000) : null;
+        const finUnix = Math.floor(fechaFin.getTime() / 1000);
+
+        const lineasTiempo = [];
+        if (inicioUnix) {
+            lineasTiempo.push(`<:fle:1523041359441952970> **Hora de inicio:** <t:${inicioUnix}:t> (<t:${inicioUnix}:R>)`);
+        } else {
+            lineasTiempo.push(`<:fle:1523041359441952970> **Hora de inicio:** No registrada (sin \`/inicio_swfl\`)`);
+        }
+        lineasTiempo.push(`<:fle:1523041359441952970> **Hora de cierre:** <t:${finUnix}:t> (<t:${finUnix}:R>)`);
+        lineasTiempo.push(`<:fle:1523041359441952970> **Duración total:** ${duracionMostrar}`);
+
         const embedCierre = new EmbedBuilder()
             .setTitle(titulo)
             .setDescription(
                 `<:puntderecha:1523027978123087922> La sesión ha concluido oficialmente. ¡Muchísimas gracias a todos los que asistieron, respetaron las reglas y compartieron un buen rato con sus naves! <:vehiculos:1525172179279282326>\n\n` +
                     `<:fle:1523041359441952970> **Anfitrión:** <@${interaction.user.id}>\n` +
-                    `<:fle:1523041359441952970> **Duración Total:** ${duracion}\n` +
-                    `<:fle:1523041359441952970> **Notas:** ${notasHost}`
+                    lineasTiempo.join('\n') +
+                    `\n<:fle:1523041359441952970> **Notas:** ${notasHost}`
             )
             .setColor('#74d4fc');
 

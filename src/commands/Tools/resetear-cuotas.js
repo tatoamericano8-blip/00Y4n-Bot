@@ -1,56 +1,35 @@
 import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
-import Staff from '../../../models/Staff.js';
-import StaffLog from '../../../models/StaffLog.js';
+import { reiniciarCuotasGuild, CANAL_STAFF_ANUNCIOS } from '../../utils/reinicioCuotas.js';
 
 export default {
   data: new SlashCommandBuilder()
     .setName('resetear-cuotas')
-    .setDescription('Reinicia las cuotas semanales de todo el Staff (Ejecutar al final de la semana).')
+    .setDescription('Reinicia las cuotas semanales de todo el Staff (también se hace solo los domingos 22:00).')
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
   async execute(interaction) {
     await interaction.deferReply();
 
-    const guildId = interaction.guild.id;
-
     try {
-      const listaStaff = await Staff.find({ guildId });
+      const { afectados } = await reiniciarCuotasGuild(interaction.client, interaction.guild.id, {
+        anunciosChannelId: CANAL_STAFF_ANUNCIOS,
+        executorId: interaction.user.id,
+        automatico: false
+      });
 
-      if (!listaStaff || listaStaff.length === 0) {
+      if (afectados === 0) {
         return await interaction.editReply({
-          content: '<:cruz00y4n:1523041302764191844> No hay registros de Staff para reinicio.'
+          content: '<:cruz00y4n:1523041302764191844> No se modificó ningún registro de Staff (puede que ya estuvieran en 0).'
         });
       }
 
-      const resultado = await Staff.updateMany(
-        { guildId },
-        {
-          $set: {
-            'cuotas.horasServicio': 0,
-            'cuotas.sesionesOrganizadas': 0,
-            'cuotas.sesionesSupervisadas': 0,
-            'cuotas.ticketsCerrados': 0
-          }
-        }
-      );
-
-      await StaffLog.create({
-        guildId,
-        tipo: 'CUOTA_RESET',
-        targetUserId: interaction.user.id,
-        executorId: interaction.user.id,
-        detalles: {
-          motivo: 'Reinicio semanal de cuotas',
-          usuariosAfectados: resultado.modifiedCount
-        }
-      });
-
       const embed = new EmbedBuilder()
         .setTitle('🔄 Cuotas Semanales Reiniciadas')
-        .setColor(0x3498DB)
+        .setColor(0x3498db)
         .setDescription(
-          `Se han reseteado con éxito las cuotas semanales de **${resultado.modifiedCount}** miembros del Staff.\n\n` +
-            `*Las estadísticas históricas acumuladas se mantienen intactas.*`
+          `Se han reseteado con éxito las cuotas semanales de **${afectados}** miembros del Staff.\n\n` +
+            `*Las estadísticas históricas acumuladas se mantienen intactas.*\n` +
+            `*También se publicó el aviso en el canal de anuncios de staff.*`
         )
         .setFooter({ text: `Ejecutado por ${interaction.user.tag}` })
         .setTimestamp();
