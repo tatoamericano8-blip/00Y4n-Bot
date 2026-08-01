@@ -8,15 +8,28 @@ import { db } from '../../utils/database.js';
 import Staff from '../../../models/Staff.js';
 
 // -------------------------------------------------------------------
+// 🔧 Convierte una etiqueta de emoji personalizado <:nombre:id> o
+// <a:nombre:id> en el objeto {id, name, animated} que espera
+// StringSelectMenuOptionBuilder. Si no matchea (ej: un emoji unicode
+// como '💰'), lo devuelve tal cual — así también soporta emojis normales.
+// -------------------------------------------------------------------
+function parseEmojiTag(tag) {
+    const match = tag.match(/^<(a)?:(\w+):(\d+)>$/);
+    if (!match) return tag;
+    const [, animated, name, id] = match;
+    return { id, name, animated: Boolean(animated) };
+}
+
+// -------------------------------------------------------------------
 // 🏆 CATEGORÍAS DISPONIBLES
-// Cada una sabe cómo buscar sus propios datos (100% compatibles con
-// lo que el bot ya guarda: economy:, mensajes_totales:, reacciones_sesiones:
-// y el modelo Staff).
+// `emojiTag` va siempre en formato texto completo (<:nombre:id> o un
+// emoji unicode) — de ahí se arma tanto el título del embed como el
+// emoji del select menu.
 // -------------------------------------------------------------------
 const CATEGORIAS = {
     economia: {
-        label: '<:gift:1523041327950856334> Economía',
-        emoji: '1523041327950856334',
+        label: 'Economía',
+        emojiTag: '<:gift:1523041327950856334>',
         async fetch() {
             // ⚠️ El saldo se guarda como economy:{userId} SIN guildId,
             // por lo que este top es global (no exclusivo de este servidor).
@@ -34,8 +47,8 @@ const CATEGORIAS = {
     },
 
     mensajes: {
-        label: '<:msj:1523041309139533954> Mensajes Totales',
-        emoji: '1523041309139533954',
+        label: 'Mensajes Totales',
+        emojiTag: '<:msj:1523041309139533954>',
         async fetch(guildId) {
             const prefix = `mensajes_totales:${guildId}:`;
             const keys = await db.list(prefix);
@@ -52,8 +65,8 @@ const CATEGORIAS = {
     },
 
     reacciones_sesiones: {
-        label: '<:tilde:1524936452574806076> Reacciones en Sesiones',
-        emoji: '1524936452574806076',
+        label: 'Reacciones en Sesiones',
+        emojiTag: '<:tilde:1524936452574806076>',
         async fetch(guildId) {
             const prefix = `reacciones_sesiones:${guildId}:`;
             const keys = await db.list(prefix);
@@ -70,8 +83,8 @@ const CATEGORIAS = {
     },
 
     sesiones_hosteadas: {
-        label: '<:staff:1523027764104659144> Sesiones Hosteadas (Staff)',
-        emoji: '1523027764104659144',
+        label: 'Sesiones Hosteadas (Staff)',
+        emojiTag: '<:staff:1523027764104659144>',
         async fetch(guildId) {
             const staff = await Staff.find({ guildId }).lean();
             return staff
@@ -85,8 +98,8 @@ const CATEGORIAS = {
     },
 
     horas_servicio: {
-        label: '<:reloj:1532127960939888700> Horas de Servicio (Staff)',
-        emoji: '1532127960939888700',
+        label: 'Horas de Servicio (Staff)',
+        emojiTag: '<:reloj:1532127960939888700>',
         async fetch(guildId) {
             const staff = await Staff.find({ guildId }).lean();
             return staff
@@ -103,7 +116,7 @@ const CATEGORIAS = {
 function construirEmbed(categoriaKey, datos, guildName) {
     const cat = CATEGORIAS[categoriaKey];
     const embed = new EmbedBuilder()
-        .setTitle(`${cat.emoji} ${cat.label}`)
+        .setTitle(`${cat.emojiTag} ${cat.label}`)
         .setColor('#74d4fc')
         .setFooter({ text: guildName })
         .setTimestamp();
@@ -128,9 +141,9 @@ function construirEmbed(categoriaKey, datos, guildName) {
 
 function construirMenu(categoriaActual) {
     const opciones = Object.entries(CATEGORIAS).map(([key, cat]) => ({
-        label: cat.label.replace(/^\S+\s/, ''),
+        label: cat.label,
         value: key,
-        emoji: cat.emoji,
+        emoji: parseEmojiTag(cat.emojiTag),
         default: key === categoriaActual
     }));
 
@@ -191,7 +204,7 @@ export default {
                 interaction.editReply({ components: [] }).catch(() => {});
             });
         } catch (error) {
-            console.error('Error en /tabla_posiciones:', error);
+            console.error('Error en /tabla-posiciones:', error);
             await interaction.editReply({
                 content: '❌ Hubo un error al cargar la tabla de posiciones.'
             });
