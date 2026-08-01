@@ -61,10 +61,10 @@ export default {
         const embed = new EmbedBuilder()
             .setTitle(titulo)
             .setDescription(
-                `> ${ePunto} <@${interaction.user.id}> ¡está organizando una **sesión de ${esRP ? 'roleplay' : 'car meet oficial'}**! Si tienes la intención de **unirte**, reacciona abajo con el emoji elegido por el host. ¡Si reaccionas sin unirte, podrías enfrentar __**consecuencias**__ por parte del equipo de staff!\n\n` +
+                `> ${ePunto} <@${interaction.user.id}> ¡está organizando una **sesión de ${esRP ? 'roleplay' : 'car meet oficial'}**! Si tienes la intención de **unirte**, reacciona abajo con 🟠\n\n` +
                 `**Antes de Unirte**\n\n` +
                 `> <:felc:1523041359441952970> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-                `> <:felc:1523041359441952970> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1525190667545088225)\n` +
+                `> <:felc:1523041359441952970> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516591020813615109).\n` +
                 descExtra +
                 `> <:felc:1523028004983406787> El host debe obtener __**${reacciones}+**__ reacciones antes de comenzar.`
             )
@@ -81,18 +81,26 @@ export default {
             console.error('Error al agregar reacción inicial:', e);
         }
 
-        global.coleccionStartups.set(msg.id, { hostId: interaction.user.id, reaccionesRequeridas: reacciones, tipo, imagen: urlImagen });
-
-        // 💾 GUARDAR EN MONGODB Y HISTORIAL
+        // 💾 GUARDAR EN MONGODB CON ARRAY DE REACCIONES VACÍO
         try {
-            await Sesion.create({
+            const sesionData = await Sesion.create({
                 idInicio: msg.id,
                 hostId: interaction.user.id,
                 tipo,
                 reaccionesRequeridas: reacciones,
                 imagen: urlImagen,
                 estado: 'esperando_reacciones',
-                guildId: interaction.guildId
+                guildId: interaction.guildId,
+                reacciones: [] // Array vacío para tracking de reacciones
+            });
+
+            // Guardar en la colección global también
+            global.coleccionStartups.set(msg.id, { 
+                hostId: interaction.user.id, 
+                reaccionesRequeridas: reacciones, 
+                tipo, 
+                imagen: urlImagen,
+                sesionId: sesionData._id // Guardar el ID de Mongoose
             });
 
             await Historial.create({
