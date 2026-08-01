@@ -2,6 +2,7 @@ import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, MessageFlags } 
 import Staff from '../../../models/Staff.js';
 import StaffLog from '../../../models/StaffLog.js';
 import { getFromDb } from '../../utils/database.js';
+import { obtenerRangoDeUsuario } from '../../utils/rangoStaff.js';
 
 const ROLE_HIGH_COMMAND = '1528870731629465752';
 
@@ -38,7 +39,12 @@ export default {
             });
         }
 
-        // Strikes
+        const { rango } = await obtenerRangoDeUsuario(
+            interaction.guild,
+            targetUser.id,
+            staffData.rango || 'Sin rango'
+        );
+
         const listaStrikes =
             staffData.strikes
                 ?.map(s => {
@@ -47,7 +53,6 @@ export default {
                 })
                 .join('\n') || 'Sin sanciones en el historial.';
 
-        // LOA
         let loaTexto = 'Sin ausencias registradas.';
         if (staffData.loa?.historial?.length) {
             loaTexto = staffData.loa.historial
@@ -64,7 +69,6 @@ export default {
             loaTexto = '🟡 **LOA ACTIVA** (sin historial detallado)';
         }
 
-        // Despido / Renuncia
         let salidaTexto = 'Sin registro de salida.';
         if (staffData.estado === 'DESPEDIDO' && staffData.despido) {
             const f = staffData.despido.fecha
@@ -86,7 +90,6 @@ export default {
                 `• Motivo: ${staffData.renuncia.motivo || '—'}`;
         }
 
-        // Blacklist global
         let blacklistExtra = '';
         try {
             const bl = await getFromDb(`staff:blacklist:${interaction.guildId}`, []);
@@ -95,7 +98,6 @@ export default {
             }
         } catch {}
 
-        // Últimos logs
         let logsTexto = 'Sin logs recientes.';
         try {
             const logs = await StaffLog.find({
@@ -126,12 +128,12 @@ export default {
             .setThumbnail(targetUser.displayAvatarURL({ dynamic: true }))
             .setDescription(
                 `> **ID:** \`${staffData.userId}\`\n` +
-                    `> **Rango:** \`${staffData.rango || '—'}\`\n` +
+                    `> **Rango:** \`${rango}\`\n` +
                     `> **Estado:** \`${staffData.estado}\`${blacklistExtra}\n` +
                     `> **Ingreso:** ${
                         staffData.ingreso
                             ? `<t:${Math.floor(new Date(staffData.ingreso).getTime() / 1000)}:R>`
-                            : '—' 
+                            : '—'
                     }`
             )
             .addFields(

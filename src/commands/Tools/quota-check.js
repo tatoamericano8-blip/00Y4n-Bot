@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import Staff from '../../../models/Staff.js';
+import { obtenerRangoDeUsuario } from '../../utils/rangoStaff.js';
 
 function crearBarraProgreso(actual, meta, tamaño = 10) {
   if (meta <= 0) meta = 1;
@@ -36,7 +37,14 @@ export default {
       });
     }
 
-    const { cuotas, estadisticasHistoricas, rango, estado, loa } = staffData;
+    const { cuotas, estadisticasHistoricas, estado, loa } = staffData;
+
+    // Rango real según roles de Discord (el más alto)
+    const { rango } = await obtenerRangoDeUsuario(
+      interaction.guild,
+      usuarioObjetivo.id,
+      staffData.rango || 'Sin rango'
+    );
 
     let estadoTexto = '🟢 **Activo**';
     if (estado === 'LOA' || loa?.activo) estadoTexto = '🟡 **En Permiso (LOA)**';
@@ -49,13 +57,33 @@ export default {
     const embed = new EmbedBuilder()
       .setTitle(`📊 Registro de Cuota — ${usuarioObjetivo.username}`)
       .setThumbnail(usuarioObjetivo.displayAvatarURL({ dynamic: true }))
-      .setColor(estado === 'LOA' || loa?.activo ? 0xF1C40F : 0x74D4FC)
+      .setColor(estado === 'LOA' || loa?.activo ? 0xf1c40f : 0x74d4fc)
       .addFields(
-        { name: '👤 Información de Staff', value: `> **Rango:** ${rango}\n> **Estado:** ${estadoTexto}`, inline: false },
-        { name: '⏱️ Horas de Servicio Semanales', value: `${barraHoras}`, inline: false },
-        { name: '🚗 Sesiones Organizadas', value: `${barraSesiones}`, inline: false },
-        { name: '👁️ Sesiones Supervisadas', value: `> **${cuotas.sesionesSupervisadas || 0}** sesión(es)`, inline: true },
-        { name: '🎫 Tickets Cerrados (semana)', value: `> **${cuotas.ticketsCerrados || 0}** ticket(s)`, inline: true },
+        {
+          name: '👤 Información de Staff',
+          value: `> **Rango:** ${rango}\n> **Estado:** ${estadoTexto}`,
+          inline: false
+        },
+        {
+          name: '⏱️ Horas de Servicio Semanales',
+          value: `${barraHoras}`,
+          inline: false
+        },
+        {
+          name: '🚗 Sesiones Organizadas',
+          value: `${barraSesiones}`,
+          inline: false
+        },
+        {
+          name: '👁️ Sesiones Supervisadas',
+          value: `> **${cuotas.sesionesSupervisadas || 0}** sesión(es)`,
+          inline: true
+        },
+        {
+          name: '🎫 Tickets Cerrados (semana)',
+          value: `> **${cuotas.ticketsCerrados || 0}** ticket(s)`,
+          inline: true
+        },
         {
           name: '📈 Histórico Total Acumulado',
           value:
@@ -66,7 +94,10 @@ export default {
           inline: false
         }
       )
-      .setFooter({ text: `Solicitado por ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() })
+      .setFooter({
+        text: `Solicitado por ${interaction.user.tag}`,
+        iconURL: interaction.user.displayAvatarURL()
+      })
       .setTimestamp();
 
     return await interaction.editReply({ embeds: [embed] });

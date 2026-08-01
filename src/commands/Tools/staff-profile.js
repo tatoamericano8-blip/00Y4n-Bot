@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 import Staff from '../../../models/Staff.js';
+import { obtenerRangoDeUsuario } from '../../utils/rangoStaff.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -24,6 +25,12 @@ export default {
             });
         }
 
+        const { rango } = await obtenerRangoDeUsuario(
+            interaction.guild,
+            targetUser.id,
+            staffData.rango || 'Sin rango'
+        );
+
         const strikesActivos = staffData.strikes
             ? staffData.strikes.filter(s => s.activo).length
             : 0;
@@ -39,7 +46,7 @@ export default {
                 {
                     name: '📌 Información General',
                     value:
-                        `> **Rango:** \`${staffData.rango || 'Sin rango'}\`\n` +
+                        `> **Rango:** \`${rango}\`\n` +
                         `> **Estado:** \`${staffData.estado || 'Activo'}\`\n` +
                         `> **Strikes Activos:** \`${strikesActivos}/3\``,
                     inline: false
