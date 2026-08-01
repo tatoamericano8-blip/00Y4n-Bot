@@ -34,6 +34,11 @@ const sesionSchema = new mongoose.Schema({
         reaccionesMeta: Number,
         link: String
     }],
+    // Registro de quién reaccionó al mensaje de inicio de esta sesión puntual
+    reacciones: [{
+    userId: { type: String, required: true },
+    fecha: { type: Date, default: Date.now }
+    }],
 
     // Tiempos para métricas y cuotas de Staff
     fechaInicio: { type: Date, default: Date.now },
