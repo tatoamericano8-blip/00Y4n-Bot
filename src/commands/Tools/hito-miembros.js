@@ -48,12 +48,12 @@ export default {
 
     const texto =
       extra ||
-      `¡Hemos alcanzado oficialmente **${cantidad.toLocaleString('es-AR')} miembros**! Gracias a todos por su apoyo incondicional ⭐`;
+      `¡Hemos alcanzado oficialmente **${cantidad.toLocaleString('es-AR')} miembros**! Gracias a todos por su apoyo incondicional <a:si:1523027080949010595>`;
 
     const embed = new EmbedBuilder()
       .setColor('#74d4fc')
-      .setTitle('✏️ Hito Alcanzado')
-      .setDescription(`↪️ ${texto}`)
+      .setTitle('<a:cora:1525562954983149768> __Hito Alcanzado__ <a:cora:1525562954983149768>')
+      .setDescription(`<:fle:1523028004983406787> ${texto}`)
       .setFooter({
         text: '00Y4n Comunidad SWFL',
         iconURL: interaction.guild.iconURL()
