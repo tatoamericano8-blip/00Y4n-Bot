@@ -125,7 +125,14 @@ export default {
             const supervisorId = sesionActiva?.supervisorId || null;
             const coHostId = sesionActiva?.coHostId || null;
 
-            if (horasCalculadas > 0 || minutosCalculados > 0) {
+            const noSumarCuota =
+                !sesionActiva ||
+                sesionActiva.cierreForzado === true ||
+                sesionActiva.cuentaParaCuota === false;
+
+            if (noSumarCuota) {
+                console.log(`[cerrar_swfl] Sin cuota (sin sesión activa o cierre forzado). host=${hostId}`);
+            } else if (horasCalculadas > 0 || minutosCalculados > 0) {
                 await sumarCuotaStaff(guildId, hostId, {
                     horas: horasCalculadas,
                     sesionesOrganizadas: 1,
@@ -174,7 +181,8 @@ export default {
                     fechaFin: fechaFin.toISOString(),
                     supervisorId,
                     coHostId,
-                    motivo: notasHost
+                    motivo: notasHost,
+                    sinCuota: noSumarCuota
                 }
             });
         } catch (dbError) {
