@@ -3,6 +3,7 @@ import { logEvent, EVENT_TYPES } from '../services/loggingService.js';
 import { logger } from '../utils/logger.js';
 import { getReactionRoleMessage, deleteReactionRoleMessage } from '../services/reactionRoleService.js';
 import { guardarSnipe, obtenerMensajeCacheado } from '../utils/gestorSnipe.js';
+import { manejarBorradoMensajeInicio } from '../utils/cierreSesionAutomatico.js';
 
 const MAX_LOGGED_MESSAGE_CONTENT_LENGTH = 1024;
 
@@ -14,11 +15,17 @@ export default {
     try {
       if (!message.guild) return;
 
-      // —— Snipe (ANTES de filtrar bots en logs) ——
+      // —— Auto-cierre de sesión si se borra el mensaje de /inicio_swfl ——
+      try {
+        await manejarBorradoMensajeInicio(message);
+      } catch (sesionErr) {
+        logger.warn('Error en auto-cierre por borrado de inicio:', sesionErr.message);
+      }
+
+      // —— Snipe ——
       try {
         const channelId = message.channel?.id;
         if (channelId) {
-          // Si el mensaje viene partial (sin content), usar cache de messageCreate
           const cached = obtenerMensajeCacheado(channelId, message.id);
 
           const author = message.author || null;
@@ -33,7 +40,6 @@ export default {
             const createdAt =
               message.createdTimestamp || cached?.createdAt || Date.now();
 
-            // Guardar aunque el texto esté vacío solo si hay autor identificado
             if (authorId || content.trim().length > 0) {
               guardarSnipe(channelId, {
                 content: content.trim().length > 0 ? content : '*Sin texto*',
@@ -136,11 +142,13 @@ export default {
         inline: true
       });
 
-      fields.push({
-        name: '📅 Created',
-        value: `<t:${Math.floor(message.createdTimestamp / 1000)}:R>`,
-        inline: true
-      });
+      if (message.createdTimestamp) {
+        fields.push({
+          name: '📅 Created',
+          value: `<t:${Math.floor(message.createdTimestamp / 1000)}:R>`,
+          inline: true
+        });
+      }
 
       if (message.attachments?.size > 0) {
         fields.push({

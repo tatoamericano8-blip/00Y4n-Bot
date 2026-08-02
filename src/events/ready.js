@@ -8,6 +8,7 @@ import {
   recordatorioCuotaMidWeek
 } from '../utils/reinicioCuotas.js';
 import { limpiarSuspensionesVencidas } from '../utils/gestorSesionesRestricciones.js';
+import { limpiarSesionesFantasma } from '../utils/cierreSesionAutomatico.js';
 
 const ROLE_SUSPEND_SESIONES = '1533180544630788166';
 
@@ -27,6 +28,14 @@ export default {
       startupLog(
         `Reaction role reconciliation: scanned ${reconciliationSummary.scannedMessages}, removed ${reconciliationSummary.removedMessages}, errors ${reconciliationSummary.errors}`
       );
+
+      // Limpieza inmediata de sesiones fantasma (abiertas > 8h)
+      try {
+        const n = await limpiarSesionesFantasma(client, 8);
+        if (n > 0) startupLog(`✅ Sesiones fantasma cerradas al arrancar: ${n}`);
+      } catch (e) {
+        logger.warn('Limpieza inicial de sesiones fantasma falló:', e.message);
+      }
 
       // Reinicio + informe semanal — Domingos 22:00 AR
       if (!client._cuotasCronScheduled) {
@@ -56,6 +65,17 @@ export default {
           { timezone: 'America/Argentina/Buenos_Aires' }
         );
         startupLog('✅ Recordatorio de cuota mid-week iniciado (Miércoles 18:00 hs Argentina).');
+      }
+
+      // Limpieza de sesiones fantasma cada hora
+      if (!client._sesionesFantasmaCron) {
+        client._sesionesFantasmaCron = true;
+        cron.schedule('0 * * * *', () => {
+          limpiarSesionesFantasma(client, 8).catch(err =>
+            logger.error('Error limpiando sesiones fantasma:', err)
+          );
+        });
+        startupLog('✅ Limpieza de sesiones fantasma iniciada (cada 1h, umbral 8h).');
       }
 
       // Limpiar suspensiones de sesión vencidas cada 15 minutos
