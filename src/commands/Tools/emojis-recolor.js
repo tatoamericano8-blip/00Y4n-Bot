@@ -22,7 +22,28 @@ function parseHex(hex) {
   };
 }
 
+/**
+ * Tiñe la imagen hacia el color objetivo.
+ * - Estáticos: PNG teñido (luminosidad conservada).
+ * - Animados: intenta mantener el GIF animado con sharp.tint().
+ */
 async function teñirImagen(buffer, { r, g, b }, animado = false) {
+  if (animado) {
+    try {
+      // Mantener animación: tint sobre todas las páginas del GIF
+      return await sharp(buffer, { animated: true, pages: -1 })
+        .tint({ r, g, b })
+        .gif()
+        .toBuffer();
+    } catch {
+      // Fallback: primer frame → PNG estático teñido
+      return teñirEstatico(buffer, { r, g, b });
+    }
+  }
+  return teñirEstatico(buffer, { r, g, b });
+}
+
+async function teñirEstatico(buffer, { r, g, b }) {
   const { data, info } = await sharp(buffer, { animated: false })
     .ensureAlpha()
     .raw()
@@ -38,7 +59,9 @@ async function teñirImagen(buffer, { r, g, b }, animado = false) {
     out[i + 2] = Math.round(b * lum);
   }
 
-  return sharp(out, { raw: { width: info.width, height: info.height, channels: 4 } })
+  return sharp(out, {
+    raw: { width: info.width, height: info.height, channels: 4 }
+  })
     .png()
     .toBuffer();
 }
@@ -60,7 +83,7 @@ export default {
     .addBooleanOption(o =>
       o
         .setName('incluir_animados')
-        .setDescription('Incluir animados (pasan a estáticos teñidos). Default: sí')
+        .setDescription('Incluir animados (intenta conservar la animación). Default: sí')
         .setRequired(false)
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
@@ -108,12 +131,16 @@ export default {
       .setTitle('⚠️ Recolor de emojis del servidor')
       .setColor(color.hex)
       .setDescription(
-        `Vas a **teñir ${emojis.length} emoji(s)** hacia **${color.hex}**.\n\n` +
-          `> Discord **no permite** cambiar el color sin re-subir el emoji.\n` +
-          `> Se **borra** el original y se **crea** uno nuevo con el mismo nombre.\n` +
-          `> Los **animados** pasan a **estáticos** teñidos.\n` +
-          `> Los **IDs cambian** → embeds con \\`<:nombre:ID>\\` viejo dejarán de verse.\n\n` +
-          `Confirmá en **30 segundos**.`
+        [
+          `Vas a **teñir ${emojis.length} emoji(s)** hacia **${color.hex}**.`,
+          '',
+          '> Discord **no permite** cambiar el color sin re-subir el emoji.',
+          '> Se **borra** el original y se **crea** uno nuevo con el mismo nombre.',
+          '> Los **animados** se intentan conservar como GIF teñido (si falla, quedan estáticos).',
+          '> Los **IDs cambian** → menciones viejas del estilo nombre:ID dejarán de verse.',
+          '',
+          'Confirmá en **30 segundos**.'
+        ].join('\n')
       );
 
     const row = new ActionRowBuilder().addComponents(
@@ -142,7 +169,11 @@ export default {
         filter: i => i.user.id === interaction.user.id
       });
     } catch {
-      return interaction.editReply({ content: '⏰ Cancelado por tiempo.', embeds: [], components: [] });
+      return interaction.editReply({
+        content: '⏰ Cancelado por tiempo.',
+        embeds: [],
+        components: []
+      });
     }
 
     if (clicked.customId === 'emojis_recolor_no') {
@@ -157,19 +188,28 @@ export default {
 
     let ok = 0;
     let fail = 0;
+    let animOk = 0;
     const errores = [];
 
     for (let i = 0; i < emojis.length; i++) {
       const emoji = emojis[i];
       try {
         const res = await fetch(
-          emoji.imageURL({ extension: emoji.animated ? 'gif' : 'png', size: 128 })
+          emoji.imageURL({
+            extension: emoji.animated ? 'gif' : 'png',
+            size: 128
+          })
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const buf = Buffer.from(await res.arrayBuffer());
         const teñido = await teñirImagen(buf, color, emoji.animated);
 
+        // Discord: animado requiere GIF y el servidor debe tener slots de animados
+        const esGif =
+          teñido[0] === 0x47 && teñido[1] === 0x49 && teñido[2] === 0x46; // GIF
+
         const nombre = emoji.name;
+        const eraAnimado = emoji.animated;
         await emoji.delete(`Recolor a ${color.hex} por ${interaction.user.tag}`);
         await interaction.guild.emojis.create({
           attachment: teñido,
@@ -177,6 +217,7 @@ export default {
           reason: `Recolor ${color.hex} por ${interaction.user.tag}`
         });
         ok++;
+        if (eraAnimado && esGif) animOk++;
       } catch (e) {
         fail++;
         errores.push(`${emoji.name}: ${e.message}`.slice(0, 80));
@@ -197,12 +238,17 @@ export default {
       .setTitle('✅ Recolor finalizado')
       .setColor(color.hex)
       .setDescription(
-        `> **Color:** ${color.hex}\n` +
-          `> **Exitosos:** ${ok}\n` +
-          `> **Fallidos:** ${fail}` +
-          (errores.length
-            ? `\n\n**Errores:**\n\`\`\`\n${errores.slice(0, 8).join('\n')}\n\`\`\``
-            : '')
+        [
+          `> **Color:** ${color.hex}`,
+          `> **Exitosos:** ${ok}`,
+          `> **Animados conservados (GIF):** ${animOk}`,
+          `> **Fallidos:** ${fail}`,
+          errores.length
+            ? `\n**Errores:**\n\`\`\`\n${errores.slice(0, 8).join('\n')}\n\`\`\``
+            : ''
+        ]
+          .filter(Boolean)
+          .join('\n')
       );
 
     await interaction.editReply({ content: null, embeds: [embedFin] });
