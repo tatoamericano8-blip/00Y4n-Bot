@@ -3,6 +3,7 @@ import Staff from '../../../models/Staff.js';
 import { obtenerRangoDeUsuario } from '../../utils/rangoStaff.js';
 import { formatearHoras } from '../../utils/formatearTiempo.js';
 import { obtenerMetasPorRango, sesionesSemana } from '../../utils/metasCuota.js';
+import { calcularScore, evaluarCumplimiento, textoScore } from '../../utils/scoreCuota.js';
 
 function crearBarraProgreso(actual, meta, tamaño = 10) {
   if (!meta || meta <= 0) {
@@ -52,11 +53,19 @@ export default {
     const metas = obtenerMetasPorRango(rango);
     const sesActual = sesionesSemana(cuotas);
     const ticketsActual = cuotas.ticketsCerrados || 0;
+    const score = calcularScore(cuotas || {}, rango);
+    const evalC = evaluarCumplimiento(staffData, rango);
+    const racha = Number(staffData.rachaActual) || 0;
+    const rachaMax = Number(staffData.rachaMaxima) || 0;
 
     let estadoTexto = '🟢 **Activo**';
     if (estado === 'LOA' || loa?.activo) estadoTexto = '🟡 **En Permiso (LOA)**';
     else if (estado === 'DESPEDIDO') estadoTexto = '🔴 **Despedido**';
     else if (estado === 'RENUNCIADO') estadoTexto = '⚪ **Renunciado**';
+
+    let estadoMeta = '❌ **Meta pendiente**';
+    if (evalC.enLoa) estadoMeta = '🟡 **Exento (LOA — no cuenta como fallo)**';
+    else if (evalC.cumplio) estadoMeta = '✅ **Meta cumplida**';
 
     const barraSesiones = crearBarraProgreso(sesActual, metas.sesionesMeta);
     const barraTickets = crearBarraProgreso(ticketsActual, metas.ticketsMeta);
@@ -65,7 +74,7 @@ export default {
       metas.sesionesMeta > 0
         ? `> Meta de **${metas.etiqueta}**: **${metas.sesionesMeta}** sesiones` +
           (metas.ticketsMeta > 0
-            ? ` + **${metas.ticketsMeta}** ticket(s) (si hay disponibles)`
+            ? ` + **${metas.ticketsMeta}** ticket(s)`
             : '') +
           '.'
         : `> **${metas.etiqueta}**: sin cuota mínima obligatoria de rango.`;
@@ -77,7 +86,15 @@ export default {
       .addFields(
         {
           name: '👤 Información de Staff',
-          value: `> **Rango:** ${rango}\n> **Estado:** ${estadoTexto}\n${detalleMeta}`,
+          value: `> **Rango:** ${rango}\n> **Estado:** ${estadoTexto}\n> **Cumplimiento:** ${estadoMeta}\n${detalleMeta}`,
+          inline: false
+        },
+        {
+          name: '⭐ Score y rachas',
+          value:
+            `> **Score semanal:** ${textoScore(score)} / 100\n` +
+            `> **Racha actual:** 🔥 **${racha}** semana(s)\n` +
+            `> **Mejor racha:** **${rachaMax}** semana(s)`,
           inline: false
         },
         {
@@ -116,7 +133,7 @@ export default {
         }
       )
       .setFooter({
-        text: `Solicitado por ${interaction.user.tag} • Reinicio: Domingos 22:00`,
+        text: `Solicitado por ${interaction.user.tag} • Reinicio: Domingos 22:00 • LOA = exento`,
         iconURL: interaction.user.displayAvatarURL()
       })
       .setTimestamp();

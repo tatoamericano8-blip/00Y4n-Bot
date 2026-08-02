@@ -64,6 +64,23 @@ const staffSchema = new mongoose.Schema(
       ticketsCerradosTotales: { type: Number, default: 0 }
     },
 
+    /** Cumplimiento semanal y rachas */
+    rachaActual: { type: Number, default: 0 },
+    rachaMaxima: { type: Number, default: 0 },
+    historialCumplimiento: [
+      {
+        semanaId: String,
+        cumplio: { type: Boolean, default: null }, // null = exento (LOA)
+        enLoa: { type: Boolean, default: false },
+        sesiones: { type: Number, default: 0 },
+        tickets: { type: Number, default: 0 },
+        horas: { type: Number, default: 0 },
+        score: { type: Number, default: 0 },
+        rango: String,
+        fecha: { type: Date, default: Date.now }
+      }
+    ],
+
     ingreso: { type: Date, default: Date.now },
     despido: {
       fecha: Date,
@@ -81,4 +98,4 @@ const staffSchema = new mongoose.Schema(
 
 staffSchema.index({ guildId: 1, userId: 1 }, { unique: true });
 
-export default mongoose.model('Staff', staffSchema);
+export default mongoose.models.Staff || mongoose.model('Staff', staffSchema);
