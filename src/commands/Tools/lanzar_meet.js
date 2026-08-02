@@ -4,7 +4,7 @@ import Historial from '../../../models/Historial.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
-const IMAGEN_MEET_DEFECTO = 'https://cdn.discordapp.com/attachments/1517331229303902432/1524843381740540034/Lanzamiento_CM_23NUEVO.png?ex=6a51e150&is=6a508fd0&hm=147ad177d52612dab13a5eeba74cec6be378cb6eeb1b19cd3df25492e7ab3d49&'; 
+const IMAGEN_MEET_DEFECTO = 'https://cdn.discordapp.com/attachments/1517331229303902432/1524843381740540034/Lanzamiento_CM_23NUEVO.png?ex=6a51e150&is=6a508fd0&hm=147ad177d52612dab13a5eeba74cec6be378cb6eeb1b19cd3df25492e7ab3d49&';
 
 export default {
     data: {
@@ -35,7 +35,19 @@ export default {
         const spots = interaction.options.getString('spots_duracion');
         const urlImagen = interaction.options.getString('imagen');
 
-        const infoDescripcion = 
+        let coHostId = null;
+        let hostIdSesion = interaction.user.id;
+        try {
+            const sesionPrevia = await Sesion.findOne({ idInicio });
+            if (sesionPrevia) {
+                coHostId = sesionPrevia.coHostId || null;
+                hostIdSesion = sesionPrevia.hostId || interaction.user.id;
+            }
+        } catch {}
+
+        const textoCohost = coHostId ? `<@${coHostId}>` : 'Ninguno';
+
+        const infoDescripcion =
             `> <:punto:1523041306836996156> <@${interaction.user.id}> **¡ha lanzado un Car Meet oficial!** Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
             `**<:caram00y4nmov:1523041315187855470> Antes de Unirte**\n\n` +
             `> <a:si:1523027371735777503> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
@@ -44,6 +56,7 @@ export default {
             `<:uno:1523028217592676464> **Temática del Meet:** ${tematica}\n` +
             `<:dos:1523027468385128568> **Lugar de Inicio:** ${ubicacion}\n` +
             `<:tres:1523027610479759561> **Spots / Duración:** ${spots}\n` +
+            `👥 **Co-Host de la Sesión:** ${textoCohost}\n` +
             `<:flechareplica:1523028004983406787> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n\n` +
             `➴ *¡Cualquier miembro descubierto haciendo Choque de vehículos o saboteando el orden será __expulsado__ e ingresará directo a la blacklist!*`;
 
@@ -68,23 +81,23 @@ export default {
 
         await interaction.reply({ content: 'Liberando accesos del Car Meet...', ephemeral: true });
 
-        const msgRelease = await interaction.channel.send({ 
-            content: '@everyone <@&1491458302993891358>', 
-            embeds: [embedRelease], 
-            components: [fila] 
+        const msgRelease = await interaction.channel.send({
+            content: '@everyone <@&1491458302993891358>',
+            embeds: [embedRelease],
+            components: [fila]
         });
 
-        global.coleccionSesiones.set(msgRelease.id, { 
-            idInicio, 
-            linkSesion, 
+        global.coleccionSesiones.set(msgRelease.id, {
+            idInicio,
+            linkSesion,
             tematica,
             ubicacion,
             spots,
-            guildId: interaction.guildId, 
-            tipo: 'meet' 
+            coHostId,
+            guildId: interaction.guildId,
+            tipo: 'meet'
         });
 
-        // 💾 ACTUALIZAR EN MONGODB Y HISTORIAL (Uso de findOneAndUpdate para evitar duplicados)
         try {
             await Sesion.findOneAndUpdate(
                 { idInicio },
@@ -97,7 +110,9 @@ export default {
                         spots,
                         imagen: urlImagen || IMAGEN_MEET_DEFECTO,
                         estado: 'activa',
-                        fechaLanzamiento: new Date()
+                        fechaLanzamiento: new Date(),
+                        hostId: hostIdSesion,
+                        ...(coHostId ? { coHostId } : {})
                     }
                 },
                 { upsert: true, new: true }
@@ -110,7 +125,7 @@ export default {
                 hostId: interaction.user.id,
                 hostTag: interaction.user.tag,
                 tipo: 'meet',
-                detalles: { linkSesion, tematica, ubicacion, spots },
+                detalles: { linkSesion, tematica, ubicacion, spots, coHostId },
                 guildId: interaction.guildId
             });
         } catch (error) {

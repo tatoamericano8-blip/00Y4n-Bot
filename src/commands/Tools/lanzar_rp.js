@@ -11,22 +11,22 @@ export default {
         name: 'lanzar_rp',
         description: 'Liberas los accesos para una sesión oficial de Roleplay.',
         options: [
-            { 
-                name: 'mensaje_id', 
-                description: 'Pegá acá la ID del mensaje de Startup/Inicio de esta sesión.', 
-                type: ApplicationCommandOptionType.String, 
-                required: true 
+            {
+                name: 'mensaje_id',
+                description: 'Pegá acá la ID del mensaje de Startup/Inicio de esta sesión.',
+                type: ApplicationCommandOptionType.String,
+                required: true
             },
-            { 
-                name: 'acceso', 
-                description: 'Pegá acá el enlace del servidor privado de Roblox.', 
-                type: ApplicationCommandOptionType.String, 
-                required: true 
+            {
+                name: 'acceso',
+                description: 'Pegá acá el enlace del servidor privado de Roblox.',
+                type: ApplicationCommandOptionType.String,
+                required: true
             },
-            { 
-                name: 'limite_velocidad', 
-                description: 'Selecciona el límite de velocidad de la sesión.', 
-                type: ApplicationCommandOptionType.String, 
+            {
+                name: 'limite_velocidad',
+                description: 'Selecciona el límite de velocidad de la sesión.',
+                type: ApplicationCommandOptionType.String,
                 required: true,
                 choices: [
                     { name: '65 MPH', value: '65 MPH' },
@@ -34,10 +34,10 @@ export default {
                     { name: '85 MPH', value: '85 MPH' }
                 ]
             },
-            { 
-                name: 'peacetime', 
-                description: 'Selecciona el modo de Peacetime.', 
-                type: ApplicationCommandOptionType.String, 
+            {
+                name: 'peacetime',
+                description: 'Selecciona el modo de Peacetime.',
+                type: ApplicationCommandOptionType.String,
                 required: true,
                 choices: [
                     { name: 'Estricto', value: 'Estricto' },
@@ -45,11 +45,11 @@ export default {
                     { name: 'Desactivado', value: 'Desactivado' }
                 ]
             },
-            { 
-                name: 'imagen', 
-                description: 'Link de la foto/banner para la apertura (opcional).', 
-                type: ApplicationCommandOptionType.String, 
-                required: false 
+            {
+                name: 'imagen',
+                description: 'Link de la foto/banner para la apertura (opcional).',
+                type: ApplicationCommandOptionType.String,
+                required: false
             }
         ]
     },
@@ -68,7 +68,20 @@ export default {
         const peacetime = interaction.options.getString('peacetime');
         const urlImagen = interaction.options.getString('imagen');
 
-        const infoDescripcion = 
+        // Co-host guardado previamente con /host_swfl
+        let coHostId = null;
+        let hostIdSesion = interaction.user.id;
+        try {
+            const sesionPrevia = await Sesion.findOne({ idInicio });
+            if (sesionPrevia) {
+                coHostId = sesionPrevia.coHostId || null;
+                hostIdSesion = sesionPrevia.hostId || interaction.user.id;
+            }
+        } catch {}
+
+        const textoCohost = coHostId ? `<@${coHostId}>` : 'Ninguno';
+
+        const infoDescripcion =
             `> <:punto:1523041306836996156> <@${interaction.user.id}> ¡ha lanzado su sesión! Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
             ` <:flor:1523041315187855470> **Antes de Unirte**\n\n` +
             `> <:fle:1523041359441952970> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
@@ -77,6 +90,8 @@ export default {
             ` <:flor:1523041315187855470> **Información del Roleplay**\n\n` +
             `> <:uno:1523028217592676464> **Estado de Peacetime:** ${peacetime}\n` +
             `> <:dos:1523027468385128568> **Velocidad de Fail Roleplay:** ${limite}\n` +
+            `> 🚑 **Servicios de Emergencia:** Activos\n` +
+            `> 👥 **Co-Host de la Sesión:** ${textoCohost}\n` +
             `> <:replica:1523028004983406787> Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n\n` +
             `<a:adv:1523027438030946446> *¡Cualquier miembro descubierto haciendo Fail Roleplay de forma excesiva será expulsado inmediatamente de la sesión!*`;
 
@@ -107,16 +122,16 @@ export default {
             components: [fila]
         });
 
-        global.coleccionSesiones.set(msgRelease.id, { 
-            idInicio, 
+        global.coleccionSesiones.set(msgRelease.id, {
+            idInicio,
             linkSesion,
             limite,
             peacetime,
+            coHostId,
             guildId: interaction.guildId,
             tipo: 'rp'
         });
 
-        // 💾 ACTUALIZAR EN MONGODB Y HISTORIAL
         try {
             await Sesion.findOneAndUpdate(
                 { idInicio },
@@ -124,11 +139,13 @@ export default {
                     $set: {
                         idLanzamiento: msgRelease.id,
                         linkSesion,
-                        limiteVelocidad: limite, // Nombre mapeado correctamente con el Schema
+                        limiteVelocidad: limite,
                         peacetime,
                         imagen: urlImagen || IMAGEN_RP_DEFECTO,
                         estado: 'activa',
-                        fechaLanzamiento: new Date()
+                        fechaLanzamiento: new Date(),
+                        hostId: hostIdSesion,
+                        ...(coHostId ? { coHostId } : {})
                     }
                 },
                 { upsert: true, new: true }
@@ -141,7 +158,7 @@ export default {
                 hostId: interaction.user.id,
                 hostTag: interaction.user.tag,
                 tipo: 'rp',
-                detalles: { linkSesion, limite, peacetime },
+                detalles: { linkSesion, limite, peacetime, coHostId },
                 guildId: interaction.guildId
             });
         } catch (error) {

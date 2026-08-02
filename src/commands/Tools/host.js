@@ -4,7 +4,7 @@ import Session from '../../../models/Session.js';
 export default {
     data: {
         name: 'host_swfl',
-        description: 'Anuncia formalmente quién está a cargo o ayudando en la sesión actual.',
+        description: 'Anuncia formalmente quién es Host o Co-Host de la sesión actual.',
         options: [
             {
                 name: 'tipo',
@@ -18,7 +18,7 @@ export default {
             },
             {
                 name: 'usuario',
-                description: 'Selecciona al miembro del Staff que estará a cargo.',
+                description: 'Miembro del Staff que estará a cargo.',
                 type: ApplicationCommandOptionType.User,
                 required: true
             }
@@ -28,7 +28,7 @@ export default {
     async execute(interaction) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
-                content: '❌ **No tienes permisos:** Solo el Staff puede anunciar encargados de sesión.',
+                content: '<:cruz00y4n:1523041302764191844> Solo el **Staff** puede anunciar encargados de sesión.',
                 ephemeral: true
             });
         }
@@ -36,37 +36,63 @@ export default {
         const tipo = interaction.options.getString('tipo');
         const usuarioStaff = interaction.options.getUser('usuario');
 
-        // Guardar host / co-host en la sesión activa
+        // Buscar sesión activa o en espera de reacciones
+        let sesion = null;
         try {
-            const update =
-                tipo === 'host'
-                    ? { hostId: usuarioStaff.id }
-                    : { coHostId: usuarioStaff.id };
+            sesion = await Session.findOne({
+                guildId: interaction.guildId,
+                estado: { $in: ['esperando_reacciones', 'activa'] }
+            }).sort({ fechaInicio: -1 });
 
-            await Session.findOneAndUpdate(
-                {
-                    guildId: interaction.guildId,
-                    estado: { $in: ['esperando_reacciones', 'activa'] }
-                },
-                update,
-                { sort: { fechaInicio: -1 } }
-            );
+            if (sesion) {
+                if (tipo === 'host') sesion.hostId = usuarioStaff.id;
+                else sesion.coHostId = usuarioStaff.id;
+                await sesion.save();
+            }
         } catch (err) {
             console.error('Error guardando host/cohost en sesión:', err);
         }
 
-        let textoTraducido = '';
-        if (tipo === 'host') {
-            textoTraducido = `<:si:1523041359441952970> <@${usuarioStaff.id}> ahora es el **Host** de la sesión actual. ¡Dirígete a este usuario si tienes alguna duda o inconveniente dentro del servidor!`;
-        } else {
-            textoTraducido = `<:si:1523041359441952970> <@${usuarioStaff.id}> ahora es **Co-Host** de la sesión actual. ¡Dirígete a este usuario si el host está ocupado o no se encuentra disponible!`;
-        }
+        const esCohost = tipo === 'cohost';
+        const titulo = esCohost
+            ? '💙 00Y4n Comunidad SWFL — Co-Host de Sesión 💙'
+            : '💙 00Y4n Comunidad SWFL — Host de Sesión 💙';
+
+        const descripcion = esCohost
+            ? `<@${usuarioStaff.id}> es **Co-Host** de la sesión actual. Si necesitás soporte y el host está ocupado, dirigite al co-host.`
+            : `<@${usuarioStaff.id}> es el **Host** de la sesión actual. Dirigite a este usuario si tenés dudas o inconvenientes dentro del servidor.`;
 
         const embedStaff = new EmbedBuilder()
-            .setDescription(textoTraducido)
-            .setColor('#74d4fc');
+            .setColor('#74d4fc')
+            .setDescription(`| ${titulo}\n\n${descripcion}`)
+            .setFooter({
+                text: '00Y4n Comunidad SWFL',
+                iconURL: interaction.guild.iconURL()
+            });
 
-        await interaction.reply({ content: 'Generando el anuncio de Staff...', ephemeral: true });
-        await interaction.channel.send({ embeds: [embedStaff] });
+        await interaction.reply({
+            content: '<a:verificacion:1523027148326047878> Anuncio de staff generado.',
+            ephemeral: true
+        });
+
+        // Responder al mensaje de /inicio_swfl si existe
+        let enviadoComoReply = false;
+        if (sesion?.idInicio) {
+            try {
+                const msgInicio = await interaction.channel.messages
+                    .fetch(sesion.idInicio)
+                    .catch(() => null);
+                if (msgInicio) {
+                    await msgInicio.reply({ embeds: [embedStaff] });
+                    enviadoComoReply = true;
+                }
+            } catch (e) {
+                console.error('No se pudo responder al mensaje de inicio:', e.message);
+            }
+        }
+
+        if (!enviadoComoReply) {
+            await interaction.channel.send({ embeds: [embedStaff] });
+        }
     }
 };
