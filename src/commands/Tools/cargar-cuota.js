@@ -3,7 +3,10 @@ import Staff from '../../../models/Staff.js';
 import StaffLog from '../../../models/StaffLog.js';
 import { formatearHoras } from '../../utils/formatearTiempo.js';
 
-async function aplicarCambio(interaction, signo) {
+const ROLE_LOA = '1532459272690991318';
+const CHANNEL_LOA = '1505015938544701490';
+
+async function aplicarCambioCuota(interaction, signo) {
   try {
     const usuarioTarget = interaction.options.getUser('usuario');
     const horasEnterasOpt = interaction.options.getInteger('horas');
@@ -202,7 +205,165 @@ async function aplicarCambio(interaction, signo) {
   }
 }
 
-function opcionesComunes(sub) {
+/**
+ * Cambiar estado LOA de forma centralizada (ACTIVO <-> LOA)
+ * Actualiza: Staff.estado + Staff.loa.activo + rol LOA + canal de ausencias
+ */
+async function cambiarEstadoLoa(interaction) {
+  try {
+    const usuarioTarget = interaction.options.getUser('usuario');
+    const accion = interaction.options.getString('accion'); // finalizar | activar
+    const motivo =
+      interaction.options.getString('motivo') ||
+      (accion === 'finalizar'
+        ? 'Regreso anticipado de LOA'
+        : 'LOA aplicada manualmente por High Command');
+
+    const guildId = interaction.guild.id;
+    let staffData = await Staff.findOne({ guildId, userId: usuarioTarget.id });
+
+    if (!staffData) {
+      staffData = new Staff({
+        guildId,
+        userId: usuarioTarget.id,
+        estado: 'ACTIVO',
+        loa: { activo: false, historial: [] }
+      });
+    }
+
+    if (!staffData.loa) staffData.loa = { activo: false, historial: [] };
+    if (!Array.isArray(staffData.loa.historial)) staffData.loa.historial = [];
+
+    const member = await interaction.guild.members.fetch(usuarioTarget.id).catch(() => null);
+    const canalLoa = await interaction.guild.channels.fetch(CHANNEL_LOA).catch(() => null);
+
+    if (accion === 'finalizar') {
+      // ── Volver a ACTIVO ──
+      if (staffData.estado !== 'LOA' && !staffData.loa.activo) {
+        return interaction.editReply({
+          content: `<:cruz00y4n:1523041302764191844> **${usuarioTarget.tag}** no está en LOA actualmente (estado: \`${staffData.estado || 'ACTIVO'}\`).`
+        });
+      }
+
+      const inicioAnterior = staffData.loa.inicio || staffData.loa.fechaInicio || null;
+
+      staffData.estado = 'ACTIVO';
+      staffData.loa.activo = false;
+      staffData.loa.fin = new Date();
+      staffData.loa.historial.push({
+        inicio: inicioAnterior || new Date(),
+        fin: new Date(),
+        motivo,
+        solicitadoEn: inicioAnterior || new Date()
+      });
+
+      await staffData.save();
+
+      // Quitar rol LOA
+      if (member) {
+        await member.roles.remove(ROLE_LOA).catch(() => null);
+      }
+
+      try {
+        await StaffLog.create({
+          guildId,
+          tipo: 'LOA_FIN',
+          targetUserId: usuarioTarget.id,
+          executorId: interaction.user.id,
+          detalles: { motivo, anticipado: true }
+        });
+      } catch (e) {
+        console.error('[cargar-cuota loa] StaffLog:', e.message);
+      }
+
+      const embed = new EmbedBuilder()
+        .setTitle('🟢 LOA Finalizada — Staff Activo')
+        .setColor(0x57f287)
+        .setThumbnail(usuarioTarget.displayAvatarURL({ dynamic: true }))
+        .setDescription(
+          `> **Staff:** <@${usuarioTarget.id}>\n` +
+            `> **Estado nuevo:** \`ACTIVO\`\n` +
+            `> **Motivo:** ${motivo}\n` +
+            `> **Finalizado por:** <@${interaction.user.id}>`
+        )
+        .setFooter({ text: '00Y4n Comunidad SWFL • Sistema de Ausencias' })
+        .setTimestamp();
+
+      await interaction.editReply({ embeds: [embed] });
+
+      if (canalLoa?.isTextBased()) {
+        await canalLoa.send({
+          content: `<@${usuarioTarget.id}>`,
+          embeds: [embed]
+        }).catch(() => null);
+      }
+
+      return;
+    }
+
+    // ── Activar LOA ──
+    if (staffData.estado === 'LOA' && staffData.loa.activo) {
+      return interaction.editReply({
+        content: `<:cruz00y4n:1523041302764191844> **${usuarioTarget.tag}** ya está en LOA.`
+      });
+    }
+
+    staffData.estado = 'LOA';
+    staffData.loa.activo = true;
+    staffData.loa.inicio = new Date();
+    staffData.loa.fin = null;
+    staffData.loa.motivo = motivo;
+
+    await staffData.save();
+
+    if (member) {
+      await member.roles.add(ROLE_LOA).catch(() => null);
+    }
+
+    try {
+      await StaffLog.create({
+        guildId,
+        tipo: 'LOA_INICIO',
+        targetUserId: usuarioTarget.id,
+        executorId: interaction.user.id,
+        detalles: { motivo, manual: true }
+      });
+    } catch (e) {
+      console.error('[cargar-cuota loa] StaffLog:', e.message);
+    }
+
+    const embed = new EmbedBuilder()
+      .setTitle('🟡 LOA Activada')
+      .setColor(0xf1c40f)
+      .setThumbnail(usuarioTarget.displayAvatarURL({ dynamic: true }))
+      .setDescription(
+        `> **Staff:** <@${usuarioTarget.id}>\n` +
+          `> **Estado nuevo:** \`LOA\`\n` +
+          `> **Motivo:** ${motivo}\n` +
+          `> **Activado por:** <@${interaction.user.id}>`
+      )
+      .setFooter({ text: '00Y4n Comunidad SWFL • Sistema de Ausencias' })
+      .setTimestamp();
+
+    await interaction.editReply({ embeds: [embed] });
+
+    if (canalLoa?.isTextBased()) {
+      await canalLoa.send({
+        content: `<@${usuarioTarget.id}>`,
+        embeds: [embed]
+      }).catch(() => null);
+    }
+  } catch (error) {
+    console.error('[cargar-cuota loa] Error:', error);
+    return interaction
+      .editReply({
+        content: `<:cruz00y4n:1523041302764191844> Error al cambiar LOA: \`${error.message}\``
+      })
+      .catch(() => null);
+  }
+}
+
+function opcionesCuota(sub) {
   return sub
     .addUserOption(o =>
       o.setName('usuario').setDescription('El miembro del Staff').setRequired(true)
@@ -252,25 +413,51 @@ function opcionesComunes(sub) {
 export default {
   data: new SlashCommandBuilder()
     .setName('cargar-cuota')
-    .setDescription('Suma o resta horas, minutos, sesiones o tickets de la cuota semanal de un Staff.')
+    .setDescription('Gestiona cuota semanal y estado LOA del Staff.')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .addSubcommand(sub =>
-      opcionesComunes(
+      opcionesCuota(
         sub.setName('sumar').setDescription('Sumar tiempo, sesiones o tickets a la cuota.')
       )
     )
     .addSubcommand(sub =>
-      opcionesComunes(
+      opcionesCuota(
         sub
           .setName('remover')
           .setDescription('Restar tiempo, sesiones o tickets (error, prueba o entrenamiento).')
       )
+    )
+    .addSubcommand(sub =>
+      sub
+        .setName('loa')
+        .setDescription('Activar o finalizar LOA de un miembro del Staff.')
+        .addUserOption(o =>
+          o.setName('usuario').setDescription('El miembro del Staff').setRequired(true)
+        )
+        .addStringOption(o =>
+          o
+            .setName('accion')
+            .setDescription('¿Qué querés hacer con la LOA?')
+            .setRequired(true)
+            .addChoices(
+              { name: 'Finalizar LOA (volver a Activo)', value: 'finalizar' },
+              { name: 'Activar LOA', value: 'activar' }
+            )
+        )
+        .addStringOption(o =>
+          o.setName('motivo').setDescription('Motivo del cambio de estado').setRequired(false)
+        )
     ),
 
   async execute(interaction) {
     await interaction.deferReply();
     const sub = interaction.options.getSubcommand();
+
+    if (sub === 'loa') {
+      return cambiarEstadoLoa(interaction);
+    }
+
     const signo = sub === 'remover' ? -1 : 1;
-    return aplicarCambio(interaction, signo);
+    return aplicarCambioCuota(interaction, signo);
   }
 };

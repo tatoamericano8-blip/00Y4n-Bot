@@ -11,6 +11,7 @@ const staffLogSchema = new mongoose.Schema({
       'RENUNCIA',
       'LOA_INICIO',
       'LOA_FIN',
+      'LOA_APROBADA',
       'HANDPICK',
       'PREMIO',
       'SESION_LOG',
