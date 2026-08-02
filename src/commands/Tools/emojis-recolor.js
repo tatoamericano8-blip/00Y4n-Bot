@@ -18,25 +18,19 @@ function parseHex(hex) {
     r: parseInt(h.slice(0, 2), 16),
     g: parseInt(h.slice(2, 4), 16),
     b: parseInt(h.slice(4, 6), 16),
-    hex: `#${h.toUpperCase()}`
+    hex: `#${h.toUpperCase()}`,
+    short: h.toLowerCase().slice(0, 6)
   };
 }
 
-/**
- * Tiñe la imagen hacia el color objetivo.
- * - Estáticos: PNG teñido (luminosidad conservada).
- * - Animados: intenta mantener el GIF animado con sharp.tint().
- */
 async function teñirImagen(buffer, { r, g, b }, animado = false) {
   if (animado) {
     try {
-      // Mantener animación: tint sobre todas las páginas del GIF
       return await sharp(buffer, { animated: true, pages: -1 })
         .tint({ r, g, b })
         .gif()
         .toBuffer();
     } catch {
-      // Fallback: primer frame → PNG estático teñido
       return teñirEstatico(buffer, { r, g, b });
     }
   }
@@ -70,23 +64,74 @@ function sleep(ms) {
   return new Promise(r => setTimeout(r, ms));
 }
 
+/** Nombre válido Discord (2-32 chars, a-z 0-9 _) */
+function nombreNuevo(original, colorShort, existentes) {
+  const base = String(original).toLowerCase().replace(/[^a-z0-9_]/g, '_').slice(0, 20);
+  let candidato = `${base}_${colorShort}`.slice(0, 32);
+  let n = 1;
+  while (existentes.has(candidato.toLowerCase())) {
+    const suf = `_${n}`;
+    candidato = `${base}_${colorShort}`.slice(0, 32 - suf.length) + suf;
+    n++;
+    if (n > 50) break;
+  }
+  return candidato;
+}
+
 export default {
   data: new SlashCommandBuilder()
     .setName('emojis-recolor')
-    .setDescription('ADMIN: Tiñe todos los emojis del servidor hacia un color hexadecimal.')
+    .setDescription('ADMIN: Tiñe emojis del servidor hacia un color hexadecimal.')
     .addStringOption(o =>
       o
         .setName('color')
         .setDescription('Color hex, ej: #74d4fc o FF0000')
         .setRequired(true)
     )
+    .addStringOption(o =>
+      o
+        .setName('modo')
+        .setDescription('Procesar uno solo (prueba) o todos')
+        .setRequired(true)
+        .addChoices(
+          { name: 'Uno (probar de a uno)', value: 'uno' },
+          { name: 'Todos los emojis', value: 'todos' }
+        )
+    )
+    .addStringOption(o =>
+      o
+        .setName('emoji')
+        .setDescription('Nombre del emoji (obligatorio si modo = uno). Ej: si, cora')
+        .setRequired(false)
+        .setAutocomplete(true)
+    )
+    .addBooleanOption(o =>
+      o
+        .setName('conservar_viejos')
+        .setDescription('true = crear teñidos y dejar los originales. false = reemplazar. Default: true')
+        .setRequired(false)
+    )
     .addBooleanOption(o =>
       o
         .setName('incluir_animados')
-        .setDescription('Incluir animados (intenta conservar la animación). Default: sí')
+        .setDescription('Incluir animados (intenta conservar GIF). Default: sí')
         .setRequired(false)
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+
+  async autocomplete(interaction) {
+    const focused = interaction.options.getFocused(true);
+    if (focused.name !== 'emoji') return interaction.respond([]);
+    const q = String(focused.value || '').toLowerCase();
+    const lista = [...interaction.guild.emojis.cache.values()]
+      .filter(e => !q || e.name.toLowerCase().includes(q))
+      .slice(0, 25)
+      .map(e => ({
+        name: `${e.animated ? '(A) ' : ''}${e.name}`.slice(0, 100),
+        value: e.name
+      }));
+    await interaction.respond(lista);
+  },
 
   async execute(interaction) {
     if (
@@ -115,29 +160,66 @@ export default {
       });
     }
 
+    const modo = interaction.options.getString('modo');
+    const conservar = interaction.options.getBoolean('conservar_viejos') ?? true;
     const incluirAnimados = interaction.options.getBoolean('incluir_animados') ?? true;
-    const emojis = [...interaction.guild.emojis.cache.values()].filter(e =>
+    const nombreEmoji = interaction.options.getString('emoji');
+
+    let emojis = [...interaction.guild.emojis.cache.values()].filter(e =>
       incluirAnimados ? true : !e.animated
     );
 
+    if (modo === 'uno') {
+      if (!nombreEmoji) {
+        return interaction.reply({
+          content: '❌ En modo **uno** tenés que indicar el nombre del emoji en la opción `emoji`.',
+          ephemeral: true
+        });
+      }
+      const encontrado = interaction.guild.emojis.cache.find(
+        e => e.name.toLowerCase() === nombreEmoji.toLowerCase()
+      );
+      if (!encontrado) {
+        return interaction.reply({
+          content: `❌ No encontré el emoji \\`${nombreEmoji}\\`. Revisá el nombre (autocomplete ayuda).`,
+          ephemeral: true
+        });
+      }
+      if (encontrado.animated && !incluirAnimados) {
+        return interaction.reply({
+          content: '❌ Ese emoji es animado y `incluir_animados` está en false.',
+          ephemeral: true
+        });
+      }
+      emojis = [encontrado];
+    }
+
     if (emojis.length === 0) {
       return interaction.reply({
-        content: 'No hay emojis personalizados para procesar.',
+        content: 'No hay emojis para procesar.',
         ephemeral: true
       });
     }
 
+    // Slots disponibles si se conservan (Discord: 50 estáticos + 50 animados base, más con boost)
+    if (conservar) {
+      const maxStatic = interaction.guild.stickers ? 50 : 50; // límite real depende de boost level
+      // Solo aviso, no bloqueamos: Discord rechazará si no hay cupo
+    }
+
     const embedWarn = new EmbedBuilder()
-      .setTitle('⚠️ Recolor de emojis del servidor')
+      .setTitle('⚠️ Recolor de emojis')
       .setColor(color.hex)
       .setDescription(
         [
-          `Vas a **teñir ${emojis.length} emoji(s)** hacia **${color.hex}**.`,
+          `**Color:** ${color.hex}`,
+          `**Modo:** ${modo === 'uno' ? `Uno → \\`${emojis[0].name}\\`` : `Todos (${emojis.length})`}`,
+          `**Conservar viejos:** ${conservar ? 'Sí (se crean nuevos, originales quedan)' : 'No (se reemplazan / borran originales)'}`,
+          `**Animados:** ${incluirAnimados ? 'Incluidos' : 'Excluidos'}`,
           '',
-          '> Discord **no permite** cambiar el color sin re-subir el emoji.',
-          '> Se **borra** el original y se **crea** uno nuevo con el mismo nombre.',
-          '> Los **animados** se intentan conservar como GIF teñido (si falla, quedan estáticos).',
-          '> Los **IDs cambian** → menciones viejas del estilo nombre:ID dejarán de verse.',
+          conservar
+            ? '> Los nuevos se llamarán `nombre_hex` (ej: `si_74d4fc`). Los originales **no se borran**.'
+            : '> Cada emoji se **borra** y se vuelve a crear con el **mismo nombre** (cambia el ID).',
           '',
           'Confirmá en **30 segundos**.'
         ].join('\n')
@@ -146,7 +228,7 @@ export default {
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setCustomId('emojis_recolor_si')
-        .setLabel('Sí, teñir todos')
+        .setLabel(modo === 'uno' ? 'Sí, teñir este' : 'Sí, teñir todos')
         .setStyle(ButtonStyle.Danger),
       new ButtonBuilder()
         .setCustomId('emojis_recolor_no')
@@ -190,40 +272,57 @@ export default {
     let fail = 0;
     let animOk = 0;
     const errores = [];
+    const creados = [];
 
     for (let i = 0; i < emojis.length; i++) {
       const emoji = emojis[i];
       try {
+        // Refetch por si el cache cambió
+        const actual = await interaction.guild.emojis.fetch(emoji.id).catch(() => emoji);
         const res = await fetch(
-          emoji.imageURL({
-            extension: emoji.animated ? 'gif' : 'png',
+          actual.imageURL({
+            extension: actual.animated ? 'gif' : 'png',
             size: 128
           })
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const buf = Buffer.from(await res.arrayBuffer());
-        const teñido = await teñirImagen(buf, color, emoji.animated);
+        const teñido = await teñirImagen(buf, color, actual.animated);
+        const esGif = teñido[0] === 0x47 && teñido[1] === 0x49 && teñido[2] === 0x46;
 
-        // Discord: animado requiere GIF y el servidor debe tener slots de animados
-        const esGif =
-          teñido[0] === 0x47 && teñido[1] === 0x49 && teñido[2] === 0x46; // GIF
+        const nombresExistentes = new Set(
+          [...interaction.guild.emojis.cache.values()].map(e => e.name.toLowerCase())
+        );
 
-        const nombre = emoji.name;
-        const eraAnimado = emoji.animated;
-        await emoji.delete(`Recolor a ${color.hex} por ${interaction.user.tag}`);
-        await interaction.guild.emojis.create({
-          attachment: teñido,
-          name: nombre,
-          reason: `Recolor ${color.hex} por ${interaction.user.tag}`
-        });
+        if (conservar) {
+          const nuevoNombre = nombreNuevo(actual.name, color.short, nombresExistentes);
+          const creado = await interaction.guild.emojis.create({
+            attachment: teñido,
+            name: nuevoNombre,
+            reason: `Recolor ${color.hex} (conservar) por ${interaction.user.tag}`
+          });
+          creados.push(`${actual.name} → ${creado.name}`);
+          interaction.guild.emojis.cache.set(creado.id, creado);
+        } else {
+          const nombre = actual.name;
+          await actual.delete(`Recolor a ${color.hex} por ${interaction.user.tag}`);
+          const creado = await interaction.guild.emojis.create({
+            attachment: teñido,
+            name: nombre,
+            reason: `Recolor ${color.hex} por ${interaction.user.tag}`
+          });
+          creados.push(`${nombre} (reemplazado)`);
+          interaction.guild.emojis.cache.set(creado.id, creado);
+        }
+
         ok++;
-        if (eraAnimado && esGif) animOk++;
+        if (actual.animated && esGif) animOk++;
       } catch (e) {
         fail++;
-        errores.push(`${emoji.name}: ${e.message}`.slice(0, 80));
+        errores.push(`${emoji.name}: ${e.message}`.slice(0, 90));
       }
 
-      if (i % 3 === 0 || i === emojis.length - 1) {
+      if (i % 2 === 0 || i === emojis.length - 1) {
         await interaction
           .editReply({
             content: `🎨 Procesando **${i + 1}/${emojis.length}**… (ok: ${ok}, fail: ${fail})`
@@ -234,15 +333,23 @@ export default {
       await sleep(1500);
     }
 
+    const listaCreados =
+      creados.length > 0
+        ? `\n**Resultado:**\n\`\`\`\n${creados.slice(0, 15).join('\n')}${creados.length > 15 ? '\n…' : ''}\n\`\`\``
+        : '';
+
     const embedFin = new EmbedBuilder()
       .setTitle('✅ Recolor finalizado')
       .setColor(color.hex)
       .setDescription(
         [
           `> **Color:** ${color.hex}`,
+          `> **Modo:** ${modo}`,
+          `> **Conservar viejos:** ${conservar ? 'Sí' : 'No'}`,
           `> **Exitosos:** ${ok}`,
-          `> **Animados conservados (GIF):** ${animOk}`,
+          `> **Animados GIF:** ${animOk}`,
           `> **Fallidos:** ${fail}`,
+          listaCreados,
           errores.length
             ? `\n**Errores:**\n\`\`\`\n${errores.slice(0, 8).join('\n')}\n\`\`\``
             : ''
