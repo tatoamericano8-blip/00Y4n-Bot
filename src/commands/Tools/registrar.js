@@ -8,6 +8,11 @@ import {
     PermissionFlagsBits
 } from 'discord.js';
 import Vehiculo from '../../../models/Vehiculo.js';
+import {
+    validarRegistroVehiculo,
+    marcarRegistroExitoso,
+    patenteValida
+} from '../../utils/antiAbusoPatentes.js';
 
 const ROL_ALTO_MANDO = '1528870731629465752';
 const LIMITE_MAXIMO = 4;
@@ -59,25 +64,25 @@ export default {
         const subcomando = interaction.options.getSubcommand();
         const usuarioId = interaction.user.id;
 
-        // ═══════════════════════════════════════
-        //  REGISTRAR
-        // ═══════════════════════════════════════
         if (subcomando === 'registrar') {
             const marca = interaction.options.getString('marca');
             const modelo = interaction.options.getString('modelo');
             const anio = interaction.options.getString('anio');
             const color = interaction.options.getString('color');
-            const patente = interaction.options.getString('patente').toUpperCase().trim();
+            const patenteRaw = interaction.options.getString('patente');
 
-            if (patente.length < 3 || patente.length > 8) {
+            const valid = validarRegistroVehiculo(usuarioId, {
+                marca, modelo, anio, color, patente: patenteRaw
+            });
+            if (!valid.ok) {
                 return await interaction.editReply({
-                    content: `<:cruz:1523041302764191844> La matrícula debe tener entre **3 y 8** caracteres.`
+                    content: `<:cruz:1523041302764191844> ${valid.motivo}`
                 });
             }
+            const patente = valid.patente;
 
             try {
                 const cantidadAutos = await Vehiculo.countDocuments({ usuario_id: usuarioId });
-
                 if (cantidadAutos >= LIMITE_MAXIMO) {
                     return await interaction.editReply({
                         content:
@@ -102,6 +107,8 @@ export default {
                     patente
                 });
 
+                marcarRegistroExitoso(usuarioId);
+
                 const embedRegistro = new EmbedBuilder()
                     .setTitle('<:seguro:1523041347869868253> SWFL | FORMATO DE MATRICULACIÓN DE VEHÍCULOS <:seguro:1523041347869868253>')
                     .setDescription(
@@ -124,11 +131,14 @@ export default {
             }
         }
 
-        // ═══════════════════════════════════════
-        //  REMOVER
-        // ═══════════════════════════════════════
         if (subcomando === 'remover') {
-            const patente = interaction.options.getString('patente').toUpperCase().trim();
+            const check = patenteValida(interaction.options.getString('patente'));
+            if (!check.ok) {
+                return await interaction.editReply({
+                    content: `<:cruz:1523041302764191844> ${check.motivo}`
+                });
+            }
+            const patente = check.patente;
 
             try {
                 const autoBorrado = await Vehiculo.findOneAndDelete({
@@ -161,9 +171,6 @@ export default {
             }
         }
 
-        // ═══════════════════════════════════════
-        //  REINICIAR (todas las matriculaciones)
-        // ═══════════════════════════════════════
         if (subcomando === 'reiniciar') {
             const esAltoMando =
                 interaction.member.roles.cache.has(ROL_ALTO_MANDO) ||
@@ -179,13 +186,12 @@ export default {
             if (confirmacion !== 'REINICIAR') {
                 return await interaction.editReply({
                     content:
-                        '<:cruz:1523041302764191844> Para confirmar, en la opción **confirmacion** debés escribir exactamente: `REINICIAR`\n\n' +
-                        '⚠️ Esto borra **todas** las patentes de **todos** los jugadores. Es irreversible.'
+                        '<:cruz:1523041302764191844> Para confirmar, en **confirmacion** escribí exactamente: `REINICIAR`\n\n' +
+                        '⚠️ Esto borra **todas** las patentes de **todos** los jugadores.'
                 });
             }
 
             const total = await Vehiculo.countDocuments({});
-
             if (total === 0) {
                 return await interaction.editReply({
                     content: '<a:verificacion:1523027148326047878> No hay vehículos registrados. Nada que borrar.'
@@ -199,10 +205,8 @@ export default {
                     `Estás a punto de **borrar permanentemente** todas las matriculaciones.\n\n` +
                     `> **Vehículos a eliminar:** **${total}**\n` +
                     `> **Ejecutado por:** <@${interaction.user.id}>\n\n` +
-                    `Los perfiles (`/perfil`) quedarán sin vehículos registrados.\n` +
                     `Tenés **30 segundos** para confirmar.`
-                )
-                .setFooter({ text: '00Y4n Comunidad SWFL • Sistema de Tránsito' });
+                );
 
             const row = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
@@ -215,10 +219,7 @@ export default {
                     .setStyle(ButtonStyle.Secondary)
             );
 
-            const msg = await interaction.editReply({
-                embeds: [embedConfirm],
-                components: [row]
-            });
+            const msg = await interaction.editReply({ embeds: [embedConfirm], components: [row] });
 
             try {
                 const clicked = await msg.awaitMessageComponent({
@@ -229,7 +230,7 @@ export default {
 
                 if (clicked.customId === 'matricular_reiniciar_no') {
                     await clicked.update({
-                        content: '<:cruz:1523041302764191844> Reinicio de matriculaciones **cancelado**.',
+                        content: '<:cruz:1523041302764191844> Reinicio **cancelado**.',
                         embeds: [],
                         components: []
                     });
@@ -237,7 +238,6 @@ export default {
                 }
 
                 await clicked.deferUpdate();
-
                 const resultado = await Vehiculo.deleteMany({});
                 const borrados = resultado.deletedCount || 0;
 
@@ -245,19 +245,13 @@ export default {
                     .setTitle('<a:verificacion:1523027148326047878> Matriculaciones reiniciadas')
                     .setColor('#57f287')
                     .setDescription(
-                        `Se eliminaron **${borrados}** vehículo(s) de la base de datos.\n\n` +
-                        `> Todos los perfiles quedan **sin vehículos registrados**.\n` +
-                        `> Los jugadores deberán volver a usar \`/matricular registrar\`.\n\n` +
+                        `Se eliminaron **${borrados}** vehículo(s).\n\n` +
+                        `> Todos los perfiles quedan **sin vehículos**.\n` +
                         `**Ejecutado por:** <@${interaction.user.id}>`
                     )
-                    .setFooter({ text: 'Sistema de Tránsito Oficial' })
                     .setTimestamp();
 
-                await interaction.editReply({
-                    content: null,
-                    embeds: [embedOk],
-                    components: []
-                });
+                await interaction.editReply({ embeds: [embedOk], components: [] });
             } catch {
                 await interaction.editReply({
                     content: '⏰ Tiempo agotado. Reinicio **cancelado**.',
