@@ -75,7 +75,7 @@ export default {
             `3. Cuando se publique el link, hacé clic y unite.\n\n` +
             `<:consola:1523041347869868253> **Si jugás en Consola**\n` +
             `1. Registra tu vehículo con \`/matricula_swfl registrar\` (mismas reglas que arriba).\n` +
-            `2. Mantente atento a los canales de roleplay para ver una sesión activa.\n` +
+            `2. Mantente atento a los canales de <#1452644461745148049> y <#1501739933495201925> para ver una sesión activa. Si no hay, esperá pacientemente a que un host tenga tiempo e inicie una.\n` +
             `3. Los jugadores de consola **no pueden** hacer clic directamente en los enlaces de servidores privados.\n` +
             `<:replica:1523028004983406787> Menciona al **Host de la Sesión** en el chat de la sesión y pídele que te **agregue como amigo** en Roblox, luego únete a través de su perfil.`
           )
@@ -122,7 +122,7 @@ export default {
             `3. Especifica la **marca y modelo** exacto de tu auto.\n\n` +
             `<:adv:1523041352714158240> **Importante:**\n` +
             `- Revisa el canal de reglas para asegurarte de que tu auto no esté en la lista de **vehículos restringidos o prohibidos**.\n` +
-            `- Tu registro es obligatorio para poder ingresar a las sesiones de roleplay y **evitar multas**.`
+            `- Tu registro es obligatorio para poder ingresar a las sesiones de roleplay y **evitar multas** (No se permiten patentes iguales).`
           )
           .setFooter({
             text: message.guild.name,
