@@ -2,7 +2,6 @@ import { Events, MessageFlags } from 'discord.js';
 import { logger } from '../utils/logger.js';
 import { getGuildConfig } from '../services/guildConfig.js';
 import { handleApplicationModal } from '../commands/Community/apply.js';
-import { handleApplicationReviewModal } from '../commands/Community/app-admin.js';
 import { handleInteractionError, createError, ErrorTypes } from '../utils/errorHandler.js';
 import { MessageTemplates } from '../utils/messageTemplates.js';
 import { InteractionHelper } from '../utils/interactionHelper.js';
@@ -111,19 +110,6 @@ export default {
                 const filtered = roles.filter(role =>
                   role.enabled !== false &&
                   role.name.toLowerCase().startsWith(roleName?.toLowerCase() || '')
-                );
-                await interaction.respond(
-                  filtered.slice(0, 25).map(role => ({
-                    name: `${role.name}${role.enabled === false ? ' (disabled)' : ''}`,
-                    value: role.name
-                  }))
-                );
-              } else if (interaction.commandName === 'app-admin' && focusedOption.name === 'application') {
-                const { getApplicationRoles } = await import('../utils/database.js');
-                const roles = await getApplicationRoles(client, interaction.guildId);
-                const appName = interaction.options.getString('application', false);
-                const filtered = roles.filter(role =>
-                  role.name.toLowerCase().startsWith(appName?.toLowerCase() || '')
                 );
                 await interaction.respond(
                   filtered.slice(0, 25).map(role => ({
@@ -276,18 +262,6 @@ export default {
                 type: 'modal',
                 customId: interaction.customId,
                 handler: 'application'
-              }, interactionTraceContext));
-            }
-            return;
-          }
-          if (interaction.customId.startsWith('app_review_')) {
-            try {
-              await handleApplicationReviewModal(interaction);
-            } catch (error) {
-              await handleInteractionError(interaction, error, withTraceContext({
-                type: 'modal',
-                customId: interaction.customId,
-                handler: 'application_review'
               }, interactionTraceContext));
             }
             return;
