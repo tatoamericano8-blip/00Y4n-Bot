@@ -11,30 +11,27 @@ const historialSchema = new mongoose.Schema({
             'REINVITACION_CREADA', 
             'REINVITACION_LIBERADA', 
             'SESION_CERRADA',
+            'SESION_CERRADA_AUTO',
             'SESION_CANCELADA',
-            'SUPERVISION_REGISTRADA', // 🚀 Evento opcional si registras supervisiones
-            'CUOTA_ACTUALIZADA'       // 🚀 Evento opcional si registras cambios de cuotas
+            'SUPERVISION_REGISTRADA',
+            'CUOTA_ACTUALIZADA'
         ]
     },
-    mensajeId: { type: String, required: true }, // ID del mensaje donde ocurre la acción
-    idInicio: { type: String, required: true },   // Permite vincular el evento a la Sesion raíz
+    mensajeId: { type: String, required: true },
+    idInicio: { type: String, required: true },
     guildId: { type: String, required: true },
     hostId: { type: String, required: true },
     hostTag: { type: String, default: null },
     tipo: { type: String, enum: ['rp', 'meet'], required: true },
     
-    // Objeto flexible para guardar datos puntuales del momento del evento
     detalles: { 
         type: Object, 
         default: {} 
-        // Ejemplo en Cierre: { duracionMinutos: 45, motivo: 'Fin de sesión' }
-        // Ejemplo en Reinvitación: { reaccionesMeta: 10, link: 'https://...' }
     },
     
     fecha: { type: Date, default: Date.now }
 });
 
-// 🚀 Índices para acelerar búsquedas de métricas del Staff y auditorías
 historialSchema.index({ hostId: 1, fecha: -1 });
 historialSchema.index({ guildId: 1, fecha: -1 });
 historialSchema.index({ idInicio: 1 });

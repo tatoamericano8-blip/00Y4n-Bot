@@ -3,62 +3,46 @@
  *  COLORES CENTRALIZADOS DEL BOT 00Y4n
  * ============================================================
  *
- *  Este archivo es el punto ÚNICO recomendado para el color
- *  de marca de los embeds personalizados de SWFL.
+ *  Punto ÚNICO para el color de marca.
  *
- *  Cómo cambiar el color de TODO lo que use este util:
- *    1. Editá solo la constante `PRIMARIO` abajo.
- *    2. Los comandos que importen desde aquí se actualizarán.
+ *  Cómo cambiar el color de casi TODO el bot:
+ *    1. Editá solo PRIMARIO abajo.
+ *    2. Reiniciá / redeploy.
  *
- *  Nota:
- *  - Los módulos viejos del template (tickets, giveaways, etc.)
- *    usan `getColor()` desde `src/config/bot.js`.
- *  - Muchos comandos SWFL todavía tienen `#74d4fc` hardcodeado.
- *    No se tocaron: el default se mantiene igual.
- *  - Cuando crees comandos nuevos, usá:
- *      import { COLORES } from '../../utils/colores.js';
- *      .setColor(COLORES.primario)
+ *  - Embeds con .setColor('#74d4fc') se redirigen vía parcheColorEmbed.js
+ *  - getColor() de bot.js y comandos que usen COLORES.primario también.
  * ============================================================
  */
 
 /** Color principal de marca 00Y4n (celeste) */
-export const PRIMARIO = '#74d4fc';
+export const PRIMARIO = '#74d4fc'; // ← CAMBIÁ SOLO ESTA LÍNEA para todo el bot
 
 /** Alias legibles para embeds */
 export const COLORES = {
-  /** Color de marca / embeds normales */
   primario: PRIMARIO,
   secundario: PRIMARIO,
 
-  /** Estados */
-  exito: '#57f287',      // verde Discord
-  error: '#ed4245',      // rojo Discord
-  advertencia: '#faa61a', // naranja
+  exito: '#57f287',
+  error: '#ed4245',
+  advertencia: '#faa61a',
   info: PRIMARIO,
 
-  /** Moderación / staff */
   moderacion: PRIMARIO,
   strike: '#ed4245',
   loa: '#fee75c',
 
-  /** Economía */
   economia: PRIMARIO,
   dinero: '#57f287',
 
-  /** Sesiones / RP */
   sesion: PRIMARIO,
 
-  /** Departamentos (podés personalizar después) */
   policia: PRIMARIO,
   bomberos: '#ed4245',
   ems: '#57f287',
 };
 
 /**
- * Devuelve el color listo para .setColor()
- * Acepta clave de COLORES o un hex directo.
- *
- * @param {string} [clave='primario'] ej: 'primario' | 'error' | '#ff0000'
+ * @param {string} [clave='primario']
  */
 export function colorEmbed(clave = 'primario') {
   if (typeof clave === 'string' && clave.startsWith('#')) return clave;
