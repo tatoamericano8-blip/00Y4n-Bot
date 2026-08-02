@@ -4,18 +4,16 @@ import Sesion from '../../../models/Session.js';
 const ROL_ALTO_MANDO_ID = '1528870731629465752';
 const HORAS_A_BORRAR = 3;
 
-/**
- * Borra mensajes del canal de las últimas N horas (bulkDelete en lotes).
- * Ignora mensajes más viejos de 14 días (límite de Discord).
- */
 async function borrarMensajesUltimasHoras(channel, horas = HORAS_A_BORRAR) {
     const limiteMs = Date.now() - horas * 60 * 60 * 1000;
     const limite14d = Date.now() - 14 * 24 * 60 * 60 * 1000;
     let borrados = 0;
     let lastId = undefined;
     let seguir = true;
+    let lotes = 0;
 
-    while (seguir) {
+    while (seguir && lotes < 10) {
+        lotes++;
         const opciones = { limit: 100 };
         if (lastId) opciones.before = lastId;
 
@@ -27,11 +25,9 @@ async function borrarMensajesUltimasHoras(channel, horas = HORAS_A_BORRAR) {
         );
 
         if (eliminables.size > 0) {
-            // bulkDelete necesita Collection o array de IDs
             const res = await channel.bulkDelete(eliminables, true).catch(() => null);
             if (res) borrados += res.size;
             else {
-                // Fallback uno a uno
                 for (const msg of eliminables.values()) {
                     await msg.delete().catch(() => null);
                     borrados++;
@@ -41,14 +37,7 @@ async function borrarMensajesUltimasHoras(channel, horas = HORAS_A_BORRAR) {
 
         const oldest = batch.last();
         lastId = oldest?.id;
-
-        // Si el mensaje más viejo del lote ya es anterior a la ventana, paramos
-        if (!oldest || oldest.createdTimestamp < limiteMs) {
-            seguir = false;
-        }
-
-        // Seguridad: no más de 10 lotes (1000 msgs)
-        if (borrados >= 1000) seguir = false;
+        if (!oldest || oldest.createdTimestamp < limiteMs) seguir = false;
     }
 
     return borrados;
@@ -57,7 +46,7 @@ async function borrarMensajesUltimasHoras(channel, horas = HORAS_A_BORRAR) {
 export default {
     data: new SlashCommandBuilder()
         .setName('forzar-cierre')
-        .setDescription('Finaliza forzosamente una sesión y limpia mensajes de las últimas 3 horas.')
+        .setDescription('Finaliza forzosamente una sesión (sin cuota) y limpia mensajes de 3 horas.')
         .addUserOption(option =>
             option
                 .setName('host')
@@ -88,9 +77,10 @@ export default {
         const hostUsuario = interaction.options.getUser('host');
         const motivoCancelacion = interaction.options.getString('motivo');
 
-        // Cerrar sesión activa en DB si existe
+        // Cerrar sesión(es) activas SIN sumar cuota
+        let sesionesCerradas = 0;
         try {
-            await Sesion.findOneAndUpdate(
+            const res = await Sesion.updateMany(
                 {
                     guildId: interaction.guildId,
                     estado: { $in: ['esperando_reacciones', 'activa'] }
@@ -98,11 +88,16 @@ export default {
                 {
                     $set: {
                         estado: 'cerrada',
-                        fechaCierre: new Date()
+                        fechaCierre: new Date(),
+                        cierreForzado: true,
+                        cuentaParaCuota: false,
+                        motivoCierreForzado: motivoCancelacion,
+                        cerradoPor: interaction.user.id,
+                        hostId: hostUsuario.id // referencia al host mencionado
                     }
-                },
-                { sort: { fechaInicio: -1 } }
+                }
             );
+            sesionesCerradas = res.modifiedCount || 0;
         } catch (e) {
             console.error('[forzar-cierre] Error cerrando sesión en DB:', e.message);
         }
@@ -113,7 +108,7 @@ export default {
             .setDescription(
                 `La sesión organizada por <@${hostUsuario.id}> fue cancelada por un integrante del **Alto Mando** (<@${interaction.user.id}>).\n\n` +
                     `<:pin:1523041306836996156> **Motivo:** ${motivoCancelacion}\n\n` +
-                    `<a:not:1523026703201337436> *No se registraron penalizaciones en el historial ni en el perfil del Staff.*\n` +
+                    `<a:not:1523026703201337436> *No se sumó cuota ni sesiones al host, co-host ni supervisor.*\n` +
                     `🗑️ *Se limpiarán los mensajes de las últimas **${HORAS_A_BORRAR} horas** en este canal.*`
             )
             .setFooter({
@@ -127,7 +122,6 @@ export default {
             allowedMentions: { parse: [] }
         });
 
-        // Borrar mensajes de las últimas 3 horas (después del anuncio)
         let borrados = 0;
         try {
             borrados = await borrarMensajesUltimasHoras(interaction.channel, HORAS_A_BORRAR);
@@ -135,14 +129,12 @@ export default {
             console.error('[forzar-cierre] Error borrando mensajes:', e.message);
         }
 
-        // Aviso efímero al HC con el resultado (si el reply sigue existiendo puede haberse borrado)
         try {
             await interaction.followUp({
-                content: `🗑️ Limpieza completada: se eliminaron **${borrados}** mensaje(s) de las últimas ${HORAS_A_BORRAR} horas.`,
+                content:
+                    `🗑️ Limpieza: **${borrados}** mensaje(s). Sesiones forzadas cerradas: **${sesionesCerradas}**. Cuota: **no sumada**.`,
                 ephemeral: true
             });
-        } catch {
-            // El mensaje de reply pudo haberse borrado en el bulk — no es crítico
-        }
+        } catch {}
     }
 };

@@ -41,7 +41,13 @@ const sesionSchema = new mongoose.Schema({
     fechaInicio: { type: Date, default: Date.now },
     fechaLanzamiento: { type: Date, default: null },
     fechaCierre: { type: Date, default: null },
-    duracionMinutos: { type: Number, default: 0 }
+    duracionMinutos: { type: Number, default: 0 },
+
+    /** Si true, no suma cuota a host/cohost/supervisor */
+    cierreForzado: { type: Boolean, default: false },
+    motivoCierreForzado: { type: String, default: null },
+    cerradoPor: { type: String, default: null },
+    cuentaParaCuota: { type: Boolean, default: true }
 });
 
 export default mongoose.models.Sesion || mongoose.model('Sesion', sesionSchema);
