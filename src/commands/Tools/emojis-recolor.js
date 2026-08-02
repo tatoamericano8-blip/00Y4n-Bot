@@ -23,23 +23,86 @@ function parseHex(hex) {
   };
 }
 
-async function teniriImagen(buffer, rgb, animado = false) {
-  const { r, g, b } = rgb;
+async function descargarEmoji(emoji) {
+  const id = emoji.id;
+  const animado = emoji.animated;
+
+  const candidatos = [];
+
   if (animado) {
+    candidatos.push('https://cdn.discordapp.com/emojis/' + id + '.gif');
+    candidatos.push('https://cdn.discordapp.com/emojis/' + id + '.gif?size=128');
+    candidatos.push('https://cdn.discordapp.com/emojis/' + id + '.gif?size=96');
+    candidatos.push('https://cdn.discordapp.com/emojis/' + id + '.gif?size=64');
+    candidatos.push('https://cdn.discordapp.com/emojis/' + id + '.webp?size=128&animated=true');
+  }
+  candidatos.push('https://cdn.discordapp.com/emojis/' + id + '.png');
+  candidatos.push('https://cdn.discordapp.com/emojis/' + id + '.png?size=128');
+  candidatos.push('https://cdn.discordapp.com/emojis/' + id + '.webp?size=128');
+
+  try {
+    if (animado) {
+      candidatos.push(emoji.imageURL({ extension: 'gif' }));
+      candidatos.push(emoji.imageURL({ extension: 'gif', size: 128 }));
+    }
+    candidatos.push(emoji.imageURL({ extension: 'png' }));
+    candidatos.push(emoji.imageURL({ extension: 'png', size: 128 }));
+    candidatos.push(emoji.imageURL({ extension: 'webp', size: 128 }));
+  } catch (_) {}
+
+  const headers = {
+    'User-Agent': '00Y4nBot/1.0 (emoji-recolor)',
+    Accept: 'image/gif,image/png,image/webp,image/*,*/*'
+  };
+
+  let ultimoError = 'sin respuesta';
+  for (const url of candidatos) {
+    if (!url) continue;
     try {
-      return await sharp(buffer, { animated: true, pages: -1 })
-        .tint({ r, g, b })
-        .gif()
-        .toBuffer();
-    } catch {
-      return teniriEstatico(buffer, rgb);
+      const res = await fetch(url, { headers });
+      if (!res.ok) {
+        ultimoError = 'HTTP ' + res.status + ' (' + String(url).split('?')[0].split('/').pop() + ')';
+        continue;
+      }
+      const buf = Buffer.from(await res.arrayBuffer());
+      if (buf.length < 20) {
+        ultimoError = 'buffer vacio';
+        continue;
+      }
+      return { buffer: buf, animado };
+    } catch (e) {
+      ultimoError = e.message;
     }
   }
-  return teniriEstatico(buffer, rgb);
+  throw new Error('No se pudo descargar: ' + ultimoError);
+}
+
+async function teniriImagen(buffer, rgb, animado = false) {
+  const { r, g, b } = rgb;
+
+  if (animado) {
+    try {
+      const out = await sharp(buffer, { animated: true, pages: -1 })
+        .tint({ r, g, b })
+        .gif({ effort: 1 })
+        .toBuffer();
+      if (out && out.length > 50) return { buffer: out, animado: true };
+    } catch (_) {}
+
+    try {
+      const estatico = await teniriEstatico(buffer, rgb);
+      return { buffer: estatico, animado: false };
+    } catch (e) {
+      throw new Error('Fallo al teñir animado: ' + e.message);
+    }
+  }
+
+  const estatico = await teniriEstatico(buffer, rgb);
+  return { buffer: estatico, animado: false };
 }
 
 async function teniriEstatico(buffer, { r, g, b }) {
-  const { data, info } = await sharp(buffer, { animated: false })
+  const { data, info } = await sharp(buffer, { animated: false, pages: 1 })
     .ensureAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
@@ -79,6 +142,10 @@ function nombreNuevo(original, colorShort, existentes) {
     if (n > 50) break;
   }
   return candidato;
+}
+
+function esGif(buf) {
+  return buf && buf.length >= 3 && buf[0] === 0x47 && buf[1] === 0x49 && buf[2] === 0x46;
 }
 
 export default {
@@ -134,7 +201,7 @@ export default {
       }
 
       const q = String(focused.value || '').toLowerCase().trim();
-      let todos = [...interaction.guild.emojis.cache.values()];
+      const todos = [...interaction.guild.emojis.cache.values()];
 
       const m = q.match(/^<?a?:?([a-z0-9_]+):?\d*>?$/i);
       const query = m ? m[1].toLowerCase() : q;
@@ -226,7 +293,7 @@ export default {
 
     const modoTexto =
       modo === 'uno'
-        ? 'Uno -> ' + emojis[0].name
+        ? 'Uno -> ' + emojis[0].name + (emojis[0].animated ? ' (animado)' : '')
         : 'Todos (' + emojis.length + ')';
 
     const embedWarn = new EmbedBuilder()
@@ -243,7 +310,7 @@ export default {
           '**Animados:** ' + (incluirAnimados ? 'Incluidos' : 'Excluidos'),
           '',
           conservarFinal
-            ? 'Los nuevos se llamaran nombre_hex (ej: si_74d4fc). Los originales no se borran.'
+            ? 'Los nuevos se llamaran nombre_hex (ej: alas_fb8b66). Los originales no se borran.'
             : 'Cada emoji se borra y se vuelve a crear con el mismo nombre (cambia el ID).',
           '',
           'Confirma en 30 segundos.'
@@ -303,16 +370,15 @@ export default {
       const emoji = emojis[i];
       try {
         const actual = await interaction.guild.emojis.fetch(emoji.id).catch(() => emoji);
-        const res = await fetch(
-          actual.imageURL({
-            extension: actual.animated ? 'gif' : 'png',
-            size: 128
-          })
-        );
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const buf = Buffer.from(await res.arrayBuffer());
-        const teñido = await teniriImagen(buf, color, actual.animated);
-        const esGif = teñido[0] === 0x47 && teñido[1] === 0x49 && teñido[2] === 0x46;
+
+        const descargado = await descargarEmoji(actual);
+        const resultado = await teniriImagen(descargado.buffer, color, actual.animated);
+        const teñido = resultado.buffer;
+        const quedoAnimado = resultado.animado && esGif(teñido);
+
+        if (teñido.length > 256 * 1024) {
+          throw new Error('Imagen demasiado grande (' + Math.round(teñido.length / 1024) + 'KB > 256KB)');
+        }
 
         const nombresExistentes = new Set(
           [...interaction.guild.emojis.cache.values()].map(e => e.name.toLowerCase())
@@ -325,7 +391,8 @@ export default {
             name: nuevoNombre,
             reason: 'Recolor ' + color.hex + ' (conservar) por ' + interaction.user.tag
           });
-          creados.push(actual.name + ' -> ' + creado.name);
+          const nota = quedoAnimado ? ' (GIF)' : actual.animated ? ' (estatico, era animado)' : '';
+          creados.push(actual.name + ' -> ' + creado.name + nota);
           interaction.guild.emojis.cache.set(creado.id, creado);
         } else {
           const nombre = actual.name;
@@ -340,10 +407,10 @@ export default {
         }
 
         ok++;
-        if (actual.animated && esGif) animOk++;
+        if (quedoAnimado) animOk++;
       } catch (e) {
         fail++;
-        errores.push((emoji.name + ': ' + e.message).slice(0, 90));
+        errores.push((emoji.name + ': ' + e.message).slice(0, 100));
       }
 
       if (i % 2 === 0 || i === emojis.length - 1) {
