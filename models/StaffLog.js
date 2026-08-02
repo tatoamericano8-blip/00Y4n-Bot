@@ -15,6 +15,8 @@ const staffLogSchema = new mongoose.Schema({
       'PREMIO',
       'SESION_LOG',
       'CUOTA_RESET',
+      'CUOTA_REMOVIDA',
+      'CUOTA_SUMADA',
       'TICKET_CERRADO'
     ],
     required: true
@@ -25,4 +27,4 @@ const staffLogSchema = new mongoose.Schema({
   fecha: { type: Date, default: Date.now }
 });
 
-export default mongoose.model('StaffLog', staffLogSchema);
+export default mongoose.models.StaffLog || mongoose.model('StaffLog', staffLogSchema);

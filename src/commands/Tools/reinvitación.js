@@ -10,10 +10,8 @@ import {
 import Sesion from '../../../models/Session.js';
 import Historial from '../../../models/Historial.js';
 
-// Inicialización del mapa global para sesiones
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
-// Función auxiliar para verificar si una cadena es una URL bien formada
 function esURLValida(cadena) {
     try {
         const url = new URL(cadena);
@@ -45,7 +43,6 @@ export default {
                 .setRequired(false)),
 
     async execute(interaction) {
-        // 🔒 SEGURIDAD: Bloqueo de Staff
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
                 content: `<:cruz00y4n:1519476959606734998> **No tienes permisos:** Solo el Staff puede gestionar las reinvitaciones.`,
@@ -58,56 +55,41 @@ export default {
         const idInicioManual = interaction.options.getString('id_inicio');
         const emojiInput = interaction.options.getString('emoji') || '✔️';
 
-        // Buscar los datos guardados de la sesión activa en la colección global o en MongoDB
         let sesionData = null;
-        let targetIdInicio = idInicioManual;
+        let targetIdInicio = idInicioManual || null;
 
-        if (idInicioManual) {
-            sesionData = global.coleccionSesiones.get(idInicioManual);
-            if (!sesionData) {
-                for (const [, val] of global.coleccionSesiones) {
-                    if (val.idInicio === idInicioManual || val.idLanzamiento === idInicioManual) {
-                        sesionData = val;
-                        break;
-                    }
-                }
-            }
-            // Si no está en memoria, buscar en MongoDB
-            if (!sesionData) {
-                try {
-                    const doc = await Sesion.findOne({ 
-                        $or: [{ idLanzamiento: idInicioManual }, { idInicio: idInicioManual }] 
-                    }).lean();
-                    if (doc) sesionData = doc;
-                } catch (e) {
-                    console.error('Error al consultar MongoDB:', e);
-                }
-            }
-        } else {
-            // Autodetectar la última sesión registrada en el servidor desde la memoria o MongoDB
-            for (const [, val] of global.coleccionSesiones) {
-                if (val.guildId === interaction.guildId) {
-                    sesionData = val;
-                    targetIdInicio = val.idInicio || targetIdInicio;
+        // 1. Buscar en memoria global
+        if (!targetIdInicio) {
+            for (const [, data] of global.coleccionSesiones.entries()) {
+                if (data.guildId === interaction.guildId && (data.tipo === 'rp' || data.tipo === 'meet')) {
+                    targetIdInicio = data.idInicio;
                     break;
-                }
-            }
-            if (!sesionData) {
-                try {
-                    const doc = await Sesion.findOne({ guildId: interaction.guildId })
-                        .sort({ fechaInicio: -1 })
-                        .lean();
-                    if (doc) {
-                        sesionData = doc;
-                        targetIdInicio = doc.idInicio;
-                    }
-                } catch (e) {
-                    console.error('Error al consultar MongoDB:', e);
                 }
             }
         }
 
-        // Validar y formatear enlace de Roblox
+        // 2. Buscar en MongoDB
+        if (!sesionData) {
+            try {
+                let doc = null;
+                if (targetIdInicio) {
+                    doc = await Sesion.findOne({ idInicio: targetIdInicio });
+                }
+                if (!doc) {
+                    doc = await Sesion.findOne({
+                        guildId: interaction.guildId,
+                        estado: { $in: ['activa', 'esperando_reacciones'] }
+                    }).sort({ fechaInicio: -1 });
+                }
+                if (doc) {
+                    sesionData = doc;
+                    targetIdInicio = doc.idInicio;
+                }
+            } catch (e) {
+                console.error('Error al consultar MongoDB:', e);
+            }
+        }
+
         let linkSesion = rawLink.trim();
         if (!linkSesion.startsWith('http://') && !linkSesion.startsWith('https://')) {
             linkSesion = `https://${linkSesion}`;
@@ -120,7 +102,6 @@ export default {
             });
         }
 
-        // Obtener la hora actual de Argentina (HH:MM)
         const ahora = new Date();
         const horaFormateada = ahora.toLocaleTimeString('es-AR', {
             hour: '2-digit',
@@ -131,7 +112,6 @@ export default {
 
         const timestampDiscord = Math.floor(ahora.getTime() / 1000);
 
-        // Diseñar el Embed Inicial de Solicitud de Reacciones
         const embedReinvitacion = new EmbedBuilder()
             .setColor('#74d4fc')
             .setTitle('<a:esp:1523026487240954019> Reinvitaciones de la Sesión <a:esp:1523026487240954019>')
@@ -140,43 +120,41 @@ export default {
                 `Las reinvitaciones se liberarán automáticamente una vez alcanzada la meta de reacciones.\n\n` +
                 `<:dot:1523041306836996156> **Reacciones requeridas:** \`${reaccionesRequeridas}\` ${emojiInput}`
             )
-            .addFields({ 
-                name: '<:fle:1523041359441952970> Última Regeneración', 
-                value: `El enlace fue actualizado a las **${horaFormateada}** (<t:${timestampDiscord}:t>)`, 
-                inline: false 
+            .addFields({
+                name: '<:fle:1523041359441952970> Última Regeneración',
+                value: `El enlace fue actualizado a las **${horaFormateada}** (<t:${timestampDiscord}:t>)`,
+                inline: false
             })
             .setFooter({ text: '00Y4n Comunidad SWFL', iconURL: interaction.guild.iconURL() || undefined })
             .setTimestamp();
 
-        // Enviar el aviso inicial con ping @here
         await interaction.reply({
             content: '<a:adv:1523027438030946446> **@here** ¡Atención a las reinvitaciones de la sesión!',
             embeds: [embedReinvitacion],
-            allowedMentions: { parse: ['everyone', 'roles'] }
+            allowedMentions: { parse: ['everyone', 'roles', 'users'] }
         });
 
         const mensajeEnviado = await interaction.fetchReply();
 
-        // Colocar la reacción del Bot
         try {
             await mensajeEnviado.react(emojiInput);
-        } catch (error) {
-            console.error('No se pudo reaccionar con el emoji asignado:', error);
-            if (emojiInput !== '✔️') {
-                try { await mensajeEnviado.react('✔️'); } catch (e) {}
-            }
+        } catch (reactError) {
+            console.error('Error al reaccionar al mensaje de reinvitación:', reactError);
+            try {
+                await mensajeEnviado.react('✔️');
+            } catch {}
         }
 
-        // Colector de Reacciones
+        const filter = (reaction, user) => !user.bot;
         const collector = mensajeEnviado.createReactionCollector({
-            filter: (reaction, user) => !user.bot,
-            time: 14400000 // 4 horas
+            filter,
+            time: 2 * 60 * 60 * 1000
         });
 
-        collector.on('collect', async (reaction) => {
+        collector.on('collect', async () => {
             try {
-                const users = await reaction.users.fetch();
-                const usuariosReales = users.filter(u => !u.bot).size;
+                const fetched = await mensajeEnviado.reactions.cache.first()?.users.fetch();
+                const usuariosReales = fetched ? fetched.filter(u => !u.bot).size : 0;
 
                 if (usuariosReales >= reaccionesRequeridas) {
                     collector.stop('meta_alcanzada');
@@ -202,27 +180,44 @@ export default {
                 });
                 const timestampRelease = Math.floor(Date.now() / 1000);
 
-                // 🔹 Construcción de los datos dinámicos dentro de "Información de la Reinvitación"
+                // Refrescar sesión por si se asignó co-host después
+                try {
+                    if (targetIdInicio) {
+                        const docFresh = await Sesion.findOne({ idInicio: targetIdInicio });
+                        if (docFresh) sesionData = docFresh;
+                    }
+                } catch {}
+
+                const textoCohost = sesionData?.coHostId
+                    ? `<@${sesionData.coHostId}>`
+                    : 'Ninguno';
+
                 let datosExtraSesion = '';
                 let tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Liberadas__*** <a:confeti:1523026892981145600>';
 
                 if (sesionData?.tipo === 'rp') {
                     tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Roleplay Liberadas__*** <a:confeti:1523026892981145600>';
                     const limiteVel = sesionData.limiteVelocidad || sesionData.limite || 'No especificada';
-                    datosExtraSesion = 
+                    datosExtraSesion =
                         `> <:tres:1523027610479759561> **Estado de Peacetime:** ${sesionData.peacetime || 'No especificado'}\n` +
-                        `> <:cuatro:1523027468385128568> **Velocidad de Fail Roleplay:** ${limiteVel}\n` +
+                        `> <:dos:1523027468385128568> **Velocidad de Fail Roleplay:** ${limiteVel}\n` +
+                        `> <:cuatro:1532128489761931407> **Co-Host de la Sesión:** ${textoCohost}\n` +
                         `> <:replica:1523028004983406787> Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n`;
                 } else if (sesionData?.tipo === 'meet') {
                     tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Car Meet Liberadas__*** <a:confeti:1523026892981145600>';
-                    datosExtraSesion = 
+                    datosExtraSesion =
                         `> <:tres:1523027610479759561> **Temática del Meet:** ${sesionData.tematica || 'No especificada'}\n` +
                         `> <:cuatro:1530051658942517350> **Lugar Actual:** ${sesionData.ubicacion || 'No especificado'}\n` +
                         `> <:cinco:1523041311781814362> **Spots / Duración:** ${sesionData.spots || 'No especificado'}\n` +
+                        `> <:cuatro:1532128489761931407> **Co-Host de la Sesión:** ${textoCohost}\n` +
                         `> <:flechareplica:1523028004983406787> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n`;
+                } else {
+                    // Sesión genérica: igual mostrar co-host si existe
+                    datosExtraSesion =
+                        `> <:cuatro:1532128489761931407> **Co-Host de la Sesión:** ${textoCohost}\n`;
                 }
 
-                const infoDescripcion = 
+                const infoDescripcion =
                     `> <:dot:1523041306836996156> <@${interaction.user.id}> **¡ha liberado las reinvitaciones de la sesión!** Se ha alcanzado la meta de reacciones requeridas. Podés unirte al servidor utilizando el botón de abajo.\n\n` +
                     `<:flor:1523041315187855470> **Información de la Reinvitación**\n\n` +
                     `> <:uno:1523028217592676464> **Reacciones Alcanzadas:** \`${reaccionesRequeridas} / ${reaccionesRequeridas}\` \n` +
@@ -241,7 +236,6 @@ export default {
                     .setFooter({ text: '00Y4n Comunidad SWFL', iconURL: interaction.guild.iconURL() || undefined })
                     .setTimestamp();
 
-                // ÚNICO BOTÓN: "Link de la Sesión"
                 const fila = new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
                         .setCustomId('verificar_voto_swfl')
@@ -258,15 +252,14 @@ export default {
                         allowedMentions: { parse: ['everyone', 'roles'] }
                     });
 
-                    // Guardar en memoria global
                     global.coleccionSesiones.set(msgRelease.id, {
                         idInicio: targetIdInicio,
                         linkSesion,
                         guildId: interaction.guildId,
-                        tipo: 'reinvitacion'
+                        tipo: 'reinvitacion',
+                        coHostId: sesionData?.coHostId || null
                     });
 
-                    // 💾 ACTUALIZAR EN MONGODB Y REGISTRAR EN HISTORIAL
                     if (targetIdInicio) {
                         await Sesion.updateOne(
                             { idInicio: targetIdInicio },
@@ -291,7 +284,11 @@ export default {
                         hostId: interaction.user.id,
                         hostTag: interaction.user.tag,
                         tipo: sesionData?.tipo || 'reinvitacion',
-                        detalles: { reaccionesRequeridas, linkSesion },
+                        detalles: {
+                            reaccionesRequeridas,
+                            linkSesion,
+                            coHostId: sesionData?.coHostId || null
+                        },
                         guildId: interaction.guildId
                     });
                 } catch (sendError) {
