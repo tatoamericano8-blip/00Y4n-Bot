@@ -1,12 +1,36 @@
-import { Events, EmbedBuilder } from 'discord.js';
+import { Events, EmbedBuilder, MessageType } from 'discord.js';
 import { logger } from '../utils/logger.js';
 import { getFromDb, setInDb, db } from '../utils/database.js';
 import { cachearMensaje } from '../utils/gestorSnipe.js';
+import { anunciarBoostAutomatico } from './guildMemberUpdate.js';
+
+const BOOST_MSG_TYPES = new Set([
+  MessageType.UserPremiumGuildSubscription,
+  MessageType.UserPremiumGuildSubscriptionTier1,
+  MessageType.UserPremiumGuildSubscriptionTier2,
+  MessageType.UserPremiumGuildSubscriptionTier3
+]);
 
 export default {
   name: Events.MessageCreate,
   async execute(message) {
     try {
+      // ═══════════════════════════════════════
+      //  BOOST (mensaje del sistema de Discord)
+      //  content = cantidad de boosts de ESTA acción ("1", "2", ...)
+      // ═══════════════════════════════════════
+      if (message.guild && BOOST_MSG_TYPES.has(message.type)) {
+        try {
+          const veces = Math.max(1, parseInt(String(message.content || '1').trim(), 10) || 1);
+          const dedupeKey = `boost_dedupe:${message.guild.id}:${message.author.id}`;
+          await setInDb(dedupeKey, Date.now());
+          await anunciarBoostAutomatico(message.author, message.guild, veces, message.client);
+        } catch (e) {
+          logger.error('Error procesando boost del sistema:', e);
+        }
+        return;
+      }
+
       // 🔒 Si el mensaje es de un bot o no es en un servidor, lo ignoramos
       if (message.author.bot || !message.guild) return;
 
@@ -20,11 +44,9 @@ export default {
       const clavePuntos = `puntos_dia:${hoyStr}:${message.author.id}`;
       const claveListaUsuarios = `usuarios_activos:${hoyStr}`;
 
-      // Sumar +1 mensaje al contador del usuario hoy
       const puntosActuales = await getFromDb(clavePuntos, 0);
       await setInDb(clavePuntos, puntosActuales + 1);
 
-      // Registrar la ID del usuario en la lista de activos de hoy si no está
       const listaUsuarios = await getFromDb(claveListaUsuarios, []);
       if (!listaUsuarios.includes(message.author.id)) {
         listaUsuarios.push(message.author.id);
