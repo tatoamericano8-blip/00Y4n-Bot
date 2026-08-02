@@ -1,3 +1,4 @@
+import '../utils/parcheColorEmbed.js'; // Color centralizado
 import { Events } from 'discord.js';
 import cron from 'node-cron';
 import { logger, startupLog } from '../utils/logger.js';
