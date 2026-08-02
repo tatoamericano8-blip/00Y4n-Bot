@@ -46,6 +46,16 @@ export default {
                 ]
             },
             {
+                name: 'servicios_emergencia',
+                description: '¿Los servicios de emergencia están activos?',
+                type: ApplicationCommandOptionType.String,
+                required: true,
+                choices: [
+                    { name: 'Activos', value: 'Activos' },
+                    { name: 'Inactivos', value: 'Inactivos' }
+                ]
+            },
+            {
                 name: 'imagen',
                 description: 'Link de la foto/banner para la apertura (opcional).',
                 type: ApplicationCommandOptionType.String,
@@ -66,9 +76,9 @@ export default {
         const linkSesion = interaction.options.getString('acceso');
         const limite = interaction.options.getString('limite_velocidad');
         const peacetime = interaction.options.getString('peacetime');
+        const serviciosEmergencia = interaction.options.getString('servicios_emergencia');
         const urlImagen = interaction.options.getString('imagen');
 
-        // Co-host guardado previamente con /host_swfl
         let coHostId = null;
         let hostIdSesion = interaction.user.id;
         try {
@@ -90,8 +100,8 @@ export default {
             ` <:flor:1523041315187855470> **Información del Roleplay**\n\n` +
             `> <:uno:1523028217592676464> **Estado de Peacetime:** ${peacetime}\n` +
             `> <:dos:1523027468385128568> **Velocidad de Fail Roleplay:** ${limite}\n` +
-            `> 🚑 **Servicios de Emergencia:** Activos\n` +
-            `> 👥 **Co-Host de la Sesión:** ${textoCohost}\n` +
+            `> <:tres:1523027610479759561> **Servicios de Emergencia:** ${serviciosEmergencia}\n` +
+            `> <:cuatro:1532128489761931407> **Co-Host de la Sesión:** ${textoCohost}\n` +
             `> <:replica:1523028004983406787> Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n\n` +
             `<a:adv:1523027438030946446> *¡Cualquier miembro descubierto haciendo Fail Roleplay de forma excesiva será expulsado inmediatamente de la sesión!*`;
 
@@ -127,6 +137,7 @@ export default {
             linkSesion,
             limite,
             peacetime,
+            serviciosEmergencia,
             coHostId,
             guildId: interaction.guildId,
             tipo: 'rp'
@@ -158,7 +169,7 @@ export default {
                 hostId: interaction.user.id,
                 hostTag: interaction.user.tag,
                 tipo: 'rp',
-                detalles: { linkSesion, limite, peacetime, coHostId },
+                detalles: { linkSesion, limite, peacetime, serviciosEmergencia, coHostId },
                 guildId: interaction.guildId
             });
         } catch (error) {

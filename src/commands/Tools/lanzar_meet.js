@@ -56,7 +56,7 @@ export default {
             `<:uno:1523028217592676464> **Temática del Meet:** ${tematica}\n` +
             `<:dos:1523027468385128568> **Lugar de Inicio:** ${ubicacion}\n` +
             `<:tres:1523027610479759561> **Spots / Duración:** ${spots}\n` +
-            `👥 **Co-Host de la Sesión:** ${textoCohost}\n` +
+            `<:cuatro:1532128489761931407> **Co-Host de la Sesión:** ${textoCohost}\n` +
             `<:flechareplica:1523028004983406787> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n\n` +
             `➴ *¡Cualquier miembro descubierto haciendo Choque de vehículos o saboteando el orden será __expulsado__ e ingresará directo a la blacklist!*`;
 

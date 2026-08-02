@@ -4,22 +4,35 @@ import StaffLog from '../../../models/StaffLog.js';
 import { formatearHoras } from '../../utils/formatearTiempo.js';
 
 async function aplicarCambio(interaction, signo) {
-  // signo = 1 (añadir) o -1 (remover)
+  // signo = 1 (sumar) o -1 (remover)
   const usuarioTarget = interaction.options.getUser('usuario');
-  const horasRaw = interaction.options.getNumber('horas') || 0;
-  const sesionesOrgRaw = interaction.options.getInteger('sesiones_organizadas') || 0;
-  const sesionesSupRaw = interaction.options.getInteger('sesiones_supervisadas') || 0;
-  const ticketsRaw = interaction.options.getInteger('tickets') || 0;
+  const horasOpt = interaction.options.getNumber('horas');
+  const sesionesOrgOpt = interaction.options.getInteger('sesiones_organizadas');
+  const sesionesSupOpt = interaction.options.getInteger('sesiones_supervisadas');
+  const ticketsOpt = interaction.options.getInteger('tickets');
   const motivo =
     interaction.options.getString('motivo') ||
     (signo > 0
       ? 'Carga manual de cuota por High Command'
       : 'Remoción manual de cuota (error / prueba / entrenamiento)');
 
-  const horasToAdd = signo * Math.abs(horasRaw);
-  const sesionesOrgToAdd = signo * Math.abs(sesionesOrgRaw);
-  const sesionesSupToAdd = signo * Math.abs(sesionesSupRaw);
-  const ticketsToAdd = signo * Math.abs(ticketsRaw);
+  // Distinguir "no enviado" (null) de 0
+  const horasRaw = horasOpt == null ? 0 : horasOpt;
+  const sesionesOrgRaw = sesionesOrgOpt == null ? 0 : sesionesOrgOpt;
+  const sesionesSupRaw = sesionesSupOpt == null ? 0 : sesionesSupOpt;
+  const ticketsRaw = ticketsOpt == null ? 0 : ticketsOpt;
+
+  if (
+    horasOpt == null &&
+    sesionesOrgOpt == null &&
+    sesionesSupOpt == null &&
+    ticketsOpt == null
+  ) {
+    return interaction.editReply({
+      content:
+        '<:cruz00y4n:1523041302764191844> Debes especificar al menos un valor: **horas**, **sesiones_organizadas**, **sesiones_supervisadas** o **tickets**.'
+    });
+  }
 
   if (
     horasRaw === 0 &&
@@ -29,9 +42,14 @@ async function aplicarCambio(interaction, signo) {
   ) {
     return interaction.editReply({
       content:
-        '<:cruz00y4n:1523041302764191844> Debes especificar al menos un valor: **horas**, **sesiones_organizadas**, **sesiones_supervisadas** o **tickets**.'
+        '<:cruz00y4n:1523041302764191844> El valor debe ser mayor a **0**. Ejemplo: `sesiones_organizadas: 1`.'
     });
   }
+
+  const horasToAdd = signo * Math.abs(horasRaw);
+  const sesionesOrgToAdd = signo * Math.abs(sesionesOrgRaw);
+  const sesionesSupToAdd = signo * Math.abs(sesionesSupRaw);
+  const ticketsToAdd = signo * Math.abs(ticketsRaw);
 
   const guildId = interaction.guild.id;
   let staffData = await Staff.findOne({ guildId, userId: usuarioTarget.id });
@@ -105,7 +123,7 @@ async function aplicarCambio(interaction, signo) {
     targetUserId: usuarioTarget.id,
     executorId: interaction.user.id,
     detalles: {
-      accion: signo > 0 ? 'añadir' : 'remover',
+      accion: signo > 0 ? 'sumar' : 'remover',
       horas: horasToAdd,
       sesionesOrganizadas: sesionesOrgToAdd,
       sesionesSupervisadas: sesionesSupToAdd,
@@ -169,28 +187,28 @@ function opcionesComunes(sub) {
       o.setName('usuario').setDescription('El miembro del Staff').setRequired(true)
     )
     .addNumberOption(o =>
-      o.setName('horas').setDescription('Horas de servicio').setRequired(false)
+      o.setName('horas').setDescription('Horas de servicio (ej: 0.5 = 30 min)').setRequired(false)
     )
     .addIntegerOption(o =>
       o
         .setName('sesiones_organizadas')
         .setDescription('Sesiones organizadas (host)')
         .setRequired(false)
-        .setMinValue(0)
+        .setMinValue(1)
     )
     .addIntegerOption(o =>
       o
         .setName('sesiones_supervisadas')
         .setDescription('Sesiones supervisadas')
         .setRequired(false)
-        .setMinValue(0)
+        .setMinValue(1)
     )
     .addIntegerOption(o =>
       o
         .setName('tickets')
         .setDescription('Tickets cerrados/atendidos')
         .setRequired(false)
-        .setMinValue(0)
+        .setMinValue(1)
     )
     .addStringOption(o =>
       o.setName('motivo').setDescription('Motivo del cambio').setRequired(false)
@@ -200,11 +218,11 @@ function opcionesComunes(sub) {
 export default {
   data: new SlashCommandBuilder()
     .setName('cargar-cuota')
-    .setDescription('Añade o remueve horas, sesiones o tickets de la cuota semanal de un Staff.')
+    .setDescription('Suma o resta horas, sesiones o tickets de la cuota semanal de un Staff.')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .addSubcommand(sub =>
       opcionesComunes(
-        sub.setName('añadir').setDescription('Sumar horas, sesiones o tickets a la cuota.')
+        sub.setName('sumar').setDescription('Sumar horas, sesiones o tickets a la cuota.')
       )
     )
     .addSubcommand(sub =>
