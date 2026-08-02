@@ -59,11 +59,11 @@ export async function cerrarSesionSinCuota(sesion, {
       `Esta sesión de **${tipoTxt}** fue **terminada automáticamente**.\n\n` +
         `**Motivo:** ${motivo}\n\n` +
         `> Host: <@${sesion.hostId}>\n` +
-        `> *No se sumó cuota ni sesiones al staff (cierre automático).*
+        `> *No se preocupe si no hay sesiones en ejecución en este momento; pronto se iniciará otra.*
 `
     )
     .setImage(URL_IMAGEN_DEFAULT)
-    .setFooter({ text: '00Y4n Comunidad SWFL • Cierre automático de sesión' })
+    .setFooter({ text: '00Y4n Comunidad Southwest Florida' })
     .setTimestamp();
 
   if (channel?.isTextBased?.()) {
