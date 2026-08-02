@@ -18,12 +18,13 @@ function parseHex(hex) {
     r: parseInt(h.slice(0, 2), 16),
     g: parseInt(h.slice(2, 4), 16),
     b: parseInt(h.slice(4, 6), 16),
-    hex: `#${h.toUpperCase()}`,
+    hex: '#' + h.toUpperCase(),
     short: h.toLowerCase().slice(0, 6)
   };
 }
 
-async function teñirImagen(buffer, { r, g, b }, animado = false) {
+async function teniriImagen(buffer, rgb, animado = false) {
+  const { r, g, b } = rgb;
   if (animado) {
     try {
       return await sharp(buffer, { animated: true, pages: -1 })
@@ -31,13 +32,13 @@ async function teñirImagen(buffer, { r, g, b }, animado = false) {
         .gif()
         .toBuffer();
     } catch {
-      return teñirEstatico(buffer, { r, g, b });
+      return teniriEstatico(buffer, rgb);
     }
   }
-  return teñirEstatico(buffer, { r, g, b });
+  return teniriEstatico(buffer, rgb);
 }
 
-async function teñirEstatico(buffer, { r, g, b }) {
+async function teniriEstatico(buffer, { r, g, b }) {
   const { data, info } = await sharp(buffer, { animated: false })
     .ensureAlpha()
     .raw()
@@ -64,14 +65,16 @@ function sleep(ms) {
   return new Promise(r => setTimeout(r, ms));
 }
 
-/** Nombre válido Discord (2-32 chars, a-z 0-9 _) */
 function nombreNuevo(original, colorShort, existentes) {
-  const base = String(original).toLowerCase().replace(/[^a-z0-9_]/g, '_').slice(0, 20);
-  let candidato = `${base}_${colorShort}`.slice(0, 32);
+  const base = String(original)
+    .toLowerCase()
+    .replace(/[^a-z0-9_]/g, '_')
+    .slice(0, 20);
+  let candidato = (base + '_' + colorShort).slice(0, 32);
   let n = 1;
   while (existentes.has(candidato.toLowerCase())) {
-    const suf = `_${n}`;
-    candidato = `${base}_${colorShort}`.slice(0, 32 - suf.length) + suf;
+    const suf = '_' + n;
+    candidato = (base + '_' + colorShort).slice(0, 32 - suf.length) + suf;
     n++;
     if (n > 50) break;
   }
@@ -101,53 +104,53 @@ export default {
     .addStringOption(o =>
       o
         .setName('emoji')
-        .setDescription('Nombre del emoji (obligatorio si modo = uno). Ej: si, cora')
+        .setDescription('Nombre del emoji (obligatorio si modo = uno)')
         .setRequired(false)
         .setAutocomplete(true)
     )
     .addBooleanOption(o =>
       o
         .setName('conservar_viejos')
-        .setDescription('true = crear teñidos y dejar los originales. false = reemplazar. Default: true')
+        .setDescription('true = crear teñidos y dejar originales. false = reemplazar. Default: true')
         .setRequired(false)
     )
     .addBooleanOption(o =>
       o
         .setName('incluir_animados')
-        .setDescription('Incluir animados (intenta conservar GIF). Default: sí')
+        .setDescription('Incluir animados (intenta conservar GIF). Default: si')
         .setRequired(false)
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
   async autocomplete(interaction) {
     const focused = interaction.options.getFocused(true);
-    if (focused.name !== 'emoji') return interaction.respond([]);
+    if (focused.name !== 'emoji') {
+      return interaction.respond([]);
+    }
     const q = String(focused.value || '').toLowerCase();
     const lista = [...interaction.guild.emojis.cache.values()]
       .filter(e => !q || e.name.toLowerCase().includes(q))
       .slice(0, 25)
       .map(e => ({
-        name: `${e.animated ? '(A) ' : ''}${e.name}`.slice(0, 100),
+        name: ((e.animated ? '(A) ' : '') + e.name).slice(0, 100),
         value: e.name
       }));
     await interaction.respond(lista);
   },
 
   async execute(interaction) {
-    if (
-      !interaction.member.permissions.has(PermissionFlagsBits.Administrator) &&
-      !interaction.member.roles.cache.has(ROL_ALTO_MANDO)
-    ) {
+    const esAdmin = interaction.member.permissions.has(PermissionFlagsBits.Administrator);
+    const esAC = interaction.member.roles.cache.has(ROL_ALTO_MANDO);
+    if (!esAdmin && !esAC) {
       return interaction.reply({
-        content: '❌ Solo **Administradores / Alto Comando** pueden usar este comando.',
+        content: 'Solo Administradores / Alto Comando pueden usar este comando.',
         ephemeral: true
       });
     }
 
     if (!interaction.guild.members.me.permissions.has(PermissionFlagsBits.ManageGuildExpressions)) {
       return interaction.reply({
-        content:
-          '❌ El bot necesita el permiso **Gestionar expresiones del servidor** (Manage Emojis).',
+        content: 'El bot necesita el permiso Gestionar expresiones del servidor (Manage Emojis).',
         ephemeral: true
       });
     }
@@ -155,14 +158,16 @@ export default {
     const color = parseHex(interaction.options.getString('color'));
     if (!color) {
       return interaction.reply({
-        content: '❌ Color inválido. Usá formato `#RRGGBB` (ej: `#74d4fc`).',
+        content: 'Color invalido. Usa formato #RRGGBB (ej: #74d4fc).',
         ephemeral: true
       });
     }
 
     const modo = interaction.options.getString('modo');
-    const conservar = interaction.options.getBoolean('conservar_viejos') ?? true;
-    const incluirAnimados = interaction.options.getBoolean('incluir_animados') ?? true;
+    const conservar = interaction.options.getBoolean('conservar_viejos');
+    const conservarFinal = conservar === null ? true : conservar;
+    const incluirAnimadosOpt = interaction.options.getBoolean('incluir_animados');
+    const incluirAnimados = incluirAnimadosOpt === null ? true : incluirAnimadosOpt;
     const nombreEmoji = interaction.options.getString('emoji');
 
     let emojis = [...interaction.guild.emojis.cache.values()].filter(e =>
@@ -172,7 +177,7 @@ export default {
     if (modo === 'uno') {
       if (!nombreEmoji) {
         return interaction.reply({
-          content: '❌ En modo **uno** tenés que indicar el nombre del emoji en la opción `emoji`.',
+          content: 'En modo uno tenes que indicar el nombre del emoji en la opcion emoji.',
           ephemeral: true
         });
       }
@@ -181,13 +186,13 @@ export default {
       );
       if (!encontrado) {
         return interaction.reply({
-          content: `❌ No encontré el emoji \\`${nombreEmoji}\\`. Revisá el nombre (autocomplete ayuda).`,
+          content: 'No encontre el emoji "' + nombreEmoji + '". Revisa el nombre (autocomplete ayuda).',
           ephemeral: true
         });
       }
       if (encontrado.animated && !incluirAnimados) {
         return interaction.reply({
-          content: '❌ Ese emoji es animado y `incluir_animados` está en false.',
+          content: 'Ese emoji es animado y incluir_animados esta en false.',
           ephemeral: true
         });
       }
@@ -201,34 +206,36 @@ export default {
       });
     }
 
-    // Slots disponibles si se conservan (Discord: 50 estáticos + 50 animados base, más con boost)
-    if (conservar) {
-      const maxStatic = interaction.guild.stickers ? 50 : 50; // límite real depende de boost level
-      // Solo aviso, no bloqueamos: Discord rechazará si no hay cupo
-    }
+    const modoTexto =
+      modo === 'uno'
+        ? 'Uno -> ' + emojis[0].name
+        : 'Todos (' + emojis.length + ')';
 
     const embedWarn = new EmbedBuilder()
-      .setTitle('⚠️ Recolor de emojis')
+      .setTitle('Recolor de emojis')
       .setColor(color.hex)
       .setDescription(
         [
-          `**Color:** ${color.hex}`,
-          `**Modo:** ${modo === 'uno' ? `Uno → \\`${emojis[0].name}\\`` : `Todos (${emojis.length})`}`,
-          `**Conservar viejos:** ${conservar ? 'Sí (se crean nuevos, originales quedan)' : 'No (se reemplazan / borran originales)'}`,
-          `**Animados:** ${incluirAnimados ? 'Incluidos' : 'Excluidos'}`,
+          '**Color:** ' + color.hex,
+          '**Modo:** ' + modoTexto,
+          '**Conservar viejos:** ' +
+            (conservarFinal
+              ? 'Si (se crean nuevos, originales quedan)'
+              : 'No (se reemplazan / borran originales)'),
+          '**Animados:** ' + (incluirAnimados ? 'Incluidos' : 'Excluidos'),
           '',
-          conservar
-            ? '> Los nuevos se llamarán `nombre_hex` (ej: `si_74d4fc`). Los originales **no se borran**.'
-            : '> Cada emoji se **borra** y se vuelve a crear con el **mismo nombre** (cambia el ID).',
+          conservarFinal
+            ? 'Los nuevos se llamaran nombre_hex (ej: si_74d4fc). Los originales no se borran.'
+            : 'Cada emoji se borra y se vuelve a crear con el mismo nombre (cambia el ID).',
           '',
-          'Confirmá en **30 segundos**.'
+          'Confirma en 30 segundos.'
         ].join('\n')
       );
 
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setCustomId('emojis_recolor_si')
-        .setLabel(modo === 'uno' ? 'Sí, teñir este' : 'Sí, teñir todos')
+        .setLabel(modo === 'uno' ? 'Si, procesar este' : 'Si, procesar todos')
         .setStyle(ButtonStyle.Danger),
       new ButtonBuilder()
         .setCustomId('emojis_recolor_no')
@@ -252,7 +259,7 @@ export default {
       });
     } catch {
       return interaction.editReply({
-        content: '⏰ Cancelado por tiempo.',
+        content: 'Cancelado por tiempo.',
         embeds: [],
         components: []
       });
@@ -263,7 +270,7 @@ export default {
     }
 
     await clicked.update({
-      content: `🎨 Procesando **0/${emojis.length}**…`,
+      content: 'Procesando 0/' + emojis.length + '...',
       embeds: [],
       components: []
     });
@@ -277,7 +284,6 @@ export default {
     for (let i = 0; i < emojis.length; i++) {
       const emoji = emojis[i];
       try {
-        // Refetch por si el cache cambió
         const actual = await interaction.guild.emojis.fetch(emoji.id).catch(() => emoji);
         const res = await fetch(
           actual.imageURL({
@@ -285,33 +291,33 @@ export default {
             size: 128
           })
         );
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         const buf = Buffer.from(await res.arrayBuffer());
-        const teñido = await teñirImagen(buf, color, actual.animated);
+        const teñido = await teniriImagen(buf, color, actual.animated);
         const esGif = teñido[0] === 0x47 && teñido[1] === 0x49 && teñido[2] === 0x46;
 
         const nombresExistentes = new Set(
           [...interaction.guild.emojis.cache.values()].map(e => e.name.toLowerCase())
         );
 
-        if (conservar) {
+        if (conservarFinal) {
           const nuevoNombre = nombreNuevo(actual.name, color.short, nombresExistentes);
           const creado = await interaction.guild.emojis.create({
             attachment: teñido,
             name: nuevoNombre,
-            reason: `Recolor ${color.hex} (conservar) por ${interaction.user.tag}`
+            reason: 'Recolor ' + color.hex + ' (conservar) por ' + interaction.user.tag
           });
-          creados.push(`${actual.name} → ${creado.name}`);
+          creados.push(actual.name + ' -> ' + creado.name);
           interaction.guild.emojis.cache.set(creado.id, creado);
         } else {
           const nombre = actual.name;
-          await actual.delete(`Recolor a ${color.hex} por ${interaction.user.tag}`);
+          await actual.delete('Recolor a ' + color.hex + ' por ' + interaction.user.tag);
           const creado = await interaction.guild.emojis.create({
             attachment: teñido,
             name: nombre,
-            reason: `Recolor ${color.hex} por ${interaction.user.tag}`
+            reason: 'Recolor ' + color.hex + ' por ' + interaction.user.tag
           });
-          creados.push(`${nombre} (reemplazado)`);
+          creados.push(nombre + ' (reemplazado)');
           interaction.guild.emojis.cache.set(creado.id, creado);
         }
 
@@ -319,13 +325,22 @@ export default {
         if (actual.animated && esGif) animOk++;
       } catch (e) {
         fail++;
-        errores.push(`${emoji.name}: ${e.message}`.slice(0, 90));
+        errores.push((emoji.name + ': ' + e.message).slice(0, 90));
       }
 
       if (i % 2 === 0 || i === emojis.length - 1) {
         await interaction
           .editReply({
-            content: `🎨 Procesando **${i + 1}/${emojis.length}**… (ok: ${ok}, fail: ${fail})`
+            content:
+              'Procesando ' +
+              (i + 1) +
+              '/' +
+              emojis.length +
+              '... (ok: ' +
+              ok +
+              ', fail: ' +
+              fail +
+              ')'
           })
           .catch(() => null);
       }
@@ -333,26 +348,33 @@ export default {
       await sleep(1500);
     }
 
-    const listaCreados =
-      creados.length > 0
-        ? `\n**Resultado:**\n\`\`\`\n${creados.slice(0, 15).join('\n')}${creados.length > 15 ? '\n…' : ''}\n\`\`\``
-        : '';
+    let listaCreados = '';
+    if (creados.length > 0) {
+      listaCreados =
+        '\n**Resultado:**\n```\n' +
+        creados.slice(0, 15).join('\n') +
+        (creados.length > 15 ? '\n...' : '') +
+        '\n```';
+    }
+
+    let listaErrores = '';
+    if (errores.length > 0) {
+      listaErrores = '\n**Errores:**\n```\n' + errores.slice(0, 8).join('\n') + '\n```';
+    }
 
     const embedFin = new EmbedBuilder()
-      .setTitle('✅ Recolor finalizado')
+      .setTitle('Recolor finalizado')
       .setColor(color.hex)
       .setDescription(
         [
-          `> **Color:** ${color.hex}`,
-          `> **Modo:** ${modo}`,
-          `> **Conservar viejos:** ${conservar ? 'Sí' : 'No'}`,
-          `> **Exitosos:** ${ok}`,
-          `> **Animados GIF:** ${animOk}`,
-          `> **Fallidos:** ${fail}`,
+          '> **Color:** ' + color.hex,
+          '> **Modo:** ' + modo,
+          '> **Conservar viejos:** ' + (conservarFinal ? 'Si' : 'No'),
+          '> **Exitosos:** ' + ok,
+          '> **Animados GIF:** ' + animOk,
+          '> **Fallidos:** ' + fail,
           listaCreados,
-          errores.length
-            ? `\n**Errores:**\n\`\`\`\n${errores.slice(0, 8).join('\n')}\n\`\`\``
-            : ''
+          listaErrores
         ]
           .filter(Boolean)
           .join('\n')
