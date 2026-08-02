@@ -1,6 +1,8 @@
 import { EmbedBuilder } from 'discord.js';
 import mongoose from 'mongoose';
 
+const ROLE_LOA = '1532459272690991318';
+
 async function cargarModelo(nombre, ruta1, ruta2) {
   if (mongoose.models[nombre]) return mongoose.models[nombre];
   try {
@@ -30,34 +32,48 @@ export default {
     let userIdTarget = args && args.length > 0 ? args[0] : null;
 
     if (!userIdTarget && embedOriginal?.description) {
-      const match = embedOriginal.description.match(/<@!?(\d+)>/) || embedOriginal.description.match(/(\d{17,19})/);
+      const match =
+        embedOriginal.description.match(/<@!?(\d+)>/) ||
+        embedOriginal.description.match(/(\d{17,19})/);
       if (match) userIdTarget = match[1];
     }
 
     if (!userIdTarget) {
       return await interaction.followUp({
-        content: '<:cruz00y4n:1523041302764191844> No se pudo determinar el ID del usuario solicitante.',
+        content:
+          '<:cruz00y4n:1523041302764191844> No se pudo determinar el ID del usuario solicitante.',
         ephemeral: true
       });
     }
 
     try {
       const Staff = await cargarModelo('Staff', '../models/Staff.js', '../../models/Staff.js');
-      const StaffLog = await cargarModelo('StaffLog', '../models/StaffLog.js', '../../models/StaffLog.js');
+      const StaffLog = await cargarModelo(
+        'StaffLog',
+        '../models/StaffLog.js',
+        '../../models/StaffLog.js'
+      );
 
       if (Staff) {
         await Staff.findOneAndUpdate(
           { guildId, userId: userIdTarget },
-          { 
-            $set: { 
+          {
+            $set: {
               estado: 'LOA',
               'loa.activo': true,
-              'loa.fechaInicio': new Date()
+              'loa.inicio': new Date(),
+              'loa.fin': null
             }
           },
           { upsert: true, new: true }
         );
       }
+
+      // Rol LOA
+      try {
+        const member = await interaction.guild.members.fetch(userIdTarget);
+        await member.roles.add(ROLE_LOA).catch(() => null);
+      } catch {}
 
       if (StaffLog) {
         await StaffLog.create({
@@ -70,9 +86,12 @@ export default {
       }
 
       const embedEditado = EmbedBuilder.from(embedOriginal || {})
-        .setColor(0x2ECC71)
+        .setColor(0x2ecc71)
         .setTitle('✅ Solicitud de Ausencia (LOA) — APROBADA')
-        .setFooter({ text: `Aprobada por ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
+        .setFooter({
+          text: `Aprobada por ${interaction.user.tag}`,
+          iconURL: interaction.user.displayAvatarURL()
+        });
 
       await interaction.editReply({
         embeds: [embedEditado],
@@ -81,7 +100,8 @@ export default {
     } catch (error) {
       console.error('Error procesando aprobación LOA:', error);
       await interaction.followUp({
-        content: '<:cruz00y4n:1523041302764191844> Ocurrió un error al procesar la aprobación.',
+        content:
+          '<:cruz00y4n:1523041302764191844> Ocurrió un error al procesar la aprobación.',
         ephemeral: true
       });
     }
