@@ -48,7 +48,6 @@ export async function reiniciarCuotasGuild(client, guildId, {
     const score = calcularScore(cuotas, rango);
     const evalC = evaluarCumplimiento(staff, rango);
 
-    // Historial de cumplimiento
     if (!Array.isArray(staff.historialCumplimiento)) staff.historialCumplimiento = [];
     staff.historialCumplimiento.push({
       semanaId,
@@ -61,12 +60,10 @@ export async function reiniciarCuotasGuild(client, guildId, {
       rango,
       fecha: new Date()
     });
-    // Mantener últimas 26 semanas
     if (staff.historialCumplimiento.length > 26) {
       staff.historialCumplimiento = staff.historialCumplimiento.slice(-26);
     }
 
-    // Rachas: solo cuentan cumplimientos reales (no LOA)
     if (evalC.cumplio === true) {
       staff.rachaActual = (Number(staff.rachaActual) || 0) + 1;
       staff.rachaMaxima = Math.max(Number(staff.rachaMaxima) || 0, staff.rachaActual);
@@ -75,15 +72,14 @@ export async function reiniciarCuotasGuild(client, guildId, {
       staff.rachaActual = 0;
       fallaron.push({ userId: staff.userId, ses, tkt, horas, score, rango, motivo: evalC.motivo });
     } else {
-      // LOA: no rompe racha, no suma
       exentosLoa.push({ userId: staff.userId, rango });
     }
 
-    if (!topScore || score > topScore.score) {
+    // MVP solo entre quienes CUMPLIERON la cuota
+    if (evalC.cumplio === true && (!topScore || score > topScore.score)) {
       topScore = { userId: staff.userId, score, rango };
     }
 
-    // Reset cuota semanal
     staff.cuotas = staff.cuotas || {};
     staff.cuotas.horasServicio = 0;
     staff.cuotas.sesionesOrganizadas = 0;
@@ -115,89 +111,102 @@ export async function reiniciarCuotasGuild(client, guildId, {
     logger.warn(`StaffLog CUOTA_RESET falló: ${e.message}`);
   }
 
-  // Anuncio + informe
+  // Un solo embed (reinicio + informe). Solo anuncia si hay staff en ESTE guild
+  // y el canal pertenece a este guild (evita duplicados al tener 2 servidores).
   try {
-    const channel =
-      client.channels.cache.get(anunciosChannelId) ||
-      (await client.channels.fetch(anunciosChannelId).catch(() => null));
-
-    if (channel?.isTextBased?.()) {
-      const fmtLista = (arr, max = 8) => {
-        if (!arr.length) return '> —';
-        return arr
-          .slice(0, max)
-          .map(x => `> <@${x.userId}> · score ${textoScore(x.score || 0)} · ${x.ses || 0} ses`)
-          .join('\n') + (arr.length > max ? `\n> _…y ${arr.length - max} más_` : '');
-      };
-
-      const embedReset = new EmbedBuilder()
-        .setTitle('🔄 Reinicio Semanal de Cuotas')
-        .setColor('#74d4fc')
-        .setDescription(
-          (automatico
-            ? 'Se reiniciaron automáticamente las **cuotas semanales** de todo el Staff.\n'
-            : 'Reinicio **manual** de cuotas.\n') +
-            `📅 Semana: **${semanaId}** · Domingos 22:00 (AR)\n` +
-            '📈 El **histórico** y las **rachas** se mantienen.\n\n' +
-            `> Staff procesados: **${afectados}**`
-        )
-        .setFooter({
-          text: '00Y4n Comunidad SWFL • Sistema de Cuotas',
-          iconURL: channel.guild?.iconURL?.() || undefined
-        })
-        .setTimestamp();
-
-      const embedInforme = new EmbedBuilder()
-        .setTitle(`📊 Informe Semanal de Cuotas — ${semanaId}`)
-        .setColor(0xf1c40f)
-        .addFields(
-          {
-            name: `✅ Cumplieron (${cumplieron.length})`,
-            value: fmtLista(cumplieron.sort((a, b) => b.score - a.score)),
-            inline: false
-          },
-          {
-            name: `❌ No cumplieron (${fallaron.length})`,
-            value:
-              fallaron.length === 0
-                ? '> Nadie 🎉'
-                : fallaron
-                    .slice(0, 8)
-                    .map(x => `> <@${x.userId}> · ${x.motivo}`)
-                    .join('\n') +
-                  (fallaron.length > 8 ? `\n> _…y ${fallaron.length - 8} más_` : ''),
-            inline: false
-          },
-          {
-            name: `🟡 Exentos por LOA (${exentosLoa.length})`,
-            value:
-              exentosLoa.length === 0
-                ? '> —'
-                : exentosLoa
-                    .slice(0, 8)
-                    .map(x => `> <@${x.userId}>`)
-                    .join('\n') +
-                  (exentosLoa.length > 8 ? `\n> _…y ${exentosLoa.length - 8} más_` : ''),
-            inline: false
-          }
-        )
-        .setFooter({
-          text:
-            topScore
-              ? `MVP de la semana: score ${topScore.score} • LOA no cuenta como fallo`
-              : 'LOA no cuenta como fallo de cuota'
-        })
-        .setTimestamp();
-
-      if (topScore) {
-        embedInforme.setDescription(
-          `🏆 **MVP de la semana:** <@${topScore.userId}> — score **${topScore.score}** (${topScore.rango})`
-        );
-      }
-
-      await channel.send({ embeds: [embedReset, embedInforme] });
+    if (afectados === 0 && cumplieron.length === 0 && fallaron.length === 0 && exentosLoa.length === 0) {
+      logger.info(`Cuotas guild ${guildId}: sin staff para anunciar (omitido).`);
     } else {
-      logger.warn(`Canal de anuncios staff no encontrado: ${anunciosChannelId}`);
+      const channel =
+        client.channels.cache.get(anunciosChannelId) ||
+        (await client.channels.fetch(anunciosChannelId).catch(() => null));
+
+      if (!channel?.isTextBased?.()) {
+        logger.warn(`Canal de anuncios staff no encontrado: ${anunciosChannelId}`);
+      } else if (channel.guildId && channel.guildId !== guildId) {
+        logger.info(
+          `Cuotas guild ${guildId}: canal ${anunciosChannelId} pertenece a ${channel.guildId}, se omite anuncio.`
+        );
+      } else {
+        const fmtCumplieron = (arr, max = 10) => {
+          if (!arr.length) return '> —';
+          const orden = [...arr].sort((a, b) => (b.score || 0) - (a.score || 0));
+          return (
+            orden
+              .slice(0, max)
+              .map(
+                x =>
+                  `> <@${x.userId}> · score **${textoScore(x.score || 0)}** · ${x.ses || 0} ses` +
+                  (x.tkt ? ` · ${x.tkt} tkt` : '') +
+                  (x.horas ? ` · ${formatearHoras(x.horas)}` : '')
+              )
+              .join('\n') + (orden.length > max ? `\n> _…y ${orden.length - max} más_` : '')
+          );
+        };
+
+        const fmtFallaron = (arr, max = 10) => {
+          if (!arr.length) return '> Nadie 🎉';
+          return (
+            arr
+              .slice(0, max)
+              .map(x => `> <@${x.userId}> · ${x.motivo || 'meta incompleta'}`)
+              .join('\n') + (arr.length > max ? `\n> _…y ${arr.length - max} más_` : '')
+          );
+        };
+
+        const fmtLoa = (arr, max = 8) => {
+          if (!arr.length) return '> —';
+          return (
+            arr
+              .slice(0, max)
+              .map(x => `> <@${x.userId}>`)
+              .join('\n') + (arr.length > max ? `\n> _…y ${arr.length - max} más_` : '')
+          );
+        };
+
+        let desc =
+          (automatico
+            ? 'Se reiniciaron las **cuotas semanales** de todo el Staff.\n'
+            : 'Reinicio **manual** de cuotas.\n') +
+          `📅 Semana cerrada: **${semanaId}** · próximo reinicio: **Domingo 22:00 (AR)**\n` +
+          '📈 El **histórico** y las **rachas** se mantienen. Las cuotas de esta semana quedan en **0**.\n';
+
+        if (topScore) {
+          desc +=
+            `\n🏆 **MVP de la semana:** <@${topScore.userId}> — score **${textoScore(topScore.score)}** (${topScore.rango})\n`;
+        }
+
+        desc += `\n> Staff procesados: **${afectados}** · ✅ ${cumplieron.length} · ❌ ${fallaron.length} · 🟡 LOA ${exentosLoa.length}`;
+
+        const embed = new EmbedBuilder()
+          .setTitle(`📊 Cierre Semanal de Cuotas — ${semanaId}`)
+          .setColor('#74d4fc')
+          .setDescription(desc)
+          .addFields(
+            {
+              name: `✅ Cumplieron (${cumplieron.length})`,
+              value: fmtCumplieron(cumplieron),
+              inline: false
+            },
+            {
+              name: `❌ No cumplieron (${fallaron.length})`,
+              value: fmtFallaron(fallaron),
+              inline: false
+            },
+            {
+              name: `🟡 Exentos por LOA (${exentosLoa.length})`,
+              value: fmtLoa(exentosLoa),
+              inline: false
+            }
+          )
+          .setFooter({
+            text: '00Y4n Comunidad SWFL • Sistema de Cuotas • LOA no cuenta como fallo',
+            iconURL: channel.guild?.iconURL?.() || undefined
+          })
+          .setTimestamp();
+
+        await channel.send({ embeds: [embed] });
+      }
     }
   } catch (e) {
     logger.error(`Error anunciando reinicio de cuotas: ${e.message}`);
@@ -239,11 +248,11 @@ export async function recordatorioCuotaMidWeek(client) {
         const { obtenerMetasPorRango } = await import('./metasCuota.js');
         const metas = obtenerMetasPorRango(rango);
 
-        if (metas.sesionesMeta <= 0) continue; // sin meta
+        if (metas.sesionesMeta <= 0) continue;
 
         const ses = sesionesSemana(staff.cuotas || {});
         const ratio = ses / metas.sesionesMeta;
-        if (ratio >= 0.5) continue; // va bien
+        if (ratio >= 0.5) continue;
 
         try {
           const user = await client.users.fetch(staff.userId);
@@ -264,7 +273,7 @@ export async function recordatorioCuotaMidWeek(client) {
           await user.send({ embeds: [embed] });
           enviados++;
         } catch {
-          // DMs cerrados — ignorar
+          // DMs cerrados
         }
       }
     } catch (e) {
