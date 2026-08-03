@@ -29,7 +29,7 @@ class TitanBot extends Client {
         GatewayIntentBits.GuildMessageReactions,
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildVoiceStates,
-        GatewayIntentBits.GuildBans,
+        GatewayIntentBits.GuildModeration,
         GatewayIntentBits.GuildPresences,
       ],
     });
@@ -71,7 +71,7 @@ class TitanBot extends Client {
           logger.error('❌ Failed to connect to MongoDB Atlas:', mongoErr.message);
         }
       } else {
-        logger.warn('⚠️ MONGO_URI missing in environment variables. Mongoose features will fail.');
+        logger.warn('⚠️ MONGO_URI missing. Mongoose features may fail.');
       }
 
       startupLog('Starting web server...');
@@ -84,6 +84,11 @@ class TitanBot extends Client {
       startupLog('Loading handlers...');
       await this.loadHandlers();
       startupLog('Handlers loaded');
+
+      if (!this.config.bot.token) {
+        logger.error('❌ DISCORD_TOKEN / TOKEN no está definido en las variables de entorno');
+        process.exit(1);
+      }
 
       startupLog('Logging into Discord...');
       await this.login(this.config.bot.token);
@@ -130,28 +135,11 @@ class TitanBot extends Client {
       next();
     });
 
-    const requestCounts = new Map();
-    const windowMs = 60000;
-    const maxRequests = this.config.api?.rateLimit?.max || 100;
-
-    app.use((req, res, next) => {
-      const ip = req.ip;
-      const now = Date.now();
-      const windowStart = now - windowMs;
-      if (!requestCounts.has(ip)) requestCounts.set(ip, []);
-      const times = requestCounts.get(ip).filter(t => t > windowStart);
-      if (times.length >= maxRequests) {
-        return res.status(429).json({ error: 'Too many requests' });
-      }
-      times.push(now);
-      requestCounts.set(ip, times);
-      next();
-    });
-
     app.get('/health', (req, res) => {
       const dbStatus = this.db?.getStatus?.() || { isDegraded: 'unknown' };
       res.status(200).json({
         status: 'healthy',
+        online: this.isReady?.() || false,
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
         database: {
@@ -164,19 +152,15 @@ class TitanBot extends Client {
     });
 
     app.get('/ready', (req, res) => {
-      const dbStatus = this.db?.getStatus?.() || { isDegraded: true };
-      const isReady = this.isReady() && !dbStatus.isDegraded;
-      if (isReady) return res.status(200).json({ ready: true, message: 'Bot is ready' });
-      res.status(503).json({
-        ready: false,
-        reason: !this.isReady() ? 'Bot not Ready' : 'Database degraded'
-      });
+      if (this.isReady?.()) return res.status(200).json({ ready: true });
+      res.status(503).json({ ready: false, reason: 'Bot not Ready' });
     });
 
     app.get('/', (req, res) => {
       res.status(200).json({
         message: 'TitanBot System Online',
         version: '2.0.0',
+        discordReady: this.isReady?.() || false,
         timestamp: new Date().toISOString()
       });
     });
@@ -187,23 +171,15 @@ class TitanBot extends Client {
         hasStartedListening = true;
         this.webServer = server;
         startupLog(`✅ Web Server running on ${host}:${port}`);
-        startupLog(`Health endpoint: http://localhost:${port}/health`);
-        startupLog(`Ready endpoint: http://localhost:${port}/ready`);
       });
 
       server.on('error', (error) => {
         const errorCode = error?.code || 'UNKNOWN_ERROR';
         if (!hasStartedListening && errorCode === 'EADDRINUSE' && attempt < maxPortRetryAttempts) {
-          const nextPort = port + 1;
-          startupLog(`Port ${port} is already in use. Trying port ${nextPort}...`);
-          setTimeout(() => startServer(nextPort, attempt + 1), 250);
+          setTimeout(() => startServer(port + 1, attempt + 1), 250);
           return;
         }
-        if (hasStartedListening && errorCode === 'EADDRINUSE') {
-          logger.warn(`Web server duplicate bind on ${host}:${port}, bot remains online.`);
-          return;
-        }
-        logger.error(`❌ Web server error on port ${port} (${errorCode}): ${error?.message}`);
+        logger.error(`❌ Web server error on port ${port}: ${error?.message}`);
         if (!hasStartedListening) process.exit(1);
       });
     };
@@ -250,19 +226,16 @@ class TitanBot extends Client {
       try {
         const counters = await getServerCounters(this, guildId);
         const validCounters = [];
-        const orphanedCounters = [];
         for (const counter of counters) {
           if (counter && counter.type && counter.channelId && counter.enabled !== false) {
             const channel = guild.channels.cache.get(counter.channelId);
             if (channel) {
               validCounters.push(counter);
               await updateCounter(this, guild, counter);
-            } else {
-              orphanedCounters.push(counter);
             }
           }
         }
-        if (orphanedCounters.length > 0) {
+        if (validCounters.length !== counters.length) {
           await saveServerCounters(this, guildId, validCounters);
         }
       } catch (error) {
@@ -292,8 +265,6 @@ class TitanBot extends Client {
         if (handler.required) {
           logger.error(`❌ Failed to load required handler ${handler.path}:`, error.message);
           throw error;
-        } else if (error.code !== 'MODULE_NOT_FOUND') {
-          logger.warn(`⚠️  Failed to load optional handler ${handler.path}:`, error.message);
         }
       }
     }
@@ -311,24 +282,12 @@ class TitanBot extends Client {
     shutdownLog(`Bot is shutting down (${reason})...`);
     try {
       cron.getTasks().forEach(task => task.stop());
-      if (this.db && this.db.db) {
-        try {
-          if (this.db.db.pool) await this.db.db.pool.end();
-        } catch (error) {
-          logger.warn('Error closing database pool:', error.message);
-        }
-      }
       if (mongoose.connection.readyState !== 0) {
         await mongoose.connection.close();
       }
       if (this.isReady()) {
-        try {
-          this.destroy();
-        } catch (error) {
-          logger.warn('Discord client destroy warning:', error.message);
-        }
+        try { this.destroy(); } catch (_) {}
       }
-      shutdownLog('Bot stopped successfully.');
       process.exit(0);
     } catch (error) {
       logger.error('Error during graceful shutdown:', error);
@@ -347,7 +306,6 @@ try {
   });
   process.on('unhandledRejection', (reason, promise) => {
     logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
-    bot.shutdown('UNHANDLED_REJECTION');
   });
   bot.start();
 } catch (error) {
