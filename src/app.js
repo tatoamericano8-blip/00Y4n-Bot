@@ -97,66 +97,66 @@ class TitanBot extends Client {
       startupLog('Token presente (len=' + tok.length + ', prefix=' + tok.slice(0, 5) + '…)');
 
       this.on('debug', (msg) => {
-        if (/Heartbeat|HIT|Identifying|WebSocket|READY|Session|4014|4004|Gateway|connect|token|Rate/i.test(msg)) {
+        if (/Identifying|WebSocket|READY|Session|4014|4004|Gateway|Rate|429|blocked/i.test(msg)) {
           logger.info('[discord-ws] ' + msg);
         }
       });
       this.on('error', (err) => logger.error('[discord-error] ' + (err?.message || err)));
-      this.on('shardError', (err) => logger.error('[shard-error] ' + (err?.message || err)));
       this.on('warn', (msg) => logger.warn('[discord-warn] ' + msg));
 
-      try {
-        startupLog('Preflight Discord API (gateway/bot)...');
-        const ctrl = new AbortController();
-        const to = setTimeout(() => ctrl.abort(), 15000);
-        const res = await fetch('https://discord.com/api/v10/gateway/bot', {
-          headers: {
-            Authorization: 'Bot ' + tok,
-            'User-Agent': 'DiscordBot (00Y4n, 1.0)'
-          },
-          signal: ctrl.signal
-        });
-        clearTimeout(to);
-        const bodyText = await res.text();
-        startupLog('Preflight HTTP ' + res.status + ' body=' + bodyText.slice(0, 200));
-        if (!res.ok) {
-          throw new Error('Discord API preflight falló HTTP ' + res.status + ': ' + bodyText.slice(0, 300));
-        }
-      } catch (pfErr) {
-        logger.error('Preflight Discord API FAILED:', pfErr?.message || pfErr);
-        throw new Error(
-          'No se pudo contactar discord.com desde Render (' +
-            (pfErr?.message || pfErr) +
-            '). Si es timeout/red, reintentá deploy o usá otro host.'
-        );
-      }
-
+      // NO process.exit en fallos de login: el loop de reinicios causa HTTP 429.
       let loggedIn = false;
-      let lastErr = null;
-      for (let attempt = 1; attempt <= 5; attempt++) {
+      let attempt = 0;
+      while (!loggedIn) {
+        attempt += 1;
         try {
-          startupLog('Login attempt ' + attempt + '/5...');
-          await Promise.race([
-            this.login(tok),
-            new Promise((_, reject) =>
-              setTimeout(() => reject(new Error('login timeout 60s')), 60000)
-            )
-          ]);
+          if (attempt === 1 || attempt % 3 === 0) {
+            try {
+              const ctrl = new AbortController();
+              const to = setTimeout(() => ctrl.abort(), 12000);
+              const res = await fetch('https://discord.com/api/v10/gateway/bot', {
+                headers: {
+                  Authorization: 'Bot ' + tok,
+                  'User-Agent': 'DiscordBot (00Y4n, 1.0)'
+                },
+                signal: ctrl.signal
+              });
+              clearTimeout(to);
+              const bodyText = await res.text();
+              startupLog('Preflight HTTP ' + res.status + ' (attempt ' + attempt + ')');
+              if (res.status === 429) {
+                let waitSec = 600; // 10 min por defecto en bloqueo global
+                try {
+                  const j = JSON.parse(bodyText);
+                  if (j.retry_after) waitSec = Math.ceil(Number(j.retry_after)) + 10;
+                } catch (_) {}
+                const ra = res.headers.get('retry-after');
+                if (ra) waitSec = Math.max(waitSec, Math.ceil(Number(ra)) + 10);
+                startupLog('Discord rate-limit 429. Esperando ' + waitSec + 's SIN reiniciar...');
+                await new Promise(r => setTimeout(r, waitSec * 1000));
+                continue;
+              }
+              if (!res.ok) {
+                startupLog('Preflight no OK: ' + bodyText.slice(0, 150));
+              }
+            } catch (pfErr) {
+              logger.warn('Preflight error: ' + (pfErr?.message || pfErr));
+            }
+          }
+
+          startupLog('Login attempt ' + attempt + '...');
+          await this.login(tok);
           loggedIn = true;
           startupLog('Discord login successful');
-          break;
         } catch (loginErr) {
-          lastErr = loginErr;
-          logger.error('Login attempt ' + attempt + ' FAILED: ' + (loginErr?.message || loginErr));
-          if (attempt < 5) {
-            const wait = attempt * 10;
-            startupLog('Reintentando en ' + wait + 's...');
-            await new Promise(r => setTimeout(r, wait * 1000));
-          }
+          const msg = String(loginErr?.message || loginErr);
+          logger.error('Login FAILED: ' + msg);
+          let waitSec = 180;
+          if (/429|rate|blocked|timeout/i.test(msg)) waitSec = 600;
+          if (/token|401|invalid/i.test(msg)) waitSec = 900;
+          startupLog('Reintentando login en ' + waitSec + 's (proceso vivo)...');
+          await new Promise(r => setTimeout(r, waitSec * 1000));
         }
-      }
-      if (!loggedIn) {
-        throw lastErr || new Error('Discord login falló tras 5 intentos');
       }
 
       startupLog('Registering slash commands...');
@@ -177,7 +177,12 @@ class TitanBot extends Client {
       this.setupCiudadanoDelDia();
     } catch (error) {
       logger.error('Failed to start bot:', error);
-      process.exit(1);
+      // NO salir: si salimos, Render reinicia en loop y Discord responde 429.
+      startupLog('Proceso en modo espera (web server activo). Discord offline temporalmente.');
+      setTimeout(() => {
+        startupLog('Reintentando arranque en 10 min...');
+        this.start().catch(e => logger.error(e));
+      }, 10 * 60 * 1000);
     }
   }
 
@@ -367,7 +372,6 @@ try {
   process.on('SIGINT', () => bot.shutdown('SIGINT'));
   process.on('uncaughtException', (error) => {
     logger.error('Uncaught Exception:', error);
-    bot.shutdown('UNCAUGHT_EXCEPTION');
   });
   process.on('unhandledRejection', (reason, promise) => {
     logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
@@ -375,7 +379,6 @@ try {
   bot.start();
 } catch (error) {
   logger.error('Fatal error during bot startup:', error);
-  process.exit(1);
 }
 
 export default TitanBot;
