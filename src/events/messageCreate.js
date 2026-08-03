@@ -15,10 +15,6 @@ export default {
   name: Events.MessageCreate,
   async execute(message) {
     try {
-      // ═══════════════════════════════════════
-      //  BOOST (mensaje del sistema de Discord)
-      //  content = cantidad de boosts de ESTA acción ("1", "2", ...)
-      // ═══════════════════════════════════════
       if (message.guild && BOOST_MSG_TYPES.has(message.type)) {
         try {
           const veces = Math.max(1, parseInt(String(message.content || '1').trim(), 10) || 1);
@@ -31,15 +27,12 @@ export default {
         return;
       }
 
-      // 🔒 Si el mensaje es de un bot o no es en un servidor, lo ignoramos
+      // Contar y procesar solo mensajes de usuarios en servidores (todos los canales)
       if (message.author.bot || !message.guild) return;
 
-      // Cache para /snipe
       try { cachearMensaje(message); } catch {}
 
-      // -------------------------------------------------------------
-      // 📊 1. REGISTRO DE ACTIVIDAD (CIUDADANO DEL DÍA)
-      // -------------------------------------------------------------
+      // Ciudadano del día
       const hoyStr = new Date().toISOString().split('T')[0];
       const clavePuntos = `puntos_dia:${hoyStr}:${message.author.id}`;
       const claveListaUsuarios = `usuarios_activos:${hoyStr}`;
@@ -53,18 +46,15 @@ export default {
         await setInDb(claveListaUsuarios, listaUsuarios);
       }
 
-      // -------------------------------------------------------------
-      // 🏆 1.1 CONTADOR TOTAL DE MENSAJES (PARA LEADERBOARD)
-      // -------------------------------------------------------------
+      // Contador permanente por servidor (todos los canales del guild)
       try {
-        const claveTotal = `mensajes_totales:${message.author.id}`;
+        const claveTotal = `mensajes_totales:${message.guild.id}:${message.author.id}`;
         const totalActual = await getFromDb(claveTotal, 0);
-        await setInDb(claveTotal, totalActual + 1);
-      } catch (e) {}
+        await setInDb(claveTotal, Number(totalActual) + 1);
+      } catch (e) {
+        logger.error('Error contando mensajes_totales:', e);
+      }
 
-      // -------------------------------------------------------------
-      // 🤖 2. AUTO-RESPONDER: "CÓMO UNIRSE"
-      // -------------------------------------------------------------
       const textoNormalizado = message.content.toLowerCase()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '');
@@ -90,7 +80,7 @@ export default {
         const embedComoUnirse = new EmbedBuilder()
           .setColor('#74d4fc')
           .setDescription(
-            `<a:flota:1525562954983149768>┃ __**Cómo Unirse a una Sesión**__\n\n` +
+            `<a:flota:1525562954983149768>\u2503 __**Cómo Unirse a una Sesión**__\n\n` +
             `<:pc:1523041347869868253> **Si jugás en PC**\n` +
             `1. Registra tu vehículo con \`/matricula_swfl registrar\` (patente de 6-7 caracteres).\n` +
             `2. Esperá a que el host lance la sesión y reaccioná al mensaje de inicio.\n` +
@@ -113,9 +103,6 @@ export default {
         }
       }
 
-      // -------------------------------------------------------------
-      // 🤖 3. AUTO-RESPONDER: "CÓMO REGISTRAR VEHÍCULO"
-      // -------------------------------------------------------------
       const disparadoresRegistro = [
         'como registro',
         'como se registra',
@@ -137,7 +124,7 @@ export default {
         const embedRegistro = new EmbedBuilder()
           .setColor('#74d4fc')
           .setDescription(
-            `<a:flota:1525562954983149768>┃ __**Cómo Registrar tu Vehículo**__\n\n` +
+            `<a:flota:1525562954983149768>\u2503 __**Cómo Registrar tu Vehículo**__\n\n` +
             `<:car:1523041347869868253> **Paso a Paso:**\n` +
             `1. Escribe el comando **\`/matricular registrar\`** en el canal <#1505615426305130657>.\n` +
             `2. En la opción **patente**, ingresa una combinación de **6 a 7 caracteres** (letras y números sin espacios ni símbolos).\n` +

@@ -1,38 +1,25 @@
 import {
-    ApplicationCommandOptionType,
+    SlashCommandBuilder,
     EmbedBuilder,
     ActionRowBuilder,
-    StringSelectMenuBuilder
+    StringSelectMenuBuilder,
+    ComponentType
 } from 'discord.js';
+import Staff from '../../models/Staff.js';
 import { db } from '../../utils/database.js';
-import Staff from '../../../models/Staff.js';
 
-// -------------------------------------------------------------------
-// 🔧 Convierte una etiqueta de emoji personalizado <:nombre:id> o
-// <a:nombre:id> en el objeto {id, name, animated} que espera
-// StringSelectMenuOptionBuilder. Si no matchea (ej: un emoji unicode
-// como '💰'), lo devuelve tal cual — así también soporta emojis normales.
-// -------------------------------------------------------------------
-function parseEmojiTag(tag) {
-    const match = tag.match(/^<(a)?:(\w+):(\d+)>$/);
+function parseCustomEmoji(tag) {
+    const match = String(tag || '').match(/^<(a?):([\w~]+):(\d+)>$/);
     if (!match) return tag;
     const [, animated, name, id] = match;
     return { id, name, animated: Boolean(animated) };
 }
 
-// -------------------------------------------------------------------
-// 🏆 CATEGORÍAS DISPONIBLES
-// `emojiTag` va siempre en formato texto completo (<:nombre:id> o un
-// emoji unicode) — de ahí se arma tanto el título del embed como el
-// emoji del select menu.
-// -------------------------------------------------------------------
 const CATEGORIAS = {
     economia: {
         label: 'Economía',
         emojiTag: '<:gift:1523041327950856334>',
         async fetch() {
-            // ⚠️ El saldo se guarda como economy:{userId} SIN guildId,
-            // por lo que este top es global (no exclusivo de este servidor).
             const keys = await db.list('economy:');
             const datos = await Promise.all(keys.map(async (key) => {
                 const valor = Number(await db.get(key, 0)) || 0;
@@ -50,17 +37,36 @@ const CATEGORIAS = {
         label: 'Mensajes Totales',
         emojiTag: '<:msj:1523041309139533954>',
         async fetch(guildId) {
+            // Clave actual: mensajes_totales:{guildId}:{userId}
+            // Legacy: mensajes_totales:{userId} — se suma para no perder historial
             const prefix = `mensajes_totales:${guildId}:`;
-            const keys = await db.list(prefix);
-            const datos = await Promise.all(keys.map(async (key) => {
+            const map = new Map();
+
+            const keysGuild = await db.list(prefix);
+            for (const key of keysGuild) {
+                const userId = key.slice(prefix.length);
+                if (!userId) continue;
                 const valor = Number(await db.get(key, 0)) || 0;
-                return {
-                    userId: key.replace(prefix, ''),
+                map.set(userId, (map.get(userId) || 0) + valor);
+            }
+
+            const keysAll = await db.list('mensajes_totales:');
+            for (const key of keysAll) {
+                const rest = key.slice('mensajes_totales:'.length);
+                if (!rest || rest.includes(':')) continue;
+                const userId = rest;
+                const valor = Number(await db.get(key, 0)) || 0;
+                map.set(userId, (map.get(userId) || 0) + valor);
+            }
+
+            return [...map.entries()]
+                .map(([userId, valor]) => ({
+                    userId,
                     valor,
                     texto: `${valor.toLocaleString('es-ES')} mensajes`
-                };
-            }));
-            return datos.sort((a, b) => b.valor - a.valor);
+                }))
+                .filter((d) => d.valor > 0)
+                .sort((a, b) => b.valor - a.valor);
         }
     },
 
@@ -117,97 +123,103 @@ function construirEmbed(categoriaKey, datos, guildName) {
     const cat = CATEGORIAS[categoriaKey];
     const embed = new EmbedBuilder()
         .setTitle(`${cat.emojiTag} ${cat.label}`)
-        .setColor('#74d4fc')
-        .setFooter({ text: guildName })
-        .setTimestamp();
+        .setColor('#74d4fc');
 
     if (!datos.length) {
-        embed.setDescription('No hay datos disponibles todavía para esta categoría.');
-        return embed;
+        embed.setDescription('Aún no hay datos registrados en esta categoría.');
+    } else {
+        const lineas = datos.slice(0, 10).map((d, i) => {
+            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `**${i + 1}.**`;
+            return `${medal} <@${d.userId}> — **${d.texto}**`;
+        });
+        embed.setDescription(lineas.join('\n'));
     }
 
-    const top = datos.slice(0, 10);
-    const medallas = ['🥇', '🥈', '🥉'];
-    const descripcion = top
-        .map((entry, i) => {
-            const medalla = medallas[i] || `**${i + 1}.**`;
-            return `${medalla} <@${entry.userId}> — ${entry.texto}`;
-        })
-        .join('\n');
-
-    embed.setDescription(descripcion);
+    embed.setFooter({ text: `${guildName} • Tabla de posiciones` }).setTimestamp();
     return embed;
 }
 
-function construirMenu(categoriaActual) {
-    const opciones = Object.entries(CATEGORIAS).map(([key, cat]) => ({
+function construirSelect(categoriaActual) {
+    const options = Object.entries(CATEGORIAS).map(([key, cat]) => ({
         label: cat.label,
         value: key,
-        emoji: parseEmojiTag(cat.emojiTag),
+        emoji: parseCustomEmoji(cat.emojiTag),
         default: key === categoriaActual
     }));
-
     return new ActionRowBuilder().addComponents(
         new StringSelectMenuBuilder()
-            .setCustomId('tabla_posiciones_categoria')
-            .setPlaceholder('Selecciona una categoría...')
-            .addOptions(opciones)
+            .setCustomId('tabla_posiciones_select')
+            .setPlaceholder('Elegí una categoría')
+            .addOptions(options)
     );
 }
 
 export default {
-    data: {
-        name: 'tabla-posiciones',
-        description: 'Muestra la tabla de posiciones (leaderboard) del servidor.',
-        options: [
-            {
-                name: 'categoria',
-                description: 'Categoría a mostrar (por defecto: Economía).',
-                type: ApplicationCommandOptionType.String,
-                required: false,
-                choices: Object.entries(CATEGORIAS).map(([value, cat]) => ({
-                    name: cat.label,
-                    value
-                }))
-            }
-        ]
-    },
+    data: new SlashCommandBuilder()
+        .setName('tabla-posiciones')
+        .setDescription('Muestra rankings del servidor (mensajes, economía, staff, etc.)')
+        .addStringOption(opt =>
+            opt.setName('categoria')
+                .setDescription('Categoría a mostrar')
+                .addChoices(
+                    { name: 'Mensajes Totales', value: 'mensajes' },
+                    { name: 'Economía', value: 'economia' },
+                    { name: 'Reacciones en Sesiones', value: 'reacciones_sesiones' },
+                    { name: 'Sesiones Hosteadas (Staff)', value: 'sesiones_hosteadas' },
+                    { name: 'Horas de Servicio (Staff)', value: 'horas_servicio' }
+                )
+        ),
 
     async execute(interaction) {
-        await interaction.deferReply();
-
-        const guildId = interaction.guildId;
-        const categoriaInicial = interaction.options.getString('categoria') || 'economia';
-
         try {
-            const datos = await CATEGORIAS[categoriaInicial].fetch(guildId);
-            const embed = construirEmbed(categoriaInicial, datos, interaction.guild.name);
-            const fila = construirMenu(categoriaInicial);
+            await interaction.deferReply();
+            const guildId = interaction.guild.id;
+            const categoria = interaction.options.getString('categoria') || 'mensajes';
+            const cat = CATEGORIAS[categoria];
+            if (!cat) {
+                return interaction.editReply({ content: 'Categoría inválida.' });
+            }
 
-            const mensaje = await interaction.editReply({ embeds: [embed], components: [fila] });
+            const datos = await cat.fetch(guildId);
+            const embed = construirEmbed(categoria, datos, interaction.guild.name);
+            const row = construirSelect(categoria);
 
-            const collector = mensaje.createMessageComponentCollector({
-                filter: (i) => i.customId === 'tabla_posiciones_categoria' && i.user.id === interaction.user.id,
-                time: 60000
+            const msg = await interaction.editReply({ embeds: [embed], components: [row] });
+
+            const collector = msg.createMessageComponentCollector({
+                componentType: ComponentType.StringSelect,
+                time: 120_000,
+                filter: (i) => i.user.id === interaction.user.id
             });
 
             collector.on('collect', async (i) => {
-                await i.deferUpdate();
-                const categoriaSeleccionada = i.values[0];
-                const nuevosDatos = await CATEGORIAS[categoriaSeleccionada].fetch(guildId);
-                const nuevoEmbed = construirEmbed(categoriaSeleccionada, nuevosDatos, interaction.guild.name);
-                const nuevaFila = construirMenu(categoriaSeleccionada);
-                await i.editReply({ embeds: [nuevoEmbed], components: [nuevaFila] });
+                try {
+                    const nueva = i.values[0];
+                    const catN = CATEGORIAS[nueva];
+                    const datosN = await catN.fetch(guildId);
+                    await i.update({
+                        embeds: [construirEmbed(nueva, datosN, interaction.guild.name)],
+                        components: [construirSelect(nueva)]
+                    });
+                } catch (err) {
+                    console.error('Error cambiando categoría tabla-posiciones:', err);
+                    try { await i.deferUpdate(); } catch {}
+                }
             });
 
-            collector.on('end', () => {
-                interaction.editReply({ components: [] }).catch(() => {});
+            collector.on('end', async () => {
+                try {
+                    await msg.edit({ components: [] });
+                } catch {}
             });
         } catch (error) {
             console.error('Error en /tabla-posiciones:', error);
-            await interaction.editReply({
-                content: '❌ Hubo un error al cargar la tabla de posiciones.'
-            });
+            const payload = { content: 'Ocurrió un error al generar la tabla de posiciones.' };
+            if (interaction.deferred || interaction.replied) {
+                await interaction.editReply(payload).catch(() => null);
+            } else {
+                await interaction.reply({ ...payload, ephemeral: true }).catch(() => null);
+            }
         }
     }
 };
