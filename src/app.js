@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import './utils/parcheColorEmbed.js'; // Color centralizado PRIMARIO
+import './utils/parcheColorEmbed.js';
 import { Client, Collection, GatewayIntentBits } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import express from 'express';
@@ -95,44 +95,68 @@ class TitanBot extends Client {
       }
       const tok = String(this.config.bot.token).trim().replace(/^[\'"]|[\'"]$/g, '');
       startupLog('Token presente (len=' + tok.length + ', prefix=' + tok.slice(0, 5) + '…)');
+
       this.on('debug', (msg) => {
-        if (
-          msg.includes('Heartbeat') ||
-          msg.includes('HIT') ||
-          msg.includes('Identifying') ||
-          msg.includes('WebSocket') ||
-          msg.includes('READY') ||
-          msg.includes('Session') ||
-          msg.includes('4014') ||
-          msg.includes('4004') ||
-          msg.includes('Gateway') ||
-          msg.includes('connect')
-        ) {
+        if (/Heartbeat|HIT|Identifying|WebSocket|READY|Session|4014|4004|Gateway|connect|token|Rate/i.test(msg)) {
           logger.info('[discord-ws] ' + msg);
         }
       });
       this.on('error', (err) => logger.error('[discord-error] ' + (err?.message || err)));
       this.on('shardError', (err) => logger.error('[shard-error] ' + (err?.message || err)));
       this.on('warn', (msg) => logger.warn('[discord-warn] ' + msg));
+
       try {
-        await Promise.race([
-          this.login(tok),
-          new Promise((_, reject) =>
-            setTimeout(
-              () =>
-                reject(
-                  new Error(
-                    'Discord login timeout (45s). Revisá: intents privilegiados en Developer Portal (Presence + Members + Message Content), token, o red Render.'
-                  )
-                ),
-              45000
+        startupLog('Preflight Discord API (gateway/bot)...');
+        const ctrl = new AbortController();
+        const to = setTimeout(() => ctrl.abort(), 15000);
+        const res = await fetch('https://discord.com/api/v10/gateway/bot', {
+          headers: {
+            Authorization: 'Bot ' + tok,
+            'User-Agent': 'DiscordBot (00Y4n, 1.0)'
+          },
+          signal: ctrl.signal
+        });
+        clearTimeout(to);
+        const bodyText = await res.text();
+        startupLog('Preflight HTTP ' + res.status + ' body=' + bodyText.slice(0, 200));
+        if (!res.ok) {
+          throw new Error('Discord API preflight falló HTTP ' + res.status + ': ' + bodyText.slice(0, 300));
+        }
+      } catch (pfErr) {
+        logger.error('Preflight Discord API FAILED:', pfErr?.message || pfErr);
+        throw new Error(
+          'No se pudo contactar discord.com desde Render (' +
+            (pfErr?.message || pfErr) +
+            '). Si es timeout/red, reintentá deploy o usá otro host.'
+        );
+      }
+
+      let loggedIn = false;
+      let lastErr = null;
+      for (let attempt = 1; attempt <= 5; attempt++) {
+        try {
+          startupLog('Login attempt ' + attempt + '/5...');
+          await Promise.race([
+            this.login(tok),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('login timeout 60s')), 60000)
             )
-          )
-        ]);
-        startupLog('Discord login successful');
-      } catch (loginErr) {
-        logger.error('Discord login FAILED:', loginErr?.message || loginErr);
-        throw loginErr;
+          ]);
+          loggedIn = true;
+          startupLog('Discord login successful');
+          break;
+        } catch (loginErr) {
+          lastErr = loginErr;
+          logger.error('Login attempt ' + attempt + ' FAILED: ' + (loginErr?.message || loginErr));
+          if (attempt < 5) {
+            const wait = attempt * 10;
+            startupLog('Reintentando en ' + wait + 's...');
+            await new Promise(r => setTimeout(r, wait * 1000));
+          }
+        }
+      }
+      if (!loggedIn) {
+        throw lastErr || new Error('Discord login falló tras 5 intentos');
       }
 
       startupLog('Registering slash commands...');
