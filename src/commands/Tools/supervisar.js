@@ -17,24 +17,41 @@ export default {
 
     async execute(interaction) {
         const supervisor = interaction.options.getUser('supervisor') || interaction.user;
+        const guildId = interaction.guild.id;
 
-        // Guardar supervisor en la sesión activa del servidor para auto-cuota al cerrar
+        let sesion = null;
         try {
-            await Session.findOneAndUpdate(
-                {
-                    guildId: interaction.guildId,
-                    estado: { $in: ['esperando_reacciones', 'activa'] }
-                },
-                { supervisorId: supervisor.id },
-                { sort: { fechaInicio: -1 } }
-            );
+            sesion = await Session.findOne({
+                guildId,
+                estado: { $in: ['esperando_reacciones', 'activa'] }
+            }).sort({ fechaInicio: -1 });
+
+            if (!sesion) {
+                return interaction.reply({
+                    content: '<a:adv:1523027438030946446> No hay una sesión activa para supervisar. Primero usá `/inicio_swfl`.',
+                    ephemeral: true
+                });
+            }
+
+            sesion.supervisorId = supervisor.id;
+            await sesion.save();
         } catch (err) {
             console.error('Error guardando supervisor en sesión:', err);
+            return interaction.reply({
+                content: '❌ Error al registrar el supervisor en la sesión. Intentá de nuevo.',
+                ephemeral: true
+            });
         }
 
         const embedSupervision = new EmbedBuilder()
-            .setDescription(`<a:flecha:1523027371735777503> <@${supervisor.id}> está **supervisando** la sesión.`)
-            .setColor('#74d4fc');
+            .setDescription(
+                `<a:flecha:1523027371735777503> <@${supervisor.id}> está **supervisando** la sesión.` +
+                (sesion.hostId && sesion.hostId !== supervisor.id
+                    ? `\n> Host: <@${sesion.hostId}>`
+                    : '')
+            )
+            .setColor('#74d4fc')
+            .setFooter({ text: 'Al cerrar con /cerrar_swfl se sumará +1 sesión supervisada a la cuota.' });
 
         await interaction.reply({
             embeds: [embedSupervision]
