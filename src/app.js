@@ -29,7 +29,7 @@ class TitanBot extends Client {
         GatewayIntentBits.GuildMessageReactions,
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildVoiceStates,
-        GatewayIntentBits.GuildModeration,
+        GatewayIntentBits.GuildBans,
         GatewayIntentBits.GuildPresences,
       ],
     });
@@ -85,14 +85,24 @@ class TitanBot extends Client {
       await this.loadHandlers();
       startupLog('Handlers loaded');
 
-      if (!this.config.bot.token) {
-        logger.error('❌ DISCORD_TOKEN / TOKEN no está definido en las variables de entorno');
-        process.exit(1);
-      }
-
       startupLog('Logging into Discord...');
-      await this.login(this.config.bot.token);
-      startupLog('Discord login successful');
+      if (!this.config.bot.token) {
+        throw new Error('DISCORD_TOKEN/TOKEN vacío en variables de entorno de Render');
+      }
+      const tok = String(this.config.bot.token);
+      startupLog('Token presente (len=' + tok.length + ', prefix=' + tok.slice(0, 5) + '…)');
+      try {
+        await Promise.race([
+          this.login(tok),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Discord login timeout (30s). Revisá token e intents en Discord Developer Portal.')), 30000)
+          )
+        ]);
+        startupLog('Discord login successful');
+      } catch (loginErr) {
+        logger.error('Discord login FAILED:', loginErr?.message || loginErr);
+        throw loginErr;
+      }
 
       startupLog('Registering slash commands...');
       await this.registerCommands();
