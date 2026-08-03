@@ -5,7 +5,7 @@ import {
     StringSelectMenuBuilder,
     ComponentType
 } from 'discord.js';
-import Staff from '../../models/Staff.js';
+import Staff from '../../../models/Staff.js';
 import { db } from '../../utils/database.js';
 
 function parseCustomEmoji(tag) {
