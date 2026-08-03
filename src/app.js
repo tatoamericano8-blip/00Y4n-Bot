@@ -21,17 +21,21 @@ import { procesarCiudadanoDelDia } from './utils/ciudadanoDelDia.js';
 
 class TitanBot extends Client {
   constructor() {
+    const intents = [
+      GatewayIntentBits.Guilds,
+      GatewayIntentBits.GuildMembers,
+      GatewayIntentBits.GuildMessages,
+      GatewayIntentBits.GuildMessageReactions,
+      GatewayIntentBits.MessageContent,
+      GatewayIntentBits.GuildVoiceStates,
+      GatewayIntentBits.GuildModeration,
+      GatewayIntentBits.GuildPresences,
+    ].filter((x) => typeof x === 'number');
+
     super({
-      intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.GuildMessageReactions,
-        GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildVoiceStates,
-        GatewayIntentBits.GuildBans,
-        GatewayIntentBits.GuildPresences,
-      ],
+      intents,
+      rest: { timeout: 20000 },
+      failIfNotExists: false,
     });
 
     this.config = config;
@@ -89,13 +93,40 @@ class TitanBot extends Client {
       if (!this.config.bot.token) {
         throw new Error('DISCORD_TOKEN/TOKEN vacío en variables de entorno de Render');
       }
-      const tok = String(this.config.bot.token);
+      const tok = String(this.config.bot.token).trim().replace(/^[\'"]|[\'"]$/g, '');
       startupLog('Token presente (len=' + tok.length + ', prefix=' + tok.slice(0, 5) + '…)');
+      this.on('debug', (msg) => {
+        if (
+          msg.includes('Heartbeat') ||
+          msg.includes('HIT') ||
+          msg.includes('Identifying') ||
+          msg.includes('WebSocket') ||
+          msg.includes('READY') ||
+          msg.includes('Session') ||
+          msg.includes('4014') ||
+          msg.includes('4004') ||
+          msg.includes('Gateway') ||
+          msg.includes('connect')
+        ) {
+          logger.info('[discord-ws] ' + msg);
+        }
+      });
+      this.on('error', (err) => logger.error('[discord-error] ' + (err?.message || err)));
+      this.on('shardError', (err) => logger.error('[shard-error] ' + (err?.message || err)));
+      this.on('warn', (msg) => logger.warn('[discord-warn] ' + msg));
       try {
         await Promise.race([
           this.login(tok),
           new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Discord login timeout (30s). Revisá token e intents en Discord Developer Portal.')), 30000)
+            setTimeout(
+              () =>
+                reject(
+                  new Error(
+                    'Discord login timeout (45s). Revisá: intents privilegiados en Developer Portal (Presence + Members + Message Content), token, o red Render.'
+                  )
+                ),
+              45000
+            )
           )
         ]);
         startupLog('Discord login successful');
