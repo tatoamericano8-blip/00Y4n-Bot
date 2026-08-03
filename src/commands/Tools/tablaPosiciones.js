@@ -129,7 +129,7 @@ function construirEmbed(categoriaKey, datos, guildName) {
         embed.setDescription('Aún no hay datos registrados en esta categoría.');
     } else {
         const lineas = datos.slice(0, 10).map((d, i) => {
-            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `**${i + 1}.**`;
+            const medal = i === 0 ? '<:si:1532128342327693352>' : i === 1 ? '🥈' : i === 2 ? '🥉' : `**${i + 1}.**`;
             return `${medal} <@${d.userId}> — **${d.texto}**`;
         });
         embed.setDescription(lineas.join('\n'));
