@@ -3,19 +3,26 @@
  *  COLORES CENTRALIZADOS DEL BOT 00Y4n
  * ============================================================
  *
- *  Punto ÚNICO para el color de marca.
+ *  Cómo cambiar el color de MARCA de casi TODO el bot:
+ *    1. Editá solo PRIMARIO abajo (ej: '#FB8B66').
+ *    2. Redeploy / reiniciá el bot en Render.
  *
- *  Cómo cambiar el color de casi TODO el bot:
- *    1. Editá solo PRIMARIO abajo.
- *    2. Reiniciá / redeploy.
+ *  Qué se actualiza al cambiar PRIMARIO:
+ *    • Embeds con .setColor('#74d4fc')  → parcheColorEmbed.js
+ *    • Embeds con .setColor(0x74d4fc)
+ *    • getColor('primary'|'info'|…)    → bot.js usa PRIMARIO
+ *    • COLORES.primario / .info / etc.  → este archivo
  *
- *  - Embeds con .setColor('#74d4fc') se redirigen vía parcheColorEmbed.js
- *  - getColor() de bot.js y comandos que usen COLORES.primario también.
+ *  Qué NO cambia (a propósito):
+ *    • error / strike / rojo           → siguen en rojo
+ *    • éxito / dinero / verde          → siguen en verde
+ *    • advertencia / LOA / amarillo    → siguen en amarillo
+ *    • Colores dinámicos (hex del comando /emojis-recolor, etc.)
  * ============================================================
  */
 
-/** Color principal de marca 00Y4n (celeste) */
-export const PRIMARIO = '#74d4fc'; // ← CAMBIÁ SOLO ESTA LÍNEA para todo el bot
+/** Color principal de marca 00Y4n — CAMBIÁ SOLO ESTA LÍNEA */
+export const PRIMARIO = '#74d4fc';
 
 /** Alias legibles para embeds */
 export const COLORES = {
