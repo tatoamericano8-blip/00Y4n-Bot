@@ -34,6 +34,7 @@ export const botConfig = {
     applicationCooldown: 24,
     deleteDeniedAfter: 7,
     deleteApprovedAfter: 30,
+    managerRoles: [],
   },
 
   embeds: {
@@ -80,6 +81,14 @@ export const botConfig = {
   },
 };
 
+export function validateConfig(config) {
+  const errors = [];
+  if (!process.env.DISCORD_TOKEN && !process.env.TOKEN && !config?.bot?.token) {
+    // token may come from application.js
+  }
+  return errors;
+}
+
 export const BotConfig = botConfig;
 
 export function getColor(path, fallback = "#99AAB5") {
@@ -102,7 +111,7 @@ export function getColor(path, fallback = "#99AAB5") {
 export function getRandomColor() {
   const colors = Object.values(botConfig.embeds.colors).flatMap((color) =>
     typeof color === "string" ? color : Object.values(color),
-  ).filter(c => typeof c === 'string' && c.startsWith('#'));
+  ).filter(c => typeof c === "string" && c.startsWith("#"));
   return colors[Math.floor(Math.random() * colors.length)] || PRIMARIO;
 }
 
