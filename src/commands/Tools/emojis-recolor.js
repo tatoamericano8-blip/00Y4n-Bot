@@ -9,7 +9,7 @@ import {
 } from 'discord.js';
 import sharp from 'sharp';
 
-const ROL_ALTO_MANDO = '1528870731629465752';
+const ROL_GERENTE_STAFF = '1452684893850177587';
 
 function parseHex(hex) {
   const h = String(hex || '').trim().replace(/^#/, '');
@@ -26,9 +26,7 @@ function parseHex(hex) {
 async function descargarEmoji(emoji) {
   const id = emoji.id;
   const animado = emoji.animated;
-
   const candidatos = [];
-
   if (animado) {
     candidatos.push('https://cdn.discordapp.com/emojis/' + id + '.gif');
     candidatos.push('https://cdn.discordapp.com/emojis/' + id + '.gif?size=128');
@@ -39,7 +37,6 @@ async function descargarEmoji(emoji) {
   candidatos.push('https://cdn.discordapp.com/emojis/' + id + '.png');
   candidatos.push('https://cdn.discordapp.com/emojis/' + id + '.png?size=128');
   candidatos.push('https://cdn.discordapp.com/emojis/' + id + '.webp?size=128');
-
   try {
     if (animado) {
       candidatos.push(emoji.imageURL({ extension: 'gif' }));
@@ -49,19 +46,17 @@ async function descargarEmoji(emoji) {
     candidatos.push(emoji.imageURL({ extension: 'png', size: 128 }));
     candidatos.push(emoji.imageURL({ extension: 'webp', size: 128 }));
   } catch (_) {}
-
   const headers = {
     'User-Agent': '00Y4nBot/1.0 (emoji-recolor)',
     Accept: 'image/gif,image/png,image/webp,image/*,*/*'
   };
-
   let ultimoError = 'sin respuesta';
   for (const url of candidatos) {
     if (!url) continue;
     try {
       const res = await fetch(url, { headers });
       if (!res.ok) {
-        ultimoError = 'HTTP ' + res.status + ' (' + String(url).split('?')[0].split('/').pop() + ')';
+        ultimoError = 'HTTP ' + res.status;
         continue;
       }
       const buf = Buffer.from(await res.arrayBuffer());
@@ -79,7 +74,6 @@ async function descargarEmoji(emoji) {
 
 async function teniriImagen(buffer, rgb, animado = false) {
   const { r, g, b } = rgb;
-
   if (animado) {
     try {
       const out = await sharp(buffer, { animated: true, pages: -1 })
@@ -88,7 +82,6 @@ async function teniriImagen(buffer, rgb, animado = false) {
         .toBuffer();
       if (out && out.length > 50) return { buffer: out, animado: true };
     } catch (_) {}
-
     try {
       const estatico = await teniriEstatico(buffer, rgb);
       return { buffer: estatico, animado: false };
@@ -96,7 +89,6 @@ async function teniriImagen(buffer, rgb, animado = false) {
       throw new Error('Fallo al teñir animado: ' + e.message);
     }
   }
-
   const estatico = await teniriEstatico(buffer, rgb);
   return { buffer: estatico, animado: false };
 }
@@ -106,7 +98,6 @@ async function teniriEstatico(buffer, { r, g, b }) {
     .ensureAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
-
   const out = Buffer.from(data);
   for (let i = 0; i < out.length; i += 4) {
     const a = out[i + 3];
@@ -116,7 +107,6 @@ async function teniriEstatico(buffer, { r, g, b }) {
     out[i + 1] = Math.round(g * lum);
     out[i + 2] = Math.round(b * lum);
   }
-
   return sharp(out, {
     raw: { width: info.width, height: info.height, channels: 4 }
   })
@@ -153,10 +143,7 @@ export default {
     .setName('emojis-recolor')
     .setDescription('ADMIN: Tiñe emojis del servidor hacia un color hexadecimal.')
     .addStringOption(o =>
-      o
-        .setName('color')
-        .setDescription('Color hex, ej: #74d4fc o FF0000')
-        .setRequired(true)
+      o.setName('color').setDescription('Color hex, ej: #74d4fc o FF0000').setRequired(true)
     )
     .addStringOption(o =>
       o
@@ -187,25 +174,19 @@ export default {
         .setDescription('Incluir animados (intenta conservar GIF). Default: si')
         .setRequired(false)
     )
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+    .setDefaultMemberPermissions(null),
 
   async autocomplete(interaction) {
     try {
       const focused = interaction.options.getFocused(true);
-      if (focused.name !== 'emoji') {
-        return interaction.respond([]);
-      }
-
+      if (focused.name !== 'emoji') return interaction.respond([]);
       if (interaction.guild.emojis.cache.size === 0) {
         await interaction.guild.emojis.fetch().catch(() => null);
       }
-
       const q = String(focused.value || '').toLowerCase().trim();
       const todos = [...interaction.guild.emojis.cache.values()];
-
       const m = q.match(/^<?a?:?([a-z0-9_]+):?\d*>?$/i);
       const query = m ? m[1].toLowerCase() : q;
-
       const filtrados = todos
         .filter(e => !query || e.name.toLowerCase().includes(query))
         .sort((a, b) => a.name.localeCompare(b.name))
@@ -214,21 +195,16 @@ export default {
           name: ((e.animated ? '(A) ' : '') + e.name).slice(0, 100),
           value: e.name
         }));
-
       await interaction.respond(filtrados);
     } catch (err) {
-      try {
-        await interaction.respond([]);
-      } catch (_) {}
+      try { await interaction.respond([]); } catch (_) {}
     }
   },
 
   async execute(interaction) {
-    const esAdmin = interaction.member.permissions.has(PermissionFlagsBits.Administrator);
-    const esAC = interaction.member.roles.cache.has(ROL_ALTO_MANDO);
-    if (!esAdmin && !esAC) {
+    if (!interaction.member.roles.cache.has(ROL_GERENTE_STAFF)) {
       return interaction.reply({
-        content: 'Solo Administradores / Alto Comando pueden usar este comando.',
+        content: '❌ **Acceso denegado.** Este comando es exclusivo del rol **Gerente de Staff**.',
         ephemeral: true
       });
     }
@@ -285,10 +261,7 @@ export default {
     }
 
     if (emojis.length === 0) {
-      return interaction.reply({
-        content: 'No hay emojis para procesar.',
-        ephemeral: true
-      });
+      return interaction.reply({ content: 'No hay emojis para procesar.', ephemeral: true });
     }
 
     const modoTexto =
@@ -343,11 +316,7 @@ export default {
         filter: i => i.user.id === interaction.user.id
       });
     } catch {
-      return interaction.editReply({
-        content: 'Cancelado por tiempo.',
-        embeds: [],
-        components: []
-      });
+      return interaction.editReply({ content: 'Cancelado por tiempo.', embeds: [], components: [] });
     }
 
     if (clicked.customId === 'emojis_recolor_no') {
@@ -370,20 +339,16 @@ export default {
       const emoji = emojis[i];
       try {
         const actual = await interaction.guild.emojis.fetch(emoji.id).catch(() => emoji);
-
         const descargado = await descargarEmoji(actual);
         const resultado = await teniriImagen(descargado.buffer, color, actual.animated);
         const teñido = resultado.buffer;
         const quedoAnimado = resultado.animado && esGif(teñido);
-
         if (teñido.length > 256 * 1024) {
           throw new Error('Imagen demasiado grande (' + Math.round(teñido.length / 1024) + 'KB > 256KB)');
         }
-
         const nombresExistentes = new Set(
           [...interaction.guild.emojis.cache.values()].map(e => e.name.toLowerCase())
         );
-
         if (conservarFinal) {
           const nuevoNombre = nombreNuevo(actual.name, color.short, nombresExistentes);
           const creado = await interaction.guild.emojis.create({
@@ -405,31 +370,19 @@ export default {
           creados.push(nombre + ' (reemplazado)');
           interaction.guild.emojis.cache.set(creado.id, creado);
         }
-
         ok++;
         if (quedoAnimado) animOk++;
       } catch (e) {
         fail++;
         errores.push((emoji.name + ': ' + e.message).slice(0, 100));
       }
-
       if (i % 2 === 0 || i === emojis.length - 1) {
         await interaction
           .editReply({
-            content:
-              'Procesando ' +
-              (i + 1) +
-              '/' +
-              emojis.length +
-              '... (ok: ' +
-              ok +
-              ', fail: ' +
-              fail +
-              ')'
+            content: 'Procesando ' + (i + 1) + '/' + emojis.length + '... (ok: ' + ok + ', fail: ' + fail + ')'
           })
           .catch(() => null);
       }
-
       await sleep(1500);
     }
 
@@ -441,7 +394,6 @@ export default {
         (creados.length > 15 ? '\n...' : '') +
         '\n```';
     }
-
     let listaErrores = '';
     if (errores.length > 0) {
       listaErrores = '\n**Errores:**\n```\n' + errores.slice(0, 8).join('\n') + '\n```';
