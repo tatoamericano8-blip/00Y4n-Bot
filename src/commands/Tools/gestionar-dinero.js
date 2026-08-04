@@ -4,16 +4,16 @@ import { obtenerSaldo, agregarSaldo, restarSaldo } from '../../utils/gestorEcono
 export default {
     data: new SlashCommandBuilder()
         .setName('gestionar-dinero')
-        .setDescription('Administra la cuenta bancaria de un ciudadano (Exclusivo Alto Mando).')
+        .setDescription('Administra la cuenta bancaria de un ciudadano (Exclusivo Gerente de Staff).')
         .addSubcommand(subcommand =>
             subcommand
                 .setName('agregar')
                 .setDescription('Añade fondos al balance de un usuario.')
-                .addUserOption(option => 
+                .addUserOption(option =>
                     option.setName('usuario')
                         .setDescription('El ciudadano que recibirá el dinero.')
                         .setRequired(true))
-                .addIntegerOption(option => 
+                .addIntegerOption(option =>
                     option.setName('cantidad')
                         .setDescription('Monto en dólares ($) a depositar.')
                         .setRequired(true))
@@ -22,24 +22,22 @@ export default {
             subcommand
                 .setName('quitar')
                 .setDescription('Resta fondos del balance de un usuario.')
-                .addUserOption(option => 
+                .addUserOption(option =>
                     option.setName('usuario')
                         .setDescription('El ciudadano al que se le retirará el dinero.')
                         .setRequired(true))
-                .addIntegerOption(option => 
+                .addIntegerOption(option =>
                     option.setName('cantidad')
                         .setDescription('Monto en dólares ($) a retirar.')
                         .setRequired(true))
         ),
 
     async execute(interaction) {
-        // ID del Rol de Alto Mando
-        const ROL_ALTO_MANDO = '1528870731629465752';
+        const ROL_GERENTE_STAFF = '1452684893850177587';
 
-        // 🛑 Control de Seguridad
-        if (!interaction.member.roles.cache.has(ROL_ALTO_MANDO)) {
+        if (!interaction.member.roles.cache.has(ROL_GERENTE_STAFF)) {
             return await interaction.reply({
-                content: '❌ **Acceso denegado.** Esta acción es clasificada y está restringida únicamente para el **Alto Mando**.',
+                content: '❌ **Acceso denegado.** Este comando es exclusivo del rol **Gerente de Staff**.',
                 ephemeral: true
             });
         }
@@ -48,24 +46,20 @@ export default {
         const objetivo = interaction.options.getUser('usuario');
         const cantidad = interaction.options.getInteger('cantidad');
 
-        // Validar que no ingresen números negativos ni ceros
         if (cantidad <= 0) {
-            return await interaction.reply({ 
-                content: '⚠️ La cantidad a modificar debe ser mayor a 0 dólares.', 
-                ephemeral: true 
+            return await interaction.reply({
+                content: '⚠️ La cantidad a modificar debe ser mayor a 0 dólares.',
+                ephemeral: true
             });
         }
 
-        // Obtener saldo actual asegurando valor numérico
         const saldoActual = await obtenerSaldo(objetivo.id);
         let nuevoSaldo = 0;
         let accionTexto = '';
 
-        // Lógica según el subcomando elegido
         if (subcomando === 'agregar') {
             nuevoSaldo = await agregarSaldo(objetivo.id, cantidad);
             accionTexto = `✅ Se han depositado **$${cantidad.toLocaleString('es-AR')}** exitosamente en la cuenta de <@${objetivo.id}>.`;
-            
         } else if (subcomando === 'quitar') {
             if (saldoActual <= 0) {
                 return await interaction.reply({
@@ -74,14 +68,12 @@ export default {
                 });
             }
 
-            // Calcular cuánto se le puede quitar realmente sin dejar saldo negativo
             const montoARestar = Math.min(saldoActual, cantidad);
             nuevoSaldo = await restarSaldo(objetivo.id, montoARestar);
-            
+
             accionTexto = `📉 Se han incautado/retirado **$${montoARestar.toLocaleString('es-AR')}** de la cuenta de <@${objetivo.id}>.`;
         }
 
-        // Armar el Embed de Auditoría
         const embedAuditoria = new EmbedBuilder()
             .setColor('#74d4fc')
             .setTitle('🏦 Gestión Bancaria Central | Auditoría')
@@ -91,13 +83,12 @@ export default {
                 `• **Nuevo balance:** **$${nuevoSaldo.toLocaleString('es-AR')}**\n\n` +
                 `> *Operación autorizada por: <@${interaction.user.id}>*`
             )
-            .setFooter({ 
-                text: `${interaction.guild.name} • Auditoría Económica`, 
-                iconURL: interaction.guild.iconURL({ dynamic: true }) 
+            .setFooter({
+                text: `${interaction.guild.name} • Auditoría Económica`,
+                iconURL: interaction.guild.iconURL({ dynamic: true })
             })
             .setTimestamp();
 
-        // Enviar respuesta
         await interaction.reply({
             embeds: [embedAuditoria],
             allowedMentions: { parse: [] }
