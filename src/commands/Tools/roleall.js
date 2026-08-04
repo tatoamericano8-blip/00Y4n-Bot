@@ -52,41 +52,30 @@ export default {
 
     const embed = new EmbedBuilder()
       .setColor('#74d4fc')
-      .setTitle('Confirmar Role All')
+      .setTitle('⚠️ Confirmar Role All')
       .setDescription(
-        `¿Asignar el rol ${rol} a **todos** los miembros humanos del servidor?\n\n` +
-          `> Esto puede tardar si hay muchos miembros.\n` +
-          `> Los bots serán excluidos.`
-      );
+        `Vas a asignar el rol ${rol} a **todos los miembros humanos** del servidor.\n\n` +
+          `> Los **bots serán excluidos**.\n` +
+          `> Esta acción puede tardar varios minutos.\n\n` +
+          `¿Confirmás?`
+      )
+      .setFooter({ text: '00Y4n Comunidad SWFL' });
 
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
-        .setCustomId('roleall_confirm')
+        .setCustomId(`roleall_confirm:${rol.id}:${interaction.user.id}`)
         .setLabel('Confirmar')
-        .setStyle(ButtonStyle.Danger),
+        .setStyle(ButtonStyle.Success),
       new ButtonBuilder()
-        .setCustomId('roleall_cancel')
+        .setCustomId(`roleall_cancel:${interaction.user.id}`)
         .setLabel('Cancelar')
-        .setStyle(ButtonStyle.Secondary)
+        .setStyle(ButtonStyle.Danger)
     );
 
-    // Guardar rol en customId no es ideal; usar collector con rol id
-    const msg = await interaction.reply({
+    return interaction.reply({
       embeds: [embed],
-      components: [
-        new ActionRowBuilder().addComponents(
-          new ButtonBuilder()
-            .setCustomId(`roleall_confirm:${rol.id}`)
-            .setLabel('Confirmar')
-            .setStyle(ButtonStyle.Danger),
-          new ButtonBuilder()
-            .setCustomId('roleall_cancel')
-            .setLabel('Cancelar')
-            .setStyle(ButtonStyle.Secondary)
-        )
-      ],
-      flags: MessageFlags.Ephemeral,
-      fetchReply: true
+      components: [row],
+      flags: MessageFlags.Ephemeral
     });
   }
 };
