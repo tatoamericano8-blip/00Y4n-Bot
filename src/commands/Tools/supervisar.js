@@ -51,7 +51,7 @@ export default {
                     : '')
             )
             .setColor('#74d4fc')
-            .setFooter({ text: 'Al cerrar con /cerrar_swfl se sumará +1 sesión supervisada a la cuota.' });
+            .setFooter({ text: 'Southwest Florida Comunidad 00Y4n ™' });
 
         await interaction.reply({
             embeds: [embedSupervision]
