@@ -78,7 +78,7 @@ export default {
 
             const embed = new EmbedBuilder()
                 .setColor('#ed4245')
-                .setTitle('<:folder:1523041295868756008> Orden de Arresto Emitida')
+                .setTitle('<:skirojo:1534988636460683385> Orden de Arresto Emitida')
                 .setDescription(
                     `• **Ciudadano -** <@${ciudadano.id}>\n` +
                     `• **Emitida por -** <@${interaction.user.id}>\n` +
@@ -101,7 +101,7 @@ export default {
                     embeds: [
                         new EmbedBuilder()
                             .setColor('#ed4245')
-                            .setTitle('<:folder:1523041295868756008> Orden de Arresto Emitida')
+                            .setTitle('<:skirojo:1534988636460683385> Orden de Arresto Emitida')
                             .setDescription(
                                 `> **Ciudadano:** <@${ciudadano.id}>\n` +
                                 `> **Emitida por:** <@${interaction.user.id}>\n` +
@@ -116,7 +116,7 @@ export default {
             try {
                 const embedDM = new EmbedBuilder()
                     .setColor('#74d4fc')
-                    .setTitle('<:folder:1523041295868756008> Orden de Arresto')
+                    .setTitle('<:skirojo:1534988636460683385> Orden de Arresto')
                     .setDescription(
                         `Se te ha emitido una **Orden de Arresto** en **${interaction.guild.name}**.\n\n` +
                         `• **Motivo:** ${motivo}\n` +
@@ -173,7 +173,7 @@ export default {
                     embeds: [
                         new EmbedBuilder()
                             .setColor('#57f287')
-                            .setTitle('<:folder:1523041295868756008> Orden de Arresto Removida')
+                            .setTitle('<:folder:1534938334650962115> Orden de Arresto Removida')
                             .setDescription(
                                 `> **Ciudadano:** <@${ciudadano.id}>\n` +
                                 `> **Removida por:** <@${interaction.user.id}>\n` +
