@@ -45,7 +45,7 @@ export default {
     async execute(interaction) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
-                content: `<:cruz00y4n:1519476959606734998> **No tienes permisos:** Solo el Staff puede gestionar las reinvitaciones.`,
+                content: `<:cruz00y4n:1534937767652495360> **No tienes permisos:** Solo el Staff puede gestionar las reinvitaciones.`,
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -97,7 +97,7 @@ export default {
 
         if (!esURLValida(linkSesion)) {
             return await interaction.reply({
-                content: `<:cruz00y4n:1519476959606734998> **Enlace inválido:** El enlace proporcionado (\`${rawLink}\`) no es una URL válida.`,
+                content: `<:cruz00y4n:1534937767652495360> **Enlace inválido:** El enlace proporcionado (\`${rawLink}\`) no es una URL válida.`,
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -114,14 +114,14 @@ export default {
 
         const embedReinvitacion = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<a:esp:1523026487240954019> Reinvitaciones de la Sesión <a:esp:1523026487240954019>')
+            .setTitle('<a:esp:1534954134732804308> Reinvitaciones de la Sesión <a:esp:1534954134732804308>')
             .setDescription(
                 `¡Reaccioná a este mensaje para solicitar tu reinvitación!\n` +
                 `Las reinvitaciones se liberarán automáticamente una vez alcanzada la meta de reacciones.\n\n` +
-                `<:dot:1523041306836996156> **Reacciones requeridas:** \`${reaccionesRequeridas}\` ${emojiInput}`
+                `<:dot:1534938142665084938> **Reacciones requeridas:** \`${reaccionesRequeridas}\` ${emojiInput}`
             )
             .addFields({
-                name: '<:fle:1523041359441952970> Última Regeneración',
+                name: '<:fle:1534937306191102125> Última Regeneración',
                 value: `El enlace fue actualizado a las **${horaFormateada}** (<t:${timestampDiscord}:t>)`,
                 inline: false
             })
@@ -129,7 +129,7 @@ export default {
             .setTimestamp();
 
         await interaction.reply({
-            content: '<a:adv:1523027438030946446> **@here** ¡Atención a las reinvitaciones de la sesión!',
+            content: '<a:corasdandovueltas:1534939964150907000> **@here** ¡Atención a las reinvitaciones de la sesión!',
             embeds: [embedReinvitacion],
             allowedMentions: { parse: ['everyone', 'roles', 'users'] }
         });
@@ -196,38 +196,38 @@ export default {
                 let tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Liberadas__*** <a:confeti:1523026892981145600>';
 
                 if (sesionData?.tipo === 'rp') {
-                    tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Roleplay Liberadas__*** <a:confeti:1523026892981145600>';
+                    tituloEmbed = '<a:mariquieta:1534954231138746488> Southwest Florida – ***__Reinvitaciones Roleplay Liberadas__*** <a:mariquieta:1534954231138746488>';
                     const limiteVel = sesionData.limiteVelocidad || sesionData.limite || 'No especificada';
                     datosExtraSesion =
-                        `> <:tres:1523027610479759561> **Estado de Peacetime:** ${sesionData.peacetime || 'No especificado'}\n` +
-                        `> <:dos:1523027468385128568> **Velocidad de Fail Roleplay:** ${limiteVel}\n` +
-                        `> <:cuatro:1532128489761931407> **Co-Host de la Sesión:** ${textoCohost}\n` +
-                        `> <:replica:1523028004983406787> Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n`;
+                        `> <:tres:1535001243204718612> **Estado de Peacetime:** ${sesionData.peacetime || 'No especificado'}\n` +
+                        `> <:cuatro:1534938460228550857> **Velocidad de Fail Roleplay:** ${limiteVel}\n` +
+                        `> <:cinco:1534938284218777630> **Co-Host de la Sesión:** ${textoCohost}\n` +
+                        `> <:replica:1534982812116062370> Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n`;
                 } else if (sesionData?.tipo === 'meet') {
-                    tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Car Meet Liberadas__*** <a:confeti:1523026892981145600>';
+                    tituloEmbed = '<a:mariquieta:1534954231138746488> Southwest Florida – ***__Reinvitaciones Car Meet Liberadas__*** <a:mariquieta:1534954231138746488>';
                     datosExtraSesion =
-                        `> <:tres:1523027610479759561> **Temática del Meet:** ${sesionData.tematica || 'No especificada'}\n` +
-                        `> <:cuatro:1530051658942517350> **Lugar Actual:** ${sesionData.ubicacion || 'No especificado'}\n` +
-                        `> <:cinco:1523041311781814362> **Spots / Duración:** ${sesionData.spots || 'No especificado'}\n` +
-                        `> <:cuatro:1532128489761931407> **Co-Host de la Sesión:** ${textoCohost}\n` +
-                        `> <:flechareplica:1523028004983406787> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n`;
+                        `> <:tres:1535001243204718612> **Temática del Meet:** ${sesionData.tematica || 'No especificada'}\n` +
+                        `> <:cuatro:1534938460228550857> **Lugar Actual:** ${sesionData.ubicacion || 'No especificado'}\n` +
+                        `> <:cinco:1534938284218777630> **Spots / Duración:** ${sesionData.spots || 'No especificado'}\n` +
+                        `> <:seis:1535001326927220919> **Co-Host de la Sesión:** ${textoCohost}\n` +
+                        `> <:flechareplica:1534982812116062370> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n`;
                 } else {
                     // Sesión genérica: igual mostrar co-host si existe
                     datosExtraSesion =
-                        `> <:cuatro:1532128489761931407> **Co-Host de la Sesión:** ${textoCohost}\n`;
+                        `> <:cuatro:1534938460228550857> **Co-Host de la Sesión:** ${textoCohost}\n`;
                 }
 
                 const infoDescripcion =
-                    `> <:dot:1523041306836996156> <@${interaction.user.id}> **¡ha liberado las reinvitaciones de la sesión!** Se ha alcanzado la meta de reacciones requeridas. Podés unirte al servidor utilizando el botón de abajo.\n\n` +
-                    `<:flor:1523041315187855470> **Información de la Reinvitación**\n\n` +
-                    `> <:uno:1523028217592676464> **Reacciones Alcanzadas:** \`${reaccionesRequeridas} / ${reaccionesRequeridas}\` \n` +
-                    `> <:dos:1523027468385128568> **Hora de Liberación:** **${horaRelease}** (<t:${timestampRelease}:t>)\n` +
+                    `> <a:flecha:1534939368035324125> <@${interaction.user.id}> **¡ha lanzado las reinvitaciones de la sesión!** Se ha alcanzado la meta de reacciones requeridas. Podés unirte al servidor utilizando el botón de abajo.\n\n` +
+                    `<:manual:1534999731019972671> **Información de la Reinvitación**\n\n` +
+                    `> <:uno:1534938872977297559> **Reacciones Alcanzadas:** \`${reaccionesRequeridas} / ${reaccionesRequeridas}\` \n` +
+                    `> <:dos:1535001133729447987> **Hora de Liberación:** **${horaRelease}** (<t:${timestampRelease}:t>)\n` +
                     datosExtraSesion +
-                    `\n<:flor:1523041315187855470> **Antes de Unirte**\n\n` +
-                    `> <:fle:1523041359441952970> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-                    `> <:fle:1523041359441952970> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & [vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1525190667545088225).\n` +
-                    `> <:fle:1523041359441952970> Registra tus vehículos en <#1505615426305130657>!\n\n` +
-                    `<a:adv:1523027438030946446> *¡Ingresá de inmediato antes de que el servidor vuelva a completarse!*`;
+                    `\n<:manual:1534999731019972671> **Antes de Unirte**\n\n` +
+                    `> <:dot:1534938142665084938> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+                    `> <:dot:1534938142665084938> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & [vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1525190667545088225).\n` +
+                    `> <:dot:1534938142665084938> Registra tus vehículos en <#1505615426305130657>!\n\n` +
+                    `-# <a:adv:1534939309235376328> *¡Ingresá de inmediato antes de que el servidor vuelva a completarse!*`;
 
                 const embedRelease = new EmbedBuilder()
                     .setTitle(tituloEmbed)
@@ -240,13 +240,14 @@ export default {
                     new ButtonBuilder()
                         .setCustomId('verificar_voto_swfl')
                         .setLabel('Link de la Sesión')
+                        .setEmoji('1534937419231527036')
                         .setStyle(ButtonStyle.Secondary)
                         .setEmoji('1524936452574806076')
                 );
 
                 try {
                     const msgRelease = await interaction.channel.send({
-                        content: '@everyone <a:adv:1523027438030946446> ¡Las reinvitaciones han sido **LIBERADAS**!',
+                        content: '@everyone <a:bats:1534954353356705852> ¡Las reinvitaciones han sido **LANZADAS**!',
                         embeds: [embedRelease],
                         components: [fila],
                         allowedMentions: { parse: ['everyone', 'roles'] }
