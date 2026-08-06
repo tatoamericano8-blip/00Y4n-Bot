@@ -43,7 +43,7 @@ export default {
       !interaction.member.permissions.has(PermissionFlagsBits.Administrator)
     ) {
       return interaction.reply({
-        content: '<:cruz00y4n:1523041302764191844> Solo **Alto Comando** puede suspender de sesiones.',
+        content: '<:cruz00y4n:1534937767652495360> Solo **Alto Comando** puede suspender de sesiones.',
         flags: MessageFlags.Ephemeral
       });
     }
@@ -70,7 +70,7 @@ export default {
 
       const embed = new EmbedBuilder()
         .setColor('#faa61a')
-        .setTitle('⏸️ Suspensión de Sesiones')
+        .setTitle('<:lock:1534938648665915577> Suspensión de Sesiones')
         .setDescription(
           `> **Usuario:** <@${target.id}>\n` +
             `> **Días:** **${dias}**\n` +
@@ -93,7 +93,7 @@ export default {
         // Igual intentar quitar rol
         if (member) await member.roles.remove(ROLE_SUSPEND).catch(() => null);
         return interaction.reply({
-          content: `<:cruz00y4n:1523041302764191844> <@${target.id}> no tenía una suspensión activa en DB.`,
+          content: `<:cruz00y4n:1534937767652495360> <@${target.id}> no tenía una suspensión activa en DB.`,
           flags: MessageFlags.Ephemeral
         });
       }
@@ -102,7 +102,7 @@ export default {
 
       const embed = new EmbedBuilder()
         .setColor('#57f287')
-        .setTitle('✅ Suspensión de Sesiones Removida')
+        .setTitle('<:tilde:1534937809733812286> Suspensión de Sesiones Removida')
         .setDescription(
           `> **Usuario:** <@${target.id}>\n` +
             `> **Motivo original:** ${prev.motivo || '—'}\n` +
