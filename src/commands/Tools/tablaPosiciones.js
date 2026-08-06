@@ -18,7 +18,7 @@ function parseCustomEmoji(tag) {
 const CATEGORIAS = {
     economia: {
         label: 'Economía',
-        emojiTag: '<:gift:1523041327950856334>',
+        emojiTag: '<:gift:1534938520861413376>',
         async fetch() {
             const keys = await db.list('economy:');
             const datos = await Promise.all(keys.map(async (key) => {
@@ -35,7 +35,7 @@ const CATEGORIAS = {
 
     mensajes: {
         label: 'Mensajes Totales',
-        emojiTag: '<:msj:1523041309139533954>',
+        emojiTag: '<:msj:1534937713524998304>',
         async fetch(guildId) {
             // Clave actual: mensajes_totales:{guildId}:{userId}
             // Legacy: mensajes_totales:{userId} — se suma para no perder historial
@@ -72,7 +72,7 @@ const CATEGORIAS = {
 
     reacciones_sesiones: {
         label: 'Reacciones en Sesiones',
-        emojiTag: '<:tilde:1524936452574806076>',
+        emojiTag: '<:tilde:1534937809733812286>',
         async fetch(guildId) {
             const prefix = `reacciones_sesiones:${guildId}:`;
             const keys = await db.list(prefix);
@@ -90,7 +90,7 @@ const CATEGORIAS = {
 
     sesiones_hosteadas: {
         label: 'Sesiones Hosteadas (Staff)',
-        emojiTag: '<:staff:1523027764104659144>',
+        emojiTag: '<:staff:1534956881787752478>',
         async fetch(guildId) {
             const staff = await Staff.find({ guildId }).lean();
             return staff
@@ -105,7 +105,7 @@ const CATEGORIAS = {
 
     horas_servicio: {
         label: 'Horas de Servicio (Staff)',
-        emojiTag: '<:reloj:1532127960939888700>',
+        emojiTag: '<:reloj:1535027476559040655>',
         async fetch(guildId) {
             const staff = await Staff.find({ guildId }).lean();
             return staff
@@ -129,7 +129,7 @@ function construirEmbed(categoriaKey, datos, guildName) {
         embed.setDescription('Aún no hay datos registrados en esta categoría.');
     } else {
         const lineas = datos.slice(0, 10).map((d, i) => {
-            const medal = i === 0 ? '<:si:1532128342327693352>' : i === 1 ? '🥈' : i === 2 ? '🥉' : `**${i + 1}.**`;
+            const medal = i === 0 ? '<:si:1534937484880904292>' : i === 1 ? '🥈' : i === 2 ? '🥉' : `**${i + 1}.**`;
             return `${medal} <@${d.userId}> — **${d.texto}**`;
         });
         embed.setDescription(lineas.join('\n'));
