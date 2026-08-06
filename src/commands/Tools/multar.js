@@ -58,7 +58,7 @@ export default {
 
         if (!interaction.member.roles.cache.has(ROL_POLICIA_ID)) {
             return interaction.reply({
-                content: '❌ Solo personal del **Departamento Policial de Sarasota** puede emitir multas.',
+                content: '<:cruz:1534937767652495360> Solo personal del **Departamento Policial de Sarasota** puede emitir multas.',
                 ephemeral: true
             });
         }
@@ -95,14 +95,14 @@ export default {
         try {
             const embedDM = new EmbedBuilder()
                 .setColor('#ff3333')
-                .setTitle('<:folder:1523041295868756008> Notificación Oficial de Multa')
+                .setTitle('<:folder:1534938334650962115> Notificación Oficial de Multa')
                 .setDescription(
                     `Has recibido una multa de tránsito en **${interaction.guild.name}**.\n\n` +
                     `• **Infracción(es):**\n${razonTexto}\n\n` +
                     `• **Monto a Pagar:** $${monto.toLocaleString('es-AR')}\n` +
                     `• **ID Ticket:** \`${ticketID}\`\n` +
                     `• **Oficial Emisor:** <@${interaction.user.id}>\n\n` +
-                    `⚠️ *Dispones de **7 días** para abonarla con \`/pagar-multa\` antes de que se emita una Orden de Arresto.*`
+                    `<:checkpoint:1534938036494663680> *Dispones de **7 días** para abonarla con \`/pagar-multa\` antes de que se emita una Orden de Arresto.*`
                 )
                 .setTimestamp();
 
@@ -113,7 +113,7 @@ export default {
 
         const embedMulta = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<:folder:1523041295868756008> Ticket de Multa Emitido')
+            .setTitle('<:folder:1534938334650962115> Ticket de Multa Emitido')
             .setDescription(
                 `• **Usuario —** <@${infractor.id}>\n` +
                 `• **Oficial —** <@${interaction.user.id}>\n` +
@@ -125,7 +125,7 @@ export default {
             .setTimestamp();
 
         await interaction.reply({
-            content: `🚨 **Atención <@${infractor.id}>, has sido multado oficialmente:**`,
+            content: `<:anuncio:1534937667823865956> **Atención <@${infractor.id}>, has sido multado oficialmente:**`,
             embeds: [embedMulta],
             allowedMentions: { users: [infractor.id] }
         });
