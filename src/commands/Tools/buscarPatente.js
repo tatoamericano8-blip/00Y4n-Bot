@@ -35,7 +35,7 @@ export default {
 
             const embed = new EmbedBuilder()
                 .setColor('#74d4fc')
-                .setTitle('<:folder:1523041295868756008> Consulta de Patente')
+                .setTitle('<:folder:1523041319046479964> Consulta de Patente')
                 .setDescription(
                     `• **Matrícula -** \`${vehiculo.patente}\`\n` +
                     `• **Marca -** ${vehiculo.marca}\n` +
