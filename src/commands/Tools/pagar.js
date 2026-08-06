@@ -34,7 +34,7 @@ export default {
 
         if (receptor.bot) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1523041302764191844> No podés transferirle dinero a un bot.',
+                content: '<:cruz00y4n:1534937767652495360> No podés transferirle dinero a un bot.',
                 ephemeral: true
             });
         }
@@ -44,7 +44,7 @@ export default {
 
         if (saldoEmisor < monto) {
             return await interaction.reply({
-                content: `<:cruz00y4n:1523041302764191844> No tenés suficiente dinero para realizar esta transferencia.\n` +
+                content: `<:cruz00y4n:1534937767652495360> No tenés suficiente dinero para realizar esta transferencia.\n` +
                          `• **Tu saldo actual:** $${saldoEmisor.toLocaleString('es-AR')}`,
                 ephemeral: true
             });
@@ -57,7 +57,7 @@ export default {
         // 4. Enviar confirmación en un Embed con diseño de 00Y4n
         const embedPay = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<a:dinero:1529160799392632832> Transferencia Exitosa')
+            .setTitle('<:tilde:1534937809733812286> Transferencia Exitosa')
             .setDescription(
                 `Le has transferido **$${monto.toLocaleString('es-AR')}** a ${receptor}.\n\n` +
                 `• **Tu nuevo saldo:** $${nuevoSaldoEmisor.toLocaleString('es-AR')}\n` +
