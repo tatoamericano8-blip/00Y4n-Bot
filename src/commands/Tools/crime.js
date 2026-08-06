@@ -44,7 +44,7 @@ export default {
         if (proximoCrimen && ahora < proximoCrimen) {
             const timestampUnix = Math.floor(proximoCrimen / 1000);
             return await interaction.reply({
-                content: `<:cruz00y4n:1523041302764191844> Estás manteniendo un perfil bajo por la policía. Podrás intentar otro crimen <t:${timestampUnix}:R> (<t:${timestampUnix}:f>).`,
+                content: `<:cruz00y4n:1534937767652495360> Estás manteniendo un perfil bajo por la policía. Podrás intentar otro crimen <t:${timestampUnix}:R> (<t:${timestampUnix}:f>).`,
                 ephemeral: true
             });
         }
@@ -53,7 +53,7 @@ export default {
         const pensamientoAleatorio = pensamientosCrimen[Math.floor(Math.random() * pensamientosCrimen.length)];
         
         await interaction.reply({
-            content: `💀 **Planeando el delito...**\n*${pensamientoAleatorio}*`
+            content: `<:skirojo:1534988636460683385> **Planeando el delito...**\n*${pensamientoAleatorio}*`
         });
 
         // 3. Pausa dramática de 3 segundos
@@ -73,7 +73,7 @@ export default {
 
             const embedExito = new EmbedBuilder()
                 .setColor('#2ecc71') // Verde
-                .setTitle('💀 ¡Cometiste un delito!')
+                .setTitle('<:skirojo:1534988636460683385> ¡Cometiste un delito!')
                 .setDescription(
                     `${historia}\n\n` +
                     `➔ Te saliste con la tuya y obtuviste **$${ganancia.toLocaleString('es-AR', { minimumFractionDigits: 2 })}**. Tu saldo actualizado es **$${nuevoSaldo.toLocaleString('es-AR', { minimumFractionDigits: 2 })}**.`
@@ -93,8 +93,8 @@ export default {
             const historia = historiasFallo[Math.floor(Math.random() * historiasFallo.length)];
 
             const embedFallo = new EmbedBuilder()
-                .setColor('#e74c3c') // Rojo
-                .setTitle('💀 ¡Cometiste un delito!')
+                .setColor('#E60404') // Rojo
+                .setTitle('<:skirojo:1534988636460683385> ¡Cometiste un delito!')
                 .setDescription(
                     `${historia}\n\n` +
                     `➔ Fuiste multado con **$${multa.toLocaleString('es-AR', { minimumFractionDigits: 2 })}**. Tu saldo actualizado es **$${nuevoSaldo.toLocaleString('es-AR', { minimumFractionDigits: 2 })}**.`
