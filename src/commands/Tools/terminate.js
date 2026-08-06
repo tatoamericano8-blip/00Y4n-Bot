@@ -56,7 +56,7 @@ export default {
             !interaction.member.permissions.has(PermissionFlagsBits.Administrator)
         ) {
             return interaction.reply({
-                content: '<:cruz00y4n:1523041302764191844> **Permisos insuficientes:** Solo Alto Comando puede ejecutar destituciones.',
+                content: '<:cruz00y4n:1534937767652495360> **Permisos insuficientes:** Solo Alto Comando puede ejecutar destituciones.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -135,15 +135,15 @@ export default {
         }
 
         const embed = new EmbedBuilder()
-            .setTitle('<:cruz00y4n:1523041302764191844> Destitución de Staff')
+            .setTitle('<:estrechar:1534937065089663068> Destitución de Staff')
             .setColor('#ed4245')
             .setDescription(
-                `> **Usuario destituido:** <@${targetUser.id}> (\`${targetUser.id}\`)\n` +
-                `> **Motivo:** ${motivo}\n` +
-                `> **Ejecutado por:** <@${interaction.user.id}>\n` +
-                `> **Blacklist:** ${ponerBlacklist ? '🚨 **SÍ** – no podrá ser recontratado' : 'No'}\n` +
-                `> **Roles removidos:** \`${rolesQuitados.length}\`\n` +
-                `> **Fecha:** <t:${Math.floor(Date.now() / 1000)}:F>`
+                `> <:dot:1534938142665084938> **Usuario destituido:** <@${targetUser.id}> (\`${targetUser.id}\`)\n` +
+                `> <:dot:1534938142665084938> **Motivo:** ${motivo}\n` +
+                `> <:dot:1534938142665084938> **Ejecutado por:** <@${interaction.user.id}>\n` +
+                `> <:dot:1534938142665084938> **Blacklist:** ${ponerBlacklist ? '🚨 **SÍ** – no podrá ser recontratado' : 'No'}\n` +
+                `> <:dot:1534938142665084938> **Roles removidos:** \`${rolesQuitados.length}\`\n` +
+                `> <:dot:1534938142665084938> **Fecha:** <t:${Math.floor(Date.now() / 1000)}:F>`
             )
             .setThumbnail(targetUser.displayAvatarURL({ dynamic: true }))
             .setFooter({
@@ -157,7 +157,7 @@ export default {
 
         await interaction.editReply({
             content:
-                `<a:verificacion:1523027148326047878> <@${targetUser.id}> fue destituido del equipo de Staff.` +
+                `<:verificacion:1534937809733812286> <@${targetUser.id}> fue destituido del equipo de Staff.` +
                 (ponerBlacklist ? ' Fue agregado a la **blacklist** de Staff.' : ''),
             embeds: [embed]
         });
@@ -171,11 +171,11 @@ export default {
                         .setTitle('Destitución del equipo de Staff')
                         .setDescription(
                             `Fuiste destituido del equipo de Staff de **${interaction.guild.name}**.\n\n` +
-                            `• **Motivo:** ${motivo}\n` +
+                            `<:dot:1534938142665084938> **Motivo:** ${motivo}\n` +
                             (ponerBlacklist
-                                ? '• **Blacklist:** Sí. No podrás volver a ser parte del Staff.\n'
+                                ? '<:dot:1534938142665084938> **Blacklist:** Sí. No podrás volver a ser parte del Staff.\n'
                                 : '') +
-                            `• **Fecha:** <t:${Math.floor(Date.now() / 1000)}:F>`
+                            `<:dot:1534938142665084938> **Fecha:** <t:${Math.floor(Date.now() / 1000)}:F>`
                         )
                         .setFooter({ text: '00Y4n Comunidad SWFL' })
                         .setTimestamp()
