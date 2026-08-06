@@ -104,11 +104,11 @@ export default {
 
         const embedCierreForzado = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<a:adv:1523027438030946446> Sesión Finalizada Forzosamente')
+            .setTitle('<a:corayendose:1534954014335172729> Sesión Finalizada Forzosamente')
             .setDescription(
                 `La sesión organizada por <@${hostUsuario.id}> fue cancelada por un integrante del **Alto Mando** (<@${interaction.user.id}>).\n\n` +
-                    `<:pin:1523041306836996156> **Motivo:** ${motivoCancelacion}\n\n` +
-                    `<a:not:1523026703201337436> *No se sumó cuota ni sesiones al host, co-host ni supervisor.*\n` +
+                    `<:pin:1534938142665084938> **Motivo:** ${motivoCancelacion}\n\n` +
+                    `<:replica:1534982812116062370> *No se sumó cuota ni sesiones al host, co-host ni supervisor.*\n` +
                     `🗑️ *Se limpiarán los mensajes de las últimas **${HORAS_A_BORRAR} horas** en este canal.*`
             )
             .setFooter({
