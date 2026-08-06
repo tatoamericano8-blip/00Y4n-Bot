@@ -31,9 +31,9 @@ export async function anunciarBoostAutomatico(memberOrUser, guild, vecesEstaAcci
     )
     .setDescription(
       `¡Gracias, <@${user.id}>!\n\n` +
-        `<:si:1523041306836996156> ¡Has mejorado el servidor **${totalBoosts} ${totalBoosts === 1 ? 'vez' : 'veces'}**! Lo apreciamos muchísimo. ` +
+        `<:si:1534938142665084938> ¡Has mejorado el servidor **${totalBoosts} ${totalBoosts === 1 ? 'vez' : 'veces'}**! Lo apreciamos muchísimo. ` +
         `Tu mejora ha sido registrada dentro de 00Y4n SWFL, ¡y se han aplicado automáticamente tus beneficios de Booster según el total de mejoras!\n\n` +
-        `<:afa:1523028004983406787> *¿Tienes algún problema o te falta algún beneficio? ¡No dudes en abrir un ticket de asistencia si necesitas soporte adicional!*`
+        `<:afa:1534982812116062370> *¿Tienes algún problema o te falta algún beneficio? ¡No dudes en abrir un ticket de asistencia si necesitas soporte adicional!*`
     )
     .setColor('#74d4fc')
     .setThumbnail(user.displayAvatarURL({ dynamic: true, size: 512 }))
@@ -58,7 +58,7 @@ export async function anunciarBoostAutomatico(memberOrUser, guild, vecesEstaAcci
   }
 
   await canal.send({
-    content: `> __**¡Miren quién acaba de mejorar el servidor! <@${user.id}> 🎉**__`,
+    content: `> __**¡Miren quién acaba de mejorar el servidor! <@${user.id}>**__`,
     embeds: [embedBoost]
   });
 
