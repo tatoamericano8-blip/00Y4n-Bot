@@ -37,6 +37,11 @@ export default {
                 .setDescription('Infracción principal (precio recomendado en el nombre).')
                 .setRequired(true)
                 .addChoices(...OPCIONES_MULTA))
+        .addIntegerOption(option =>
+            option.setName('monto')
+                .setDescription('Monto TOTAL en $ (sumá los recomendados si hay varias infracciones).')
+                .setRequired(true)
+                .setMinValue(1))
         .addStringOption(option =>
             option.setName('razon_2')
                 .setDescription('Segunda infracción (opcional).')
@@ -46,12 +51,7 @@ export default {
             option.setName('razon_3')
                 .setDescription('Tercera infracción (opcional).')
                 .setRequired(false)
-                .addChoices(...OPCIONES_MULTA))
-        .addIntegerOption(option =>
-            option.setName('monto')
-                .setDescription('Monto TOTAL en $ (sumá los recomendados si hay varias infracciones).')
-                .setRequired(true)
-                .setMinValue(1)),
+                .addChoices(...OPCIONES_MULTA)),
 
     async execute(interaction) {
         const ROL_POLICIA_ID = '1529146302783422706';
