@@ -67,6 +67,7 @@ export default {
             new ButtonBuilder()
                 .setCustomId('verificar_fastpass_swfl')
                 .setLabel('FastPass')
+                .setEmoji('1534937419231527036')
                 .setStyle(ButtonStyle.Secondary)
         );
 
