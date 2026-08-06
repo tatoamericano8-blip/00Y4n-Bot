@@ -27,7 +27,7 @@ export default {
       !interaction.member.permissions.has(PermissionFlagsBits.Administrator)
     ) {
       return interaction.reply({
-        content: '<:cruz00y4n:1523041302764191844> Solo **Alto Comando** puede publicar hitos de miembros.',
+        content: '<:cruz00y4n:1534937767652495360> Solo **Alto Comando** puede publicar hitos de miembros.',
         flags: MessageFlags.Ephemeral
       });
     }
@@ -41,19 +41,19 @@ export default {
 
     if (!canal?.isTextBased?.()) {
       return interaction.reply({
-        content: '<:cruz00y4n:1523041302764191844> No se encontró el canal de hitos configurado.',
+        content: '<:cruz00y4n:1534937767652495360> No se encontró el canal de hitos configurado.',
         flags: MessageFlags.Ephemeral
       });
     }
 
     const texto =
       extra ||
-      `¡Hemos alcanzado oficialmente **${cantidad.toLocaleString('es-AR')} miembros**! Gracias a todos por su apoyo incondicional <a:si:1523027080949010595>`;
+      `¡Hemos alcanzado oficialmente **${cantidad.toLocaleString('es-AR')} miembros**! Gracias a todos por su apoyo incondicional <a:si:1534952105561817222>`;
 
     const embed = new EmbedBuilder()
       .setColor('#74d4fc')
-      .setTitle('<a:cora:1525562954983149768> __Hito Alcanzado__ <a:cora:1525562954983149768>')
-      .setDescription(`<:fle:1523028004983406787> ${texto}`)
+      .setTitle('<a:cora:1534940091976515674> __Hito Alcanzado__ <a:cora:1534940091976515674>')
+      .setDescription(`<:fle:1534937306191102125> ${texto}`)
       .setFooter({
         text: '00Y4n Comunidad SWFL',
         iconURL: interaction.guild.iconURL()
@@ -63,7 +63,7 @@ export default {
     await canal.send({ embeds: [embed] });
 
     return interaction.reply({
-      content: `<a:verificacion:1523027148326047878> Hito de **${cantidad.toLocaleString('es-AR')} miembros** publicado en <#${CANAL_HITOS}>.`,
+      content: `<:verificacion:1534937809733812286> Hito de **${cantidad.toLocaleString('es-AR')} miembros** publicado en <#${CANAL_HITOS}>.`,
       flags: MessageFlags.Ephemeral
     });
   }
