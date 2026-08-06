@@ -36,7 +36,7 @@ export async function procesarMensajeRecordatorio(message) {
             // 2. Crear y enviar el nuevo embed
             const embedRecordatorio = new EmbedBuilder()
                 .setColor('#74d4fc')
-                .setDescription('<a:est:1523026270911332483> **Recordatorio:** ¡Pónte `/00Y4n` en tu estado de Discord para obtener el rol de **Server Contributor**!');
+                .setDescription('<a:est:1534956201035436082> **Recordatorio:** ¡Pónte `/00Y4n` en tu estado de Discord para obtener el rol de **Server Contribuidor**!');
 
             const nuevoMensaje = await message.channel.send({ embeds: [embedRecordatorio] });
 
