@@ -76,11 +76,11 @@ export default {
 
         const embedAuditoria = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('🏦 Gestión Bancaria Central | Auditoría')
+            .setTitle('<:lista:1534938422202994755> Gestión Bancaria Central | Auditoría')
             .setDescription(
                 `${accionTexto}\n\n` +
-                `• **Balance anterior:** $${saldoActual.toLocaleString('es-AR')}\n` +
-                `• **Nuevo balance:** **$${nuevoSaldo.toLocaleString('es-AR')}**\n\n` +
+                `<:dot:1534938142665084938> **Balance anterior:** $${saldoActual.toLocaleString('es-AR')}\n` +
+                `<:dot:1534938142665084938> **Nuevo balance:** **$${nuevoSaldo.toLocaleString('es-AR')}**\n\n` +
                 `> *Operación autorizada por: <@${interaction.user.id}>*`
             )
             .setFooter({
