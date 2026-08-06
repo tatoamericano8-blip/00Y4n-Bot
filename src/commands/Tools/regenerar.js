@@ -51,7 +51,8 @@ export default {
             if (ultimoAnuncioConBotones) {
                 const botonBloqueado = new ButtonBuilder()
                     .setCustomId(`link_rp_bloqueado_${Date.now()}`)
-                    .setLabel('🔒 Link Regenerado')
+                    .setLabel('Link Regenerado')
+                    .setEmoji('1534938648665915577')
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(true);
 
