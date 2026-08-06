@@ -25,7 +25,7 @@ export default {
             !interaction.member.permissions.has(PermissionFlagsBits.Administrator)
         ) {
             return interaction.reply({
-                content: '<:cruz00y4n:1523041302764191844> **Permisos insuficientes:** Solo Alto Comando puede contratar personal.',
+                content: '<:cruz00y4n:1534937767652495360> **Permisos insuficientes:** Solo Alto Comando puede contratar personal.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -36,7 +36,7 @@ export default {
 
         if (!targetMember) {
             return interaction.reply({
-                content: '<:cruz00y4n:1519476959606734998> El usuario no se encuentra en el servidor.',
+                content: '<:cruz00y4n:1534937767652495360> El usuario no se encuentra en el servidor.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -82,7 +82,7 @@ export default {
             }
 
             const embedLog = new EmbedBuilder()
-                .setTitle('<a:verificacion:1523027148326047878> Nuevo Reclutamiento – Staff')
+                .setTitle('<:verificacion:1534938422202994755> Nuevo Reclutamiento – Staff')
                 .setColor('#57f287')
                 .setDescription(
                     `> **Usuario contratado:** <@${targetUser.id}> (\`${targetUser.id}\`)\n` +
@@ -97,12 +97,12 @@ export default {
             if (logsChannel) await logsChannel.send({ embeds: [embedLog] });
 
             await interaction.editReply({
-                content: `<a:verificacion:1523027148326047878> ¡<@${targetUser.id}> ha sido contratado exitosamente como **${rangoAsignado}**!`
+                content: `<:verificacion:1534937809733812286> ¡<@${targetUser.id}> ha sido contratado exitosamente como **${rangoAsignado}**!`
             });
         } catch (error) {
             console.error('Error en /handpick:', error);
             await interaction.editReply({
-                content: '<:cruz00y4n:1523041302764191844> Ocurrió un error al procesar la contratación.'
+                content: '<:cruz00y4n:1534937767652495360> Ocurrió un error al procesar la contratación.'
             });
         }
     }
