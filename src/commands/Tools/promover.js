@@ -32,94 +32,128 @@ export default {
         ]
     },
 
-    async execute(interaction, guildConfig, client) {
-        // 1. Verificación de permisos de quien ejecuta el comando
+    async execute(interaction) {
         const permissions = interaction.memberPermissions || interaction.member?.permissions;
         if (!permissions?.has(PermissionFlagsBits.ManageRoles)) {
-            return await interaction.reply({
-                content: '<:cruz00y4n:1534937767652495360> No tienes permisos suficientes (**Administrar Roles**) para utilizar este comando.',
+            return interaction.reply({
+                content:
+                    '<:cruz00y4n:1534937767652495360> No tenés permisos suficientes (**Administrar Roles**) para utilizar este comando.',
                 flags: MessageFlags.Ephemeral
             });
         }
 
-        const usuario = interaction.options.getUser('user');
-        
-        // Obtención de rol robusta (intenta leer el objeto y si da null busca el ID directo en la guild)
-        const rankOption = interaction.options.get('rank');
-        let nuevoRol = interaction.options.getRole('rank');
-
-        if (!nuevoRol && rankOption?.value) {
-            nuevoRol = await interaction.guild.roles.fetch(rankOption.value).catch(() => null);
-        }
-
-        const razon = interaction.options.getString('reason') || 'Desempeño destacado y cumplimiento de objetivos.';
-        const notas = interaction.options.getString('notes') || 'Ninguna nota adicional.';
+        const usuario = interaction.options.getUser('usuario');
+        let nuevoRol = interaction.options.getRole('rango');
 
         if (!nuevoRol) {
-            return await interaction.reply({
-                content: '<:cruz00y4n:1523041302764191844> No se pudo obtener la información del rol seleccionado. Intenta seleccionarlo nuevamente.',
+            const rankOpt = interaction.options.get('rango');
+            if (rankOpt?.value) {
+                nuevoRol = await interaction.guild.roles.fetch(String(rankOpt.value)).catch(() => null);
+            }
+        }
+
+        const razon =
+            interaction.options.getString('razon') ||
+            'Desempeño destacado y cumplimiento de objetivos.';
+        const notas =
+            interaction.options.getString('notas') || 'Ninguna nota adicional.';
+
+        if (!usuario) {
+            return interaction.reply({
+                content:
+                    '<:cruz00y4n:1534937767652495360> No se pudo obtener el usuario seleccionado. Intentá de nuevo.',
+                flags: MessageFlags.Ephemeral
+            });
+        }
+
+        if (!nuevoRol) {
+            return interaction.reply({
+                content:
+                    '<:cruz00y4n:1534937767652495360> No se pudo obtener la información del rol seleccionado. Intentá seleccionarlo de nuevo.',
+                flags: MessageFlags.Ephemeral
+            });
+        }
+
+        if (nuevoRol.managed) {
+            return interaction.reply({
+                content:
+                    '<:cruz00y4n:1534937767652495360> Ese rol es gestionado por una integración y no se puede asignar manualmente.',
                 flags: MessageFlags.Ephemeral
             });
         }
 
         const miembroTarget = await interaction.guild.members.fetch(usuario.id).catch(() => null);
-
         if (!miembroTarget) {
-            return await interaction.reply({
-                content: '<:cruz00y4n:1534937767652495360> No se encontró al usuario en este servidor.',
+            return interaction.reply({
+                content:
+                    '<:cruz00y4n:1534937767652495360> No se encontró a ese miembro en el servidor.',
                 flags: MessageFlags.Ephemeral
             });
         }
 
-        // 2. Obtener los datos del Bot en el servidor de forma asíncrona
-        const botMember = await interaction.guild.members.fetchMe().catch(() => null);
-
-        if (!botMember) {
-            return await interaction.reply({
-                content: '<:cruz00y4n:1534937767652495360> Error al consultar los permisos del bot en el servidor.',
+        const botMember = interaction.guild.members.me;
+        if (botMember && nuevoRol.position >= botMember.roles.highest.position) {
+            return interaction.reply({
+                content:
+                    '<:cruz00y4n:1534937767652495360> No puedo asignar ese rol: está al mismo nivel o por encima del rol más alto del bot. Subí el rol del bot en la lista de roles.',
                 flags: MessageFlags.Ephemeral
             });
         }
 
-        // 3. Comprobar jerarquía del rol del Bot
-        if (nuevoRol.position >= botMember.roles.highest.position) {
-            return await interaction.reply({
-                content: `<:cruz00y4n:1534937767652495360> No puedo otorgar el rol ${nuevoRol} porque está ubicado por encima o en el mismo nivel que mi rol más alto.`,
+        const esOwner = interaction.guild.ownerId === interaction.user.id;
+        if (
+            !esOwner &&
+            interaction.member.roles.highest.position <= nuevoRol.position
+        ) {
+            return interaction.reply({
+                content:
+                    '<:cruz00y4n:1534937767652495360> No podés asignar un rol igual o superior al tuyo en la jerarquía.',
                 flags: MessageFlags.Ephemeral
             });
         }
 
-        // 4. Comprobar si el usuario ya tiene el rol
         if (miembroTarget.roles.cache.has(nuevoRol.id)) {
-            return await interaction.reply({
-                content: `<:warn00y4n:1534937002695327837> <@${usuario.id}> ya posee el rol ${nuevoRol}.`,
+            return interaction.reply({
+                content: `<:cruz00y4n:1534937767652495360> <@${usuario.id}> ya tiene el rol **${nuevoRol.name}**.`,
                 flags: MessageFlags.Ephemeral
             });
         }
 
         try {
-            // Asignar el nuevo rango/rol
-            await miembroTarget.roles.add(nuevoRol);
+            await miembroTarget.roles.add(nuevoRol, `Ascenso por ${interaction.user.tag}: ${razon}`);
 
-            // 5. Armar el Embed del Registro de Ascenso
             const embedPromote = new EmbedBuilder()
                 .setTitle('<a:caram00y4nmov:1534954409145008269> ASCENSO DE STAFF')
-                .setDescription(`> Se ha registrado un ascenso oficial dentro del equipo administrativo.`)
+                .setDescription('> Se ha registrado un ascenso oficial dentro del equipo administrativo.')
                 .addFields(
-                    { name: '👤 Staff Ascendido', value: `<@${usuario.id}> (\`${usuario.tag}\`)`, inline: true },
+                    {
+                        name: '👤 Staff Ascendido',
+                        value: `<@${usuario.id}> (\`${usuario.tag}\`)`,
+                        inline: true
+                    },
                     { name: '🎖️ Nuevo Rango', value: `${nuevoRol}`, inline: true },
-                    { name: '🛡️ Responsable', value: `<@${interaction.user.id}>`, inline: true },
-                    { name: '📋 Razón del Ascenso', value: `\`\`\`${razon}\`\`\``, inline: false },
-                    { name: '📝 Notas Adicionales', value: `\`\`\`${notas}\`\`\``, inline: false }
+                    {
+                        name: '🛡️ Responsable',
+                        value: `<@${interaction.user.id}>`,
+                        inline: true
+                    },
+                    {
+                        name: '📋 Razón del Ascenso',
+                        value: `\`\`\`${razon}\`\`\``,
+                        inline: false
+                    },
+                    {
+                        name: '📝 Notas Adicionales',
+                        value: `\`\`\`${notas}\`\`\``,
+                        inline: false
+                    }
                 )
-                .setColor('#74d4fc')
-                .setThumbnail(usuario.displayAvatarURL({ dynamic: true }))
-                .setFooter({ text: `${interaction.guild.name} • Gestión de Staff`, iconURL: interaction.guild.iconURL() })
+                .setColor('#FB8B66')
+                .setThumbnail(usuario.displayAvatarURL({ size: 256 }))
                 .setTimestamp();
 
             await interaction.reply({ embeds: [embedPromote] });
 
-            // 6. Notificación por mensaje privado al usuario ascendido
             try {
                 const embedDM = new EmbedBuilder()
                     .setTitle('<a:confeti:1534940499759206512> ¡Felicidades por tu Ascenso!')
@@ -128,18 +162,20 @@ export default {
                         { name: 'Rango Otorgado', value: `${nuevoRol.name}`, inline: true },
                         { name: 'Motivo', value: razon, inline: false }
                     )
-                    .setColor('#74d4fc')
+                    .setColor('#FB8B66')
                     .setTimestamp();
 
                 await usuario.send({ embeds: [embedDM] });
-            } catch (dmErr) {
-                // Si el usuario tiene los DMs cerrados, se ignora silenciosamente
-            }
-
+            } catch (_) {}
         } catch (error) {
-            console.error('Error al ejecutar /promote:', error);
-            return await interaction.reply({
-                content: '<:cruz00y4n:1534937767652495360> Hubo un error al intentar asignar el rol al miembro.',
+            console.error('Error al ejecutar /promover:', error);
+            const msg =
+                interaction.replied || interaction.deferred
+                    ? interaction.followUp.bind(interaction)
+                    : interaction.reply.bind(interaction);
+            return msg({
+                content:
+                    '<:cruz00y4n:1534937767652495360> Hubo un error al intentar asignar el rol al miembro. Revisá la jerarquía de roles del bot.',
                 flags: MessageFlags.Ephemeral
             });
         }
