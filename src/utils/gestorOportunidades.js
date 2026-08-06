@@ -29,8 +29,8 @@ export async function lanzarOportunidadEconomica(client, canalId) {
         // 2. Crear Embed inicial
         const embedInicial = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<a:est:1523027045532045453> ¡Oportunidad Economica!')
-            .setDescription(`<a:dinero:1529160799392632832> **$${monto.toLocaleString()}** ${historia}`)
+            .setTitle('<a:est:1534954231138746488> ¡Oportunidad Economica!')
+            .setDescription(`<:dinero:1534938520861413376> **$${monto.toLocaleString()}** ${historia}`)
             .setFooter({ 
                 text: '00Y4n Comunidad SWFL • Eventos del Chat', 
                 iconURL: canal.guild.iconURL() 
@@ -42,7 +42,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
             new ButtonBuilder()
                 .setCustomId('reclamar_oportunidad')
                 .setLabel('Reclamar')
-                .setEmoji('💸')
+                .setEmoji('1534937419231527036')
                 .setStyle(ButtonStyle.Secondary)
         );
 
@@ -79,7 +79,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
                     new ButtonBuilder()
                         .setCustomId('reclamado_done')
                         .setLabel('Reclamado')
-                        .setEmoji('1523041298796384418')
+                        .setEmoji('1534938648665915577')
                         .setStyle(ButtonStyle.Secondary)
                         .setDisabled(true)
                 );
