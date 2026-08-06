@@ -95,7 +95,7 @@ async function resolverHeist(interaction, heist) {
 
         const embedExito = new EmbedBuilder()
             .setColor('#57f287')
-            .setTitle('🏦 ¡Robo al Banco exitoso!')
+            .setTitle('<:redski:1534988636460683385> ¡Robo al Banco exitoso!')
             .setDescription(
                 `El equipo logró robar el banco de Sarasota.\n\n` +
                 `• **Participantes:** ${menciones}\n` +
@@ -117,7 +117,7 @@ async function resolverHeist(interaction, heist) {
                 embeds: [
                     new EmbedBuilder()
                         .setColor('#57f287')
-                        .setTitle('🏦 Robo al Banco Exitoso')
+                        .setTitle('<:redski:1534988636460683385> Robo al Banco Exitoso')
                         .setDescription(
                             `> **Líder:** <@${leaderId}>\n` +
                             `> **Participantes:** ${menciones}\n` +
@@ -144,7 +144,7 @@ async function resolverHeist(interaction, heist) {
 
         const embedFallo = new EmbedBuilder()
             .setColor('#ed4245')
-            .setTitle('🚨 Robo al Banco fallido')
+            .setTitle('<:warn:1534937002695327837> Robo al Banco fallido')
             .setDescription(
                 `${razonFallo}\n\n` +
                 `• **Participantes:** ${menciones}\n` +
@@ -165,7 +165,7 @@ async function resolverHeist(interaction, heist) {
                 embeds: [
                     new EmbedBuilder()
                         .setColor('#ed4245')
-                        .setTitle('🚨 Robo al Banco Fallido')
+                        .setTitle('<:warn:1534937002695327837> Robo al Banco Fallido')
                         .setDescription(
                             `> **Líder:** <@${leaderId}>\n` +
                             `> **Participantes:** ${menciones}\n` +
@@ -206,7 +206,7 @@ export default {
             if (cooldown) {
                 const ts = Math.floor(cooldown / 1000);
                 return interaction.reply({
-                    content: `<:lock:1523041298796384418> Todavía estás en cooldown de robar el banco. Podrás volver a participar <t:${ts}:R>.`,
+                    content: `<:lock:1534938648665915577> Todavía estás en cooldown de robar el banco. Podrás volver a participar <t:${ts}:R>.`,
                     ephemeral: true
                 });
             }
@@ -230,7 +230,7 @@ export default {
 
             const embed = new EmbedBuilder()
                 .setColor('#74d4fc')
-                .setTitle('🏦 Robo al Banco iniciado – Banco de Sarasota')
+                .setTitle('<:redski:1534988636460683385> Robo al Banco iniciado – Banco de Sarasota')
                 .setDescription(
                     `<@${usuarioId}> está organizando un **robo al banco**.\n\n` +
                     `• **Participantes:** 1/${MAX_PERSONAS}\n` +
@@ -289,7 +289,7 @@ export default {
             if (cooldown) {
                 const ts = Math.floor(cooldown / 1000);
                 return interaction.reply({
-                    content: `<:lock:1523041298796384418> Todavía estás en cooldown de robar el banco. Podrás volver a participar <t:${ts}:R>.`,
+                    content: `<:lock:1534938648665915577> Todavía estás en cooldown de robar el banco. Podrás volver a participar <t:${ts}:R>.`,
                     ephemeral: true
                 });
             }
@@ -318,7 +318,7 @@ export default {
 
             const embed = new EmbedBuilder()
                 .setColor('#f1c40f')
-                .setTitle('🏦 Alguien se unió al robo')
+                .setTitle('<:redski:1534988636460683385> Alguien se unió al robo')
                 .setDescription(
                     `<@${usuarioId}> se sumó al robo.\n\n` +
                     `• **Participantes (${cantidad}/${MAX_PERSONAS}):** ${menciones}\n` +
