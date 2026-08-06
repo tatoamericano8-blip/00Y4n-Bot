@@ -2,8 +2,8 @@ import { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits, Messag
 
 export default {
     data: {
-        name: 'promovar',
-        description: 'Promote a staff member',
+        name: 'promover',
+        description: 'Ascender a un miembro del Staff',
         options: [
             {
                 name: 'usuario',
@@ -37,7 +37,7 @@ export default {
         const permissions = interaction.memberPermissions || interaction.member?.permissions;
         if (!permissions?.has(PermissionFlagsBits.ManageRoles)) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1523041302764191844> No tienes permisos suficientes (**Administrar Roles**) para utilizar este comando.',
+                content: '<:cruz00y4n:1534937767652495360> No tienes permisos suficientes (**Administrar Roles**) para utilizar este comando.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -66,7 +66,7 @@ export default {
 
         if (!miembroTarget) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1523041302764191844> No se encontró al usuario en este servidor.',
+                content: '<:cruz00y4n:1534937767652495360> No se encontró al usuario en este servidor.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -76,7 +76,7 @@ export default {
 
         if (!botMember) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1523041302764191844> Error al consultar los permisos del bot en el servidor.',
+                content: '<:cruz00y4n:1534937767652495360> Error al consultar los permisos del bot en el servidor.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -84,7 +84,7 @@ export default {
         // 3. Comprobar jerarquía del rol del Bot
         if (nuevoRol.position >= botMember.roles.highest.position) {
             return await interaction.reply({
-                content: `<:cruz00y4n:1523041302764191844> No puedo otorgar el rol ${nuevoRol} porque está ubicado por encima o en el mismo nivel que mi rol más alto.`,
+                content: `<:cruz00y4n:1534937767652495360> No puedo otorgar el rol ${nuevoRol} porque está ubicado por encima o en el mismo nivel que mi rol más alto.`,
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -92,7 +92,7 @@ export default {
         // 4. Comprobar si el usuario ya tiene el rol
         if (miembroTarget.roles.cache.has(nuevoRol.id)) {
             return await interaction.reply({
-                content: `<:warn00y4n:1523041352714158240> <@${usuario.id}> ya posee el rol ${nuevoRol}.`,
+                content: `<:warn00y4n:1534937002695327837> <@${usuario.id}> ya posee el rol ${nuevoRol}.`,
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -103,7 +103,7 @@ export default {
 
             // 5. Armar el Embed del Registro de Ascenso
             const embedPromote = new EmbedBuilder()
-                .setTitle('<a:caram00y4nmov:1523026579662307378> ASCENSO DE STAFF')
+                .setTitle('<a:caram00y4nmov:1534954409145008269> ASCENSO DE STAFF')
                 .setDescription(`> Se ha registrado un ascenso oficial dentro del equipo administrativo.`)
                 .addFields(
                     { name: '👤 Staff Ascendido', value: `<@${usuario.id}> (\`${usuario.tag}\`)`, inline: true },
@@ -122,7 +122,7 @@ export default {
             // 6. Notificación por mensaje privado al usuario ascendido
             try {
                 const embedDM = new EmbedBuilder()
-                    .setTitle('🎉 ¡Felicidades por tu Ascenso!')
+                    .setTitle('<a:confeti:1534940499759206512> ¡Felicidades por tu Ascenso!')
                     .setDescription(`Has recibido un nuevo rango en **${interaction.guild.name}**.`)
                     .addFields(
                         { name: 'Rango Otorgado', value: `${nuevoRol.name}`, inline: true },
@@ -139,7 +139,7 @@ export default {
         } catch (error) {
             console.error('Error al ejecutar /promote:', error);
             return await interaction.reply({
-                content: '<:cruz00y4n:1523041302764191844> Hubo un error al intentar asignar el rol al miembro.',
+                content: '<:cruz00y4n:1534937767652495360> Hubo un error al intentar asignar el rol al miembro.',
                 flags: MessageFlags.Ephemeral
             });
         }
