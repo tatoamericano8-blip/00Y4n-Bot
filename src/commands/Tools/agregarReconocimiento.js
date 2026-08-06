@@ -14,7 +14,7 @@ export default {
     async execute(interaction) {
         if (!interaction.member.roles.cache.has(ROLE_HIGH_COMMAND) && !interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1523041302764191844> Solo Alto Comando puede otorgar reconocimientos.',
+                content: '<:cruz00y4n:1534937767652495360> Solo Alto Comando puede otorgar reconocimientos.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -26,7 +26,7 @@ export default {
         let staffData = await Staff.findOne({ guildId: interaction.guildId, userId: targetUser.id });
         if (!staffData) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1523041302764191844> El usuario no se encuentra en el registro de Staff.',
+                content: '<:cruz00y4n:1534937767652495360> El usuario no se encuentra en el registro de Staff.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -42,7 +42,7 @@ export default {
         await staffData.save();
 
         const embedAward = new EmbedBuilder()
-            .setTitle('<:trofeo:1532128342327693352> ¡Nuevo Reconocimiento Otorgado!')
+            .setTitle('<:trofeo:1534938966950809751> ¡Nuevo Reconocimiento Otorgado!')
             .setColor('#74d4fc')
             .setDescription(
                 `> **Galardonado:** <@${targetUser.id}>\n` +
