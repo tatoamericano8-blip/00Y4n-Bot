@@ -11,7 +11,9 @@ function formatearOpciones(options, prefix = '') {
     const nombre = prefix ? `${prefix} ${opt.name}` : opt.name;
 
     if (opt.type === 1 || opt.type === 2) {
-      lineas.push(`> **${opt.type === 2 ? 'Grupo' : 'Subcomando'}:** \`${opt.name}\`);
+      lineas.push(
+        '> **' + (opt.type === 2 ? 'Grupo' : 'Subcomando') + ':** `' + opt.name + '`'
+      );
       if (opt.options?.length) {
         lineas.push(...formatearOpciones(opt.options, opt.name));
       }
@@ -22,21 +24,21 @@ function formatearOpciones(options, prefix = '') {
     if (valor === undefined || valor === null) {
       valor = '—';
     } else if (typeof valor === 'string' && /^\d{17,20}$/.test(valor)) {
-      valor = `\`${valor}\`;
+      valor = '`' + valor + '`';
     } else {
       valor = String(valor);
       if (valor.length > 200) valor = valor.slice(0, 197) + '...';
-      valor = `\`${valor.replace(/`/g, "'")}\`;
+      valor = '`' + valor.replace(/`/g, "'") + '`';
     }
 
-    lineas.push(`> **${nombre}:** ${valor}`);
+    lineas.push('> **' + nombre + ':** ' + valor);
   }
   return lineas;
 }
 
 /**
  * Envía un registro al canal de logs de comandos.
- * Nunca rompe la ejecución del comando si el log falla.
+ * Nunca lanza error al caller (no debe romper la ejecución del comando).
  */
 export async function logComandoUsado(client, interaction, estado = {}) {
   const { ok = true, error = null } = estado;
@@ -60,15 +62,21 @@ export async function logComandoUsado(client, interaction, estado = {}) {
     const opcionesTexto =
       opciones.length > 0 ? opciones.join('\n') : '> *Sin opciones*';
 
+    const canalTxt = interaction.channelId
+      ? '<#' + interaction.channelId + '>'
+      : 'DM';
+    const guildName = interaction.guild?.name || 'DM';
+    const guildId = interaction.guildId || '—';
+
     const embed = new EmbedBuilder()
       .setColor(ok ? '#74d4fc' : '#ed4245')
       .setTitle(ok ? '📋 Comando utilizado' : '⚠️ Comando con error')
       .setDescription(
-        `> **Comando:** \`/${interaction.commandName}\`\n` +
-          `> **Usuario:** <@${interaction.user.id}> (\`${interaction.user.tag}\`)\n` +
-          `> **ID:** \`${interaction.user.id}\`\n` +
-          `> **Canal:** ${interaction.channelId ? `<#${interaction.channelId}>` : 'DM'}\n` +
-          `> **Servidor:** ${interaction.guild?.name || 'DM'} (\`${interaction.guildId || '—'}\`)`
+        '> **Comando:** `/' + interaction.commandName + '`\n' +
+          '> **Usuario:** <@' + interaction.user.id + '> (`' + interaction.user.tag + '`)\n' +
+          '> **ID:** `' + interaction.user.id + '`\n' +
+          '> **Canal:** ' + canalTxt + '\n' +
+          '> **Servidor:** ' + guildName + ' (`' + guildId + '`)'
       )
       .addFields({
         name: 'Opciones',
@@ -80,7 +88,7 @@ export async function logComandoUsado(client, interaction, estado = {}) {
       const msg = String(error?.userMessage || error?.message || error).slice(0, 500);
       embed.addFields({
         name: 'Error',
-        value: `\`\`\`\n${msg}\n\`\`\``
+        value: '```\n' + msg + '\n```'
       });
     }
 
