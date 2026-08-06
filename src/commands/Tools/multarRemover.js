@@ -53,7 +53,7 @@ export default {
 
         const embed = new EmbedBuilder()
             .setColor('#57f287')
-            .setTitle('<:folder:1523041295868756008> Multa Anulada')
+            .setTitle('<:folder:1534938334650962115> Multa Anulada')
             .setDescription(
                 `• **ID Multa -** \`${ticketID}\`\n` +
                 `• **Ciudadano -** <@${multa.usuarioId}>\n` +
@@ -74,7 +74,7 @@ export default {
         if (logsChannel) {
             const embedLog = new EmbedBuilder()
                 .setColor('#57f287')
-                .setTitle('<:folder:1523041295868756008> Multa Anulada')
+                .setTitle('<:folder:1534938334650962115> Multa Anulada')
                 .setDescription(
                     `> **ID:** \`${ticketID}\`\n` +
                     `> **Ciudadano:** <@${multa.usuarioId}>\n` +
