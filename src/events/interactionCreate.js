@@ -8,7 +8,7 @@ import { InteractionHelper } from '../utils/interactionHelper.js';
 import { createInteractionTraceContext, runWithTraceContext } from '../utils/traceContext.js';
 import { validateChatInputPayloadOrThrow } from '../utils/commandInputValidation.js';
 import { logComandoUsado } from '../utils/logComandoUsado.js';
-import { enforceAbuseProtection, formatRemainingDuration } from '../utils/abuseProtection.js';
+import { enforceAbuseProtection, formatCooldownDuration } from '../utils/abuseProtection.js';
 import Sesion from '../../models/Session.js';
 
 function withTraceContext(context = {}, traceContext = {}) {
@@ -60,11 +60,11 @@ export default {
 
             const abuseProtection = await enforceAbuseProtection(interaction, command, interaction.commandName);
             if (!abuseProtection.allowed) {
-              const formattedRemaining = formatRemainingDuration(abuseProtection.remainingMs);
+              const formattedCooldown = formatCooldownDuration(abuseProtection.remainingMs);
               throw createError(
                 `Risky command cooldown active for ${interaction.commandName}`,
                 ErrorTypes.RATE_LIMIT,
-                `This command is on cooldown. Please wait ${formattedRemaining} before trying again.`,
+                `This command is on cooldown. Please wait ${formattedCooldown} before trying again.`,
                 withTraceContext({
                   commandName: interaction.commandName,
                   subtype: 'command_cooldown',
