@@ -63,27 +63,27 @@ export default {
         const reacciones = interaction.options.getInteger('reacciones');
         const urlImagen = interaction.options.getString('imagen');
 
-        const ePunto = '<:00y4ncirpunto:1523041306836996156>';
-        const idTildeNaranja = '1523026579662307378';
+        const ePunto = '<a:felc:1534939368035324125>';
+        const idTildeNaranja = '1534937809733812286';
 
         const esRP = tipo === 'rp';
         const titulo = esRP
-            ? '<a:mari:1523027011524624457> **Southwest Florida** - *__Roleplay Sesión Inicio__* <a:mari:1523027011524624457>'
-            : '<a:mari:1523027011524624457> Southwest Florida - __*Car Meet Sesión Inicio*__ <a:mari:1523027011524624457>';
+            ? '<a:mari:1534954231138746488> **Southwest Florida** - *__Roleplay Sesión Inicio__* <a:mari:1534954231138746488>'
+            : '<a:mari:1534954231138746488> Southwest Florida - __*Car Meet Sesión Inicio*__ <a:mari:1534954231138746488>';
 
         const descExtra = esRP
-            ? `> <:felc:1523041359441952970> Registra tus vehículos en <#1505615426305130657>!\n\n`
-            : `> <:felc:1523041359441952970> Recuerda evitar colisiones con vehículos y mantener el realismo!\n\n`;
+            ? `> <:dot:1534938142665084938> Registra tus vehículos en <#1505615426305130657>!\n\n`
+            : `> <:dot:1534938142665084938> Recuerda evitar colisiones con vehículos y mantener el realismo!\n\n`;
 
         const embed = new EmbedBuilder()
             .setTitle(titulo)
             .setDescription(
                 `> ${ePunto} <@${interaction.user.id}> ¡está organizando una **sesión de ${esRP ? 'roleplay' : 'car meet oficial'}**! Antes de unirte a la sesión, asegúrate de que la configuración de privacidad de tu cuenta esté establecida en **«Everyone»**. Al unirte, confirmas que has leído todas las normas del servidor. Cuando la sesión esté disponible, el host enviará otro mensaje con una notificación.\n\n` +
                     `**Antes de Unirte**\n\n` +
-                    `> <:felc:1523041359441952970> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-                    `> <:felc:1523041359441952970> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516591020813615109).\n` +
+                    `> <:felc:1534937306191102125> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+                    `> <:felc:1534937306191102125> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1516591020813615109).\n` +
                     descExtra +
-                    `> <:felc:1523028004983406787> El host debe obtener __**${reacciones}+**__ reacciones antes de comenzar.`
+                    `> <:replica:1534982812116062370> El host debe obtener __**${reacciones}+**__ reacciones antes de comenzar.`
             )
             .setColor('#74d4fc');
 
