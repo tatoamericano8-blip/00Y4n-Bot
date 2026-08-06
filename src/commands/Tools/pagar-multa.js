@@ -53,7 +53,7 @@ export default {
         // 3. Validar que la persona que la paga sea el infractor
         if (String(infractorId) !== String(usuarioId)) {
             return await interaction.reply({
-                content: `❌ Solo el usuario multado (<@${infractorId}>) puede abonar esta multa.`,
+                content: `<:cruz:1534937767652495360> Solo el usuario multado (<@${infractorId}>) puede abonar esta multa.`,
                 ephemeral: true
             });
         }
@@ -63,10 +63,10 @@ export default {
 
         if (saldoActual < montoMulta) {
             return await interaction.reply({
-                content: `❌ **Fondos insuficientes.**\n` +
+                content: `<:cruz:1534937767652495360> **Fondos insuficientes.**\n` +
                          `• Costo de la multa: **$${montoMulta.toLocaleString()}**\n` +
                          `• Tu saldo actual: **$${saldoActual.toLocaleString()}**\n\n` +
-                         `💡 *Usa \`/work\` para trabajar y ganar dinero.*`,
+                         `<:manual:1534999731019972671> *Usa \`/work\` para trabajar y ganar dinero.*`,
                 ephemeral: true
             });
         }
@@ -92,14 +92,14 @@ export default {
         // Embed tachado formato 00Y4n (#74d4fc)
         const embedPagada = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('✔️ ¡Ticket Pagado Exitosamente!')
+            .setTitle('<:tilde:1534937809733812286> ¡Ticket Pagado Exitosamente!')
             .setDescription(
                 `~~User — <@${infractorId}>~~\n` +
                 `~~Issuer — <@${oficialId}>~~\n` +
                 `~~Reason — ${ticket.razon}~~\n` +
                 `~~Amount — $${montoMulta.toLocaleString()}~~\n` +
                 `~~ID — ${ticket.id || ticketID}~~\n\n` +
-                `💳 **Nuevo saldo en tu cuenta:** $${saldoRestante.toLocaleString()}`
+                `<:id:1534937551092187136> **Nuevo saldo en tu cuenta:** $${saldoRestante.toLocaleString()}`
             )
             .setFooter({ text: '00Y4n Comunidad SWFL • Registro de Pagos', iconURL: interaction.guild.iconURL() })
             .setTimestamp();
