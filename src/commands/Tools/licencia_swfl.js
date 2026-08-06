@@ -77,7 +77,7 @@ export default {
         }
 
         const embedRespuesta = new EmbedBuilder()
-            .setTitle('📑 Actualización de Licencia de Conducir')
+            .setTitle('<:lista:1534938422202994755> Actualización de Licencia de Conducir')
             .setDescription(
                 `Se ha actualizado la documentación del ciudadano <@${usuario.id}>.\n\n` +
                 `• **Nuevo Estado:** ${emojiEstado} **${nuevoEstado.toUpperCase()}**\n` +
