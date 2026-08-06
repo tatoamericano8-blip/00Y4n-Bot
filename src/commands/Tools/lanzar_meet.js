@@ -4,7 +4,7 @@ import Historial from '../../../models/Historial.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
-const IMAGEN_MEET_DEFECTO = 'https://cdn.discordapp.com/attachments/1517331229303902432/1524843381740540034/Lanzamiento_CM_23NUEVO.png?ex=6a51e150&is=6a508fd0&hm=147ad177d52612dab13a5eeba74cec6be378cb6eeb1b19cd3df25492e7ab3d49&';
+const IMAGEN_MEET_DEFECTO = 'https://cdn.discordapp.com/attachments/1529288674091466805/1534999347933085727/Lanzamiento_Carmeet_1.png?ex=6a762b0b&is=6a74d98b&hm=b717f5b987296c37bf9346cbd7b144afc798d40c1ca912313bd41627614a96e8&';
 
 export default {
     data: {
@@ -23,7 +23,7 @@ export default {
     async execute(interaction) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1519476959606734998> **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesión.',
+                content: '<:cruz00y4n:1534937767652495360> **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesión.',
                 ephemeral: true
             });
         }
@@ -48,20 +48,20 @@ export default {
         const textoCohost = coHostId ? `<@${coHostId}>` : 'Ninguno';
 
         const infoDescripcion =
-            `> <:punto:1523041306836996156> <@${interaction.user.id}> **¡ha lanzado un Car Meet oficial!** Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
-            `**<:caram00y4nmov:1523041315187855470> Antes de Unirte**\n\n` +
-            `> <a:si:1523027371735777503> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-            `> <a:si:1523027371735777503> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1452644461745148049/1524916351733469305).\n\n` +
+            `> <a:flecha:1534939368035324125> <@${interaction.user.id}> **¡ha lanzado un Car Meet oficial!** Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
+            `**<:manual:1534999731019972671> Antes de Unirte**\n\n` +
+            `> <:si:1534938142665084938> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+            `> <:si:1534938142665084938> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1452644461745148049/1524916351733469305).\n\n` +
             `**<:caram00y4nmov:1523041315187855470> Información del Car Meet**\n\n` +
-            `<:uno:1523028217592676464> **Temática del Meet:** ${tematica}\n` +
-            `<:dos:1523027468385128568> **Lugar de Inicio:** ${ubicacion}\n` +
-            `<:tres:1523027610479759561> **Spots / Duración:** ${spots}\n` +
-            `<:cuatro:1532128489761931407> **Co-Host de la Sesión:** ${textoCohost}\n` +
-            `<:flechareplica:1523028004983406787> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n\n` +
+            `<:uno:1534938872977297559> **Temática del Meet:** ${tematica}\n` +
+            `<:dos:1535001133729447987> **Lugar de Inicio:** ${ubicacion}\n` +
+            `<:tres:1535001243204718612> **Spots / Duración:** ${spots}\n` +
+            `<:cuatro:1534938460228550857> **Co-Host de la Sesión:** ${textoCohost}\n` +
+            `<:flechareplica:1534982812116062370> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n\n` +
             `➴ *¡Cualquier miembro descubierto haciendo Choque de vehículos o saboteando el orden será __expulsado__ e ingresará directo a la blacklist!*`;
 
         const embedRelease = new EmbedBuilder()
-            .setTitle('<a:confeti:1523026892981145600> Southwest Florida – ***__Car Meet Sesión Lanzada__*** <a:confeti:1523026892981145600>')
+            .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida – ***__Car Meet Sesión Lanzada__*** <a:mariquieta:1534954231138746488>')
             .setDescription(infoDescripcion)
             .setColor('#74d4fc');
 
@@ -76,7 +76,7 @@ export default {
                 .setCustomId('verificar_voto_swfl')
                 .setLabel('Link de la Sesión')
                 .setStyle(ButtonStyle.Secondary)
-                .setEmoji('1529995334883872909')
+                .setEmoji('1534937419231527036')
         );
 
         await interaction.reply({ content: 'Liberando accesos del Car Meet...', ephemeral: true });
