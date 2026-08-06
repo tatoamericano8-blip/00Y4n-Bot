@@ -2,7 +2,7 @@ import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 
 export default {
     data: new SlashCommandBuilder()
-        .setName('unstaff')
+        .setName('finalizar_host')
         .setDescription('Anuncia que has finalizado tu rol de Staff en la sesión activa.')
         .addStringOption(option =>
             option.setName('rol')
@@ -25,17 +25,17 @@ export default {
         // Configuración según el rol elegido
         const datosRoles = {
             host: {
-                titulo: '<a:si:1523027438030946446> Host Finalizado',
+                titulo: '<a:si:1534954014335172729> Host Finalizado',
                 etiqueta: 'Host',
                 estado: 'Ha finalizado la gestión de la sesión.'
             },
             cohost: {
-                titulo: '<a:si:1523027438030946446> Co-Host Finalizado',
+                titulo: '<a:si:1534954014335172729> Co-Host Finalizado',
                 etiqueta: 'Co-Host',
                 estado: 'Ha concluido su labor de apoyo en la sesión.'
             },
             supervisor: {
-                titulo: '<a:si:1523027438030946446> Supervisión Finalizada',
+                titulo: '<a:si:1534954014335172729> Supervisión Finalizada',
                 etiqueta: 'Supervisor',
                 estado: 'Ha dejado de monitorear la sesión.'
             }
@@ -50,7 +50,7 @@ export default {
             .setDescription(
                 `**${config.etiqueta}:** <@${interaction.user.id}> (\`${interaction.user.username}\`)\n` +
                 `**Estado:** ${config.estado}\n\n` +
-                `<:notas:1523041319046479964> **Notas / Observaciones:**\n${notas}`
+                `<:notas:1534938422202994755> **Notas / Observaciones:**\n${notas}`
             )
             .setFooter({ text: '00Y4n Comunidad SWFL • Control de Sesiones', iconURL: interaction.guild.iconURL() })
             .setTimestamp();
