@@ -30,12 +30,12 @@ export const COLORES = {
   secundario: PRIMARIO,
 
   exito: '#57f287',
-  error: '#ed4245',
+  error: '#E60404',
   advertencia: '#faa61a',
   info: PRIMARIO,
 
   moderacion: PRIMARIO,
-  strike: '#ed4245',
+  strike: '#E60404',
   loa: '#fee75c',
 
   economia: PRIMARIO,
