@@ -55,7 +55,7 @@ export default {
         // Embed con estética 00Y4n
         const embedFastPass = new EmbedBuilder()
             .setTitle(`<a:explosionfloral:1534954231138746488> __FastPass de la Sesión__ <a:explosionfloral:1534954231138746488>`)
-            .setDescription(`<:punto:1534938142665084938> El FastPass ha sido **liberado para la sesión**. Los miembros que adquirieron su pase de FastPass y el Equipo de Staff ya pueden unirse utilizando el botón de abajo.\n\n*Compartir este enlace resultará en la revocación permanente de tus permisos de FastPass.*\n\n<a:flecha:1534937306191102125> ¿Quieres unirte antes que el resto? Adquiere tu pase de **FastPass** correspondiente en el canal de beneficios del servidor.`)
+            .setDescription(`<:punto:1534938142665084938> El FastPass ha sido **liberado para la sesión**. Los miembros que adquirieron su pase de FastPass y el Equipo de Staff ya pueden unirse utilizando el botón de abajo.\n\n*Compartir este enlace resultará en la revocación permanente de tus permisos de FastPass.*\n\n<:flecha:1534937306191102125> ¿Quieres unirte antes que el resto? Adquiere tu pase de **FastPass** correspondiente en el canal de beneficios del servidor.`)
             .setColor('#74d4fc'); // Tu naranja insignia
 
         // 🖼️ Imagen por defecto
