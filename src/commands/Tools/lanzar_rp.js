@@ -4,7 +4,7 @@ import Historial from '../../../models/Historial.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
-const IMAGEN_RP_DEFECTO = 'https://cdn.discordapp.com/attachments/1517331229303902432/1524843450678116432/Lanzamiento_RP_2NUEVO3.png?ex=6a51e160&is=6a508fe0&hm=cca9367de3287bd9c34191f59eebbad3b96b48c58d266119050ed9f81b0182a2&';
+const IMAGEN_RP_DEFECTO = 'https://cdn.discordapp.com/attachments/1529288674091466805/1534999348373360690/Lanzamiento_Roleplay_1.png?ex=6a762b0b&is=6a74d98b&hm=94feaaeddb34f5c6ba70a4d9185a6dda368a9baf17e3134fdda6a37aa6a27fd5&';
 
 export default {
     data: {
@@ -29,8 +29,11 @@ export default {
                 type: ApplicationCommandOptionType.String,
                 required: true,
                 choices: [
+                    { name: '60 MPH', value: '60 MPH' },
                     { name: '65 MPH', value: '65 MPH' },
+                    { name: '70 MPH', value: '70 MPH' },
                     { name: '75 MPH', value: '75 MPH' },
+                    { name: '80 MPH', value: '80 MPH' },
                     { name: '85 MPH', value: '85 MPH' }
                 ]
             },
@@ -67,7 +70,7 @@ export default {
     async execute(interaction) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
-                content: `<:cruz00y4n:1523041302764191844> **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesión.`,
+                content: `<:cruz00y4n:1534937767652495360> **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesión.`,
                 ephemeral: true
             });
         }
@@ -92,21 +95,21 @@ export default {
         const textoCohost = coHostId ? `<@${coHostId}>` : 'Ninguno';
 
         const infoDescripcion =
-            `> <:punto:1523041306836996156> <@${interaction.user.id}> ¡ha lanzado su sesión! Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
-            ` <:flor:1523041315187855470> **Antes de Unirte**\n\n` +
-            `> <:fle:1523041359441952970> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-            `> <:fle:1523041359441952970> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1525190667545088225).\n` +
-            `> <:fle:1523041359441952970> Registra tus vehículos en <#1505615426305130657>!\n\n` +
-            ` <:flor:1523041315187855470> **Información del Roleplay**\n\n` +
-            `> <:uno:1523028217592676464> **Estado de Peacetime:** ${peacetime}\n` +
-            `> <:dos:1523027468385128568> **Velocidad de Fail Roleplay:** ${limite}\n` +
-            `> <:tres:1523027610479759561> **Servicios de Emergencia:** ${serviciosEmergencia}\n` +
-            `> <:cuatro:1532128489761931407> **Co-Host de la Sesión:** ${textoCohost}\n` +
-            `> <:replica:1523028004983406787> Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n\n` +
-            `<a:adv:1523027438030946446> *¡Cualquier miembro descubierto haciendo Fail Roleplay de forma excesiva será expulsado inmediatamente de la sesión!*`;
+            `> <a:punto:1534939368035324125> <@${interaction.user.id}> ¡ha lanzado su sesión! Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
+            ` <:flor:1534999731019972671> **Antes de Unirte**\n\n` +
+            `> <:fle:1534937306191102125> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+            `> <:fle:1534937306191102125> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1525190667545088225).\n` +
+            `> <:fle:1534937306191102125> Registra tus vehículos en <#1505615426305130657>!\n\n` +
+            ` <:flor:1534999731019972671> **Información del Roleplay**\n\n` +
+            `> <:uno:1534938872977297559> **Estado de Peacetime:** ${peacetime}\n` +
+            `> <:dos:1535001133729447987> **Velocidad de Fail Roleplay:** ${limite}\n` +
+            `> <:tres:1535001243204718612> **Servicios de Emergencia:** ${serviciosEmergencia}\n` +
+            `> <:cuatro:1534938460228550857> **Co-Host de la Sesión:** ${textoCohost}\n` +
+            `> <:replica:1534982812116062370> Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n\n` +
+            `-# <a:adv:1523027438030946446> *¡Cualquier miembro descubierto haciendo Fail Roleplay de forma excesiva será expulsado inmediatamente de la sesión!*`;
 
         const embedRelease = new EmbedBuilder()
-            .setTitle(`<a:confeti:1523026892981145600> Southwest Florida - *_Roleplay Sesión Lanzada_* <a:confeti:1523026892981145600>`)
+            .setTitle(`<a:mariquieta:1534954231138746488> Southwest Florida - *_Roleplay Sesión Lanzada_* <a:mariquieta:1534954231138746488>`)
             .setDescription(infoDescripcion)
             .setColor('#74d4fc');
 
@@ -121,7 +124,7 @@ export default {
                 .setCustomId('verificar_voto_swfl')
                 .setLabel('Link de la Sesión')
                 .setStyle(ButtonStyle.Secondary)
-                .setEmoji('1529995334883872909')
+                .setEmoji('1534937419231527036')
         );
 
         await interaction.reply({ content: 'Liberando accesos de Roleplay...', ephemeral: true });
