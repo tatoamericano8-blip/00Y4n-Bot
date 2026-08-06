@@ -1,6 +1,29 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { generarIDMulta, guardarMulta, programarWarrant } from '../../utils/gestorMultas.js';
 
+/** Opciones de infracción (máx. 25 en Discord). Name ≤ 100 caracteres. */
+const OPCIONES_MULTA = [
+    { name: '🏎️ Exceso Velocidad Clase A (1-15 MPH) — $500', value: 'Exceso de Velocidad Clase A (1-15 MPH sobre límite) [$500]' },
+    { name: '🏎️ Exceso Velocidad Clase B (16-29 MPH) — $1.200', value: 'Exceso de Velocidad Clase B (16-29 MPH sobre límite) [$1.200]' },
+    { name: '🏎️ Exceso Velocidad Clase C (30+ MPH) — $2.500', value: 'Exceso de Velocidad Clase C (30+ MPH sobre límite) [$2.500]' },
+    { name: '🚦 Semáforo en rojo (§ 346.37) — $800', value: '§ 346.37 - Cruzar Semáforo en Rojo [$800]' },
+    { name: '🛑 Ignorar señal de PARE — $600', value: 'Ignorar Señal de Stop [$600]' },
+    { name: '⚠️ Conducción imprudente / temeraria — $2.000', value: 'Conducción Imprudente [$2.000]' },
+    { name: '📄 Vehículo no registrado / sin patente — $1.000', value: '§ 341.04 - Vehículo No Registrado [$1.000]' },
+    { name: '🪪 Conducir sin licencia — $1.500', value: 'Conducir Sin Licencia [$1.500]' },
+    { name: '🚨 Huir de la escena (Hit & Run) — $3.500', value: 'Huir de la Escena (Hit & Run) [$3.500]' },
+    { name: '🚫 Conducir vehículo restringido — $1.800', value: 'Conducir Vehículo Restringido [$1.800]' },
+    { name: '📱 Uso de teléfono al volante — $700', value: 'Uso de Teléfono al Volante [$700]' },
+    { name: '🅿️ Estacionamiento en zona prohibida — $400', value: 'Estacionamiento en Zona Prohibida [$400]' },
+    { name: '↔️ Conducir en contramano — $2.200', value: 'Conducir en Contramano [$2.200]' },
+    { name: '🏁 Competencia ilegal / street racing — $4.000', value: 'Competencia Ilegal (Street Racing) [$4.000]' }
+];
+
+function formatearRazones(razones) {
+    if (razones.length === 1) return razones[0];
+    return razones.map((r, i) => `${i + 1}. ${r}`).join('\n');
+}
+
 export default {
     data: new SlashCommandBuilder()
         .setName('multar')
@@ -11,77 +34,76 @@ export default {
                 .setRequired(true))
         .addStringOption(option =>
             option.setName('razon')
-                .setDescription('Selecciona la infracción de tránsito exacta.')
+                .setDescription('Infracción principal (precio recomendado en el nombre).')
                 .setRequired(true)
-                .addChoices(
-                    // --- CLASES DE EXCESO DE VELOCIDAD ---
-                    { name: '🏎️ Exceso de Velocidad Clase A (1 - 15 MPH sobre el límite)', value: 'Exceso de Velocidad Clase A (1-15 MPH sobre límite)' },
-                    { name: '🏎️ Exceso de Velocidad Clase B (16 - 29 MPH sobre el límite)', value: 'Exceso de Velocidad Clase B (16-29 MPH sobre límite)' },
-                    { name: '🏎️ Exceso de Velocidad Clase C (30+ MPH sobre el límite)', value: 'Exceso de Velocidad Clase C (30+ MPH sobre límite)' },
-                    
-                    // --- OTRAS INFRACCIONES DE TRÁNSITO ---
-                    { name: '🚦 § 346.37 - Cruzar Semáforo en Rojo', value: '§ 346.37 - Cruzar Semáforo en Rojo' },
-                    { name: '🛑 Ignorar Señal de PARE (Stop Sign)', value: 'Ignorar Señal de Stop' },
-                    { name: '⚠️ Conducción Imprudente / Temeraria (Reckless Driving)', value: 'Conducción Imprudente' },
-                    { name: '📄 § 341.04 - Vehículo No Registrado / Sin Patente', value: '§ 341.04 - Vehículo No Registrado' },
-                    { name: '🪪 Conducir Sin Licencia de Manejar', value: 'Conducir Sin Licencia' },
-                    { name: '🚨 Huir de la Escena de un Accidente (Hit & Run)', value: 'Huir de la Escena (Hit & Run)' }
-                ))
+                .addChoices(...OPCIONES_MULTA))
+        .addStringOption(option =>
+            option.setName('razon_2')
+                .setDescription('Segunda infracción (opcional).')
+                .setRequired(false)
+                .addChoices(...OPCIONES_MULTA))
+        .addStringOption(option =>
+            option.setName('razon_3')
+                .setDescription('Tercera infracción (opcional).')
+                .setRequired(false)
+                .addChoices(...OPCIONES_MULTA))
         .addIntegerOption(option =>
             option.setName('monto')
-                .setDescription('Monto en dólares ($) de la multa.')
-                .setRequired(true)),
+                .setDescription('Monto TOTAL en $ (sumá los recomendados si hay varias infracciones).')
+                .setRequired(true)
+                .setMinValue(1)),
 
     async execute(interaction) {
-        // ID del rol del Departamento Policial del Condado de Sarasota
         const ROL_POLICIA_ID = '1529146302783422706';
 
-        // Validar que solo los oficiales de Sarasota puedan usar el comando
         if (!interaction.member.roles.cache.has(ROL_POLICIA_ID)) {
-            return await interaction.reply({
-                content: '❌ **Acceso denegado.** Solo los oficiales del **Departamento Policial del Condado de Sarasota** pueden emitir multas.',
+            return interaction.reply({
+                content: '❌ Solo personal del **Departamento Policial de Sarasota** puede emitir multas.',
                 ephemeral: true
             });
         }
 
         const infractor = interaction.options.getUser('usuario');
-        const razon = interaction.options.getString('razon');
         const monto = interaction.options.getInteger('monto');
 
-        // Generar ID único de la multa
+        const razones = [
+            interaction.options.getString('razon'),
+            interaction.options.getString('razon_2'),
+            interaction.options.getString('razon_3')
+        ].filter(Boolean);
+
+        const razonesUnicas = [...new Set(razones)];
+        const razonTexto = formatearRazones(razonesUnicas);
+
         const ticketID = await generarIDMulta();
 
-        // Crear objeto de la multa
         const datosMulta = {
             id: ticketID,
             usuarioId: infractor.id,
-            oficialId: interaction.user.id,
-            razon: razon,
-            monto: monto,
+            emisorId: interaction.user.id,
+            razon: razonTexto,
+            razones: razonesUnicas,
+            monto,
+            guildId: interaction.guildId,
             estado: 'PENDIENTE',
             fecha: new Date().toISOString()
         };
 
-        // Guardar directamente en la base de datos
         await guardarMulta(ticketID, datosMulta);
-
-        // Activar el temporizador de 7 días para la Orden de Arresto
         programarWarrant(interaction.client, interaction.guildId, infractor.id, ticketID);
 
-        // 📩 ENVÍO DE MENSAJE DIRECTO (DM) AL INFRACTOR
         try {
             const embedDM = new EmbedBuilder()
                 .setColor('#ff3333')
                 .setTitle('<:folder:1523041295868756008> Notificación Oficial de Multa')
                 .setDescription(
                     `Has recibido una multa de tránsito en **${interaction.guild.name}**.\n\n` +
-                    `• **Infracción:** ${razon}\n` +
-                    `• **Monto a Pagar:** $${monto.toLocaleString()}\n` +
+                    `• **Infracción(es):**\n${razonTexto}\n\n` +
+                    `• **Monto a Pagar:** $${monto.toLocaleString('es-AR')}\n` +
                     `• **ID Ticket:** \`${ticketID}\`\n` +
                     `• **Oficial Emisor:** <@${interaction.user.id}>\n\n` +
-                    `⚠️ *Dispones de **7 días** para abonarla mediante el comando \`/pagar-multa\` antes de que se emita una Orden de Arresto.*`
+                    `⚠️ *Dispones de **7 días** para abonarla con \`/pagar-multa\` antes de que se emita una Orden de Arresto.*`
                 )
-                .setFooter({ text: 'Departamento Policial de Sarasota' })
                 .setTimestamp();
 
             await infractor.send({ embeds: [embedDM] });
@@ -89,29 +111,23 @@ export default {
             console.log(`No se le pudo enviar el DM a ${infractor.tag} (DMs bloqueados o cerrados).`);
         }
 
-        // 📄 EMBED PARA EL CANAL PÚBLICO
         const embedMulta = new EmbedBuilder()
             .setColor('#74d4fc')
             .setTitle('<:folder:1523041295868756008> Ticket de Multa Emitido')
             .setDescription(
-                `• **User -** <@${infractor.id}>\n` +
-                `• **Issuer -** <@${interaction.user.id}>\n` +
-                `• **Reason -** ${razon}\n` +
-                `• **Amount -** $${monto.toLocaleString()}\n` +
-                `• **ID -** ${ticketID}\n\n` +
-                `*Usa \`/pagar-multa\` para abonar este ticket dentro de una semana, o recibirás una orden de arresto!*`
+                `• **Usuario —** <@${infractor.id}>\n` +
+                `• **Oficial —** <@${interaction.user.id}>\n` +
+                `• **Infracción(es) —**\n${razonTexto}\n` +
+                `• **Monto —** $${monto.toLocaleString('es-AR')}\n` +
+                `• **ID —** \`${ticketID}\`\n\n` +
+                `*Usá \`/pagar-multa\` para abonar este ticket dentro de una semana, o recibirás una orden de arresto.*`
             )
-            .setFooter({ 
-                text: '00Y4n Comunidad SWFL • Departamento Policial de Sarasota', 
-                iconURL: interaction.guild.iconURL() 
-            })
             .setTimestamp();
 
-        // 📢 ENVIAR RESPUESTA AL CANAL (Con mención explícita fuera del embed)
         await interaction.reply({
             content: `🚨 **Atención <@${infractor.id}>, has sido multado oficialmente:**`,
             embeds: [embedMulta],
-            allowedMentions: { users: [infractor.id] } // Permitir la notificación al usuario
+            allowedMentions: { users: [infractor.id] }
         });
-    },
+    }
 };
