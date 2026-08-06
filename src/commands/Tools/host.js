@@ -28,7 +28,7 @@ export default {
     async execute(interaction) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1523041302764191844> Solo el **Staff** puede anunciar encargados de sesión.',
+                content: '<:cruz00y4n:1534937767652495360> Solo el **Staff** puede anunciar encargados de sesión.',
                 ephemeral: true
             });
         }
@@ -55,12 +55,12 @@ export default {
 
         const esCohost = tipo === 'cohost';
         const titulo = esCohost
-            ? '💙 00Y4n Comunidad SWFL — Co-Host de Sesión 💙'
-            : '💙 00Y4n Comunidad SWFL — Host de Sesión 💙';
+            ? '<a:corasfinos:1534953815969890436> 00Y4n Southwest Florida Comunidad — Co-Host de Sesión <a:corasfinos:1534953815969890436>'
+            : '<a:corasfinos:1534953815969890436> 00Y4n Southwest Florida Comunidad — Host de Sesión <a:corasfinos:1534953815969890436>';
 
         const descripcion = esCohost
-            ? `<@${usuarioStaff.id}> es **Co-Host** de la sesión actual. Si necesitás soporte y el host está ocupado, dirigite al co-host.`
-            : `<@${usuarioStaff.id}> es el **Host** de la sesión actual. Dirigite a este usuario si tenés dudas o inconvenientes dentro del servidor.`;
+            ? `<:dot:1534938142665084938> <@${usuarioStaff.id}> es **Co-Host** de la sesión actual. Si necesitás soporte y el host está ocupado, dirigite al co-host.`
+            : `<:dot:1534938142665084938> <@${usuarioStaff.id}> es el **Host** de la sesión actual. Dirigite a este usuario si tenés dudas o inconvenientes dentro del servidor.`;
 
         const embedStaff = new EmbedBuilder()
             .setColor('#74d4fc')
@@ -71,7 +71,7 @@ export default {
             });
 
         await interaction.reply({
-            content: '<a:verificacion:1523027148326047878> Anuncio de staff generado.',
+            content: '<:verificacion:1534937809733812286> Anuncio de staff generado.',
             ephemeral: true
         });
 
