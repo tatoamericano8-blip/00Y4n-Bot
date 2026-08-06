@@ -70,7 +70,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
                     .setColor('#57F287')
                     .setDescription(
                         `<:dinero:1534938520861413376> **$${monto.toLocaleString('es-AR')}** ${historia}\n\n` +
-                        `<:fle:1523041359441952970> **Reclamado por:** <@${usuarioId}>`
+                        `<:fle:1534937306191102125> **Reclamado por:** <@${usuarioId}>`
                     );
 
                 const botonDesactivado = new ActionRowBuilder().addComponents(
