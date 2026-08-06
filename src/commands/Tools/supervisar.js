@@ -28,7 +28,7 @@ export default {
 
             if (!sesion) {
                 return interaction.reply({
-                    content: '<a:adv:1523027438030946446> No hay una sesión activa para supervisar. Primero usá `/inicio_swfl`.',
+                    content: '<:adv:1534937002695327837> No hay una sesión activa para supervisar. Primero usá `/inicio_swfl`.',
                     ephemeral: true
                 });
             }
@@ -38,14 +38,14 @@ export default {
         } catch (err) {
             console.error('Error guardando supervisor en sesión:', err);
             return interaction.reply({
-                content: '❌ Error al registrar el supervisor en la sesión. Intentá de nuevo.',
+                content: '<:cruz:1534937767652495360> Error al registrar el supervisor en la sesión. Intentá de nuevo.',
                 ephemeral: true
             });
         }
 
         const embedSupervision = new EmbedBuilder()
             .setDescription(
-                `<a:flecha:1523027371735777503> <@${supervisor.id}> está **supervisando** la sesión.` +
+                `<:dot:1534938142665084938> <@${supervisor.id}> está **supervisando** la sesión.` +
                 (sesion.hostId && sesion.hostId !== supervisor.id
                     ? `\n> Host: <@${sesion.hostId}>`
                     : '')
