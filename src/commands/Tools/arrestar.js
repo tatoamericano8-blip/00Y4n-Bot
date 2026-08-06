@@ -42,7 +42,7 @@ export default {
 
         const embedArresto = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<:folder:1523041295868756008> Arresto Registrado')
+            .setTitle('<:folder:1534938334650962115> Arresto Registrado')
             .setDescription(
                 `• **Ciudadano -** <@${ciudadano.id}>\n` +
                 `• **Oficial -** <@${interaction.user.id}>\n` +
@@ -81,7 +81,7 @@ export default {
         try {
             const embedDM = new EmbedBuilder()
                 .setColor('#ff3333')
-                .setTitle('<:folder:1523041295868756008> Notificación de Arresto')
+                .setTitle('<:folder:1534938334650962115> Notificación de Arresto')
                 .setDescription(
                     `Has sido arrestado en **${interaction.guild.name}**.\n\n` +
                     `• **Motivo:** ${motivo}\n` +
