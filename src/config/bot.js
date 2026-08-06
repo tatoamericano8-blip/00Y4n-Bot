@@ -7,7 +7,7 @@ export const botConfig = {
     status: "online",
     activities: [
       {
-        name: "Viva /00Y4n",
+        name: "🚧Revamp de 00Y4n aproximándose...🚧",
         type: 0,
       },
     ],
