@@ -117,7 +117,7 @@ export default {
 
         const embed = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle(`📋 Modlogs – ${target.username}`)
+            .setTitle(`<:folder:1534938334650962115> Modlogs – ${target.username}`)
             .setThumbnail(target.displayAvatarURL({ dynamic: true }))
             .setDescription(
                 `**Usuario:** <@${target.id}>\n` +
@@ -146,7 +146,7 @@ export default {
 
         if (staffStrikesTexto) {
             embed.addFields({
-                name: '👮 Staff Strikes',
+                name: '<:staff:1534956881787752478> Staff Strikes',
                 value: staffStrikesTexto.length > 1024
                     ? staffStrikesTexto.slice(0, 1000) + '...'
                     : staffStrikesTexto
