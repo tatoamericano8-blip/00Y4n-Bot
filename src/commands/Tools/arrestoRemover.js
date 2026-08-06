@@ -47,7 +47,7 @@ export default {
 
         const embed = new EmbedBuilder()
             .setColor('#57f287')
-            .setTitle('<:folder:1523041295868756008> Arresto Anulado')
+            .setTitle('<:folder:1534938334650962115> Arresto Anulado')
             .setDescription(
                 `• **ID Arresto -** \`${arrestoID}\`\n` +
                 `• **Ciudadano -** <@${arresto.usuarioId}>\n` +
@@ -66,7 +66,7 @@ export default {
         if (logsChannel) {
             const embedLog = new EmbedBuilder()
                 .setColor('#57f287')
-                .setTitle('<:folder:1523041295868756008> Arresto Anulado')
+                .setTitle('<:folder:1534938334650962115> Arresto Anulado')
                 .setDescription(
                     `> **ID:** \`${arrestoID}\`\n` +
                     `> **Ciudadano:** <@${arresto.usuarioId}>\n` +
