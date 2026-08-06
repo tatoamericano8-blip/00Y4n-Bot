@@ -13,7 +13,7 @@ export default {
     async execute(interaction) {
         if (!interaction.member.roles.cache.has(ROLE_STAFF)) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1519476959606734998> No tienes el rol de Staff para realizar esta acción.',
+                content: '<:cruz00y4n:1534937767652495360> No tienes el rol de Staff para realizar esta acción.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -35,7 +35,7 @@ export default {
             }
 
             const embedLog = new EmbedBuilder()
-                .setTitle('<:fle:1523041332300480644> Renuncia de Staff')
+                .setTitle('<:staff:1534956881787752478> Renuncia de Staff')
                 .setColor('#fee75c')
                 .setDescription(
                     `> **Usuario:** <@${interaction.user.id}> (\`${interaction.user.id}\`)\n` +
@@ -49,11 +49,11 @@ export default {
             if (logsChannel) await logsChannel.send({ embeds: [embedLog] });
 
             await interaction.editReply({
-                content: `<a:verificacion:1523027148326047878> Tu renuncia ha sido procesada correctamente. Agradecemos tu trabajo en el equipo.`
+                content: `<:tilde:1534937809733812286> Tu renuncia ha sido procesada correctamente. Agradecemos tu trabajo en el equipo.`
             });
         } catch (error) {
             console.error('Error en /resign:', error);
-            await interaction.editReply({ content: '<:cruz00y4n:1523041302764191844> Ocurrió un error al procesar tu renuncia.' });
+            await interaction.editReply({ content: '<:cruz00y4n:1534937767652495360> Ocurrió un error al procesar tu renuncia.' });
         }
     }
 };
