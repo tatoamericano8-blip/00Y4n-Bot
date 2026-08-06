@@ -4,7 +4,7 @@ import Historial from '../../models/Historial.js';
 import { logger } from './logger.js';
 
 const URL_IMAGEN_DEFAULT =
-  'https://cdn.discordapp.com/attachments/1517331229303902432/1524843452494381146/Sesion_Concluida_NUEVO2_1.png';
+  'https://cdn.discordapp.com/attachments/1505017301089652898/1534978855423574146/Sesion_Concluida_1.png?ex=6a7617f5&is=6a74c675&hm=58673b837435de19bfb88da762808176cfcf9bf0545f80b96169640606049abb&';
 
 /**
  * Cierra una sesión sin sumar cuota (mensaje de inicio borrado, timeout, etc.).
@@ -53,7 +53,7 @@ export async function cerrarSesionSinCuota(sesion, {
   const embed = new EmbedBuilder()
     .setColor('#74d4fc')
     .setTitle(
-      `<a:cadenacora:1523026520740724859> SWFL ${tipoTxt} | Sesión Concluida <a:cadenacora:1523026520740724859>`
+      `<a:cadenacora:1534954014335172729> SWFL ${tipoTxt} | Sesión Concluida <a:cadenacora:1534954014335172729>`
     )
     .setDescription(
       `Esta sesión de **${tipoTxt}** fue **terminada automáticamente**.\n\n` +
