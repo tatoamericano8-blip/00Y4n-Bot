@@ -64,12 +64,12 @@ export default {
 
       const embed = new EmbedBuilder()
         .setColor('#ed4245')
-        .setTitle('🚫 Blacklist de Sesiones — Añadido')
+        .setTitle('<:cruz:1534937767652495360> Blacklist de Sesiones — Añadido')
         .setDescription(
-          `> **Usuario:** <@${target.id}> (\`${target.id}\`)\n` +
-            `> **Motivo:** ${motivo}\n` +
-            `> **Por:** <@${interaction.user.id}>\n` +
-            `> **Efecto:** Bloqueo **permanente** de toda actividad de sesiones.`
+          `> <:dot:1534938142665084938> **Usuario:** <@${target.id}> (\`${target.id}\`)\n` +
+            `> <:dot:1534938142665084938> **Motivo:** ${motivo}\n` +
+            `> <:dot:1534938142665084938> **Por:** <@${interaction.user.id}>\n` +
+            `> <:dot:1534938142665084938> **Efecto:** Bloqueo **permanente** de toda actividad de sesiones.`
         )
         .setTimestamp();
 
@@ -90,11 +90,11 @@ export default {
 
       const embed = new EmbedBuilder()
         .setColor('#57f287')
-        .setTitle('✅ Blacklist de Sesiones — Removido')
+        .setTitle('<:lista:1534938422202994755> Blacklist de Sesiones — Removido')
         .setDescription(
-          `> **Usuario:** <@${target.id}>\n` +
-            `> **Motivo original:** ${prev.motivo || '—'}\n` +
-            `> **Removido por:** <@${interaction.user.id}>`
+          `> <:dot:1534938142665084938> **Usuario:** <@${target.id}>\n` +
+            `> <:dot:1534938142665084938> **Motivo original:** ${prev.motivo || '—'}\n` +
+            `> <:dot:1534938142665084938> **Removido por:** <@${interaction.user.id}>`
         )
         .setTimestamp();
 
@@ -115,7 +115,7 @@ export default {
       }
       return interaction.reply({
         content:
-          `🚫 <@${target.id}> **SÍ** está en blacklist.\n` +
+          `<:lock:1534938648665915577> <@${target.id}> **SÍ** está en blacklist.\n` +
           `> Motivo: ${entry.motivo}\n` +
           `> Desde: <t:${Math.floor(new Date(entry.fecha).getTime() / 1000)}:F>\n` +
           `> Por: <@${entry.por}>`,
