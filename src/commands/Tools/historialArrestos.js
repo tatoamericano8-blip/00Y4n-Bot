@@ -57,7 +57,7 @@ export default {
 
         const embed = new EmbedBuilder()
             .setColor(activos > 0 ? '#ed4245' : '#57f287')
-            .setTitle('<:folder:1523041295868756008> Historial de Arrestos')
+            .setTitle('<:folder:1534938334650962115> Historial de Arrestos')
             .setDescription(
                 `**Ciudadano:** <@${ciudadano.id}> (\`${ciudadano.id}\`)\n` +
                 `**Arrestos activos:** \`${activos}\`\n` +
