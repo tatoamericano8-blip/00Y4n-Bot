@@ -1,5 +1,6 @@
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { agregarSaldo } from './gestorEconomia.js';
+import { PRIMARIO } from './colores.js';
 
 /** Banner de oportunidad (solo imagen) — se envía como primer embed */
 const BANNER_OPORTUNIDAD_URL =
@@ -16,7 +17,9 @@ const historiasOportunidades = [
 ];
 
 function crearEmbedBanner() {
-    return new EmbedBuilder().setImage(BANNER_OPORTUNIDAD_URL);
+    return new EmbedBuilder()
+        .setColor(PRIMARIO)
+        .setImage(BANNER_OPORTUNIDAD_URL);
 }
 
 /**
@@ -36,7 +39,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
         const embedBanner = crearEmbedBanner();
 
         const embedInicial = new EmbedBuilder()
-            .setColor('#74d4fc')
+            .setColor(PRIMARIO)
             .setTitle('<a:est:1534954231138746488> ¡Oportunidad Economica!')
             .setDescription(`<:dinero:1534938520861413376> **$${monto.toLocaleString('es-AR')}** ${historia}`)
             .setTimestamp();
@@ -49,7 +52,6 @@ export async function lanzarOportunidadEconomica(client, canalId) {
                 .setStyle(ButtonStyle.Secondary)
         );
 
-        // Banner ARRIBA + embed principal (mismo mensaje)
         const mensaje = await canal.send({
             embeds: [embedBanner, embedInicial],
             components: [botonActivo]
