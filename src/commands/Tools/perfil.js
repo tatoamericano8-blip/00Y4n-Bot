@@ -58,7 +58,7 @@ export default {
         // Si el usuario no está verificado
         if (!robloxId) {
             const embedError = new EmbedBuilder()
-                .setTitle('❌ CONTROL DE VERIFICACIÓN')
+                .setTitle('<:cruz:1534937767652495360> CONTROL DE VERIFICACIÓN')
                 .setDescription(`> El usuario <@${miembro.id}> no se encuentra verificado en la base de datos global de **Bloxlink**.\n\nPor favor, asegúrate de estar verificado antes de vincular tu documentación de SWFL.`)
                 .setColor('#ff3333')
                 .setTimestamp();
@@ -97,7 +97,7 @@ export default {
         let datosLicencia = await Licencia.findOne({ usuario_id: miembro.id });
         let estadoLicencia = datosLicencia ? datosLicencia.estado : 'Activa';
 
-        let textoLicenciaVisual = '<:tilde:1524936452574806076> Activa';
+        let textoLicenciaVisual = '<:tilde:1534937809733812286> Activa';
         if (estadoLicencia === 'Suspendida') {
             textoLicenciaVisual = '🟡 Suspendida';
         } else if (estadoLicencia === 'Revocada') {
@@ -112,15 +112,15 @@ export default {
 
         // 4. EMBED PRINCIPAL
         const perfilEmbed = new EmbedBuilder()
-            .setTitle('<:seguro:1523041347869868253> Southwest Florida | *Perfil de Civil*')
+            .setTitle('<:id:1534937551092187136> Southwest Florida | *Perfil de Ciudadano*')
             .setDescription(
                 `> Ficha de registro oficial del ciudadano dentro de nuestra base de datos de regulaciones de tránsito y economía.\n\n` +
-                `• **Usuario:** <@${miembro.id}>\n` +
-                `• **Perfil de Roblox:** [${robloxUsername}](https://www.roblox.com/users/${robloxId}/profile)\n` +
-                `• **Estado de Licencia:** ${textoLicenciaVisual}\n` +
-                `• **Balance Bancario:** **$${saldoActual.toLocaleString()}**\n` +
-                `• **Vehículos Registrados:** \`${autosRegistrados.length}\`\n` +
-                `• **Multas Pendientes:** \`${multasPendientes.length}\` ${deudaTotal > 0 ? `*(Deuda: $${deudaTotal.toLocaleString()})*` : '*(Al día)*'}\n\n` +
+                `<:dot:1534938142665084938> **Usuario:** <@${miembro.id}>\n` +
+                `<:dot:1534938142665084938> **Perfil de Roblox:** [${robloxUsername}](https://www.roblox.com/users/${robloxId}/profile)\n` +
+                `<:dot:1534938142665084938> **Estado de Licencia:** ${textoLicenciaVisual}\n` +
+                `<:dot:1534938142665084938> **Balance Bancario:** **$${saldoActual.toLocaleString()}**\n` +
+                `<:dot:1534938142665084938> **Vehículos Registrados:** \`${autosRegistrados.length}\`\n` +
+                `<:dot:1534938142665084938> **Multas Pendientes:** \`${multasPendientes.length}\` ${deudaTotal > 0 ? `*(Deuda: $${deudaTotal.toLocaleString()})*` : '*(Al día)*'}\n\n` +
                 `⤷ *Para registrar una nueva unidad en tu garaje utiliza el comando \`/matricula registrar\` de forma pública.*`
             )
             .setThumbnail(fotoAvatar)
@@ -173,7 +173,7 @@ export default {
                 ).join('\n\n');
 
                 const embedConAutos = new EmbedBuilder()
-                    .setTitle('<:form:1523041319046479964> Vehículos Registrados')
+                    .setTitle('<:form:1534938422202994755> Vehículos Registrados')
                     .setDescription(`Lista de vehículos activos en el sistema para <@${targetId}>:\n\n${stringAutos}`)
                     .setColor('#74d4fc')
                     .setFooter({ text: 'Sistema de Tránsito Oficial' });
@@ -189,8 +189,8 @@ export default {
 
                 if (multasUsuarioActuales.length === 0) {
                     const embedSinMultas = new EmbedBuilder()
-                        .setTitle('🚨 Historial de Multas')
-                        .setDescription(`✅ El usuario <@${targetId}> **no tiene ningún tipo de multa.**`)
+                        .setTitle('<:folder:1534938334650962115> Historial de Multas')
+                        .setDescription(`<:tilde:1534937809733812286> El usuario <@${targetId}> **no tiene ningún tipo de multa.**`)
                         .setColor('#74d4fc')
                         .setFooter({ text: 'Departamento de Policía' })
                         .setTimestamp();
@@ -207,8 +207,8 @@ export default {
                 }).join('\n\n');
 
                 const embedConMultas = new EmbedBuilder()
-                    .setTitle('🚨 Historial de Multas')
-                    .setDescription(`Multas de tránsito aplicadas a <@${targetId}>:\n\n${stringMultas}`)
+                    .setTitle('<:folder:1534938334650962115> Historial de Multas')
+                    .setDescription(`<:dot:1534938142665084938> Multas de tránsito aplicadas a <@${targetId}>:\n\n${stringMultas}`)
                     .setColor('#ff3333')
                     .setFooter({ text: 'Departamento de Policía' })
                     .setTimestamp();
