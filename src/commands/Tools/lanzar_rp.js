@@ -106,7 +106,7 @@ export default {
             `> <:tres:1535001243204718612> **Servicios de Emergencia:** ${serviciosEmergencia}\n` +
             `> <:cuatro:1534938460228550857> **Co-Host de la Sesión:** ${textoCohost}\n` +
             `> <:replica:1534982812116062370> Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n\n` +
-            `-# <a:adv:1523027438030946446> *¡Cualquier miembro descubierto haciendo Fail Roleplay de forma excesiva será expulsado inmediatamente de la sesión!*`;
+            `-# <:dot:1534938142665084938> *¡Cualquier miembro descubierto haciendo Fail Roleplay de forma excesiva será expulsado inmediatamente de la sesión!*`;
 
         const embedRelease = new EmbedBuilder()
             .setTitle(`<a:mariquieta:1534954231138746488> Southwest Florida - *_Roleplay Sesión Lanzada_* <a:mariquieta:1534954231138746488>`)
