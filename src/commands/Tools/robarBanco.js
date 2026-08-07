@@ -1,30 +1,36 @@
 import {
     SlashCommandBuilder,
-    EmbedBuilder,
-    ActionRowBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    ComponentType
+    EmbedBuilder
 } from 'discord.js';
-import { agregarSaldo, obtenerSaldo } from '../../utils/gestorEconomia.js';
+import { agregarSaldo } from '../../utils/gestorEconomia.js';
 import { getFromDb, setInDb } from '../../utils/database.js';
 
 const ROL_POLICIA_ID = '1529146302783422706';
-const ROL_WARRANT_ID = '1529152491545952316';
+const ROL_ALTO_MANDO_ID = '1528870731629465752';
 const CHANNEL_LOGS = '1529175493029531738';
 
-const TIEMPO_UNION_MS = 80 * 1000;          // 80 segundos
-const COOLDOWN_MS = 12 * 60 * 60 * 1000;    // 12 horas
+const TIEMPO_UNION_MS = 80 * 1000;
+const TIEMPO_ROBO_MS = 60 * 1000;
+const COOLDOWN_MS = 12 * 60 * 60 * 1000;
+const COOLDOWN_INTERVENIR_MS = 60 * 60 * 1000;
 const MIN_PERSONAS = 2;
 const MAX_PERSONAS = 3;
 const RECOMPENSA_MIN = 10000;
 const RECOMPENSA_MAX = 25000;
+const CHANCE_EXITO = 60;
 
-// heistsActivos: guildId -> datos del heist
 const heistsActivos = new Map();
 
 function generarRecompensa() {
     return Math.floor(Math.random() * (RECOMPENSA_MAX - RECOMPENSA_MIN + 1)) + RECOMPENSA_MIN;
+}
+
+function puedeIntervenir(member) {
+    if (!member) return false;
+    return (
+        member.roles.cache.has(ROL_POLICIA_ID) ||
+        member.roles.cache.has(ROL_ALTO_MANDO_ID)
+    );
 }
 
 async function estaEnCooldown(usuarioId) {
@@ -38,50 +44,88 @@ async function aplicarCooldown(usuarioId) {
     await setInDb(clave, Date.now() + COOLDOWN_MS);
 }
 
-async function contarPoliciasOnline(guild) {
+async function estaEnCooldownIntervenir(usuarioId) {
+    const clave = `cooldown:heist-intervenir:${usuarioId}`;
+    const proximo = await getFromDb(clave, 0);
+    return proximo && Date.now() < proximo ? proximo : null;
+}
+
+async function aplicarCooldownIntervenir(usuarioId) {
+    const clave = `cooldown:heist-intervenir:${usuarioId}`;
+    await setInDb(clave, Date.now() + COOLDOWN_INTERVENIR_MS);
+}
+
+function limpiarTimers(heist) {
+    if (heist?.timeoutUnion) clearTimeout(heist.timeoutUnion);
+    if (heist?.timeoutRobo) clearTimeout(heist.timeoutRobo);
+    heist.timeoutUnion = null;
+    heist.timeoutRobo = null;
+}
+
+async function enviarLog(client, guild, embed) {
     try {
-        const miembros = await guild.members.fetch({ withPresences: true }).catch(() => null);
-        if (!miembros) return 0;
+        const canal = await client.channels.fetch(CHANNEL_LOGS).catch(() => null);
+        if (canal) await canal.send({ embeds: [embed] });
+    } catch (_) {}
+}
 
-        let count = 0;
-        for (const [, member] of miembros) {
-            if (
-                member.roles.cache.has(ROL_POLICIA_ID) &&
-                member.presence &&
-                ['online', 'idle', 'dnd'].includes(member.presence.status)
-            ) {
-                count++;
-            }
-        }
-        return count;
-    } catch {
-        return 0;
+async function iniciarFaseRobo(client, guildId, channel) {
+    const heist = heistsActivos.get(guildId);
+    if (!heist || heist.fase !== 'uniendo') return;
+
+    if (heist.participantes.size < MIN_PERSONAS) {
+        heistsActivos.delete(guildId);
+        limpiarTimers(heist);
+        try {
+            await channel.send({
+                content: '❌ El robo fue **cancelado**: no se alcanzó el mínimo de 2 personas.'
+            });
+        } catch (_) {}
+        return;
     }
+
+    heist.fase = 'en_curso';
+    limpiarTimers(heist);
+
+    const menciones = [...heist.participantes].map((id) => `<@${id}>`).join(', ');
+    const finUnix = Math.floor((Date.now() + TIEMPO_ROBO_MS) / 1000);
+
+    const embed = new EmbedBuilder()
+        .setColor('#e67e22')
+        .setTitle('🚨 Robo al banco en curso')
+        .setDescription(
+            `El equipo entró al banco. La policía puede intervenir ahora.\n\n` +
+                `• **Participantes:** ${menciones}\n` +
+                `• **Ventana de intervención:** termina <t:${finUnix}:R>\n` +
+                `• **Policía / Alto Mando:** \`/robar-banco intervenir\``
+        )
+        .setTimestamp();
+
+    try {
+        await channel.send({ embeds: [embed] });
+    } catch (_) {}
+
+    heist.timeoutRobo = setTimeout(async () => {
+        const actual = heistsActivos.get(guildId);
+        if (!actual || actual.fase !== 'en_curso') return;
+        await resolverHeist(client, guildId, channel);
+    }, TIEMPO_ROBO_MS);
 }
 
-function calcularChanceExito(policiasOnline) {
-    // Base 60%. Cada policía online reduce un poco la chance
-    let chance = 60;
-    if (policiasOnline >= 1) chance -= 15;
-    if (policiasOnline >= 3) chance -= 15;
-    return Math.max(25, chance); // mínimo 25%
-}
+async function resolverHeist(client, guildId, channel) {
+    const heist = heistsActivos.get(guildId);
+    if (!heist) return;
 
-async function resolverHeist(interaction, heist) {
-    const { participantes, channelId, leaderId } = heist;
-    const lista = [...participantes];
+    limpiarTimers(heist);
+    heistsActivos.delete(guildId);
 
-    // Aplicar cooldown a todos
+    const lista = [...heist.participantes];
     for (const id of lista) {
         await aplicarCooldown(id);
     }
 
-    const policiasOnline = await contarPoliciasOnline(interaction.guild);
-    const chanceExito = calcularChanceExito(policiasOnline);
-    const exito = Math.random() * 100 < chanceExito;
-
-    const channel = interaction.guild.channels.cache.get(channelId);
-    const logsChannel = interaction.guild.channels.cache.get(CHANNEL_LOGS);
+    const exito = Math.random() * 100 < CHANCE_EXITO;
+    const menciones = lista.map((id) => `<@${id}>`).join(', ');
 
     if (exito) {
         const total = generarRecompensa();
@@ -91,210 +135,258 @@ async function resolverHeist(interaction, heist) {
             await agregarSaldo(id, porPersona);
         }
 
-        const menciones = lista.map(id => `<@${id}>`).join(', ');
-
-        const embedExito = new EmbedBuilder()
+        const embed = new EmbedBuilder()
             .setColor('#57f287')
-            .setTitle('<:redski:1534988636460683385> ¡Robo al Banco exitoso!')
+            .setTitle('<:redski:1534988636460683385> ¡Robo al banco exitoso!')
             .setDescription(
-                `El equipo logró robar el banco de Sarasota.\n\n` +
-                `• **Participantes:** ${menciones}\n` +
-                `• **Botín total:** $${total.toLocaleString('es-AR')}\n` +
-                `• **Por persona:** $${porPersona.toLocaleString('es-AR')}\n` +
-                `• **Policías en línea:** ${policiasOnline}\n` +
-                `• **Chance de éxito:** ${chanceExito}%`
+                `El equipo logró escapar con el botín.\n\n` +
+                    `• **Participantes:** ${menciones}\n` +
+                    `• **Botín total:** $${total.toLocaleString('es-AR')}\n` +
+                    `• **Por persona:** $${porPersona.toLocaleString('es-AR')}\n` +
+                    `• **Chance de éxito:** ${CHANCE_EXITO}%`
             )
-            .setFooter({
-                text: '00Y4n Comunidad SWFL • Sistema de Economía',
-                iconURL: interaction.guild.iconURL()
-            })
             .setTimestamp();
 
-        if (channel) await channel.send({ embeds: [embedExito] });
+        try {
+            await channel.send({ embeds: [embed] });
+        } catch (_) {}
 
-        if (logsChannel) {
-            await logsChannel.send({
-                embeds: [
-                    new EmbedBuilder()
-                        .setColor('#57f287')
-                        .setTitle('<:redski:1534988636460683385> Robo al Banco Exitoso')
-                        .setDescription(
-                            `> **Líder:** <@${leaderId}>\n` +
-                            `> **Participantes:** ${menciones}\n` +
-                            `> **Botín:** $${total.toLocaleString('es-AR')}\n` +
-                            `> **Policías online:** ${policiasOnline}`
-                        )
-                        .setTimestamp()
-                ]
-            });
-        }
-    } else {
-        // Fracaso → asignar rol Warrant
-        for (const id of lista) {
-            try {
-                const member = await interaction.guild.members.fetch(id).catch(() => null);
-                if (member) await member.roles.add(ROL_WARRANT_ID).catch(() => null);
-            } catch {}
-        }
-
-        const menciones = lista.map(id => `<@${id}>`).join(', ');
-        const razonFallo = policiasOnline > 0
-            ? `La policía intervino a tiempo (${policiasOnline} oficial/es en línea).`
-            : 'El plan falló y fueron descubiertos.';
-
-        const embedFallo = new EmbedBuilder()
-            .setColor('#ed4245')
-            .setTitle('<:warn:1534937002695327837> Robo al Banco fallido')
-            .setDescription(
-                `${razonFallo}\n\n` +
-                `• **Participantes:** ${menciones}\n` +
-                `• **Resultado:** Todos recibieron una **Orden de Arresto**\n` +
-                `• **Policías en línea:** ${policiasOnline}\n` +
-                `• **Chance de éxito:** ${chanceExito}%`
-            )
-            .setFooter({
-                text: '00Y4n Comunidad SWFL • Sistema de Economía',
-                iconURL: interaction.guild.iconURL()
-            })
-            .setTimestamp();
-
-        if (channel) await channel.send({ embeds: [embedFallo] });
-
-        if (logsChannel) {
-            await logsChannel.send({
-                embeds: [
-                    new EmbedBuilder()
-                        .setColor('#ed4245')
-                        .setTitle('<:warn:1534937002695327837> Robo al Banco Fallido')
-                        .setDescription(
-                            `> **Líder:** <@${leaderId}>\n` +
-                            `> **Participantes:** ${menciones}\n` +
-                            `> **Motivo:** ${razonFallo}\n` +
-                            `> **Policías online:** ${policiasOnline}`
-                        )
-                        .setTimestamp()
-                ]
-            });
-        }
+        await enviarLog(
+            client,
+            channel.guild,
+            new EmbedBuilder()
+                .setColor('#57f287')
+                .setTitle('Log — Robo al banco EXITOSO')
+                .setDescription(
+                    `> **Participantes:** ${menciones}\n` +
+                        `> **Total:** $${total.toLocaleString('es-AR')}\n` +
+                        `> **Por persona:** $${porPersona.toLocaleString('es-AR')}`
+                )
+                .setTimestamp()
+        );
+        return;
     }
 
-    heistsActivos.delete(interaction.guildId);
+    const embed = new EmbedBuilder()
+        .setColor('#E60404')
+        .setTitle('<:redski:1534988636460683385> Robo al banco fallido')
+        .setDescription(
+            `La alarma se activó o el plan falló. Nadie se lleva el botín.\n\n` +
+                `• **Participantes:** ${menciones}\n` +
+                `• **Chance de éxito:** ${CHANCE_EXITO}%\n` +
+                `• **Cooldown:** 12 horas`
+        )
+        .setTimestamp();
+
+    try {
+        await channel.send({ embeds: [embed] });
+    } catch (_) {}
+
+    await enviarLog(
+        client,
+        channel.guild,
+        new EmbedBuilder()
+            .setColor('#E60404')
+            .setTitle('Log — Robo al banco FALLIDO')
+            .setDescription(`> **Participantes:** ${menciones}\n> **Motivo:** Fallo del plan (sin intervención policial)`)
+            .setTimestamp()
+    );
+}
+
+async function intervenirHeist(interaction) {
+    if (!puedeIntervenir(interaction.member)) {
+        return interaction.reply({
+            content: '❌ Solo **Policía** o **Alto Mando** pueden intervenir un robo al banco.',
+            ephemeral: true
+        });
+    }
+
+    const cdOficial = await estaEnCooldownIntervenir(interaction.user.id);
+    if (cdOficial) {
+        const ts = Math.floor(cdOficial / 1000);
+        return interaction.reply({
+            content: `❌ Todavía estás en cooldown de intervención. Podrás volver a intervenir <t:${ts}:R>.`,
+            ephemeral: true
+        });
+    }
+
+    const guildId = interaction.guildId;
+    const heist = heistsActivos.get(guildId);
+
+    if (!heist) {
+        return interaction.reply({
+            content: '❌ No hay ningún robo al banco activo en este momento.',
+            ephemeral: true
+        });
+    }
+
+    if (heist.fase === 'uniendo') {
+        return interaction.reply({
+            content:
+                '❌ El robo todavía está en fase de **unión**. Solo podés intervenir cuando el equipo ya entró al banco (fase en curso).',
+            ephemeral: true
+        });
+    }
+
+    if (heist.fase !== 'en_curso') {
+        return interaction.reply({
+            content: '❌ Este robo ya no se puede intervenir.',
+            ephemeral: true
+        });
+    }
+
+    limpiarTimers(heist);
+    heistsActivos.delete(guildId);
+
+    const lista = [...heist.participantes];
+    for (const id of lista) {
+        await aplicarCooldown(id);
+    }
+    await aplicarCooldownIntervenir(interaction.user.id);
+
+    const menciones = lista.map((id) => `<@${id}>`).join(', ');
+
+    const embed = new EmbedBuilder()
+        .setColor('#3498db')
+        .setTitle('🚔 Robo frustrado por la policía')
+        .setDescription(
+            `La policía intervino a tiempo y el robo fue **cancelado**.\n\n` +
+                `• **Oficial:** <@${interaction.user.id}>\n` +
+                `• **Sospechosos:** ${menciones}\n` +
+                `• **Botín:** ninguno\n` +
+                `• **Cooldown participantes:** 12 horas`
+        )
+        .setTimestamp();
+
+    await interaction.reply({ embeds: [embed] });
+
+    await enviarLog(
+        interaction.client,
+        interaction.guild,
+        new EmbedBuilder()
+            .setColor('#3498db')
+            .setTitle('Log — Intervención policial (robo al banco)')
+            .setDescription(
+                `> **Oficial:** <@${interaction.user.id}>\n` +
+                    `> **Participantes:** ${menciones}\n` +
+                    `> **Resultado:** Robo cancelado`
+            )
+            .setTimestamp()
+    );
 }
 
 export default {
     data: new SlashCommandBuilder()
         .setName('robar-banco')
-        .setDescription('Organiza o únete a un robo al banco de Sarasota.')
-        .addSubcommand(sub =>
-            sub.setName('iniciar')
-                .setDescription('Inicia un robo al Banco (necesitas 2-3 personas).')
+        .setDescription('Sistema de robo al banco (economía / roleplay).')
+        .addSubcommand((sub) =>
+            sub.setName('iniciar').setDescription('Inicia un robo al banco (necesitas 2-3 personas).')
         )
-        .addSubcommand(sub =>
-            sub.setName('unirse')
-                .setDescription('Únete a un robo al banco activo en este servidor.')
+        .addSubcommand((sub) =>
+            sub.setName('unirse').setDescription('Unite a un robo al banco en curso (fase de unión).')
+        )
+        .addSubcommand((sub) =>
+            sub
+                .setName('intervenir')
+                .setDescription('Policía / Alto Mando: frustra un robo que ya está en curso.')
         ),
 
     async execute(interaction) {
         const sub = interaction.options.getSubcommand();
-        const usuarioId = interaction.user.id;
         const guildId = interaction.guildId;
+        const usuarioId = interaction.user.id;
 
-        // ─── INICIAR ───
+        if (sub === 'intervenir') {
+            return intervenirHeist(interaction);
+        }
+
         if (sub === 'iniciar') {
-            // Cooldown
             const cooldown = await estaEnCooldown(usuarioId);
             if (cooldown) {
                 const ts = Math.floor(cooldown / 1000);
                 return interaction.reply({
-                    content: `<:lock:1534938648665915577> Todavía estás en cooldown de robar el banco. Podrás volver a participar <t:${ts}:R>.`,
+                    content: `<:lock:1523041298796384418> Todavía estás en cooldown de robar el banco. Podrás volver a participar <t:${ts}:R>.`,
                     ephemeral: true
                 });
             }
 
-            // Ya hay un heist activo
             if (heistsActivos.has(guildId)) {
                 return interaction.reply({
-                    content: '❌ Ya hay un robo al banco en curso en este servidor. Usá `/robar-banco unirse` para sumarte.',
+                    content:
+                        '❌ Ya hay un robo al banco en este servidor. Usá `/robar-banco unirse` si está en fase de unión, o esperá a que termine.',
                     ephemeral: true
                 });
             }
 
-            // Crear heist
             const heist = {
-                leaderId: usuarioId,
                 participantes: new Set([usuarioId]),
                 channelId: interaction.channelId,
-                expiresAt: Date.now() + TIEMPO_UNION_MS
+                leaderId: usuarioId,
+                fase: 'uniendo',
+                timeoutUnion: null,
+                timeoutRobo: null
             };
             heistsActivos.set(guildId, heist);
 
+            const finUnion = Math.floor((Date.now() + TIEMPO_UNION_MS) / 1000);
+
             const embed = new EmbedBuilder()
-                .setColor('#74d4fc')
-                .setTitle('<:redski:1534988636460683385> Robo al Banco iniciado – Banco de Sarasota')
+                .setColor('#f1c40f')
+                .setTitle('<:redski:1534988636460683385> Robo al banco iniciado')
                 .setDescription(
-                    `<@${usuarioId}> está organizando un **robo al banco**.\n\n` +
-                    `• **Participantes:** 1/${MAX_PERSONAS}\n` +
-                    `• **Mínimo requerido:** ${MIN_PERSONAS}\n` +
-                    `• **Tiempo para unirse:** 80 segundos\n` +
-                    `• **Recompensa:** $10.000 – $25.000 (dividido)\n` +
-                    `• **Riesgo:** 40% de fallo → Orden de Arresto\n\n` +
-                    `Usá \`/robar-banco unirse\` para sumarte.`
+                    `<@${usuarioId}> inició un robo al banco.\n\n` +
+                        `• **Participantes:** 1/${MAX_PERSONAS}\n` +
+                        `• **Mínimo requerido:** ${MIN_PERSONAS}\n` +
+                        `• **Tiempo para unirse:** termina <t:${finUnion}:R>\n` +
+                        `• **Después:** el robo entra en curso y la policía puede \`/robar-banco intervenir\`\n\n` +
+                        `Usá \`/robar-banco unirse\` para sumarte.`
                 )
-                .setFooter({
-                    text: '00Y4n Comunidad SWFL • Sistema de Economía',
-                    iconURL: interaction.guild.iconURL()
-                })
                 .setTimestamp();
 
             await interaction.reply({ embeds: [embed] });
 
-            // Timer de 80 segundos
-            setTimeout(async () => {
+            heist.timeoutUnion = setTimeout(async () => {
                 const actual = heistsActivos.get(guildId);
-                if (!actual) return;
-
-                if (actual.participantes.size < MIN_PERSONAS) {
+                if (!actual || actual.fase !== 'uniendo') return;
+                const channel = await interaction.client.channels.fetch(actual.channelId).catch(() => null);
+                if (!channel) {
                     heistsActivos.delete(guildId);
-                    try {
-                        const channel = interaction.guild.channels.cache.get(actual.channelId);
-                        if (channel) {
-                            await channel.send({
-                                content: '❌ El robo fue **cancelado**: no se alcanzó el mínimo de 2 personas.'
-                            });
-                        }
-                    } catch {}
                     return;
                 }
-
-                // Resolver el heist
-                await resolverHeist(interaction, actual);
+                await iniciarFaseRobo(interaction.client, guildId, channel);
             }, TIEMPO_UNION_MS);
 
             return;
         }
 
-        // ─── UNIRSE ───
         if (sub === 'unirse') {
             const heist = heistsActivos.get(guildId);
 
             if (!heist) {
                 return interaction.reply({
-                    content: '❌ No hay ningún robo al banco activo en este momento. Usá `/robar-banco iniciar` para comenzar uno.',
+                    content:
+                        '❌ No hay ningún robo al banco activo. Usá `/robar-banco iniciar` para comenzar uno.',
                     ephemeral: true
                 });
             }
 
-            // Cooldown
+            if (heist.fase !== 'uniendo') {
+                return interaction.reply({
+                    content:
+                        '❌ El robo ya no acepta más integrantes (ya está en curso o finalizó).',
+                    ephemeral: true
+                });
+            }
+
             const cooldown = await estaEnCooldown(usuarioId);
             if (cooldown) {
                 const ts = Math.floor(cooldown / 1000);
                 return interaction.reply({
-                    content: `<:lock:1534938648665915577> Todavía estás en cooldown de robar el banco. Podrás volver a participar <t:${ts}:R>.`,
+                    content: `<:lock:1523041298796384418> Todavía estás en cooldown de robar el banco. Podrás volver a participar <t:${ts}:R>.`,
                     ephemeral: true
                 });
             }
 
-            // Ya está adentro
             if (heist.participantes.has(usuarioId)) {
                 return interaction.reply({
                     content: '❌ Ya estás participando de este robo.',
@@ -302,7 +394,6 @@ export default {
                 });
             }
 
-            // Lleno
             if (heist.participantes.size >= MAX_PERSONAS) {
                 return interaction.reply({
                     content: '❌ El robo al banco ya está completo (máximo 3 personas).',
@@ -310,36 +401,32 @@ export default {
                 });
             }
 
-            // Unirse
             heist.participantes.add(usuarioId);
             const cantidad = heist.participantes.size;
-
-            const menciones = [...heist.participantes].map(id => `<@${id}>`).join(', ');
+            const menciones = [...heist.participantes].map((id) => `<@${id}>`).join(', ');
 
             const embed = new EmbedBuilder()
                 .setColor('#f1c40f')
                 .setTitle('<:redski:1534988636460683385> Alguien se unió al robo')
                 .setDescription(
                     `<@${usuarioId}> se sumó al robo.\n\n` +
-                    `• **Participantes (${cantidad}/${MAX_PERSONAS}):** ${menciones}\n` +
-                    `• **Tiempo restante:** unos segundos...`
+                        `• **Participantes (${cantidad}/${MAX_PERSONAS}):** ${menciones}`
                 )
-                .setFooter({
-                    text: '00Y4n Comunidad SWFL • Sistema de Economía',
-                    iconURL: interaction.guild.iconURL()
-                })
                 .setTimestamp();
 
             await interaction.reply({ embeds: [embed] });
 
-            // Si se llenó (3), resolver inmediatamente
             if (cantidad >= MAX_PERSONAS) {
-                // Pequeña espera para que se vea el mensaje de unión
                 setTimeout(async () => {
                     const actual = heistsActivos.get(guildId);
-                    if (actual) await resolverHeist(interaction, actual);
+                    if (!actual || actual.fase !== 'uniendo') return;
+                    const channel = await interaction.client.channels
+                        .fetch(actual.channelId)
+                        .catch(() => null);
+                    if (!channel) return;
+                    await iniciarFaseRobo(interaction.client, guildId, channel);
                 }, 1500);
             }
         }
-    },
+    }
 };
