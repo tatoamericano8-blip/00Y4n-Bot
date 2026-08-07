@@ -15,6 +15,7 @@ const ROLES_VIP_IDS = [
     '1512120103771050005', // ID del Rol: Equipo de Staff
     '1503769793474597027',  // ID del Rol: FastPass
     '1530287573547880581'  // ID del Rol: Ciudadano Del Día
+    '1529147327078469781'  // ID del Rol: Servicios Públicos
 ];
 
 export default {
