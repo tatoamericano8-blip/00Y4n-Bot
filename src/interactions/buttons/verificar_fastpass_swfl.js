@@ -3,7 +3,8 @@ import Sesion from '../../../models/Session.js';
 const ROLES_VIP_IDS = [
     '1512120103771050005', // Equipo de Staff
     '1503769793474597027', // FastPass
-    '1530287573547880581'  // Ciudadano Del Día
+    '1530287573547880581', // Ciudadano Del Día
+    '1529147327078469781'  // Servicios Públicos
 ];
 
 async function obtenerMensajeInicio(interaction, idInicio) {
@@ -76,7 +77,7 @@ export default {
         if (!tieneRolVip) {
             return interaction.editReply({
                 content:
-                    '❌ **No tenés acceso:** Este botón es exclusivo para miembros con **FastPass**, **Staff** o **Ciudadano del Día**.'
+                    '❌ **No tenés acceso:** Este botón es exclusivo para miembros con **FastPass**, **Staff**, **Ciudadano del Día** o **Servicios Públicos**.'
             });
         }
 

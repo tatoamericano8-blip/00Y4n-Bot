@@ -10,12 +10,12 @@ const EMOJIS = {
 // Memoria global para guardar los links de FastPass en secreto
 global.coleccionFastPass = global.coleccionFastPass || new Map();
 
-// 🆔 CONFIGURACIÓN DE ROLES (Poné acá las 2 IDs reales de tu servidor)
+// IDs de roles con acceso a FastPass
 const ROLES_VIP_IDS = [
-    '1512120103771050005', // ID del Rol: Equipo de Staff
-    '1503769793474597027',  // ID del Rol: FastPass
-    '1530287573547880581'  // ID del Rol: Ciudadano Del Día
-    '1529147327078469781'  // ID del Rol: Servicios Públicos
+    '1512120103771050005', // Equipo de Staff
+    '1503769793474597027', // FastPass
+    '1530287573547880581', // Ciudadano Del Día
+    '1529147327078469781'  // Servicios Públicos
 ];
 
 export default {
@@ -39,31 +39,31 @@ export default {
     },
 
     async execute(interaction) {
-        // 🔒 SEGURIDAD: Solo el Staff con permiso de Gestionar Mensajes puede lanzar esto
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
-            return await interaction.reply({ 
-                content: '❌ **No tienes permisos:** Solo el Staff puede habilitar el FastPass.', 
-                ephemeral: true 
+            return await interaction.reply({
+                content: '❌ **No tienes permisos:** Solo el Staff puede habilitar el FastPass.',
+                ephemeral: true
             });
         }
 
         const linkSesion = interaction.options.getString('acceso');
         const fotoAdjunta = interaction.options.getAttachment('imagen');
 
-        // Armamos la cadena de menciones de roles usando las 2 IDs configuradas arriba
         const mencionesRoles = ROLES_VIP_IDS.map(id => `<@&${id}>`).join(' ');
 
-        // Embed con estética 00Y4n
         const embedFastPass = new EmbedBuilder()
             .setTitle(`<a:explosionfloral:1534954231138746488> __FastPass de la Sesión__ <a:explosionfloral:1534954231138746488>`)
-            .setDescription(`<:punto:1534938142665084938> El FastPass ha sido **liberado para la sesión**. Los miembros que adquirieron su pase de FastPass y el Equipo de Staff ya pueden unirse utilizando el botón de abajo.\n\n*Compartir este enlace resultará en la revocación permanente de tus permisos de FastPass.*\n\n<:flecha:1534937306191102125> ¿Quieres unirte antes que el resto? Adquiere tu pase de **FastPass** correspondiente en el canal de beneficios del servidor.`)
-            .setColor('#74d4fc'); // Tu naranja insignia
+            .setDescription(
+                `<:punto:1534938142665084938> El FastPass ha sido **liberado para la sesión**. Los miembros que adquirieron su pase de FastPass y el Equipo de Staff ya pueden unirse utilizando el botón de abajo.\n\n` +
+                `*Compartir este enlace resultará en la revocación permanente de tus permisos de FastPass.*\n\n` +
+                `<:flecha:1534937306191102125> ¿Quieres unirte antes que el resto? Adquiere tu pase de **FastPass** correspondiente en el canal de beneficios del servidor.`
+            )
+            .setColor('#74d4fc');
 
-        // 🖼️ Imagen por defecto
-        const urlPredeterminada = 'https://cdn.discordapp.com/attachments/1505017301089652898/1534992730978123787/FastPass_1.png?ex=6a7624e1&is=6a74d361&hm=995fabc8183cbb5501958a8427acdcbb02eb96663c89f4bcb4706e8f7aba5313&'; 
+        const urlPredeterminada =
+            'https://cdn.discordapp.com/attachments/1505017301089652898/1534992730978123787/FastPass_1.png';
         embedFastPass.setImage(fotoAdjunta ? fotoAdjunta.url : urlPredeterminada);
 
-        // Botón gris estático
         const filaComponentes = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('verificar_fastpass_swfl')
@@ -74,14 +74,12 @@ export default {
 
         await interaction.reply({ content: 'Lanzando el anuncio de FastPass restringido...', ephemeral: true });
 
-        // Enviamos las menciones y el embed
-        const msgFastPass = await interaction.channel.send({ 
-            content: mencionesRoles, 
-            embeds: [embedFastPass], 
-            components: [filaComponentes] 
+        const msgFastPass = await interaction.channel.send({
+            content: mencionesRoles,
+            embeds: [embedFastPass],
+            components: [filaComponentes]
         });
 
-        // Guardamos el link indexado
         global.coleccionFastPass.set(msgFastPass.id, linkSesion);
     }
 };
