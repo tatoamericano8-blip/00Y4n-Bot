@@ -47,11 +47,11 @@ export default {
                     if (guild.id === GUILD_00Y4N && canEmbed) {
                         const embedBienvenida = new EmbedBuilder()
                             .setColor(PRIMARIO)
-                            .setTitle('__Bienvenido/a a Southwest Florida Comunidad 00Y4n ™__')
+                            .setTitle('<a:nubes:1534940454876086393> __Bienvenido/a a Southwest Florida Comunidad 00Y4n ™__ <a:nubes:1534940454876086393>')
                             .setDescription(
-                                `Bienvenido/a a **Southwest Florida Comunidad 00Y4n ™**.\n\n` +
+                                `<:dot:1534938142665084938> Bienvenido/a a **Southwest Florida Comunidad 00Y4n ™**.\n\n` +
                                 `Para convertirte en ciudadano y obtener acceso al servidor, verifica tu cuenta en <#1512614400413139045> y lee las **Reglas** y las **Directrices** del servidor.\n\n` +
-                                `-# **¿Necesitas ayuda?** Contacta a un miembro de __Alto Comando__ y te asistirán.`
+                                `-# <:replica:1534982812116062370> **¿Necesitas ayuda?** Contacta a un miembro de __Alto Comando__ y te asistirán.`
                             )
                             .setImage(IMAGEN_BIENVENIDA)
                             .setTimestamp();
