@@ -11,6 +11,7 @@ import { PRIMARIO } from '../utils/colores.js';
 
 /** Bienvenida personalizada 00Y4n (Southwest Florida) */
 const GUILD_00Y4N = '1451939725308067842';
+const CHANNEL_BIENVENIDA = '1451942119827570830';
 const IMAGEN_BIENVENIDA =
     'https://cdn.discordapp.com/attachments/1451942179877687399/1535772044321624185/Bienvenida_1.png';
 
@@ -24,16 +25,22 @@ export default {
 
         const config = await getGuildConfig(member.client, guild.id);
         const welcomeConfig = await getWelcomeConfig(member.client, guild.id);
-        const welcomeChannelId = welcomeConfig?.channelId;
 
-        if (welcomeConfig?.enabled && welcomeChannelId) {
-            const channel = guild.channels.cache.get(welcomeChannelId);
+        // 00Y4n: siempre canal fijo. Otros guilds: config del bot.
+        const welcomeChannelId =
+            guild.id === GUILD_00Y4N
+                ? CHANNEL_BIENVENIDA
+                : (welcomeConfig?.enabled ? welcomeConfig?.channelId : null);
+
+        if (welcomeChannelId) {
+            const channel =
+                guild.channels.cache.get(welcomeChannelId) ||
+                (await guild.channels.fetch(welcomeChannelId).catch(() => null));
+
             if (channel?.isTextBased?.()) {
                 const me = guild.members.me;
                 const permissions = me ? channel.permissionsFor(me) : null;
-                if (!permissions?.has([PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages])) {
-                    // sin permisos en el canal de bienvenida
-                } else {
+                if (permissions?.has([PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages])) {
                     const canEmbed = permissions.has(PermissionFlagsBits.EmbedLinks);
                     const messageContent = user.toString();
 
@@ -53,13 +60,13 @@ export default {
                             content: messageContent,
                             embeds: [embedBienvenida]
                         });
-                    } else if (!canEmbed) {
+                    } else if (guild.id === GUILD_00Y4N && !canEmbed) {
                         await channel.send({
                             content:
                                 messageContent +
                                 '\nBienvenido/a a **Southwest Florida Comunidad 00Y4n ™**. Verifica tu cuenta y lee las reglas del servidor.'
                         });
-                    } else {
+                    } else if (welcomeConfig?.enabled && canEmbed) {
                         const formatData = { user, guild, member };
                         const welcomeMessage = formatWelcomeMessage(
                             welcomeConfig.welcomeMessage || welcomeConfig.welcomeEmbed?.description || 'Welcome {user} to {server}!',
