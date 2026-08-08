@@ -40,11 +40,11 @@ export default {
                     if (guild.id === GUILD_00Y4N && canEmbed) {
                         const embedBienvenida = new EmbedBuilder()
                             .setColor(PRIMARIO)
-                            .setTitle('Bienvenido/a a Southwest Florida | 00Y4n')
+                            .setTitle('__Bienvenido/a a Southwest Florida Comunidad 00Y4n ™__')
                             .setDescription(
-                                `Bienvenido/a a **Southwest Florida Comunidad 00Y4n**.\n\n` +
-                                `Para convertirte en civil y obtener acceso al servidor, verifica tu cuenta y lee las **Reglas** y las **Directrices** del servidor.\n\n` +
-                                `¿Necesitas ayuda? Contacta a un miembro de **Alto Comando** y te asistirán.`
+                                `Bienvenido/a a **Southwest Florida Comunidad 00Y4n ™**.\n\n` +
+                                `Para convertirte en ciudadano y obtener acceso al servidor, verifica tu cuenta en <#1512614400413139045> y lee las **Reglas** y las **Directrices** del servidor.\n\n` +
+                                `-# **¿Necesitas ayuda?** Contacta a un miembro de __Alto Comando__ y te asistirán.`
                             )
                             .setImage(IMAGEN_BIENVENIDA)
                             .setTimestamp();
@@ -57,7 +57,7 @@ export default {
                         await channel.send({
                             content:
                                 messageContent +
-                                '\nBienvenido/a a **Southwest Florida Comunidad 00Y4n**. Verifica tu cuenta y lee las reglas del servidor.'
+                                '\nBienvenido/a a **Southwest Florida Comunidad 00Y4n ™**. Verifica tu cuenta y lee las reglas del servidor.'
                         });
                     } else {
                         const formatData = { user, guild, member };
