@@ -7,19 +7,23 @@ import { logEvent, EVENT_TYPES } from '../services/loggingService.js';
 import { getServerCounters, updateCounter } from '../services/serverstatsService.js';
 import { setBirthday as dbSetBirthday } from '../utils/database.js';
 import { logger } from '../utils/logger.js';
+import { PRIMARIO } from '../utils/colores.js';
+
+/** Bienvenida personalizada 00Y4n (Southwest Florida) */
+const GUILD_00Y4N = '1451939725308067842';
+const IMAGEN_BIENVENIDA =
+    'https://cdn.discordapp.com/attachments/1451942179877687399/1535772044321624185/Bienvenida_1.png';
 
 export default {
   name: Events.GuildMemberAdd,
   once: false,
-  
+
   async execute(member) {
     try {
         const { guild, user } = member;
-        
+
         const config = await getGuildConfig(member.client, guild.id);
-        
         const welcomeConfig = await getWelcomeConfig(member.client, guild.id);
-        
         const welcomeChannelId = welcomeConfig?.channelId;
 
         if (welcomeConfig?.enabled && welcomeChannelId) {
@@ -28,85 +32,94 @@ export default {
                 const me = guild.members.me;
                 const permissions = me ? channel.permissionsFor(me) : null;
                 if (!permissions?.has([PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages])) {
-                    return;
-                }
-
-                const formatData = { user, guild, member };
-                const welcomeMessage = formatWelcomeMessage(
-                    welcomeConfig.welcomeMessage || welcomeConfig.welcomeEmbed?.description || 'Welcome {user} to {server}!',
-                    formatData
-                );
-
-                const messageContent = welcomeConfig.welcomePing ? user.toString() : null;
-
-                const embedTitle = formatWelcomeMessage(
-                    welcomeConfig.welcomeEmbed?.title || '🎉 Welcome!',
-                    formatData
-                );
-                const embedFooter = welcomeConfig.welcomeEmbed?.footer
-                    ? formatWelcomeMessage(welcomeConfig.welcomeEmbed.footer, formatData)
-                    : `Welcome to ${guild.name}!`;
-
-                const canEmbed = permissions.has(PermissionFlagsBits.EmbedLinks);
-
-                if (!canEmbed) {
-                    await channel.send({
-                        content: messageContent || welcomeMessage
-                    });
+                    // sin permisos en el canal de bienvenida
                 } else {
-                    const embed = new EmbedBuilder()
-                        .setColor(welcomeConfig.welcomeEmbed?.color || getColor('success'))
-                        .setTitle(embedTitle)
-                        .setDescription(welcomeMessage)
-                        .setThumbnail(user.displayAvatarURL())
-                        .addFields(
-                            { name: 'User', value: `${user.tag} (${user.id})`, inline: true },
-                            { name: 'Member Count', value: guild.memberCount.toString(), inline: true }
-                        )
-                        .setTimestamp()
-                        .setFooter({ text: embedFooter });
-                    
-                    if (welcomeConfig.welcomeImage) {
-                        embed.setImage(welcomeConfig.welcomeImage);
-                    } else if (welcomeConfig.welcomeEmbed?.image?.url) {
-                        embed.setImage(welcomeConfig.welcomeEmbed.image.url);
+                    const canEmbed = permissions.has(PermissionFlagsBits.EmbedLinks);
+                    const messageContent = user.toString();
+
+                    if (guild.id === GUILD_00Y4N && canEmbed) {
+                        const embedBienvenida = new EmbedBuilder()
+                            .setColor(PRIMARIO)
+                            .setTitle('Bienvenido/a a Southwest Florida | 00Y4n')
+                            .setDescription(
+                                `Bienvenido/a a **Southwest Florida Comunidad 00Y4n**.\n\n` +
+                                `Para convertirte en civil y obtener acceso al servidor, verifica tu cuenta y lee las **Reglas** y las **Directrices** del servidor.\n\n` +
+                                `¿Necesitas ayuda? Contacta a un miembro de **Alto Comando** y te asistirán.`
+                            )
+                            .setImage(IMAGEN_BIENVENIDA)
+                            .setTimestamp();
+
+                        await channel.send({
+                            content: messageContent,
+                            embeds: [embedBienvenida]
+                        });
+                    } else if (!canEmbed) {
+                        await channel.send({
+                            content:
+                                messageContent +
+                                '\nBienvenido/a a **Southwest Florida Comunidad 00Y4n**. Verifica tu cuenta y lee las reglas del servidor.'
+                        });
+                    } else {
+                        const formatData = { user, guild, member };
+                        const welcomeMessage = formatWelcomeMessage(
+                            welcomeConfig.welcomeMessage || welcomeConfig.welcomeEmbed?.description || 'Welcome {user} to {server}!',
+                            formatData
+                        );
+                        const embedTitle = formatWelcomeMessage(
+                            welcomeConfig.welcomeEmbed?.title || 'Welcome!',
+                            formatData
+                        );
+                        const embedFooter = welcomeConfig.welcomeEmbed?.footer
+                            ? formatWelcomeMessage(welcomeConfig.welcomeEmbed.footer, formatData)
+                            : `Welcome to ${guild.name}!`;
+
+                        const embed = new EmbedBuilder()
+                            .setColor(welcomeConfig.welcomeEmbed?.color || getColor('success'))
+                            .setTitle(embedTitle)
+                            .setDescription(welcomeMessage)
+                            .setThumbnail(user.displayAvatarURL())
+                            .addFields(
+                                { name: 'User', value: `${user.tag} (${user.id})`, inline: true },
+                                { name: 'Member Count', value: guild.memberCount.toString(), inline: true }
+                            )
+                            .setTimestamp()
+                            .setFooter({ text: embedFooter });
+
+                        if (welcomeConfig.welcomeImage) {
+                            embed.setImage(welcomeConfig.welcomeImage);
+                        } else if (welcomeConfig.welcomeEmbed?.image?.url) {
+                            embed.setImage(welcomeConfig.welcomeEmbed.image.url);
+                        }
+
+                        await channel.send({
+                            content: welcomeConfig.welcomePing ? messageContent : null,
+                            embeds: [embed]
+                        });
                     }
-                    
-                    await channel.send({ 
-                        content: messageContent,
-                        embeds: [embed] 
-                    });
                 }
             }
         }
-        
+
         if (welcomeConfig?.roleIds && welcomeConfig.roleIds.length > 0) {
             const delay = welcomeConfig.autoRoleDelay || 0;
             const singleRoleId = welcomeConfig.roleIds[0];
-            
+
             if (delay > 0) {
                 const timeout = setTimeout(async () => {
                     const role = guild.roles.cache.get(singleRoleId);
-                    if (role) {
-                        await assignRoleSafely(member, role);
-                    }
+                    if (role) await assignRoleSafely(member, role);
                 }, delay * 1000);
-                if (typeof timeout.unref === 'function') {
-                    timeout.unref();
-                }
+                if (typeof timeout.unref === 'function') timeout.unref();
             } else {
                 const role = guild.roles.cache.get(singleRoleId);
-                if (role) {
-                    await assignRoleSafely(member, role);
-                }
+                if (role) await assignRoleSafely(member, role);
             }
         }
-        
+
         if (config?.verification?.enabled || config?.verification?.autoVerify?.enabled) {
             await handleVerification(member, guild, config.verification, member.client);
         }
 
-        
         try {
             await logEvent({
                 client: member.client,
@@ -116,18 +129,10 @@ export default {
                     description: `${user.tag} joined the server`,
                     userId: user.id,
                     fields: [
+                        { name: 'Member', value: `${user.tag} (${user.id})`, inline: true },
+                        { name: 'Member Count', value: guild.memberCount.toString(), inline: true },
                         {
-                            name: '👤 Member',
-                            value: `${user.tag} (${user.id})`,
-                            inline: true
-                        },
-                        {
-                            name: '👥 Member Count',
-                            value: guild.memberCount.toString(),
-                            inline: true
-                        },
-                        {
-                            name: '📅 Account Created',
+                            name: 'Account Created',
                             value: `<t:${Math.floor(user.createdTimestamp / 1000)}:R>`,
                             inline: true
                         }
@@ -137,8 +142,7 @@ export default {
         } catch (error) {
             logger.debug('Error logging member join:', error);
         }
-        
-        
+
         try {
             const counters = await getServerCounters(member.client, guild.id);
             for (const counter of counters) {
@@ -149,8 +153,7 @@ export default {
         } catch (error) {
             logger.debug('Error updating counters on member join:', error);
         }
-        
-        // Restore birthday data if the member previously left
+
         try {
             const backupKey = `guild:${guild.id}:birthdays:left`;
             const backup = (await member.client.db.get(backupKey)) || {};
@@ -164,7 +167,6 @@ export default {
         } catch (error) {
             logger.debug('Error restoring birthday on member join:', error);
         }
-        
     } catch (error) {
         logger.error('Error in guildMemberAdd event:', error);
     }
@@ -173,10 +175,10 @@ export default {
 
 async function handleVerification(member, guild, verificationConfig, client) {
     const { autoVerifyOnJoin } = await import('../services/verificationService.js');
-    
+
     try {
         const result = await autoVerifyOnJoin(client, guild, member, verificationConfig);
-        
+
         if (result.autoVerified) {
             logger.info('User auto-verified on join', {
                 guildId: guild.id,
@@ -192,7 +194,6 @@ async function handleVerification(member, guild, verificationConfig, client) {
                 reason: result.reason
             });
         }
-
     } catch (error) {
         logger.error('Error in auto-verification for member', {
             guildId: guild.id,
@@ -210,6 +211,3 @@ async function assignRoleSafely(member, role) {
         logger.warn(`Failed to assign role ${role.id} to member ${member.id}:`, error);
     }
 }
-
-
-
