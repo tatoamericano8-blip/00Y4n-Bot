@@ -24,22 +24,22 @@ function esURLValida(cadena) {
 export default {
     data: new SlashCommandBuilder()
         .setName('reinvitaciones')
-        .setDescription('Envía el aviso de reinvitaciones y libera los accesos al alcanzar las reacciones requeridas.')
+        .setDescription('Envia el aviso de reinvitaciones y libera los accesos al alcanzar las reacciones requeridas.')
         .addIntegerOption(option =>
             option.setName('reacciones')
                 .setDescription('Cantidad de reacciones requeridas para habilitar las reinvitaciones.')
                 .setRequired(true))
         .addStringOption(option =>
             option.setName('acceso')
-                .setDescription('Enlace del servidor privado de Roblox para la reinvitación.')
+                .setDescription('Enlace del servidor privado de Roblox para la reinvitacion.')
                 .setRequired(true))
         .addStringOption(option =>
             option.setName('id_inicio')
-                .setDescription('ID del mensaje de Lanzamiento/Inicio de la sesión (Opcional, se autodetecta).')
+                .setDescription('ID del mensaje de Lanzamiento/Inicio de la sesion (Opcional, se autodetecta).')
                 .setRequired(false))
         .addStringOption(option =>
             option.setName('emoji')
-                .setDescription('El emoji con el que reaccionará el bot (por defecto: ✔️).')
+                .setDescription('El emoji con el que reaccionara el bot (por defecto: ✔️).')
                 .setRequired(false)),
 
     async execute(interaction) {
@@ -58,7 +58,6 @@ export default {
         let sesionData = null;
         let targetIdInicio = idInicioManual || null;
 
-        // 1. Buscar en memoria global
         if (!targetIdInicio) {
             for (const [, data] of global.coleccionSesiones.entries()) {
                 if (data.guildId === interaction.guildId && (data.tipo === 'rp' || data.tipo === 'meet')) {
@@ -68,7 +67,6 @@ export default {
             }
         }
 
-        // 2. Buscar en MongoDB
         if (!sesionData) {
             try {
                 let doc = null;
@@ -97,7 +95,7 @@ export default {
 
         if (!esURLValida(linkSesion)) {
             return await interaction.reply({
-                content: `<:cruz00y4n:1534937767652495360> **Enlace inválido:** El enlace proporcionado (\`${rawLink}\`) no es una URL válida.`,
+                content: `<:cruz00y4n:1534937767652495360> **Enlace invalido:** El enlace proporcionado (\`${rawLink}\`) no es una URL valida.`,
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -114,14 +112,14 @@ export default {
 
         const embedReinvitacion = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<a:esp:1534954134732804308> Reinvitaciones de la Sesión <a:esp:1534954134732804308>')
+            .setTitle('<a:esp:1534954134732804308> Reinvitaciones de la Sesion <a:esp:1534954134732804308>')
             .setDescription(
-                `¡Reaccioná a este mensaje para solicitar tu reinvitación!\n` +
-                `Las reinvitaciones se liberarán automáticamente una vez alcanzada la meta de reacciones.\n\n` +
+                `¡Reacciona a este mensaje para solicitar tu reinvitacion!\n` +
+                `Las reinvitaciones se liberaran automaticamente una vez alcanzada la meta de reacciones.\n\n` +
                 `<:dot:1534938142665084938> **Reacciones requeridas:** \`${reaccionesRequeridas}\` ${emojiInput}`
             )
             .addFields({
-                name: '<:fle:1534937306191102125> Última Regeneración',
+                name: '<:fle:1534937306191102125> Ultima Regeneracion',
                 value: `El enlace fue actualizado a las **${horaFormateada}** (<t:${timestampDiscord}:t>)`,
                 inline: false
             })
@@ -129,7 +127,7 @@ export default {
             .setTimestamp();
 
         await interaction.reply({
-            content: '<a:corasdandovueltas:1534939964150907000> **@here** ¡Atención a las reinvitaciones de la sesión!',
+            content: '<a:corasdandovueltas:1534939964150907000> **@here** ¡Atencion a las reinvitaciones de la sesion!',
             embeds: [embedReinvitacion],
             allowedMentions: { parse: ['everyone', 'roles', 'users'] }
         });
@@ -139,7 +137,7 @@ export default {
         try {
             await mensajeEnviado.react(emojiInput);
         } catch (reactError) {
-            console.error('Error al reaccionar al mensaje de reinvitación:', reactError);
+            console.error('Error al reaccionar al mensaje de reinvitacion:', reactError);
             try {
                 await mensajeEnviado.react('✔️');
             } catch {}
@@ -169,7 +167,7 @@ export default {
                 try {
                     await mensajeEnviado.delete();
                 } catch (error) {
-                    console.error('Error al eliminar mensaje de reinvitación:', error);
+                    console.error('Error al eliminar mensaje de reinvitacion:', error);
                 }
 
                 const horaRelease = new Date().toLocaleTimeString('es-AR', {
@@ -180,7 +178,6 @@ export default {
                 });
                 const timestampRelease = Math.floor(Date.now() / 1000);
 
-                // Refrescar sesión por si se asignó co-host después
                 try {
                     if (targetIdInicio) {
                         const docFresh = await Sesion.findOne({ idInicio: targetIdInicio });
@@ -201,33 +198,32 @@ export default {
                     datosExtraSesion =
                         `> <:tres:1535001243204718612> **Estado de Peacetime:** ${sesionData.peacetime || 'No especificado'}\n` +
                         `> <:cuatro:1534938460228550857> **Velocidad de Fail Roleplay:** ${limiteVel}\n` +
-                        `> <:cinco:1534938284218777630> **Co-Host de la Sesión:** ${textoCohost}\n` +
-                        `> <:replica:1534982812116062370> Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n`;
+                        `> <:cinco:1534938284218777630> **Co-Host de la Sesion:** ${textoCohost}\n` +
+                        `> <:replica:1534982812116062370> Las velocidades de detencion son **+6 MPH** sobre el limite de velocidad establecido.\n`;
                 } else if (sesionData?.tipo === 'meet') {
                     tituloEmbed = '<a:mariquieta:1534954231138746488> Southwest Florida – ***__Reinvitaciones Car Meet Liberadas__*** <a:mariquieta:1534954231138746488>';
                     datosExtraSesion =
-                        `> <:tres:1535001243204718612> **Temática del Meet:** ${sesionData.tematica || 'No especificada'}\n` +
+                        `> <:tres:1535001243204718612> **Tematica del Meet:** ${sesionData.tematica || 'No especificada'}\n` +
                         `> <:cuatro:1534938460228550857> **Lugar Actual:** ${sesionData.ubicacion || 'No especificado'}\n` +
-                        `> <:cinco:1534938284218777630> **Spots / Duración:** ${sesionData.spots || 'No especificado'}\n` +
-                        `> <:seis:1535001326927220919> **Co-Host de la Sesión:** ${textoCohost}\n` +
-                        `> <:flechareplica:1534982812116062370> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n`;
+                        `> <:cinco:1534938284218777630> **Spots / Duracion:** ${sesionData.spots || 'No especificado'}\n` +
+                        `> <:seis:1535001326927220919> **Co-Host de la Sesion:** ${textoCohost}\n` +
+                        `> <:flechareplica:1534982812116062370> Los vehiculos deben ingresar __despacio__ al lugar actual del meet.\n`;
                 } else {
-                    // Sesión genérica: igual mostrar co-host si existe
                     datosExtraSesion =
-                        `> <:cuatro:1534938460228550857> **Co-Host de la Sesión:** ${textoCohost}\n`;
+                        `> <:cuatro:1534938460228550857> **Co-Host de la Sesion:** ${textoCohost}\n`;
                 }
 
                 const infoDescripcion =
-                    `> <a:flecha:1534939368035324125> <@${interaction.user.id}> **¡ha lanzado las reinvitaciones de la sesión!** Se ha alcanzado la meta de reacciones requeridas. Podés unirte al servidor utilizando el botón de abajo.\n\n` +
-                    `<:manual:1534999731019972671> **Información de la Reinvitación**\n\n` +
+                    `> <a:flecha:1534939368035324125> <@${interaction.user.id}> **¡ha lanzado las reinvitaciones de la sesion!** Se ha alcanzado la meta de reacciones requeridas. Podes unirte al servidor utilizando el boton de abajo.\n\n` +
+                    `<:manual:1534999731019972671> **Informacion de la Reinvitacion**\n\n` +
                     `> <:uno:1534938872977297559> **Reacciones Alcanzadas:** \`${reaccionesRequeridas} / ${reaccionesRequeridas}\` \n` +
-                    `> <:dos:1535001133729447987> **Hora de Liberación:** **${horaRelease}** (<t:${timestampRelease}:t>)\n` +
+                    `> <:dos:1535001133729447987> **Hora de Liberacion:** **${horaRelease}** (<t:${timestampRelease}:t>)\n` +
                     datosExtraSesion +
                     `\n<:manual:1534999731019972671> **Antes de Unirte**\n\n` +
-                    `> <:dot:1534938142665084938> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-                    `> <:dot:1534938142665084938> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399/1536059852432867412) & [vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1536064730223874132).\n` +
-                    `> <:dot:1534938142665084938> Registra tus vehículos en <#1505615426305130657>!\n\n` +
-                    `-# <a:adv:1534939309235376328> *¡Ingresá de inmediato antes de que el servidor vuelva a completarse!*`;
+                    `> <:dot:1534938142665084938> Asegurate de estar verificado [aqui](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+                    `> <:dot:1534938142665084938> Lee la [informacion](https://discord.com/channels/1451939725308067842/1451942179877687399/1536059852432867412) & [vehiculos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1536064730223874132).\n` +
+                    `> <:dot:1534938142665084938> Registra tus vehiculos en <#1505615426305130657>!\n\n` +
+                    `-# <a:adv:1534939309235376328> *¡Ingresa de inmediato antes de que el servidor vuelva a completarse!*`;
 
                 const embedRelease = new EmbedBuilder()
                     .setTitle(tituloEmbed)
@@ -236,13 +232,13 @@ export default {
                     .setFooter({ text: '00Y4n Comunidad SWFL', iconURL: interaction.guild.iconURL() || undefined })
                     .setTimestamp();
 
+                // Un solo emoji valido (mismo que lanzar_rp) — el ID 1524936452574806076 era invalido
                 const fila = new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
                         .setCustomId('verificar_voto_swfl')
-                        .setLabel('Link de la Sesión')
-                        .setEmoji('1534937419231527036')
+                        .setLabel('Link de la Sesion')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('1524936452574806076')
+                        .setEmoji('1534937419231527036')
                 );
 
                 try {
@@ -265,7 +261,11 @@ export default {
                         await Sesion.updateOne(
                             { idInicio: targetIdInicio },
                             {
-                                $set: { linkSesion },
+                                $set: {
+                                    linkSesion,
+                                    idLanzamiento: msgRelease.id,
+                                    estado: 'activa'
+                                },
                                 $push: {
                                     reinvitaciones: {
                                         idMensaje: msgRelease.id,
@@ -293,7 +293,7 @@ export default {
                         guildId: interaction.guildId
                     });
                 } catch (sendError) {
-                    console.error('Error al enviar mensaje de liberación de reinvitaciones:', sendError);
+                    console.error('Error al enviar mensaje de liberacion de reinvitaciones:', sendError);
                 }
             }
         });
