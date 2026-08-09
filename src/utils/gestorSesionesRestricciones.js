@@ -93,6 +93,33 @@ export async function puedeUsarSesiones(guildId, userId) {
 }
 
 /**
+ * Mensaje claro para blacklist / suspensión de sesiones.
+ */
+export function mensajeBloqueoSesiones(check) {
+  if (!check || check.ok) return null;
+  if (check.razon === 'blacklist') {
+    return (
+      '**No podés participar en sesiones.**\n' +
+      'Estás en la **blacklist permanente de sesiones**.\n' +
+      'Si creés que es un error, contactá a **Alto Comando** por ticket.'
+    );
+  }
+  if (check.razon === 'suspendido') {
+    const hastaTs = check.hasta ? Math.floor(new Date(check.hasta).getTime() / 1000) : null;
+    const hastaTxt = hastaTs
+      ? `<t:${hastaTs}:F> (<t:${hastaTs}:R>)`
+      : 'una fecha no especificada';
+    const motivo = check.motivo ? `\n**Motivo:** ${check.motivo}` : '';
+    return (
+      '**No podés participar en sesiones.**\n' +
+      `Estás **suspendido de sesiones** hasta ${hastaTxt}.${motivo}\n` +
+      'Cuando termine la suspensión vas a poder votar, usar FastPass y unirte con normalidad.'
+    );
+  }
+  return '**No podés participar en sesiones** por una restricción activa.';
+}
+
+/**
  * Limpia suspensiones vencidas y quita el rol en el guild.
  */
 export async function limpiarSuspensionesVencidas(client, roleId) {
