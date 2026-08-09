@@ -4,7 +4,7 @@ import Historial from '../../../models/Historial.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
-const IMAGEN_MEET_DEFECTO = 'https://cdn.discordapp.com/attachments/1529288674091466805/1534999347933085727/Lanzamiento_Carmeet_1.png?ex=6a762b0b&is=6a74d98b&hm=b717f5b987296c37bf9346cbd7b144afc798d40c1ca912313bd41627614a96e8&';
+const IMAGEN_MEET_DEFECTO = 'https://cdn.discordapp.com/attachments/1505017301089652898/1536043754753097910/Lanzamiento_Carmeet_1.png?ex=6a79f7b9&is=6a78a639&hm=6da28e85a72b67d84936e1bd857c7ed0e7665a82ee3789ad59b582bc30833e64&';
 
 export default {
     data: {
@@ -51,7 +51,7 @@ export default {
             `> <a:flecha:1534939368035324125> <@${interaction.user.id}> **¡ha lanzado un Car Meet oficial!** Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
             `**<:manual:1534999731019972671> Antes de Unirte**\n\n` +
             `> <:si:1534938142665084938> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-            `> <:si:1534938142665084938> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1452644461745148049/1524916351733469305).\n\n` +
+            `> <:si:1534938142665084938> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399/1536059852432867412) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1452644461745148049/1536073385824624722).\n\n` +
             `**<:caram00y4nmov:1523041315187855470> Información del Car Meet**\n\n` +
             `<:uno:1534938872977297559> **Temática del Meet:** ${tematica}\n` +
             `<:dos:1535001133729447987> **Lugar de Inicio:** ${ubicacion}\n` +
