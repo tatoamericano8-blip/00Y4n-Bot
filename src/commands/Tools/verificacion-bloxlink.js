@@ -42,7 +42,7 @@ export default {
           'Si ya estás vinculado, el botón te da el rol **Ciudadano** al instante.'
         ].join('\n')
       )
-      .setFooter({ text: '00Y4n \u00b7 Verificación con Bloxlink' })
+      .setFooter({ text: '00Y4n · Verificación con Bloxlink' })
       .setTimestamp();
 
     const row = new ActionRowBuilder().addComponents(
