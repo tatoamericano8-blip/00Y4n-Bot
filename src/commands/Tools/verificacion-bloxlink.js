@@ -27,19 +27,19 @@ export default {
 
     const embed = new EmbedBuilder()
       .setColor(PRIMARIO)
-      .setTitle('Southwest Florida 00Y4n — Verificación')
+      .setTitle('<a:nubes:1534940407291711651> Southwest Florida 00Y4n — Verificación <a:nubes:1534940407291711651>')
       .setDescription(
         [
-          'Bienvenido a **Southwest Florida 00Y4n**.',
+          '<:logo:1535772407904735302> Bienvenido a **Southwest Florida 00Y4n**.',
           '',
-          'Para acceder al resto del servidor tenés que **vincular tu cuenta de Roblox** con Bloxlink y luego apretar el botón de abajo.',
+          '<:dot:1534938142665084938> Para acceder al resto del servidor tenés que **vincular tu cuenta de Roblox** con Bloxlink y luego apretar el botón de abajo.',
           '',
           '**Pasos:**',
-          '1. Abrí [blox.link](https://blox.link) e iniciá sesión con Discord.',
-          '2. Entrá a **Verification**, seleccioná este servidor y vinculá tu Roblox (juego o código).',
-          '3. Volvé acá y apretá **Verificar con Bloxlink**.',
+          '<:uno:1534938872977297559>. Abrí [blox.link](https://blox.link) e iniciá sesión con Discord.',
+          '<:dos:1535001133729447987>. Entrá a **Verification**, seleccioná este servidor y vinculá tu Roblox (juego o código).',
+          '<:tres:1535001243204718612>. Volvé acá y apretá **Verificar con Bloxlink**.',
           '',
-          'Si ya estás vinculado, el botón te da el rol **Ciudadano** al instante.'
+          '<:replica:1534982812116062370> Si ya estás vinculado, el botón te da el rol **Ciudadano** al instante.'
         ].join('\n')
       )
       .setFooter({ text: '00Y4n · Verificación con Bloxlink' })
