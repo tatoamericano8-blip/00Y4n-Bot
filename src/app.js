@@ -19,6 +19,7 @@ import { loadCommands, registerCommands as registerSlashCommands } from './handl
 import { lanzarOportunidadEconomica } from './utils/gestorOportunidades.js';
 import { procesarMensajeRecordatorio } from './utils/gestorRecordatorios.js';
 import { procesarCiudadanoDelDia } from './utils/ciudadanoDelDia.js';
+import { avisarAltoComando } from './utils/alertaHC.js';
 
 class TitanBot extends Client {
   constructor() {
@@ -162,6 +163,24 @@ class TitanBot extends Client {
       startupLog('Registering slash commands...');
       await this.registerCommands();
       startupLog('Slash commands registration complete');
+
+      try {
+        const st = this.db?.getStatus?.();
+        if (st?.isDegraded) {
+          await avisarAltoComando(
+            this,
+            'Base de datos en modo degradado',
+            'MongoDB no esta plenamente operativo. El bot sigue en linea pero puede perder datos. Revisa MongoDB Atlas.'
+          );
+        }
+        if (mongoose.connection.readyState !== 1) {
+          await avisarAltoComando(
+            this,
+            'MongoDB (Mongoose) desconectado',
+            'mongoose.connection.readyState != 1 tras el arranque. Sesiones/staff pueden fallar.'
+          );
+        }
+      } catch (_) {}
 
       const databaseMode = dbStatus.isDegraded
         ? 'Optional in-memory mode (data resets after restart)'
@@ -344,6 +363,13 @@ class TitanBot extends Client {
       await registerSlashCommands(this, this.config.bot.guildId);
     } catch (error) {
       logger.error('Error registering commands:', error);
+      try {
+        await avisarAltoComando(
+          this,
+          'Fallo al registrar comandos slash',
+          String(error?.message || error).slice(0, 1500)
+        );
+      } catch (_) {}
     }
   }
 
@@ -371,6 +397,9 @@ try {
   process.on('SIGINT', () => bot.shutdown('SIGINT'));
   process.on('uncaughtException', (error) => {
     logger.error('Uncaught Exception:', error);
+    try {
+      avisarAltoComando(bot, 'Error critico (uncaughtException)', String(error?.stack || error).slice(0, 1800));
+    } catch (_) {}
   });
   process.on('unhandledRejection', (reason, promise) => {
     logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
