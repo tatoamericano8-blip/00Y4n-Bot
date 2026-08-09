@@ -2,20 +2,18 @@ import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBui
 import Historial from '../../models/Historial.js';
 import Session from '../../models/Session.js';
 import { sumarCuotaStaff } from '../utils/gestorCuotas.js';
+import { pagarStaffSesion } from '../utils/gestorPagoHost.js';
 
 function parsearDuracionAHoras(textoDuracion) {
     let horas = 0;
     const matchHoras = textoDuracion.match(/(\d+(?:[\.,]\d+)?)\s*(?:h|hora|horas)/i);
     const matchMins = textoDuracion.match(/(\d+)\s*(?:m|min|minuto|minutos)/i);
-
     if (matchHoras) horas += parseFloat(matchHoras[1].replace(',', '.'));
     if (matchMins) horas += parseInt(matchMins[1], 10) / 60;
-
     if (!matchHoras && !matchMins) {
         const numeroDirecto = parseFloat(textoDuracion.replace(',', '.'));
         if (!isNaN(numeroDirecto)) horas = numeroDirecto;
     }
-
     return Number(horas.toFixed(2));
 }
 
@@ -33,11 +31,11 @@ function formatearDuracionMs(ms) {
 export default {
     data: {
         name: 'cerrar_swfl',
-        description: 'Cierra oficialmente la sesión de SWFL, elimina avisos de las últimas 4hs y muestra el resumen.',
+        description: 'Cierra oficialmente la sesion de SWFL, elimina avisos de las ultimas 4hs y muestra el resumen.',
         options: [
             {
                 name: 'tipo',
-                description: '¿Qué sesión estás cerrando?',
+                description: 'Que sesion estas cerrando?',
                 type: ApplicationCommandOptionType.String,
                 required: true,
                 choices: [
@@ -47,19 +45,19 @@ export default {
             },
             {
                 name: 'duracion',
-                description: 'Duración reportada (opcional si hay /inicio_swfl). Ej: 1 hora y 15 minutos',
+                description: 'Duracion reportada (opcional si hay /inicio_swfl). Ej: 1 hora y 15 minutos',
                 type: ApplicationCommandOptionType.String,
                 required: false
             },
             {
                 name: 'notas',
-                description: 'Añade un comentario final o nota sobre la sesión (opcional).',
+                description: 'Anade un comentario final o nota sobre la sesion (opcional).',
                 type: ApplicationCommandOptionType.String,
                 required: false
             },
             {
                 name: 'imagen',
-                description: 'Sube la foto o banner de la sesión finalizada (opcional).',
+                description: 'Sube la foto o banner de la sesion finalizada (opcional).',
                 type: ApplicationCommandOptionType.Attachment,
                 required: false
             }
@@ -68,7 +66,7 @@ export default {
 
     async execute(interaction) {
         const URL_IMAGEN_DEFAULT =
-            'https://cdn.discordapp.com/attachments/1505017301089652898/1536043758393491549/Sesion_Concluida_1.png?ex=6a79f7ba&is=6a78a63a&hm=2c0e510d88602bd048d5a622abf3f1e984cc98565cebfc68a2b79adbab4d87fc&';
+            'https://cdn.discordapp.com/attachments/1505017301089652898/1536043758393491549/Sesion_Concluida_1.png';
 
         const tipo = interaction.options.getString('tipo');
         const duracionTexto = interaction.options.getString('duracion');
@@ -76,7 +74,7 @@ export default {
         const fotoAdjunta = interaction.options.getAttachment('imagen');
 
         await interaction.reply({
-            content: 'Cerrando la sesión, limpiando el canal y actualizando base de datos...',
+            content: 'Cerrando la sesion, limpiando el canal y actualizando base de datos...',
             ephemeral: true
         });
 
@@ -88,6 +86,7 @@ export default {
         let horasCalculadas = 0;
         let minutosCalculados = 0;
         let duracionMostrar = 'No disponible';
+        let pagos = { host: 0, cohost: 0, supervisor: 0 };
 
         try {
             sesionActiva = await Session.findOneAndUpdate(
@@ -108,7 +107,6 @@ export default {
                 horasCalculadas = Number((ms / 3600000).toFixed(2));
                 minutosCalculados = Math.max(0, Math.round(ms / 60000));
                 duracionMostrar = formatearDuracionMs(ms);
-
                 sesionActiva.duracionMinutos = minutosCalculados;
                 await sesionActiva.save().catch(() => null);
             } else if (duracionTexto) {
@@ -131,59 +129,64 @@ export default {
                 sesionActiva.cuentaParaCuota === false;
 
             if (noSumarCuota) {
-                console.log(`[cerrar_swfl] Sin cuota (sin sesión activa o cierre forzado). host=${hostId}`);
+                console.log(`[cerrar_swfl] Sin cuota. host=${hostId}`);
             } else if (horasCalculadas > 0 || minutosCalculados > 0) {
                 await sumarCuotaStaff(guildId, hostId, {
                     horas: horasCalculadas,
                     sesionesOrganizadas: 1,
-                    motivo: `Cierre de sesión ${tipo} — ${duracionMostrar}`,
+                    motivo: `Cierre de sesion ${tipo} — ${duracionMostrar}`,
                     executorId: interaction.user.id
                 });
-
                 if (coHostId && coHostId !== hostId) {
                     await sumarCuotaStaff(guildId, coHostId, {
                         horas: Number((horasCalculadas * 0.5).toFixed(2)),
                         sesionesOrganizadas: 1,
-                        motivo: `Co-Host sesión ${tipo} — ${duracionMostrar}`,
+                        motivo: `Co-Host sesion ${tipo} — ${duracionMostrar}`,
                         executorId: interaction.user.id
                     });
                 }
-
                 if (supervisorId && supervisorId !== hostId) {
                     await sumarCuotaStaff(guildId, supervisorId, {
                         sesionesSupervisadas: 1,
                         horas: Number((horasCalculadas * 0.25).toFixed(2)),
-                        motivo: `Supervisión sesión ${tipo} — ${duracionMostrar}`,
+                        motivo: `Supervision sesion ${tipo} — ${duracionMostrar}`,
                         executorId: interaction.user.id
                     });
-                    console.log(`[cerrar_swfl] Cuota supervisor ${supervisorId}: +1 supervisada`);
-                } else if (supervisorId && supervisorId === hostId) {
-                    console.log(`[cerrar_swfl] Supervisor = host (${hostId}): no se suma supervisada (ya cuenta como host).`);
-                } else {
-                    console.log('[cerrar_swfl] Sin supervisorId en la sesión al cerrar.');
                 }
             } else {
                 await sumarCuotaStaff(guildId, hostId, {
                     sesionesOrganizadas: 1,
-                    motivo: `Cierre de sesión ${tipo} (sin duración registrada)`,
+                    motivo: `Cierre de sesion ${tipo} (sin duracion)`,
                     executorId: interaction.user.id
                 });
-
                 if (coHostId && coHostId !== hostId) {
                     await sumarCuotaStaff(guildId, coHostId, {
                         sesionesOrganizadas: 1,
-                        motivo: `Co-Host sesión ${tipo} (sin duración registrada)`,
+                        motivo: `Co-Host sesion ${tipo} (sin duracion)`,
                         executorId: interaction.user.id
                     });
                 }
-
                 if (supervisorId && supervisorId !== hostId) {
                     await sumarCuotaStaff(guildId, supervisorId, {
                         sesionesSupervisadas: 1,
-                        motivo: `Supervisión sesión ${tipo} (sin duración registrada)`,
+                        motivo: `Supervision sesion ${tipo} (sin duracion)`,
                         executorId: interaction.user.id
                     });
-                    console.log(`[cerrar_swfl] Cuota supervisor ${supervisorId}: +1 supervisada (sin duración)`);
+                }
+            }
+
+            if (!noSumarCuota) {
+                try {
+                    pagos = await pagarStaffSesion({
+                        hostId,
+                        coHostId,
+                        supervisorId,
+                        duracionMinutos: minutosCalculados,
+                        cuentaParaCuota: true
+                    });
+                    console.log(`[cerrar_swfl] Pagos host=${pagos.host} cohost=${pagos.cohost} supervisor=${pagos.supervisor}`);
+                } catch (e) {
+                    console.error('[cerrar_swfl] Error pago host:', e?.message || e);
                 }
             }
 
@@ -204,7 +207,8 @@ export default {
                     supervisorId,
                     coHostId,
                     motivo: notasHost,
-                    sinCuota: noSumarCuota
+                    sinCuota: noSumarCuota,
+                    pagos
                 }
             });
         } catch (dbError) {
@@ -236,8 +240,8 @@ export default {
 
         const titulo =
             tipo === 'rp'
-                ? `<a:cadenacora:1534954014335172729> SWFL Roleplay | Sesión Concluida <a:cadenacora:1534954014335172729>`
-                : `<a:cadenacora:1534954014335172729> SWFL Meet | Sesión Concluida <a:cadenacora:1534954014335172729>`;
+                ? `<a:cadenacora:1534954014335172729> SWFL Roleplay | Sesion Concluida <a:cadenacora:1534954014335172729>`
+                : `<a:cadenacora:1534954014335172729> SWFL Meet | Sesion Concluida <a:cadenacora:1534954014335172729>`;
 
         const inicioUnix = fechaInicio ? Math.floor(fechaInicio.getTime() / 1000) : null;
         const finUnix = Math.floor(fechaFin.getTime() / 1000);
@@ -246,18 +250,27 @@ export default {
         if (inicioUnix) {
             lineasTiempo.push(`<:fle:1534937306191102125> **Hora de inicio:** <t:${inicioUnix}:t> (<t:${inicioUnix}:R>)`);
         } else {
-            lineasTiempo.push(`<:fle:1534937306191102125> **Hora de inicio:** No registrada (sin \`/inicio_swfl\`)`);
+            lineasTiempo.push(`<:fle:1534937306191102125> **Hora de inicio:** No registrada`);
         }
         lineasTiempo.push(`<:fle:1534937306191102125> **Hora de cierre:** <t:${finUnix}:t> (<t:${finUnix}:R>)`);
-        lineasTiempo.push(`<:fle:1534937306191102125> **Duración total:** ${duracionMostrar}`);
+        lineasTiempo.push(`<:fle:1534937306191102125> **Duracion total:** ${duracionMostrar}`);
+
+        let pagosTxt = '';
+        if (pagos && (pagos.host || pagos.cohost)) {
+            pagosTxt =
+                `\n<:fle:1534937306191102125> **Pagos staff:** Host $${Number(pagos.host).toLocaleString()}` +
+                (pagos.cohost ? ` · Co-host $${Number(pagos.cohost).toLocaleString()}` : '') +
+                (pagos.supervisor ? ` · Supervisor $${Number(pagos.supervisor).toLocaleString()}` : '');
+        }
 
         const embedCierre = new EmbedBuilder()
             .setTitle(titulo)
             .setDescription(
-                `<:puntderecha:1534938142665084938> La sesión ha concluido oficialmente. ¡Muchísimas gracias a todos los que asistieron, respetaron las reglas y compartieron un buen rato con sus naves! <:vehiculos:1525172179279282326>\n\n` +
-                    `<:fle:1534937306191102125> **Anfitrión:** <@${interaction.user.id}>\n` +
+                `<:puntderecha:1534938142665084938> La sesion ha concluido oficialmente. Gracias a todos por participar.\n\n` +
+                    `<:fle:1534937306191102125> **Anfitrion:** <@${interaction.user.id}>\n` +
                     lineasTiempo.join('\n') +
-                    `\n<:fle:1534937306191102125> **Notas:** ${notasHost}`
+                    `\n<:fle:1534937306191102125> **Notas:** ${notasHost}` +
+                    pagosTxt
             )
             .setColor('#74d4fc');
 
@@ -267,7 +280,7 @@ export default {
         const filaComponentes = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('abrir_feedback_swfl')
-                .setLabel('Opinión de la Sesión')
+                .setLabel('Opinion de la Sesion')
                 .setEmoji('1534938422202994755')
                 .setStyle(ButtonStyle.Secondary)
         );
