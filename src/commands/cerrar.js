@@ -68,7 +68,7 @@ export default {
 
     async execute(interaction) {
         const URL_IMAGEN_DEFAULT =
-            'https://cdn.discordapp.com/attachments/1517331229303902432/1524843452494381146/Sesion_Concluida_NUEVO2_1.png?ex=6a51e161&is=6a508fe1&hm=3393d2fe56fe1b5bacafa4f3f227096598fa915b8c1976c7994e49c4ca5c2760&';
+            'https://cdn.discordapp.com/attachments/1505015805891579934/1535815064580268042/Sesion_Concluida_1.png?ex=6a7922bd&is=6a77d13d&hm=10e5a22b14014120363f1acb2fcb15c9338c14d4b289437af73c095042445526';
 
         const tipo = interaction.options.getString('tipo');
         const duracionTexto = interaction.options.getString('duracion');
@@ -236,28 +236,28 @@ export default {
 
         const titulo =
             tipo === 'rp'
-                ? `<a:cadenacora:1523026520740724859> SWFL Roleplay | Sesión Concluida <a:cadenacora:1523026520740724859>`
-                : `<a:cadenacora:1523026520740724859> SWFL Meet | Sesión Concluida <a:cadenacora:1523026520740724859>`;
+                ? `<a:cadenacora:1534954014335172729> SWFL Roleplay | Sesión Concluida <a:cadenacora:1534954014335172729>`
+                : `<a:cadenacora:1534954014335172729> SWFL Meet | Sesión Concluida <a:cadenacora:1534954014335172729>`;
 
         const inicioUnix = fechaInicio ? Math.floor(fechaInicio.getTime() / 1000) : null;
         const finUnix = Math.floor(fechaFin.getTime() / 1000);
 
         const lineasTiempo = [];
         if (inicioUnix) {
-            lineasTiempo.push(`<:fle:1523041359441952970> **Hora de inicio:** <t:${inicioUnix}:t> (<t:${inicioUnix}:R>)`);
+            lineasTiempo.push(`<:fle:1534937306191102125> **Hora de inicio:** <t:${inicioUnix}:t> (<t:${inicioUnix}:R>)`);
         } else {
-            lineasTiempo.push(`<:fle:1523041359441952970> **Hora de inicio:** No registrada (sin \`/inicio_swfl\`)`);
+            lineasTiempo.push(`<:fle:1534937306191102125> **Hora de inicio:** No registrada (sin \`/inicio_swfl\`)`);
         }
-        lineasTiempo.push(`<:fle:1523041359441952970> **Hora de cierre:** <t:${finUnix}:t> (<t:${finUnix}:R>)`);
-        lineasTiempo.push(`<:fle:1523041359441952970> **Duración total:** ${duracionMostrar}`);
+        lineasTiempo.push(`<:fle:1534937306191102125> **Hora de cierre:** <t:${finUnix}:t> (<t:${finUnix}:R>)`);
+        lineasTiempo.push(`<:fle:1534937306191102125> **Duración total:** ${duracionMostrar}`);
 
         const embedCierre = new EmbedBuilder()
             .setTitle(titulo)
             .setDescription(
-                `<:puntderecha:1523027978123087922> La sesión ha concluido oficialmente. ¡Muchísimas gracias a todos los que asistieron, respetaron las reglas y compartieron un buen rato con sus naves! <:vehiculos:1525172179279282326>\n\n` +
-                    `<:fle:1523041359441952970> **Anfitrión:** <@${interaction.user.id}>\n` +
+                `<:puntderecha:1534938142665084938> La sesión ha concluido oficialmente. ¡Muchísimas gracias a todos los que asistieron, respetaron las reglas y compartieron un buen rato con sus naves! <:vehiculos:1525172179279282326>\n\n` +
+                    `<:fle:1534937306191102125> **Anfitrión:** <@${interaction.user.id}>\n` +
                     lineasTiempo.join('\n') +
-                    `\n<:fle:1523041359441952970> **Notas:** ${notasHost}`
+                    `\n<:fle:1534937306191102125> **Notas:** ${notasHost}`
             )
             .setColor('#74d4fc');
 
