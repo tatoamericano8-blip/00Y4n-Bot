@@ -68,7 +68,7 @@ export default {
 
     async execute(interaction) {
         const URL_IMAGEN_DEFAULT =
-            'https://cdn.discordapp.com/attachments/1505015805891579934/1535815064580268042/Sesion_Concluida_1.png?ex=6a7922bd&is=6a77d13d&hm=10e5a22b14014120363f1acb2fcb15c9338c14d4b289437af73c095042445526';
+            'https://cdn.discordapp.com/attachments/1505017301089652898/1536043758393491549/Sesion_Concluida_1.png?ex=6a79f7ba&is=6a78a63a&hm=2c0e510d88602bd048d5a622abf3f1e984cc98565cebfc68a2b79adbab4d87fc&';
 
         const tipo = interaction.options.getString('tipo');
         const duracionTexto = interaction.options.getString('duracion');
@@ -268,7 +268,7 @@ export default {
             new ButtonBuilder()
                 .setCustomId('abrir_feedback_swfl')
                 .setLabel('Opinión de la Sesión')
-                .setEmoji('1523041319046479964')
+                .setEmoji('1534938422202994755')
                 .setStyle(ButtonStyle.Secondary)
         );
 
