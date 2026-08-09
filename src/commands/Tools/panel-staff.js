@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import Staff from '../../../models/Staff.js';
 import Sesion from '../../../models/Session.js';
 import { obtenerRangoDeUsuario } from '../../utils/rangoStaff.js';
@@ -160,6 +160,13 @@ export default {
       })
       .setTimestamp();
 
-    return interaction.editReply({ embeds: [embed] });
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId('panel_staff_sesiones').setLabel('Sesiones abiertas').setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId('panel_staff_loa').setLabel('LOA activos').setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder().setCustomId('panel_staff_incumplidores').setLabel('Incumplidores').setStyle(ButtonStyle.Danger),
+      new ButtonBuilder().setCustomId('panel_staff_forzar').setLabel('Cómo forzar cierre').setStyle(ButtonStyle.Success)
+    );
+
+    return interaction.editReply({ embeds: [embed], components: [row] });
   }
 };
