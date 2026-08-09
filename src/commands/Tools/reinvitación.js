@@ -225,7 +225,7 @@ export default {
                     datosExtraSesion +
                     `\n<:manual:1534999731019972671> **Antes de Unirte**\n\n` +
                     `> <:dot:1534938142665084938> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-                    `> <:dot:1534938142665084938> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & [vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1525190667545088225).\n` +
+                    `> <:dot:1534938142665084938> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399/1536059852432867412) & [vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1536064730223874132).\n` +
                     `> <:dot:1534938142665084938> Registra tus vehículos en <#1505615426305130657>!\n\n` +
                     `-# <a:adv:1534939309235376328> *¡Ingresá de inmediato antes de que el servidor vuelva a completarse!*`;
 
@@ -247,7 +247,7 @@ export default {
 
                 try {
                     const msgRelease = await interaction.channel.send({
-                        content: '@everyone <a:bats:1534954353356705852> ¡Las reinvitaciones han sido **LANZADAS**!',
+                        content: '@everyone ¡Las reinvitaciones han sido **LANZADAS**!',
                         embeds: [embedRelease],
                         components: [fila],
                         allowedMentions: { parse: ['everyone', 'roles'] }
