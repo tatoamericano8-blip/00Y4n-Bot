@@ -179,7 +179,7 @@ export default {
               const embedLink = {
                 title: 'Southwest Florida - Enlace de Sesion',
                 description: `**Enlace de la Sesion**\nHaz clic [aqui](${sesion.linkSesion}) para unirte.`,
-                color: 0x74d4fc
+                color: 0xfb8b66
               };
               return await interaction.reply({ embeds: [embedLink], flags: MessageFlags.Ephemeral });
             } catch (error) {
