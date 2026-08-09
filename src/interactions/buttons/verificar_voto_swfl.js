@@ -1,54 +1,113 @@
+import Sesion from '../../../models/Session.js';
 import { puedeUsarSesiones, mensajeBloqueoSesiones } from '../../utils/gestorSesionesRestricciones.js';
 
-export default {
-    name: 'verificar_voto_swfl',
+async function resolverDatosSesion(messageId, guildId) {
+  global.coleccionSesiones = global.coleccionSesiones || new Map();
+  const mem = global.coleccionSesiones.get(messageId);
+  if (mem?.linkSesion) {
+    return { linkSesion: mem.linkSesion, idInicio: mem.idInicio || null, source: 'memory' };
+  }
 
-    async execute(interaction) {
-        await interaction.deferReply({ ephemeral: true });
-
-        global.coleccionSesiones = global.coleccionSesiones || new Map();
-        const datosSesion = global.coleccionSesiones.get(interaction.message.id);
-
-        if (!datosSesion) {
-            return interaction.editReply({
-                content: '❌ **Error de sincronización:** El bot se reinició o la sesión expiró de la memoria. Pedile al staff que vuelva a ejecutar el comando de lanzamiento.'
-            });
-        }
-
-        const { idInicio, linkSesion } = datosSesion;
-        const userId = interaction.user.id;
-
-        const checkSesion = await puedeUsarSesiones(interaction.guildId, userId);
-        if (!checkSesion.ok) {
-            return interaction.editReply({ content: mensajeBloqueoSesiones(checkSesion) });
-        }
-
-        try {
-            const mensajeInicio = await interaction.channel.messages.fetch(idInicio);
-            let usuarioReacciono = false;
-
-            for (const reaction of mensajeInicio.reactions.cache.values()) {
-                const users = await reaction.users.fetch();
-                if (users.has(userId)) {
-                    usuarioReacciono = true;
-                    break;
-                }
-            }
-
-            if (usuarioReacciono) {
-                return interaction.editReply({
-                    content: `🎉 **¡Voto verificado!** Acá tenés el acceso a la sesión:\n🔗 ${linkSesion}\n\n*Respetá las reglas de la comunidad y evitá compartir el link.*`
-                });
-            }
-
-            return interaction.editReply({
-                content: '❌ **No puedes obtener el link de la sesión.**\nNo se detectó tu reacción en el mensaje de inicio (Startup).'
-            });
-        } catch (error) {
-            console.error(error);
-            return interaction.editReply({
-                content: '❌ **Error al verificar:** No se pudo encontrar el mensaje de inicio original en este canal.'
-            });
-        }
+  try {
+    let sesion = await Sesion.findOne({ idLanzamiento: messageId }).lean();
+    if (!sesion && guildId) {
+      sesion = await Sesion.findOne({
+        guildId,
+        estado: 'activa',
+        linkSesion: { $nin: [null, ''] }
+      })
+        .sort({ fechaLanzamiento: -1 })
+        .lean();
     }
+    if (sesion?.linkSesion) {
+      global.coleccionSesiones.set(messageId, {
+        idInicio: sesion.idInicio,
+        linkSesion: sesion.linkSesion,
+        guildId: sesion.guildId,
+        tipo: sesion.tipo
+      });
+      return {
+        linkSesion: sesion.linkSesion,
+        idInicio: sesion.idInicio || null,
+        source: 'db'
+      };
+    }
+  } catch (err) {
+    console.error('[verificar_voto] Error DB:', err?.message || err);
+  }
+
+  return null;
+}
+
+async function usuarioReaccionoEnInicio(interaction, idInicio) {
+  if (!idInicio) return { ok: false, sinMensaje: true };
+  try {
+    let msgInicio = null;
+    try {
+      msgInicio = await interaction.channel.messages.fetch(idInicio);
+    } catch (_) {}
+    if (!msgInicio && interaction.guild) {
+      for (const ch of interaction.guild.channels.cache.values()) {
+        if (!ch.isTextBased?.() || ch.id === interaction.channelId) continue;
+        try {
+          msgInicio = await ch.messages.fetch(idInicio);
+          if (msgInicio) break;
+        } catch (_) {}
+      }
+    }
+    if (!msgInicio) return { ok: false, sinMensaje: true };
+
+    if (msgInicio.partial) {
+      try { await msgInicio.fetch(); } catch (_) {}
+    }
+
+    for (const reaction of msgInicio.reactions.cache.values()) {
+      try {
+        const users = await reaction.users.fetch();
+        if (users.has(interaction.user.id)) return { ok: true, msgInicio };
+      } catch (_) {}
+    }
+    return { ok: false, msgInicio };
+  } catch {
+    return { ok: false, sinMensaje: true };
+  }
+}
+
+export default {
+  name: 'verificar_voto_swfl',
+
+  async execute(interaction) {
+    await interaction.deferReply({ ephemeral: true });
+
+    const checkSesion = await puedeUsarSesiones(interaction.guildId, interaction.user.id);
+    if (!checkSesion.ok) {
+      return interaction.editReply({ content: mensajeBloqueoSesiones(checkSesion) });
+    }
+
+    const datos = await resolverDatosSesion(interaction.message.id, interaction.guildId);
+    if (!datos?.linkSesion) {
+      return interaction.editReply({
+        content:
+          '❌ **Error de sincronización:** No se encontró el enlace de esta sesión.\nPedile al staff que vuelva a lanzar con `/lanzar_rp` o `/lanzar_meet`.'
+      });
+    }
+
+    const voto = await usuarioReaccionoEnInicio(interaction, datos.idInicio);
+    if (!voto.ok) {
+      const linkMsg = voto.msgInicio?.url
+        ? `\n\n👉 Votá acá: ${voto.msgInicio.url}`
+        : '\n\n👉 Buscá el mensaje de **`/inicio_swfl`** y reaccioná.';
+      return interaction.editReply({
+        content:
+          '❌ **No podés obtener el link todavía.**\nNo se detectó tu reacción en el mensaje de inicio (Startup).' +
+          linkMsg
+      });
+    }
+
+    return interaction.editReply({
+      content:
+        `🎉 **¡Voto verificado!** Acá tenés el acceso a la sesión:\n🔗 ${datos.linkSesion}\n\n` +
+        `*Respetá las reglas y no compartas el link.*`
+    });
+  }
 };
