@@ -1,21 +1,19 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
+import { guardarFastPass } from '../../utils/gestorFastPass.js';
 
-// --- DICCIONARIO DE EMOJIS ---
 const EMOJIS = {
     flechaH: '<:FlechaHoriz00Y4n:1519474590370500608>',
     flechaV: '<:Flecha_00Y4n:1519473149845045400>',
     coraaMov: '<a:coraamov00y4n:1519475012283666554>'
 };
 
-// Memoria global para guardar los links de FastPass en secreto
 global.coleccionFastPass = global.coleccionFastPass || new Map();
 
-// IDs de roles con acceso a FastPass
 const ROLES_VIP_IDS = [
-    '1512120103771050005', // Equipo de Staff
-    '1503769793474597027', // FastPass
-    '1530287573547880581', // Ciudadano Del Día
-    '1529147327078469781'  // Servicios Públicos
+    '1512120103771050005',
+    '1503769793474597027',
+    '1530287573547880581',
+    '1529147327078469781'
 ];
 
 export default {
@@ -48,7 +46,6 @@ export default {
 
         const linkSesion = interaction.options.getString('acceso');
         const fotoAdjunta = interaction.options.getAttachment('imagen');
-
         const mencionesRoles = ROLES_VIP_IDS.map(id => `<@&${id}>`).join(' ');
 
         const embedFastPass = new EmbedBuilder()
@@ -81,5 +78,11 @@ export default {
         });
 
         global.coleccionFastPass.set(msgFastPass.id, linkSesion);
+        await guardarFastPass(msgFastPass.id, {
+            link: linkSesion,
+            guildId: interaction.guildId,
+            channelId: interaction.channelId,
+            por: interaction.user.id
+        });
     }
 };
