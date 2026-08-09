@@ -4,7 +4,7 @@ import Historial from '../../../models/Historial.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
-const IMAGEN_RP_DEFECTO = 'https://cdn.discordapp.com/attachments/1529288674091466805/1534999348373360690/Lanzamiento_Roleplay_1.png?ex=6a762b0b&is=6a74d98b&hm=94feaaeddb34f5c6ba70a4d9185a6dda368a9baf17e3134fdda6a37aa6a27fd5&';
+const IMAGEN_RP_DEFECTO = 'https://cdn.discordapp.com/attachments/1505017301089652898/1536043755163877568/Lanzamiento_Roleplay_1.png?ex=6a79f7b9&is=6a78a639&hm=66a74a3f4e6ad339cbb3abd69e6711edae3edd1a0d18992317019565aa0ce538&';
 
 export default {
     data: {
@@ -98,7 +98,7 @@ export default {
             `> <a:punto:1534939368035324125> <@${interaction.user.id}> ¡ha lanzado su sesión! Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
             ` <:flor:1534999731019972671> **Antes de Unirte**\n\n` +
             `> <:fle:1534937306191102125> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-            `> <:fle:1534937306191102125> Lee la [información](https://discord.com/channels/1451939725308067842/1516590524725989437) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1525190667545088225).\n` +
+            `> <:fle:1534937306191102125> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399/1536059852432867412) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1536064730223874132).\n` +
             `> <:fle:1534937306191102125> Registra tus vehículos en <#1505615426305130657>!\n\n` +
             ` <:flor:1534999731019972671> **Información del Roleplay**\n\n` +
             `> <:uno:1534938872977297559> **Estado de Peacetime:** ${peacetime}\n` +
