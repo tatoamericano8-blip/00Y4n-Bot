@@ -4,11 +4,11 @@ import Session from '../../../models/Session.js';
 export default {
     data: {
         name: 'supervisar_swfl',
-        description: 'Anuncia públicamente quién está supervisando la sesión de Carmeet/Roleplay.',
+        description: 'Anuncia publicamente quien esta supervisando la sesion de Carmeet/Roleplay.',
         options: [
             {
                 name: 'supervisor',
-                description: 'El staff que supervisará. Si lo dejas en blanco, serás tú por defecto.',
+                description: 'El staff que supervisara. Si lo dejas en blanco, seras tu por defecto.',
                 type: ApplicationCommandOptionType.User,
                 required: false
             }
@@ -28,7 +28,8 @@ export default {
 
             if (!sesion) {
                 return interaction.reply({
-                    content: '<:adv:1534937002695327837> No hay una sesión activa para supervisar. Primero usá `/inicio_swfl`.',
+                    content:
+                        '<:adv:1534937002695327837> No hay una sesion activa para supervisar. Primero usa `/inicio_swfl`.',
                     ephemeral: true
                 });
             }
@@ -36,25 +37,48 @@ export default {
             sesion.supervisorId = supervisor.id;
             await sesion.save();
         } catch (err) {
-            console.error('Error guardando supervisor en sesión:', err);
+            console.error('Error guardando supervisor en sesion:', err);
             return interaction.reply({
-                content: '<:cruz:1534937767652495360> Error al registrar el supervisor en la sesión. Intentá de nuevo.',
+                content:
+                    '<:cruz:1534937767652495360> Error al registrar el supervisor en la sesion. Intenta de nuevo.',
                 ephemeral: true
             });
         }
 
         const embedSupervision = new EmbedBuilder()
             .setDescription(
-                `<:dot:1534938142665084938> <@${supervisor.id}> está **supervisando** la sesión.` +
-                (sesion.hostId && sesion.hostId !== supervisor.id
-                    ? `\n> Host: <@${sesion.hostId}>`
-                    : '')
+                `<:dot:1534938142665084938> <@${supervisor.id}> esta **supervisando** la sesion.` +
+                    (sesion.hostId && sesion.hostId !== supervisor.id
+                        ? `\n> Host: <@${sesion.hostId}>`
+                        : '')
             )
             .setColor('#74d4fc')
-            .setFooter({ text: 'Southwest Florida Comunidad 00Y4n ™' });
+            .setFooter({ text: 'Southwest Florida Comunidad 00Y4n \u2122' });
 
+        // Confirmacion solo para quien uso el comando (no se ve el /comando en publico)
         await interaction.reply({
-            embeds: [embedSupervision]
+            content: '<:verificacion:1534937809733812286> Anuncio de supervision generado.',
+            ephemeral: true
         });
+
+        // Responder al mensaje de /inicio_swfl si existe (igual que host_swfl)
+        let enviadoComoReply = false;
+        if (sesion?.idInicio) {
+            try {
+                const msgInicio = await interaction.channel.messages
+                    .fetch(sesion.idInicio)
+                    .catch(() => null);
+                if (msgInicio) {
+                    await msgInicio.reply({ embeds: [embedSupervision] });
+                    enviadoComoReply = true;
+                }
+            } catch (e) {
+                console.error('No se pudo responder al mensaje de inicio:', e.message);
+            }
+        }
+
+        if (!enviadoComoReply) {
+            await interaction.channel.send({ embeds: [embedSupervision] });
+        }
     }
 };
