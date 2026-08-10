@@ -1,44 +1,29 @@
-import { getFromDb, setInDb } from './database.js'; // Ajusta la ruta si es necesario
+import { getFromDb, setInDb } from './database.js';
 
 export const ROL_WARRANT_ID = '1529152491545952316';
 const KEY_MULTAS = 'multas:globales';
 
-export const multasDB = new Map(); // Compatibilidad de importación
+export const multasDB = new Map();
 
-/**
- * Obtener todas las multas registradas
- */
 export async function obtenerTodasLasMultas() {
     return await getFromDb(KEY_MULTAS, {});
 }
 
-/**
- * Obtener una multa por su ID / TicketID
- */
 export async function obtenerMulta(ticketId) {
     const multas = await obtenerTodasLasMultas();
     return multas[ticketId] || null;
 }
 
-/**
- * Guardar o actualizar una multa específica
- */
 export async function guardarMulta(ticketId, datosMulta) {
     const multas = await obtenerTodasLasMultas();
     multas[ticketId] = datosMulta;
     await setInDb(KEY_MULTAS, multas);
 }
 
-/**
- * Función de compatibilidad (las multas ahora se guardan automáticamente en DB)
- */
 export async function guardarMultas() {
     return true;
 }
 
-/**
- * Generar un ID único para la multa
- */
 export async function generarIDMulta() {
     const multas = await obtenerTodasLasMultas();
     const ids = Object.keys(multas).map(id => Number(id)).filter(id => !isNaN(id));
@@ -46,9 +31,6 @@ export async function generarIDMulta() {
     return (ultimoID + 1).toString();
 }
 
-/**
- * Programar la asignación del rol Warrant (Orden de arresto) a los 7 días
- */
 export function programarWarrant(client, guildId, usuarioId, ticketId) {
     const SIETE_DIAS_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -69,4 +51,13 @@ export function programarWarrant(client, guildId, usuarioId, ticketId) {
             }
         }
     }, SIETE_DIAS_MS);
+}
+
+/** Multas de un usuario (mas recientes primero) */
+export async function obtenerMultasPorUsuario(usuarioId) {
+    const multas = await obtenerTodasLasMultas();
+    const arr = Array.isArray(multas) ? multas : Object.values(multas || {});
+    return arr
+        .filter((m) => String(m.usuarioId || m.usuario_id) === String(usuarioId))
+        .sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
 }
