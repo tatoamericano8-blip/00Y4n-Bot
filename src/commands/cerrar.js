@@ -4,19 +4,6 @@ import Session from '../../models/Session.js';
 import { sumarCuotaStaff } from '../utils/gestorCuotas.js';
 import { pagarStaffSesion } from '../utils/gestorPagoHost.js';
 
-function parsearDuracionAHoras(textoDuracion) {
-    let horas = 0;
-    const matchHoras = textoDuracion.match(/(\d+(?:[\.,]\d+)?)\s*(?:h|hora|horas)/i);
-    const matchMins = textoDuracion.match(/(\d+)\s*(?:m|min|minuto|minutos)/i);
-    if (matchHoras) horas += parseFloat(matchHoras[1].replace(',', '.'));
-    if (matchMins) horas += parseInt(matchMins[1], 10) / 60;
-    if (!matchHoras && !matchMins) {
-        const numeroDirecto = parseFloat(textoDuracion.replace(',', '.'));
-        if (!isNaN(numeroDirecto)) horas = numeroDirecto;
-    }
-    return Number(horas.toFixed(2));
-}
-
 function formatearDuracionMs(ms) {
     if (!ms || ms < 0) return 'No disponible';
     const totalMin = Math.round(ms / 60000);
@@ -44,12 +31,6 @@ export default {
                 ]
             },
             {
-                name: 'duracion',
-                description: 'Duracion reportada (opcional si hay /inicio_swfl). Ej: 1 hora y 15 minutos',
-                type: ApplicationCommandOptionType.String,
-                required: false
-            },
-            {
                 name: 'notas',
                 description: 'Anade un comentario final o nota sobre la sesion (opcional).',
                 type: ApplicationCommandOptionType.String,
@@ -69,7 +50,6 @@ export default {
             'https://cdn.discordapp.com/attachments/1505017301089652898/1536043758393491549/Sesion_Concluida_1.png';
 
         const tipo = interaction.options.getString('tipo');
-        const duracionTexto = interaction.options.getString('duracion');
         const notasHost = interaction.options.getString('notas') || 'Sin notas adicionales.';
         const fotoAdjunta = interaction.options.getAttachment('imagen');
 
@@ -109,10 +89,6 @@ export default {
                 duracionMostrar = formatearDuracionMs(ms);
                 sesionActiva.duracionMinutos = minutosCalculados;
                 await sesionActiva.save().catch(() => null);
-            } else if (duracionTexto) {
-                horasCalculadas = parsearDuracionAHoras(duracionTexto);
-                minutosCalculados = Math.round(horasCalculadas * 60);
-                duracionMostrar = duracionTexto;
             } else {
                 horasCalculadas = 0;
                 minutosCalculados = 0;
