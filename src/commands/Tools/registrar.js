@@ -44,7 +44,7 @@ export default {
             },
             {
                 name: 'reiniciar',
-                description: '⚠️ ALTO MANDO: Borra TODAS las matriculaciones del servidor (irreversible).',
+                description: '(AC Solo)⚠️ ALTO MANDO: Borra TODAS las matriculaciones del servidor (irreversible).',
                 type: ApplicationCommandOptionType.Subcommand,
                 options: [
                     {
@@ -76,7 +76,7 @@ export default {
             });
             if (!valid.ok) {
                 return await interaction.editReply({
-                    content: `<:cruz:1523041302764191844> ${valid.motivo}`
+                    content: `<:cruz:1534937767652495360> ${valid.motivo}`
                 });
             }
             const patente = valid.patente;
