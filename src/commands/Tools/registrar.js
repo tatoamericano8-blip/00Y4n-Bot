@@ -153,7 +153,7 @@ export default {
                 }
 
                 const embedRemover = new EmbedBuilder()
-                    .setTitle('<:no:1523041304911544502> SWFL | ANULACIÓN DE MATRÍCULA <:no:1523041304911544502>')
+                    .setTitle('<:no:1534937767652495360> SWFL | ANULACIÓN DE MATRÍCULA <:no:1534937767652495360>')
                     .setDescription(
                         `> Se revocó el permiso de circulación para:\n\n` +
                         `<:si:1534938142665084938> **Matrícula Removida:** \`${patente}\`\n` +
