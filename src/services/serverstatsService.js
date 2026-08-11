@@ -1,30 +1,39 @@
 import { logger } from '../utils/logger.js';
 import { logEvent, EVENT_TYPES } from './loggingService.js';
 
+/** Formato: ⤷ ݁⋆ [cantidad] Miembros ⋆ ݁ 〃 */
+export const NAME_FORMAT_DEFAULT = '⤷ ݁⋆ {count} {label} ⋆ ݁ 〃';
+
 export const COUNTER_TYPE_CONFIG = {
   members: {
-    label: 'Members + Bots',
-    baseName: 'Members & Bots',
+    label: 'Miembros totales',
+    channelLabel: 'Miembros',
+    baseName: 'Miembros',
     emoji: '👥'
   },
   members_only: {
-    label: 'Members Only',
-    baseName: 'Members',
+    label: 'Solo humanos (sin bots)',
+    channelLabel: 'Humanos',
+    baseName: 'Humanos',
     emoji: '👤'
   },
   bots: {
-    label: 'Bots Only',
+    label: 'Solo bots',
+    channelLabel: 'Bots',
     baseName: 'Bots',
     emoji: '🤖'
   }
 };
 
 function getCounterConfig(type) {
-  return COUNTER_TYPE_CONFIG[type] || {
-    label: 'Unknown',
-    baseName: 'Counter',
-    emoji: '❓'
-  };
+  return (
+    COUNTER_TYPE_CONFIG[type] || {
+      label: 'Desconocido',
+      channelLabel: 'Contador',
+      baseName: 'Contador',
+      emoji: '❓'
+    }
+  );
 }
 
 export function getCounterTypeLabel(type) {
@@ -39,6 +48,17 @@ export function getCounterEmoji(type) {
   return getCounterConfig(type).emoji;
 }
 
+export function formatCounterChannelName(type, count, customFormat) {
+  const cfg = getCounterConfig(type);
+  const n = Number(count) || 0;
+  const formatted = n.toLocaleString('es-AR');
+  const template = customFormat || NAME_FORMAT_DEFAULT;
+  return template
+    .replace(/\{count\}/g, formatted)
+    .replace(/\{label\}/g, cfg.channelLabel)
+    .slice(0, 100);
+}
+
 export async function getGuildCounterStats(guild) {
   let memberCollection = guild.members.cache;
 
@@ -46,12 +66,16 @@ export async function getGuildCounterStats(guild) {
     memberCollection = await guild.members.fetch();
   } catch (error) {
     if (process.env.NODE_ENV !== 'production') {
-      logger.debug(`Failed to fetch all guild members for ${guild.id}, using cache only`, error);
+      logger.debug(
+        `Failed to fetch all guild members for ${guild.id}, using cache only`,
+        error
+      );
     }
   }
 
   const botCount = memberCollection.filter((member) => member.user.bot).size;
-  const totalCount = typeof guild.memberCount === 'number' ? guild.memberCount : memberCollection.size;
+  const totalCount =
+    typeof guild.memberCount === 'number' ? guild.memberCount : memberCollection.size;
   const humanCount = Math.max(totalCount - botCount, 0);
 
   return {
@@ -76,16 +100,15 @@ export async function getCounterCount(guild, type) {
   }
 }
 
-
 function isValidCounterShape(counter) {
   return Boolean(
     counter &&
-    typeof counter === 'object' &&
-    typeof counter.id === 'string' &&
-    counter.id.length > 0 &&
-    typeof counter.type === 'string' &&
-    typeof counter.channelId === 'string' &&
-    counter.channelId.length > 0
+      typeof counter === 'object' &&
+      typeof counter.id === 'string' &&
+      counter.id.length > 0 &&
+      typeof counter.type === 'string' &&
+      typeof counter.channelId === 'string' &&
+      counter.channelId.length > 0
   );
 }
 
@@ -99,29 +122,17 @@ function normalizeCounter(counter, guildId) {
     enabled: typeof counter.enabled === 'boolean' ? counter.enabled : true
   };
 
-  if (counter.updatedAt) {
-    normalized.updatedAt = counter.updatedAt;
-  }
+  if (counter.updatedAt) normalized.updatedAt = counter.updatedAt;
+  if (counter.nameFormat) normalized.nameFormat = String(counter.nameFormat);
+  if (counter.categoryId) normalized.categoryId = String(counter.categoryId);
 
   return normalized;
 }
 
 function sanitizeCounters(counters, guildId) {
-  if (!Array.isArray(counters)) {
-    return [];
-  }
-
-  return counters
-    .filter(isValidCounterShape)
-    .map(counter => normalizeCounter(counter, guildId));
+  if (!Array.isArray(counters)) return [];
+  return counters.filter(isValidCounterShape).map((c) => normalizeCounter(c, guildId));
 }
-
-
-
-
-
-
-
 
 export async function updateCounter(client, guild, counter) {
   try {
@@ -129,7 +140,7 @@ export async function updateCounter(client, guild, counter) {
       logger.warn('Skipping invalid counter in updateCounter:', counter);
       return false;
     }
-    
+
     const { type, channelId } = counter;
     const channel = guild.channels.cache.get(channelId);
     if (!channel) {
@@ -143,45 +154,33 @@ export async function updateCounter(client, guild, counter) {
       return false;
     }
 
-    const baseName = getCounterBaseName(type);
-    if (process.env.NODE_ENV !== 'production') {
-      logger.debug(`Base name: "${baseName}", Current name: "${channel.name}"`);
-    }
-    
-    const newName = `${baseName}: ${count}`;
-    if (process.env.NODE_ENV !== 'production') {
-      logger.debug(`New name would be: "${newName}"`);
-    }
-    
+    const newName = formatCounterChannelName(type, count, counter.nameFormat);
+
     if (channel.name !== newName) {
       try {
         await channel.setName(newName);
-        if (process.env.NODE_ENV !== 'production') {
-          logger.debug(`Updated channel name to: "${newName}"`);
-        }
 
-        
         try {
           await logEvent({
             client,
             guildId: guild.id,
             eventType: EVENT_TYPES.COUNTER_UPDATE,
             data: {
-              description: `Counter updated: ${baseName}`,
+              description: `Contador actualizado: ${getCounterTypeLabel(type)}`,
               channelId: channel.id,
               fields: [
                 {
-                  name: '📊 Counter Type',
+                  name: '📊 Tipo',
                   value: getCounterTypeLabel(type),
                   inline: true
                 },
                 {
-                  name: '🔢 New Count',
+                  name: '🔢 Nuevo valor',
                   value: count.toString(),
                   inline: true
                 },
                 {
-                  name: '📍 Channel',
+                  name: '📍 Canal',
                   value: channel.toString(),
                   inline: true
                 }
@@ -191,28 +190,17 @@ export async function updateCounter(client, guild, counter) {
         } catch (error) {
           logger.debug('Error logging counter update:', error);
         }
-
       } catch (error) {
         logger.error(`Failed to update channel name for ${channel.id}:`, error);
         return false;
       }
-    } else {
-      if (process.env.NODE_ENV !== 'production') {
-        logger.debug('Channel name already correct, no update needed');
-      }
     }
     return true;
   } catch (error) {
-    logger.error("Error updating counter:", error);
+    logger.error('Error updating counter:', error);
     return false;
   }
 }
-
-
-
-
-
-
 
 export async function getServerCounters(client, guildId) {
   try {
@@ -220,11 +208,11 @@ export async function getServerCounters(client, guildId) {
       logger.warn('Database not available for getServerCounters');
       return [];
     }
-    
+
     const data = await client.db.get(`counters:${guildId}`);
-    
+
     let counters = [];
-    
+
     if (data && typeof data === 'object' && data.ok && Array.isArray(data.value)) {
       counters = data.value;
     } else if (Array.isArray(data)) {
@@ -239,25 +227,15 @@ export async function getServerCounters(client, guildId) {
     } else if (data && typeof data === 'object' && !data.ok && isValidCounterShape(data)) {
       counters = [data];
     } else {
-      if (process.env.NODE_ENV !== 'production') {
-        logger.debug('No counter data found, returning empty array');
-      }
       return [];
     }
 
     return sanitizeCounters(counters, guildId);
   } catch (error) {
-    logger.error("Error getting server counters:", error);
+    logger.error('Error getting server counters:', error);
     return [];
   }
 }
-
-
-
-
-
-
-
 
 export async function saveServerCounters(client, guildId, counters) {
   try {
@@ -265,22 +243,12 @@ export async function saveServerCounters(client, guildId, counters) {
       logger.warn('Database not available for saveServerCounters');
       return false;
     }
-    
+
     const sanitizedCounters = sanitizeCounters(counters, guildId);
-
-    if (process.env.NODE_ENV !== 'production') {
-      logger.debug(`Saving ${sanitizedCounters.length} counters for guild ${guildId}:`, sanitizedCounters);
-    }
-
     await client.db.set(`counters:${guildId}`, sanitizedCounters);
-    if (process.env.NODE_ENV !== 'production') {
-      logger.debug('Counters saved successfully');
-    }
     return true;
   } catch (error) {
-    logger.error("Error saving server counters:", error);
+    logger.error('Error saving server counters:', error);
     return false;
   }
 }
-
-
