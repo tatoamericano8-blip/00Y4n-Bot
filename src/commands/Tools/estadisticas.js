@@ -18,7 +18,6 @@ const GUILD_OBJETIVO = '1451939725308067842';
 const CATEGORY_NAME = '゛◟🌴﹒00Y4n › Estadísticas◞';
 const NAME_FORMAT = NAME_FORMAT_DEFAULT;
 
-/** Contadores: totales + solo humanos */
 const TIPOS_DEFAULT = ['members', 'members_only'];
 
 function puedeGestionar(member) {
@@ -30,7 +29,7 @@ function puedeGestionar(member) {
 }
 
 function idUnico(tipo) {
-  return `${tipo}_${Date.now().toString(36)}`;
+  return tipo + '_' + Date.now().toString(36);
 }
 
 export default {
@@ -41,14 +40,10 @@ export default {
     .addSubcommand((sc) =>
       sc
         .setName('crear')
-        .setDescription(
-          'Crea la categoria de estadisticas y los canales contador (totales + humanos).'
-        )
+        .setDescription('Crea la categoria de estadisticas y los canales contador (totales + humanos).')
     )
     .addSubcommand((sc) =>
-      sc
-        .setName('actualizar')
-        .setDescription('Fuerza la actualizacion de todos los contadores del servidor.')
+      sc.setName('actualizar').setDescription('Fuerza la actualizacion de todos los contadores del servidor.')
     )
     .addSubcommand((sc) =>
       sc
@@ -62,23 +57,19 @@ export default {
         )
     )
     .addSubcommand((sc) =>
-      sc
-        .setName('estado')
-        .setDescription('Muestra el estado actual de los contadores.')
+      sc.setName('estado').setDescription('Muestra el estado actual de los contadores.')
     ),
 
   async execute(interaction) {
     if (!puedeGestionar(interaction.member)) {
       return interaction.reply({
-        content: '❌ Necesitas permiso de **Gestionar canales** o Administrador.',
+        content: 'Necesitas permiso de Gestionar canales o Administrador.',
         ephemeral: true
       });
     }
 
     if (interaction.guildId !== GUILD_OBJETIVO) {
-      console.log(
-        `[estadisticas] Ejecutado en guild ${interaction.guildId} (objetivo ${GUILD_OBJETIVO})`
-      );
+      console.log('[estadisticas] guild=' + interaction.guildId + ' objetivo=' + GUILD_OBJETIVO);
     }
 
     const sub = interaction.options.getSubcommand();
@@ -92,7 +83,7 @@ export default {
     } catch (err) {
       console.error('[estadisticas]', err);
       return interaction.editReply({
-        content: `❌ Error: \`${String(err?.message || err).slice(0, 200)}\``
+        content: 'Error: ' + String(err && err.message ? err.message : err).slice(0, 200)
       });
     }
   }
@@ -104,12 +95,11 @@ async function subCrear(interaction) {
 
   if (!me.permissions.has(PermissionFlagsBits.ManageChannels)) {
     return interaction.editReply({
-      content:
-        '❌ El bot necesita permiso **Gestionar canales** para crear la categoria y los contadores.'
+      content: 'El bot necesita permiso Gestionar canales para crear la categoria y los contadores.'
     });
   }
 
-  let counters = await getServerCounters(interaction.client, guild.id);
+  const counters = await getServerCounters(interaction.client, guild.id);
   const activos = [];
   for (const c of counters) {
     const ch = guild.channels.cache.get(c.channelId);
@@ -118,8 +108,9 @@ async function subCrear(interaction) {
   if (activos.length > 0) {
     return interaction.editReply({
       content:
-        `⚠️ Ya hay **${activos.length}** contador(es) activo(s).\n` +
-        `Usa `/estadisticas quitar` antes de crear de nuevo, o `/estadisticas actualizar` para refrescar.`
+        'Ya hay ' +
+        activos.length +
+        ' contador(es) activo(s). Usa /estadisticas quitar antes de crear de nuevo, o /estadisticas actualizar.'
     });
   }
 
@@ -145,7 +136,7 @@ async function subCrear(interaction) {
 
   try {
     await category.setPosition(0);
-  } catch {
+  } catch (e) {
     /* position opcional */
   }
 
@@ -160,7 +151,7 @@ async function subCrear(interaction) {
       name: channelName,
       type: ChannelType.GuildVoice,
       parent: category.id,
-      reason: `Contador automatico: ${tipo}`,
+      reason: 'Contador automatico: ' + tipo,
       permissionOverwrites: [
         {
           id: guild.roles.everyone.id,
@@ -190,7 +181,7 @@ async function subCrear(interaction) {
     };
 
     nuevosCounters.push(entry);
-    creados.push(`• <#${voice.id}> (\`${tipo}\`)`);
+    creados.push('• <#' + voice.id + '> (' + tipo + ')');
   }
 
   await saveServerCounters(interaction.client, guild.id, nuevosCounters);
@@ -203,27 +194,29 @@ async function subCrear(interaction) {
 
   const embed = new EmbedBuilder()
     .setColor(0x74d4fc)
-    .setTitle('📊 Estadisticas creadas')
+    .setTitle('Estadisticas creadas')
     .setDescription(
-      `Categoria: **${CATEGORY_NAME}**\n\n` +
-        `${creados.join('\n')}\n\n` +
-        `Los nombres se actualizan solos cuando alguien entra o se va.\n` +
-        `*(Discord puede tardar unos minutos si hay muchos cambios seguidos.)*`
+      'Categoria: **' +
+        CATEGORY_NAME +
+        '**\n\n' +
+        creados.join('\n') +
+        '\n\nLos nombres se actualizan solos cuando alguien entra o se va.\n' +
+        '*(Discord puede tardar unos minutos si hay muchos cambios seguidos.)*'
     )
     .addFields(
       {
         name: 'Miembros totales',
-        value: `\`${stats.totalCount.toLocaleString('es-AR')}\``,
+        value: '`' + stats.totalCount.toLocaleString('es-AR') + '`',
         inline: true
       },
       {
         name: 'Humanos',
-        value: `\`${stats.humanCount.toLocaleString('es-AR')}\``,
+        value: '`' + stats.humanCount.toLocaleString('es-AR') + '`',
         inline: true
       },
       {
         name: 'Bots',
-        value: `\`${stats.botCount.toLocaleString('es-AR')}\``,
+        value: '`' + stats.botCount.toLocaleString('es-AR') + '`',
         inline: true
       }
     )
@@ -239,7 +232,7 @@ async function subActualizar(interaction) {
 
   if (!counters.length) {
     return interaction.editReply({
-      content: 'No hay contadores configurados. Usa `/estadisticas crear`.'
+      content: 'No hay contadores configurados. Usa /estadisticas crear.'
     });
   }
 
@@ -254,15 +247,22 @@ async function subActualizar(interaction) {
   const stats = await getGuildCounterStats(guild);
   return interaction.editReply({
     content:
-      `✅ Actualizados: **${ok}**` +
-      (fail ? ` · ⚠️ Fallidos: **${fail}**` : '') +
-      `\nTotales: **${stats.totalCount.toLocaleString('es-AR')}** · Humanos: **${stats.humanCount.toLocaleString('es-AR')}**`
+      'Actualizados: **' +
+      ok +
+      '**' +
+      (fail ? ' · Fallidos: **' + fail + '**' : '') +
+      '\nTotales: **' +
+      stats.totalCount.toLocaleString('es-AR') +
+      '** · Humanos: **' +
+      stats.humanCount.toLocaleString('es-AR') +
+      '**'
   });
 }
 
 async function subQuitar(interaction) {
   const guild = interaction.guild;
-  const borrar = interaction.options.getBoolean('borrar_canales') ?? true;
+  const borrar = interaction.options.getBoolean('borrar_canales');
+  const debeBorrar = borrar === null || borrar === undefined ? true : borrar;
   const counters = await getServerCounters(interaction.client, guild.id);
 
   if (!counters.length) {
@@ -270,21 +270,27 @@ async function subQuitar(interaction) {
   }
 
   const categoryIds = new Set();
-  if (borrar) {
+  if (debeBorrar) {
     for (const c of counters) {
       const ch = guild.channels.cache.get(c.channelId);
       if (ch) {
         if (ch.parentId) categoryIds.add(ch.parentId);
-        await ch.delete('Contador de estadisticas eliminado').catch(() => null);
+        await ch.delete('Contador de estadisticas eliminado').catch(function () {
+          return null;
+        });
       }
       if (c.categoryId) categoryIds.add(c.categoryId);
     }
     for (const catId of categoryIds) {
       const cat = guild.channels.cache.get(catId);
       if (cat && cat.type === ChannelType.GuildCategory) {
-        const hijos = guild.channels.cache.filter((c) => c.parentId === catId);
+        const hijos = guild.channels.cache.filter(function (c) {
+          return c.parentId === catId;
+        });
         if (hijos.size === 0) {
-          await cat.delete('Categoria de estadisticas vacia').catch(() => null);
+          await cat.delete('Categoria de estadisticas vacia').catch(function () {
+            return null;
+          });
         }
       }
     }
@@ -292,9 +298,9 @@ async function subQuitar(interaction) {
 
   await saveServerCounters(interaction.client, guild.id, []);
   return interaction.editReply({
-    content: borrar
-      ? '✅ Contadores desactivados y canales/categoria eliminados.'
-      : '✅ Contadores desactivados (los canales se dejaron en el servidor).'
+    content: debeBorrar
+      ? 'Contadores desactivados y canales/categoria eliminados.'
+      : 'Contadores desactivados (los canales se dejaron en el servidor).'
   });
 }
 
@@ -306,22 +312,38 @@ async function subEstado(interaction) {
   if (!counters.length) {
     return interaction.editReply({
       content:
-        `Sin contadores activos.\n` +
-        `Miembros ahora: **${stats.totalCount.toLocaleString('es-AR')}** ` +
-        `(humanos: **${stats.humanCount.toLocaleString('es-AR')}**).`
+        'Sin contadores activos.\nMiembros ahora: **' +
+        stats.totalCount.toLocaleString('es-AR') +
+        '** (humanos: **' +
+        stats.humanCount.toLocaleString('es-AR') +
+        '**).'
     });
   }
 
-  const lines = counters.map((c) => {
+  const lines = counters.map(function (c) {
     const ch = guild.channels.cache.get(c.channelId);
-    return `• \`${c.type}\` → ${ch ? `<#${ch.id}>` : '⚠️ canal borrado'} · enabled=${c.enabled !== false}`;
+    return (
+      '• `' +
+      c.type +
+      '` → ' +
+      (ch ? '<#' + ch.id + '>' : 'canal borrado') +
+      ' · enabled=' +
+      (c.enabled !== false)
+    );
   });
 
   return interaction.editReply({
     content:
-      `**Contadores (${counters.length})**\n${lines.join('\n')}\n\n` +
-      `Totales: **${stats.totalCount.toLocaleString('es-AR')}** · ` +
-      `Humanos: **${stats.humanCount.toLocaleString('es-AR')}** · ` +
-      `Bots: **${stats.botCount.toLocaleString('es-AR')}**`
+      '**Contadores (' +
+      counters.length +
+      ')**\n' +
+      lines.join('\n') +
+      '\n\nTotales: **' +
+      stats.totalCount.toLocaleString('es-AR') +
+      '** · Humanos: **' +
+      stats.humanCount.toLocaleString('es-AR') +
+      '** · Bots: **' +
+      stats.botCount.toLocaleString('es-AR') +
+      '**'
   });
 }
