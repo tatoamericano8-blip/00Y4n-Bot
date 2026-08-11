@@ -1,31 +1,32 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
 import Sesion from '../../../models/Session.js';
 import Historial from '../../../models/Historial.js';
+import { cerrarFastPassesDeGuild } from '../../utils/gestorFastPass.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
-const IMAGEN_RP_DEFECTO = 'https://cdn.discordapp.com/attachments/1505017301089652898/1536043755163877568/Lanzamiento_Roleplay_1.png?ex=6a79f7b9&is=6a78a639&hm=66a74a3f4e6ad339cbb3abd69e6711edae3edd1a0d18992317019565aa0ce538&';
+const IMAGEN_RP_DEFECTO = 'https://cdn.discordapp.com/attachments/1505017301089652898/1536043755163877568/Lanzamiento_Roleplay_1.png';
 
 export default {
     data: {
         name: 'lanzar_rp',
-        description: 'Liberas los accesos para una sesión oficial de Roleplay.',
+        description: 'Liberas los accesos para una sesion oficial de Roleplay.',
         options: [
             {
                 name: 'mensaje_id',
-                description: 'Pegá acá la ID del mensaje de Startup/Inicio de esta sesión.',
+                description: 'Pega aca la ID del mensaje de Startup/Inicio de esta sesion.',
                 type: ApplicationCommandOptionType.String,
                 required: true
             },
             {
                 name: 'acceso',
-                description: 'Pegá acá el enlace del servidor privado de Roblox.',
+                description: 'Pega aca el enlace del servidor privado de Roblox.',
                 type: ApplicationCommandOptionType.String,
                 required: true
             },
             {
                 name: 'limite_velocidad',
-                description: 'Selecciona el límite de velocidad de la sesión.',
+                description: 'Selecciona el limite de velocidad de la sesion.',
                 type: ApplicationCommandOptionType.String,
                 required: true,
                 choices: [
@@ -50,7 +51,7 @@ export default {
             },
             {
                 name: 'servicios_emergencia',
-                description: '¿Los servicios de emergencia están activos?',
+                description: 'Los servicios de emergencia estan activos?',
                 type: ApplicationCommandOptionType.String,
                 required: true,
                 choices: [
@@ -70,7 +71,7 @@ export default {
     async execute(interaction) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
-                content: `<:cruz00y4n:1534937767652495360> **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesión.`,
+                content: '<:cruz00y4n:1534937767652495360> **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesion.',
                 ephemeral: true
             });
         }
@@ -82,47 +83,38 @@ export default {
         const serviciosEmergencia = interaction.options.getString('servicios_emergencia');
         const urlImagen = interaction.options.getString('imagen');
 
-        let coHostId = null;
         let hostIdSesion = interaction.user.id;
+        let coHostId = null;
         try {
-            const sesionPrevia = await Sesion.findOne({ idInicio });
-            if (sesionPrevia) {
-                coHostId = sesionPrevia.coHostId || null;
-                hostIdSesion = sesionPrevia.hostId || interaction.user.id;
+            const sesionPrev = await Sesion.findOne({ idInicio }).lean();
+            if (sesionPrev) {
+                if (sesionPrev.hostId) hostIdSesion = sesionPrev.hostId;
+                if (sesionPrev.coHostId) coHostId = sesionPrev.coHostId;
             }
-        } catch {}
-
-        const textoCohost = coHostId ? `<@${coHostId}>` : 'Ninguno';
+        } catch (_) {}
 
         const infoDescripcion =
-            `> <a:punto:1534939368035324125> <@${interaction.user.id}> ¡ha lanzado su sesión! Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
-            ` <:flor:1534999731019972671> **Antes de Unirte**\n\n` +
-            `> <:fle:1534937306191102125> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-            `> <:fle:1534937306191102125> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399/1536059852432867412) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1536064730223874132).\n` +
-            `> <:fle:1534937306191102125> Registra tus vehículos en <#1505615426305130657>!\n\n` +
-            ` <:flor:1534999731019972671> **Información del Roleplay**\n\n` +
-            `> <:uno:1534938872977297559> **Estado de Peacetime:** ${peacetime}\n` +
-            `> <:dos:1535001133729447987> **Velocidad de Fail Roleplay:** ${limite}\n` +
-            `> <:tres:1535001243204718612> **Servicios de Emergencia:** ${serviciosEmergencia}\n` +
-            `> <:cuatro:1534938460228550857> **Co-Host de la Sesión:** ${textoCohost}\n` +
-            `> <:replica:1534982812116062370> Las velocidades de detención son **+6 MPH** sobre el límite de velocidad establecido.\n\n` +
-            `-# <:dot:1534938142665084938> *¡Cualquier miembro descubierto haciendo Fail Roleplay de forma excesiva será expulsado inmediatamente de la sesión!*`;
+            `<:dot:1534938142665084938> <@${interaction.user.id}> ha **lanzado la sesion de Roleplay**.\n\n` +
+            `> Limite de velocidad: **${limite}**\n` +
+            `> Peacetime: **${peacetime}**\n` +
+            `> Servicios de emergencia: **${serviciosEmergencia}**\n\n` +
+            `Usá el boton **Link de la Sesion** (debes haber votado en el inicio).`;
 
         const embedRelease = new EmbedBuilder()
-            .setTitle(`<a:mariquieta:1534954231138746488> Southwest Florida - *_Roleplay Sesión Lanzada_* <a:mariquieta:1534954231138746488>`)
+            .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida – ***__Roleplay Sesion Lanzada__*** <a:mariquieta:1534954231138746488>')
             .setDescription(infoDescripcion)
             .setColor('#74d4fc');
 
         if (urlImagen) {
             embedRelease.setImage(urlImagen);
-        } else if (IMAGEN_RP_DEFECTO !== '') {
+        } else {
             embedRelease.setImage(IMAGEN_RP_DEFECTO);
         }
 
         const fila = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('verificar_voto_swfl')
-                .setLabel('Link de la Sesión')
+                .setLabel('Link de la Sesion')
                 .setStyle(ButtonStyle.Secondary)
                 .setEmoji('1534937419231527036')
         );
@@ -145,6 +137,13 @@ export default {
             guildId: interaction.guildId,
             tipo: 'rp'
         });
+
+        try {
+            const n = await cerrarFastPassesDeGuild(interaction.client, interaction.guildId, interaction.channelId);
+            if (n > 0) console.log(`[lanzar] FastPass cerrado: ${n} mensaje(s)`);
+        } catch (e) {
+            console.error('[lanzar] Error cerrando FastPass:', e?.message || e);
+        }
 
         try {
             await Sesion.findOneAndUpdate(
