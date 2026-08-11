@@ -13,7 +13,7 @@ import { PRIMARIO } from '../utils/colores.js';
 const GUILD_00Y4N = '1451939725308067842';
 const CHANNEL_BIENVENIDA = '1451942119827570830';
 const IMAGEN_BIENVENIDA =
-    'https://cdn.discordapp.com/attachments/1451942179877687399/1535772044321624185/Bienvenida_1.png';
+    'https://cdn.discordapp.com/attachments/1505017301089652898/1536043678131425451/Bienvenida_1.png?ex=6a7c9aa7&is=6a7b4927&hm=914b95016370db69cc30c49c76893a7497b0ad785748875158d59bc600b7428e&';
 
 export default {
   name: Events.GuildMemberAdd,
