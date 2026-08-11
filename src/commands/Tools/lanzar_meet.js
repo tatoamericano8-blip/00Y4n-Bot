@@ -1,67 +1,90 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
 import Sesion from '../../../models/Session.js';
 import Historial from '../../../models/Historial.js';
+import { cerrarFastPassesDeGuild } from '../../utils/gestorFastPass.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
-const IMAGEN_MEET_DEFECTO = 'https://cdn.discordapp.com/attachments/1505017301089652898/1536043754753097910/Lanzamiento_Carmeet_1.png?ex=6a79f7b9&is=6a78a639&hm=6da28e85a72b67d84936e1bd857c7ed0e7665a82ee3789ad59b582bc30833e64&';
+const IMAGEN_MEET_DEFECTO = '';
 
 export default {
     data: {
         name: 'lanzar_meet_swfl',
-        description: 'Libera los accesos para un Car Meet oficial.',
+        description: 'Liberas los accesos para una sesion oficial de Car Meet.',
         options: [
-            { name: 'mensaje_id', description: 'Pegá acá la ID del mensaje de Startup/Inicio de esta sesión.', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'acceso', description: 'Pegá acá el enlace del servidor privado de Roblox.', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'tematica', description: 'Ejemplo: JDM, Exóticos, Camionetas', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'ubicacion', description: 'Lugar de concentración (Ej: Puerto, Aeropuerto)', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'spots_duracion', description: 'Ejemplo: 3 Spots / 45 Minutos', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'imagen', description: 'Link de la foto/banner para la apertura (opcional).', type: ApplicationCommandOptionType.String, required: false }
+            {
+                name: 'mensaje_id',
+                description: 'Pega aca la ID del mensaje de Startup/Inicio de esta sesion.',
+                type: ApplicationCommandOptionType.String,
+                required: true
+            },
+            {
+                name: 'acceso',
+                description: 'Pega aca el enlace del servidor privado de Roblox.',
+                type: ApplicationCommandOptionType.String,
+                required: true
+            },
+            {
+                name: 'tematica',
+                description: 'Tematica del meet (ej: JDM, Muscle, Euro).',
+                type: ApplicationCommandOptionType.String,
+                required: false
+            },
+            {
+                name: 'ubicacion',
+                description: 'Ubicacion del meet.',
+                type: ApplicationCommandOptionType.String,
+                required: false
+            },
+            {
+                name: 'spots',
+                description: 'Cupos / spots del meet.',
+                type: ApplicationCommandOptionType.String,
+                required: false
+            },
+            {
+                name: 'imagen',
+                description: 'Link de la foto/banner para la apertura (opcional).',
+                type: ApplicationCommandOptionType.String,
+                required: false
+            }
         ]
     },
 
     async execute(interaction) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
-            return await interaction.reply({
-                content: '<:cruz00y4n:1534937767652495360> **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesión.',
+            return interaction.reply({
+                content: 'No tienes permisos para lanzar el meet.',
                 ephemeral: true
             });
         }
 
         const idInicio = interaction.options.getString('mensaje_id');
         const linkSesion = interaction.options.getString('acceso');
-        const tematica = interaction.options.getString('tematica');
-        const ubicacion = interaction.options.getString('ubicacion');
-        const spots = interaction.options.getString('spots_duracion');
+        const tematica = interaction.options.getString('tematica') || 'General';
+        const ubicacion = interaction.options.getString('ubicacion') || 'Por confirmar';
+        const spots = interaction.options.getString('spots') || 'Ilimitados';
         const urlImagen = interaction.options.getString('imagen');
 
-        let coHostId = null;
         let hostIdSesion = interaction.user.id;
+        let coHostId = null;
         try {
-            const sesionPrevia = await Sesion.findOne({ idInicio });
-            if (sesionPrevia) {
-                coHostId = sesionPrevia.coHostId || null;
-                hostIdSesion = sesionPrevia.hostId || interaction.user.id;
+            const sesionPrev = await Sesion.findOne({ idInicio }).lean();
+            if (sesionPrev) {
+                if (sesionPrev.hostId) hostIdSesion = sesionPrev.hostId;
+                if (sesionPrev.coHostId) coHostId = sesionPrev.coHostId;
             }
-        } catch {}
-
-        const textoCohost = coHostId ? `<@${coHostId}>` : 'Ninguno';
+        } catch (_) {}
 
         const infoDescripcion =
-            `> <a:flecha:1534939368035324125> <@${interaction.user.id}> **¡ha lanzado un Car Meet oficial!** Eres bienvenido a unirte utilizando el botón de abajo. Antes de ingresar al servidor, asegúrate de haber leído la información detallada a continuación.\n\n` +
-            `**<:manual:1534999731019972671> Antes de Unirte**\n\n` +
-            `> <:si:1534938142665084938> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-            `> <:si:1534938142665084938> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399/1536059852432867412) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1452644461745148049/1536073385824624722).\n\n` +
-            `**<:caram00y4nmov:1523041315187855470> Información del Car Meet**\n\n` +
-            `<:uno:1534938872977297559> **Temática del Meet:** ${tematica}\n` +
-            `<:dos:1535001133729447987> **Lugar de Inicio:** ${ubicacion}\n` +
-            `<:tres:1535001243204718612> **Spots / Duración:** ${spots}\n` +
-            `<:cuatro:1534938460228550857> **Co-Host de la Sesión:** ${textoCohost}\n` +
-            `<:flechareplica:1534982812116062370> Los vehículos deben ingresar __despacio__ al lugar actual del meet.\n\n` +
-            `➴ *¡Cualquier miembro descubierto haciendo Choque de vehículos o saboteando el orden será __expulsado__ e ingresará directo a la blacklist!*`;
+            `<:dot:1534938142665084938> El **Car Meet** fue lanzado.\n` +
+            `> Tematica: **${tematica}**\n` +
+            `> Ubicacion: **${ubicacion}**\n` +
+            `> Spots: **${spots}**\n\n` +
+            `Usá el boton de abajo para obtener el link (debes haber votado en el inicio).`;
 
         const embedRelease = new EmbedBuilder()
-            .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida – ***__Car Meet Sesión Lanzada__*** <a:mariquieta:1534954231138746488>')
+            .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida – ***__Car Meet Sesion Lanzada__*** <a:mariquieta:1534954231138746488>')
             .setDescription(infoDescripcion)
             .setColor('#74d4fc');
 
@@ -74,7 +97,7 @@ export default {
         const fila = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('verificar_voto_swfl')
-                .setLabel('Link de la Sesión')
+                .setLabel('Link de la Sesion')
                 .setStyle(ButtonStyle.Secondary)
                 .setEmoji('1534937419231527036')
         );
@@ -97,6 +120,14 @@ export default {
             guildId: interaction.guildId,
             tipo: 'meet'
         });
+
+        // Cerrar boton de FastPass si habia uno abierto (estilo Early Access Closed)
+        try {
+            const n = await cerrarFastPassesDeGuild(interaction.client, interaction.guildId, interaction.channelId);
+            if (n > 0) console.log(`[lanzar] FastPass cerrado: ${n} mensaje(s)`);
+        } catch (e) {
+            console.error('[lanzar] Error cerrando FastPass:', e?.message || e);
+        }
 
         try {
             await Sesion.findOneAndUpdate(
