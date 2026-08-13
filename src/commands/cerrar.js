@@ -69,9 +69,11 @@ export default {
         let pagos = { host: 0, cohost: 0, supervisor: 0 };
 
         try {
+            // Filtra por tipo para no cerrar un meet al cerrar un rp (o viceversa)
             sesionActiva = await Session.findOneAndUpdate(
                 {
                     guildId,
+                    tipo,
                     estado: { $in: ['activa', 'esperando_reacciones'] }
                 },
                 {
@@ -121,7 +123,7 @@ export default {
                         executorId: interaction.user.id
                     });
                 }
-                if (supervisorId && supervisorId !== hostId) {
+                if (supervisorId && supervisorId !== hostId && supervisorId !== coHostId) {
                     await sumarCuotaStaff(guildId, supervisorId, {
                         sesionesSupervisadas: 1,
                         horas: Number((horasCalculadas * 0.25).toFixed(2)),
@@ -142,7 +144,7 @@ export default {
                         executorId: interaction.user.id
                     });
                 }
-                if (supervisorId && supervisorId !== hostId) {
+                if (supervisorId && supervisorId !== hostId && supervisorId !== coHostId) {
                     await sumarCuotaStaff(guildId, supervisorId, {
                         sesionesSupervisadas: 1,
                         motivo: `Supervision sesion ${tipo} (sin duracion)`,
@@ -199,19 +201,20 @@ export default {
                     limit: 100,
                     ...(lastId ? { before: lastId } : {})
                 });
-                if (mensajes.size === 0) break;
-                lastId = mensajes.last()?.id;
-                const aEliminar = mensajes.filter(
-                    msg => msg.createdTimestamp >= cuatroHorasAtras && !msg.pinned
-                );
-                if (aEliminar.size > 0) {
-                    await interaction.channel.bulkDelete(aEliminar, true);
+                if (!mensajes.size) break;
+                const botId = interaction.client.user.id;
+                const aBorrar = [];
+                for (const m of mensajes.values()) {
+                    if (m.createdTimestamp < cuatroHorasAtras) continue;
+                    if (m.author?.id === botId) aBorrar.push(m);
                 }
-                const oldest = mensajes.last();
-                if (oldest && oldest.createdTimestamp < cuatroHorasAtras) break;
+                if (aBorrar.length) {
+                    await interaction.channel.bulkDelete(aBorrar, true).catch(() => null);
+                }
+                lastId = mensajes.last()?.id;
             }
         } catch (error) {
-            console.error('Error al purgar mensajes en /cerrar_swfl:', error);
+            console.error('Error limpiando mensajes en /cerrar_swfl:', error);
         }
 
         const titulo =
