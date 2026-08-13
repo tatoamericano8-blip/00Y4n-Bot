@@ -4,10 +4,11 @@ import Historial from '../../models/Historial.js';
 import { logger } from './logger.js';
 
 const URL_IMAGEN_DEFAULT =
-  'https://cdn.discordapp.com/attachments/1505017301089652898/1534978855423574146/Sesion_Concluida_1.png?ex=6a7617f5&is=6a74c675&hm=58673b837435de19bfb88da762808176cfcf9bf0545f80b96169640606049abb&';
+  'https://cdn.discordapp.com/attachments/1505017301089652898/1534978855423574146/Sesion_Concluida_1.png';
 
 /**
  * Cierra una sesión sin sumar cuota (mensaje de inicio borrado, timeout, etc.).
+ * Tolera documentos viejos incompletos (sin tipo / guildId).
  */
 export async function cerrarSesionSinCuota(sesion, {
   motivo = 'El mensaje de inicio fue eliminado.',
@@ -16,40 +17,76 @@ export async function cerrarSesionSinCuota(sesion, {
 } = {}) {
   if (!sesion) return null;
 
-  sesion.estado = 'cerrada';
-  sesion.fechaCierre = new Date();
-  sesion.cierreForzado = true;
-  sesion.cuentaParaCuota = false;
-  sesion.motivoCierreForzado = motivo;
-  await sesion.save().catch(e => logger.warn(`[cierreAuto] save: ${e.message}`));
+  const idInicio = sesion.idInicio || String(sesion._id || '');
+  const tipo = sesion.tipo === 'meet' ? 'meet' : 'rp';
+  const guildId = sesion.guildId || channel?.guildId || channel?.guild?.id || null;
+  const hostId = sesion.hostId || '0';
 
-  // Limpiar memoria
   try {
-    if (global.coleccionStartups?.has(sesion.idInicio)) {
-      global.coleccionStartups.delete(sesion.idInicio);
+    if (sesion._id) {
+      await Sesion.updateOne(
+        { _id: sesion._id },
+        {
+          $set: {
+            estado: 'cerrada',
+            fechaCierre: new Date(),
+            cierreForzado: true,
+            cuentaParaCuota: false,
+            motivoCierreForzado: motivo,
+            ...(sesion.tipo ? {} : { tipo }),
+            ...(sesion.guildId ? {} : guildId ? { guildId } : {}),
+            ...(sesion.hostId ? {} : { hostId })
+          }
+        }
+      );
+    } else {
+      sesion.estado = 'cerrada';
+      sesion.fechaCierre = new Date();
+      sesion.cierreForzado = true;
+      sesion.cuentaParaCuota = false;
+      sesion.motivoCierreForzado = motivo;
+      if (!sesion.tipo) sesion.tipo = tipo;
+      if (!sesion.guildId && guildId) sesion.guildId = guildId;
+      if (!sesion.hostId) sesion.hostId = hostId;
+      await sesion.save();
+    }
+  } catch (e) {
+    logger.warn(`[cierreAuto] save: ${e.message}`);
+  }
+
+  try {
+    if (global.coleccionStartups?.has(idInicio)) {
+      global.coleccionStartups.delete(idInicio);
     }
   } catch {}
 
-  try {
-    await Historial.create({
-      evento: 'SESION_CERRADA_AUTO',
-      mensajeId: sesion.idInicio,
-      idInicio: sesion.idInicio,
-      guildId: sesion.guildId,
-      hostId: sesion.hostId,
-      hostTag: 'auto',
-      tipo: sesion.tipo,
-      detalles: {
-        motivo,
-        sinCuota: true,
-        automatico: true
-      }
-    });
-  } catch (e) {
-    logger.warn(`[cierreAuto] historial: ${e.message}`);
+  if (guildId && idInicio) {
+    try {
+      await Historial.create({
+        evento: 'SESION_CERRADA_AUTO',
+        mensajeId: idInicio,
+        idInicio,
+        guildId,
+        hostId,
+        hostTag: 'auto',
+        tipo,
+        detalles: {
+          motivo,
+          sinCuota: true,
+          automatico: true,
+          docIncompleto: !sesion.tipo || !sesion.guildId
+        }
+      });
+    } catch (e) {
+      logger.warn(`[cierreAuto] historial: ${e.message}`);
+    }
+  } else {
+    logger.warn(
+      `[cierreAuto] historial omitido (faltan guildId/idInicio) sesión=${idInicio || '?'}`
+    );
   }
 
-  const tipoTxt = sesion.tipo === 'meet' ? 'Car Meet' : 'Roleplay';
+  const tipoTxt = tipo === 'meet' ? 'Car Meet' : 'Roleplay';
   const embed = new EmbedBuilder()
     .setColor('#74d4fc')
     .setTitle(
@@ -58,9 +95,8 @@ export async function cerrarSesionSinCuota(sesion, {
     .setDescription(
       `Esta sesión de **${tipoTxt}** fue **terminada automáticamente**.\n\n` +
         `**Motivo:** ${motivo}\n\n` +
-        `> Host: <@${sesion.hostId}>\n` +
-        `> *No se preocupe si no hay sesiones en ejecución en este momento; pronto se iniciará otra.*
-`
+        `> Host: <@${hostId}>\n` +
+        `> *No se preocupe si no hay sesiones en ejecución en este momento; pronto se iniciará otra.*`
     )
     .setImage(URL_IMAGEN_DEFAULT)
     .setFooter({ text: '00Y4n Comunidad Southwest Florida' })
@@ -70,22 +106,12 @@ export async function cerrarSesionSinCuota(sesion, {
     await channel.send({ embeds: [embed] }).catch(e =>
       logger.warn(`[cierreAuto] no se pudo enviar embed: ${e.message}`)
     );
-  } else if (client && sesion.guildId) {
-    try {
-      const guild = await client.guilds.fetch(sesion.guildId).catch(() => null);
-      // Sin canal conocido no enviamos
-    } catch {}
   }
 
-  logger.info(
-    `[cierreAuto] Sesión ${sesion.idInicio} cerrada sin cuota. Motivo: ${motivo}`
-  );
+  logger.info(`[cierreAuto] Sesión ${idInicio} cerrada sin cuota. Motivo: ${motivo}`);
   return sesion;
 }
 
-/**
- * Si se borra el mensaje de /inicio_swfl y la sesión sigue abierta → cierre auto.
- */
 export async function manejarBorradoMensajeInicio(message) {
   if (!message?.id || !message.guild) return false;
 
@@ -105,10 +131,6 @@ export async function manejarBorradoMensajeInicio(message) {
   return true;
 }
 
-/**
- * Limpia sesiones fantasma abiertas hace más de `horasMax` horas.
- * No suma cuota.
- */
 export async function limpiarSesionesFantasma(client, horasMax = 8) {
   const limite = new Date(Date.now() - horasMax * 60 * 60 * 1000);
   const viejas = await Sesion.find({
