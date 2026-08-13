@@ -1,5 +1,6 @@
 import { EmbedBuilder } from 'discord.js';
 import mongoose from 'mongoose';
+import { parseFechaFlexible } from '../../utils/gestorLoa.js';
 
 const ROLE_LOA = '1532459272690991318';
 
@@ -58,6 +59,11 @@ export default {
         '../../../models/StaffLog.js'
       );
 
+      const inicioArg = args?.[1] || null;
+      const finArg = args?.[2] || null;
+      const inicioParsed = parseFechaFlexible(inicioArg) || new Date();
+      const finParsed = parseFechaFlexible(finArg);
+
       if (Staff) {
         await Staff.findOneAndUpdate(
           { guildId, userId: userIdTarget },
@@ -65,8 +71,11 @@ export default {
             $set: {
               estado: 'LOA',
               'loa.activo': true,
-              'loa.inicio': new Date(),
-              'loa.fin': null
+              'loa.inicio': inicioParsed,
+              'loa.fin': finParsed,
+              'loa.motivo': finArg
+                ? `LOA hasta ${finArg}`
+                : 'LOA Aprobada por Alto Comando'
             }
           },
           { upsert: true, new: true }
@@ -84,7 +93,11 @@ export default {
           tipo: 'LOA_APROBADA',
           targetUserId: userIdTarget,
           executorId: interaction.user.id,
-          detalles: { motivo: 'LOA Aprobada por Alto Comando' }
+          detalles: {
+            motivo: 'LOA Aprobada por Alto Comando',
+            inicio: inicioArg,
+            fin: finArg
+          }
         }).catch(() => {});
       }
 
