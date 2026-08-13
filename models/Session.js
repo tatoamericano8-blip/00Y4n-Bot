@@ -7,6 +7,16 @@ const sesionSchema = new mongoose.Schema({
     hostId: { type: String, required: true },
     coHostId: { type: String, default: null },
     supervisorId: { type: String, default: null },
+
+    hostActivo: { type: Boolean, default: true },
+
+    cuotaParcialPagada: [{
+        userId: { type: String, required: true },
+        rol: { type: String, enum: ['host', 'cohost', 'supervisor'], required: true },
+        horas: { type: Number, default: 0 },
+        hasta: { type: Date, default: Date.now }
+    }],
+
     tipo: { type: String, enum: ['rp', 'meet'], required: true },
     reaccionesRequeridas: { type: Number, default: 0 },
     imagen: { type: String, default: null },
@@ -43,7 +53,6 @@ const sesionSchema = new mongoose.Schema({
     fechaCierre: { type: Date, default: null },
     duracionMinutos: { type: Number, default: 0 },
 
-    /** Si true, no suma cuota a host/cohost/supervisor */
     cierreForzado: { type: Boolean, default: false },
     motivoCierreForzado: { type: String, default: null },
     cerradoPor: { type: String, default: null },
