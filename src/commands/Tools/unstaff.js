@@ -1,4 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import Session from '../../../models/Session.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -22,7 +23,6 @@ export default {
         const rolSeleccionado = interaction.options.getString('rol');
         const notas = interaction.options.getString('notas') || 'Sin observaciones.';
 
-        // Configuración según el rol elegido
         const datosRoles = {
             host: {
                 titulo: '<a:si:1534954014335172729> Host Finalizado',
@@ -43,7 +43,24 @@ export default {
 
         const config = datosRoles[rolSeleccionado];
 
-        // Embed con formato 00Y4n (#74d4fc)
+        try {
+            const sesion = await Session.findOne({
+                guildId: interaction.guildId,
+                estado: { $in: ['esperando_reacciones', 'activa'] }
+            }).sort({ fechaInicio: -1 });
+            if (sesion) {
+                if (rolSeleccionado === 'cohost' && sesion.coHostId === interaction.user.id) {
+                    sesion.coHostId = null;
+                    await sesion.save();
+                } else if (rolSeleccionado === 'supervisor' && sesion.supervisorId === interaction.user.id) {
+                    sesion.supervisorId = null;
+                    await sesion.save();
+                }
+            }
+        } catch (e) {
+            console.error('[finalizar_host] Error actualizando sesión:', e?.message || e);
+        }
+
         const embedUnstaff = new EmbedBuilder()
             .setColor('#74d4fc')
             .setTitle(config.titulo)

@@ -10,6 +10,7 @@ import {
 } from '../utils/reinicioCuotas.js';
 import { limpiarSuspensionesVencidas } from '../utils/gestorSesionesRestricciones.js';
 import { limpiarSesionesFantasma } from '../utils/cierreSesionAutomatico.js';
+import { limpiarLoaVencidas } from '../utils/gestorLoa.js';
 
 const ROLE_SUSPEND_SESIONES = '1533180544630788166';
 
@@ -30,7 +31,6 @@ export default {
         `Reaction role reconciliation: scanned ${reconciliationSummary.scannedMessages}, removed ${reconciliationSummary.removedMessages}, errors ${reconciliationSummary.errors}`
       );
 
-      // Limpieza inmediata de sesiones fantasma (abiertas > 8h)
       try {
         const n = await limpiarSesionesFantasma(client, 8);
         if (n > 0) startupLog(`✅ Sesiones fantasma cerradas al arrancar: ${n}`);
@@ -38,7 +38,6 @@ export default {
         logger.warn('Limpieza inicial de sesiones fantasma falló:', e.message);
       }
 
-      // Reinicio + informe semanal — Domingos 22:00 AR
       if (!client._cuotasCronScheduled) {
         client._cuotasCronScheduled = true;
         cron.schedule(
@@ -53,7 +52,6 @@ export default {
         startupLog('✅ Sistema de Reinicio de Cuotas iniciado (Domingos 22:00 hs Argentina).');
       }
 
-      // Recordatorio mid-week — Miércoles 18:00 AR
       if (!client._cuotaReminderCron) {
         client._cuotaReminderCron = true;
         cron.schedule(
@@ -68,7 +66,6 @@ export default {
         startupLog('✅ Recordatorio de cuota mid-week iniciado (Miércoles 18:00 hs Argentina).');
       }
 
-      // Limpieza de sesiones fantasma cada hora
       if (!client._sesionesFantasmaCron) {
         client._sesionesFantasmaCron = true;
         cron.schedule('0 * * * *', () => {
@@ -79,7 +76,6 @@ export default {
         startupLog('✅ Limpieza de sesiones fantasma iniciada (cada 1h, umbral 8h).');
       }
 
-      // Limpiar suspensiones de sesión vencidas cada 15 minutos
       if (!client._suspendCronScheduled) {
         client._suspendCronScheduled = true;
         cron.schedule('*/15 * * * *', () => {
@@ -89,6 +85,17 @@ export default {
         });
         limpiarSuspensionesVencidas(client, ROLE_SUSPEND_SESIONES).catch(() => null);
         startupLog('✅ Limpieza de suspensiones de sesión iniciada (cada 15 min).');
+      }
+
+      if (!client._loaCronScheduled) {
+        client._loaCronScheduled = true;
+        cron.schedule('15 * * * *', () => {
+          limpiarLoaVencidas(client).catch(err =>
+            logger.error('Error limpiando LOAs vencidas:', err)
+          );
+        });
+        limpiarLoaVencidas(client).catch(() => null);
+        startupLog('✅ Limpieza de LOAs vencidas iniciada (cada 1h).');
       }
     } catch (error) {
       logger.error('Error in ready event:', error);
