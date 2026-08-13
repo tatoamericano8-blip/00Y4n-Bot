@@ -30,12 +30,18 @@ export default {
     let userIdTarget = args && args.length > 0 ? args[0] : null;
 
     if (!userIdTarget && embedOriginal?.description) {
-      const match = embedOriginal.description.match(/<@!?(\d+)>/) || embedOriginal.description.match(/(\d{17,19})/);
+      const match =
+        embedOriginal.description.match(/<@!?(\d+)>/) ||
+        embedOriginal.description.match(/(\d{17,19})/);
       if (match) userIdTarget = match[1];
     }
 
     try {
-      const StaffLog = await cargarModelo('StaffLog', '../models/StaffLog.js', '../../models/StaffLog.js');
+      const StaffLog = await cargarModelo(
+        'StaffLog',
+        '../../../models/StaffLog.js',
+        '../../../models/StaffLog.js'
+      );
 
       if (StaffLog && userIdTarget) {
         await StaffLog.create({
@@ -48,9 +54,12 @@ export default {
       }
 
       const embedEditado = EmbedBuilder.from(embedOriginal || {})
-        .setColor(0xE74C3C)
+        .setColor(0xe74c3c)
         .setTitle('❌ Solicitud de Ausencia (LOA) — RECHAZADA')
-        .setFooter({ text: `Rechazada por ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
+        .setFooter({
+          text: `Rechazada por ${interaction.user.tag}`,
+          iconURL: interaction.user.displayAvatarURL()
+        });
 
       await interaction.editReply({
         embeds: [embedEditado],
@@ -59,7 +68,8 @@ export default {
     } catch (error) {
       console.error('Error procesando rechazo LOA:', error);
       await interaction.followUp({
-        content: '<:cruz00y4n:1523041302764191844> Ocurrió un error al procesar el rechazo.',
+        content:
+          '<:cruz00y4n:1523041302764191844> Ocurrió un error al procesar el rechazo.',
         ephemeral: true
       });
     }

@@ -47,11 +47,15 @@ export default {
     }
 
     try {
-      const Staff = await cargarModelo('Staff', '../models/Staff.js', '../../models/Staff.js');
+      const Staff = await cargarModelo(
+        'Staff',
+        '../../../models/Staff.js',
+        '../../../models/Staff.js'
+      );
       const StaffLog = await cargarModelo(
         'StaffLog',
-        '../models/StaffLog.js',
-        '../../models/StaffLog.js'
+        '../../../models/StaffLog.js',
+        '../../../models/StaffLog.js'
       );
 
       if (Staff) {
@@ -69,7 +73,6 @@ export default {
         );
       }
 
-      // Rol LOA
       try {
         const member = await interaction.guild.members.fetch(userIdTarget);
         await member.roles.add(ROLE_LOA).catch(() => null);
