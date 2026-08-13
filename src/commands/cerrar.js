@@ -69,7 +69,6 @@ export default {
         let pagos = { host: 0, cohost: 0, supervisor: 0 };
 
         try {
-            // Filtra por tipo para no cerrar un meet al cerrar un rp (o viceversa)
             sesionActiva = await Session.findOneAndUpdate(
                 {
                     guildId,
@@ -118,7 +117,6 @@ export default {
                 if (coHostId && coHostId !== hostId) {
                     await sumarCuotaStaff(guildId, coHostId, {
                         horas: Number((horasCalculadas * 0.5).toFixed(2)),
-                        sesionesOrganizadas: 1,
                         motivo: `Co-Host sesion ${tipo} — ${duracionMostrar}`,
                         executorId: interaction.user.id
                     });
@@ -139,7 +137,7 @@ export default {
                 });
                 if (coHostId && coHostId !== hostId) {
                     await sumarCuotaStaff(guildId, coHostId, {
-                        sesionesOrganizadas: 1,
+                        horas: 0.25,
                         motivo: `Co-Host sesion ${tipo} (sin duracion)`,
                         executorId: interaction.user.id
                     });
@@ -162,7 +160,6 @@ export default {
                         duracionMinutos: minutosCalculados,
                         cuentaParaCuota: true
                     });
-                    console.log(`[cerrar_swfl] Pagos host=${pagos.host} cohost=${pagos.cohost} supervisor=${pagos.supervisor}`);
                 } catch (e) {
                     console.error('[cerrar_swfl] Error pago host:', e?.message || e);
                 }
