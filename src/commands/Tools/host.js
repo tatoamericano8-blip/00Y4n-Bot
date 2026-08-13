@@ -36,7 +36,6 @@ export default {
         const tipo = interaction.options.getString('tipo');
         const usuarioStaff = interaction.options.getUser('usuario');
 
-        // Buscar sesión activa o en espera de reacciones
         let sesion = null;
         try {
             sesion = await Session.findOne({
@@ -45,8 +44,12 @@ export default {
             }).sort({ fechaInicio: -1 });
 
             if (sesion) {
-                if (tipo === 'host') sesion.hostId = usuarioStaff.id;
-                else sesion.coHostId = usuarioStaff.id;
+                if (tipo === 'host') {
+                    sesion.hostId = usuarioStaff.id;
+                    sesion.hostActivo = true;
+                } else {
+                    sesion.coHostId = usuarioStaff.id;
+                }
                 await sesion.save();
             }
         } catch (err) {
@@ -75,7 +78,6 @@ export default {
             ephemeral: true
         });
 
-        // Responder al mensaje de /inicio_swfl si existe
         let enviadoComoReply = false;
         if (sesion?.idInicio) {
             try {
