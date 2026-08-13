@@ -99,6 +99,10 @@ export default {
             const hostId = sesionActiva?.hostId || interaction.user.id;
             const supervisorId = sesionActiva?.supervisorId || null;
             const coHostId = sesionActiva?.coHostId || null;
+            const hostSigue = sesionActiva?.hostActivo !== false;
+            const horasHost = horasCalculadas > 0 ? horasCalculadas : 0;
+            const horasCohost = horasCalculadas > 0 ? Number((horasCalculadas * 0.5).toFixed(2)) : 0;
+            const horasSup = horasCalculadas > 0 ? Number((horasCalculadas * 0.25).toFixed(2)) : 0;
 
             const noSumarCuota =
                 !sesionActiva ||
@@ -107,45 +111,30 @@ export default {
 
             if (noSumarCuota) {
                 console.log(`[cerrar_swfl] Sin cuota. host=${hostId}`);
-            } else if (horasCalculadas > 0 || minutosCalculados > 0) {
-                await sumarCuotaStaff(guildId, hostId, {
-                    horas: horasCalculadas,
-                    sesionesOrganizadas: 1,
-                    motivo: `Cierre de sesion ${tipo} — ${duracionMostrar}`,
-                    executorId: interaction.user.id
-                });
-                if (coHostId && coHostId !== hostId) {
-                    await sumarCuotaStaff(guildId, coHostId, {
-                        horas: Number((horasCalculadas * 0.5).toFixed(2)),
-                        motivo: `Co-Host sesion ${tipo} — ${duracionMostrar}`,
-                        executorId: interaction.user.id
-                    });
-                }
-                if (supervisorId && supervisorId !== hostId && supervisorId !== coHostId) {
-                    await sumarCuotaStaff(guildId, supervisorId, {
-                        sesionesSupervisadas: 1,
-                        horas: Number((horasCalculadas * 0.25).toFixed(2)),
-                        motivo: `Supervision sesion ${tipo} — ${duracionMostrar}`,
-                        executorId: interaction.user.id
-                    });
-                }
             } else {
-                await sumarCuotaStaff(guildId, hostId, {
-                    sesionesOrganizadas: 1,
-                    motivo: `Cierre de sesion ${tipo} (sin duracion)`,
-                    executorId: interaction.user.id
-                });
+                // Quien se quedó hasta el cierre: sesión + horas
+                // Quien hizo /finalizar_host antes: ya cobró solo horas parciales
+                if (hostSigue && hostId) {
+                    await sumarCuotaStaff(guildId, hostId, {
+                        horas: horasHost,
+                        sesionesOrganizadas: 1,
+                        motivo: `Cierre de sesion ${tipo} (host hasta el final) — ${duracionMostrar}`,
+                        executorId: interaction.user.id
+                    });
+                }
                 if (coHostId && coHostId !== hostId) {
                     await sumarCuotaStaff(guildId, coHostId, {
-                        horas: 0.25,
-                        motivo: `Co-Host sesion ${tipo} (sin duracion)`,
+                        horas: horasCohost || 0.25,
+                        sesionesOrganizadas: 1,
+                        motivo: `Cierre de sesion ${tipo} (co-host hasta el final) — ${duracionMostrar}`,
                         executorId: interaction.user.id
                     });
                 }
                 if (supervisorId && supervisorId !== hostId && supervisorId !== coHostId) {
                     await sumarCuotaStaff(guildId, supervisorId, {
+                        horas: horasSup,
                         sesionesSupervisadas: 1,
-                        motivo: `Supervision sesion ${tipo} (sin duracion)`,
+                        motivo: `Cierre de sesion ${tipo} (supervisor hasta el final) — ${duracionMostrar}`,
                         executorId: interaction.user.id
                     });
                 }
@@ -154,7 +143,7 @@ export default {
             if (!noSumarCuota) {
                 try {
                     pagos = await pagarStaffSesion({
-                        hostId,
+                        hostId: hostSigue ? hostId : null,
                         coHostId,
                         supervisorId,
                         duracionMinutos: minutosCalculados,
@@ -181,6 +170,7 @@ export default {
                     fechaFin: fechaFin.toISOString(),
                     supervisorId,
                     coHostId,
+                    hostSigue,
                     motivo: notasHost,
                     sinCuota: noSumarCuota,
                     pagos
