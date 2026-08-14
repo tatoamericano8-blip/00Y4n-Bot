@@ -98,8 +98,8 @@ export default {
             : `<:dot:1534938142665084938> Co-Host(s) de la sesión: *Sin asignar*`;
 
         const infoDescripcion =
-            `<:dot:1534938142665084938> El host, <@${hostIdSesion}>, **ha liberado su sesión**. Al unirte, spawneá tus vehículos y estacioná en las bahías correspondientes, y esperá más instrucciones del host. Asegurate de revisar la información de abajo.\n\n` +
-            `📋 | **Información de la sesión**\n` +
+            `<:dot:1534938142665084938> El host, <@${hostIdSesion}>, **ha liberado su sesión**. Al unirte, spawneá tus vehículos, estacioná en las parqueos correspondientes, y esperá más instrucciones del host. Asegurate de revisar la información de abajo.\n\n` +
+            `<:manual:1534999731019972671> | **Información de la sesión**\n` +
             `<:dot:1534938142665084938> Estado de Peacetime: **${peacetime}**\n` +
             `<:dot:1534938142665084938> Límite de Fail Roleplay: **${limite}**\n` +
             `<:dot:1534938142665084938> Servicios de emergencia: **${serviciosEmergencia}**\n` +
