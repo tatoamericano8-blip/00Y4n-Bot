@@ -160,7 +160,7 @@ export default {
             .setTimestamp();
 
         await interaction.reply({
-            content: '<a:corasdandovueltas:1534939964150907000> **@here** ¡Atención a las reinvitaciones de la sesión!',
+            content: '**@here**',
             embeds: [embedReinvitacion],
             allowedMentions: { parse: ['everyone', 'roles', 'users'] }
         });
