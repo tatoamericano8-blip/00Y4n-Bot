@@ -93,12 +93,17 @@ export default {
             }
         } catch (_) {}
 
+        const coHostLine = coHostId
+            ? `<:dot:1534938142665084938> Co-Host(s) de la sesión: <@${coHostId}>`
+            : `<:dot:1534938142665084938> Co-Host(s) de la sesión: *Sin asignar*`;
+
         const infoDescripcion =
-            `<:dot:1534938142665084938> <@${interaction.user.id}> ha **lanzado la sesion de Roleplay**.\n\n` +
-            `> Limite de velocidad: **${limite}**\n` +
-            `> Peacetime: **${peacetime}**\n` +
-            `> Servicios de emergencia: **${serviciosEmergencia}**\n\n` +
-            `Usá el boton **Link de la Sesion** (debes haber votado en el inicio).`;
+            `<:dot:1534938142665084938> El host, <@${hostIdSesion}>, **ha liberado su sesión**. Al unirte, spawneá tus vehículos y estacioná en las bahías correspondientes, y esperá más instrucciones del host. Asegurate de revisar la información de abajo.\n\n` +
+            `📋 | **Información de la sesión**\n` +
+            `<:dot:1534938142665084938> Estado de Peacetime: **${peacetime}**\n` +
+            `<:dot:1534938142665084938> Límite de Fail Roleplay: **${limite}**\n` +
+            `<:dot:1534938142665084938> Servicios de emergencia: **${serviciosEmergencia}**\n` +
+            `${coHostLine}`;
 
         const embedRelease = new EmbedBuilder()
             .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida – ***__Roleplay Sesion Lanzada__*** <a:mariquieta:1534954231138746488>')
