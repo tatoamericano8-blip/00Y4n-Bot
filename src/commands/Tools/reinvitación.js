@@ -190,7 +190,7 @@ export default {
                     : 'Ninguno';
 
                 let datosExtraSesion = '';
-                let tituloEmbed = '<a:confeti:1523026892981145600> Southwest Florida – ***__Reinvitaciones Liberadas__*** <a:confeti:1523026892981145600>';
+                let tituloEmbed = '<a:mariquieta:1534954231138746488> Southwest Florida – ***__Reinvitaciones Liberadas__*** <a:mariquieta:1534954231138746488>';
 
                 if (sesionData?.tipo === 'rp') {
                     tituloEmbed = '<a:mariquieta:1534954231138746488> Southwest Florida – ***__Reinvitaciones Roleplay Liberadas__*** <a:mariquieta:1534954231138746488>';
