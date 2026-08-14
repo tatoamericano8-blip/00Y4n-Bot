@@ -4,7 +4,7 @@ import { PRIMARIO } from './colores.js';
 
 /** Banner de oportunidad (solo imagen) — se envía como primer embed */
 const BANNER_OPORTUNIDAD_URL =
-    'https://cdn.discordapp.com/attachments/1529591578631340073/1535011328131993671/Oportunidad_Economica_1.png';
+    'https://cdn.discordapp.com/attachments/1505017301089652898/1536043756028166155/Oportunidad_Economica_1.png?ex=6a7f3db9&is=6a7dec39&hm=11d83177fd097666ca2b954c59cbf095c1f521f4f851ea4d416819e23fc8a81a&';
 
 const historiasOportunidades = [
     "de un lavaplatos del Diner local que te pagó por decirle a los clientes que la sopa era 'especial del chef' y no las sobras de ayer.",
