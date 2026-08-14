@@ -25,51 +25,79 @@ function esURLValida(cadena) {
     }
 }
 
+/**
+ * Resuelve la sesión ACTUAL del guild.
+ * Prioridad: id_inicio manual → Mongo (más reciente lanzada/activa) → memoria (última insertada).
+ * Evita mezclar datos de un Car Meet viejo con un Roleplay nuevo.
+ */
 async function resolverSesion(guildId, idInicioManual) {
+    let doc = null;
     let memoria = null;
     let targetIdInicio = idInicioManual || null;
 
-    for (const [, data] of global.coleccionSesiones.entries()) {
-        if (data.guildId !== guildId) continue;
-        if (data.tipo === 'rp' || data.tipo === 'meet') {
-            if (!targetIdInicio) targetIdInicio = data.idInicio;
-            if (!memoria || data.idInicio === targetIdInicio) {
-                memoria = data;
-                if (data.idInicio === targetIdInicio) break;
-            }
-        }
-    }
-
-    let doc = null;
     try {
         if (targetIdInicio) {
             doc = await Sesion.findOne({ idInicio: targetIdInicio });
         }
+        // Sesión abierta más reciente por lanzamiento, luego por inicio
         if (!doc) {
             doc = await Sesion.findOne({
                 guildId,
                 estado: { $in: ['activa', 'esperando_reacciones'] }
-            }).sort({ fechaInicio: -1 });
+            }).sort({ fechaLanzamiento: -1, fechaInicio: -1 });
         }
         if (doc) targetIdInicio = doc.idInicio;
     } catch (e) {
         console.error('[reinvitaciones] Error Mongo:', e?.message || e);
     }
 
+    // Memoria: última entrada rp/meet del guild (Map conserva orden de inserción)
+    const candidatas = [];
+    for (const [, data] of global.coleccionSesiones.entries()) {
+        if (data.guildId !== guildId) continue;
+        if (data.tipo !== 'rp' && data.tipo !== 'meet') continue;
+        candidatas.push(data);
+    }
+    if (targetIdInicio) {
+        memoria = candidatas.find(d => d.idInicio === targetIdInicio) || null;
+    }
+    if (!memoria && candidatas.length) {
+        memoria = candidatas[candidatas.length - 1];
+        if (!targetIdInicio) targetIdInicio = memoria.idInicio;
+    }
+
+    // Si memoria apunta a OTRA sesión distinta al doc, no mezclar
+    if (doc && memoria && memoria.idInicio && doc.idInicio && memoria.idInicio !== doc.idInicio) {
+        memoria = null;
+    }
+
     const tipo = doc?.tipo || memoria?.tipo || null;
-    return {
+
+    const base = {
         targetIdInicio,
         tipo,
         hostId: doc?.hostId || memoria?.hostId || null,
         coHostId: doc?.coHostId || memoria?.coHostId || null,
-        limiteVelocidad: doc?.limiteVelocidad || memoria?.limite || null,
-        peacetime: doc?.peacetime || memoria?.peacetime || null,
-        serviciosEmergencia: memoria?.serviciosEmergencia || null,
-        tematica: doc?.tematica || memoria?.tematica || null,
-        ubicacion: doc?.ubicacion || memoria?.ubicacion || null,
-        spots: doc?.spots || memoria?.spots || null,
-        linkSesionActual: doc?.linkSesion || memoria?.linkSesion || null
+        linkSesionActual: doc?.linkSesion || memoria?.linkSesion || null,
+        limiteVelocidad: null,
+        peacetime: null,
+        serviciosEmergencia: null,
+        tematica: null,
+        ubicacion: null,
+        spots: null
     };
+
+    if (tipo === 'rp') {
+        base.limiteVelocidad = doc?.limiteVelocidad || memoria?.limite || null;
+        base.peacetime = doc?.peacetime || memoria?.peacetime || null;
+        base.serviciosEmergencia = doc?.serviciosEmergencia || memoria?.serviciosEmergencia || null;
+    } else if (tipo === 'meet') {
+        base.tematica = doc?.tematica || memoria?.tematica || null;
+        base.ubicacion = doc?.ubicacion || memoria?.ubicacion || null;
+        base.spots = doc?.spots || memoria?.spots || null;
+    }
+
+    return base;
 }
 
 export default {
@@ -128,17 +156,17 @@ export default {
         let resumenSesion = '';
         if (sesion.tipo === 'rp') {
             resumenSesion =
-                `\n<:manual:1534999731019972671> **Datos de la sesión (Roleplay)**\n` +
-                `<:dot:1534938142665084938> Peacetime: **${sesion.peacetime || '—'}**\n` +
-                `<:dot:1534938142665084938> Límite FRP: **${sesion.limiteVelocidad || '—'}**\n` +
-                `<:dot:1534938142665084938> Emergencias: **${sesion.serviciosEmergencia || '—'}**\n` +
+                `\n<:manual:1534999731019972671> **Datos de la sesi\u00f3n (Roleplay)**\n` +
+                `<:dot:1534938142665084938> Peacetime: **${sesion.peacetime || '\u2014'}**\n` +
+                `<:dot:1534938142665084938> L\u00edmite FRP: **${sesion.limiteVelocidad || '\u2014'}**\n` +
+                `<:dot:1534938142665084938> Emergencias: **${sesion.serviciosEmergencia || '\u2014'}**\n` +
                 `<:dot:1534938142665084938> Co-Host: ${sesion.coHostId ? `<@${sesion.coHostId}>` : '*Sin asignar*'}\n`;
         } else if (sesion.tipo === 'meet') {
             resumenSesion =
-                `\n<:manual:1534999731019972671> **Datos de la sesión (Car Meet)**\n` +
-                `<:dot:1534938142665084938> Temática: **${sesion.tematica || '—'}**\n` +
-                `<:dot:1534938142665084938> Ubicación: **${sesion.ubicacion || '—'}**\n` +
-                `<:dot:1534938142665084938> Spots / Duración: **${sesion.spots || '—'}**\n` +
+                `\n<:manual:1534999731019972671> **Datos de la sesi\u00f3n (Car Meet)**\n` +
+                `<:dot:1534938142665084938> Tem\u00e1tica: **${sesion.tematica || '\u2014'}**\n` +
+                `<:dot:1534938142665084938> Ubicaci\u00f3n: **${sesion.ubicacion || '\u2014'}**\n` +
+                `<:dot:1534938142665084938> Spots / Duraci\u00f3n: **${sesion.spots || '\u2014'}**\n` +
                 `<:dot:1534938142665084938> Co-Host: ${sesion.coHostId ? `<@${sesion.coHostId}>` : '*Sin asignar*'}\n`;
         }
 
@@ -146,13 +174,13 @@ export default {
             .setColor('#74d4fc')
             .setTitle('<a:esp:1534954134732804308> Reinvitaciones de la Sesion <a:esp:1534954134732804308>')
             .setDescription(
-                `¡Reacciona a este mensaje para solicitar tu reinvitación!\n` +
-                `Las reinvitaciones se liberarán automáticamente una vez alcanzada la meta de reacciones.\n\n` +
+                `\u00a1Reacciona a este mensaje para solicitar tu reinvitaci\u00f3n!\n` +
+                `Las reinvitaciones se liberar\u00e1n autom\u00e1ticamente una vez alcanzada la meta de reacciones.\n\n` +
                 `<:dot:1534938142665084938> **Reacciones requeridas:** \`${reaccionesRequeridas}\` <:tilde:1534937809733812286>` +
                 resumenSesion
             )
             .addFields({
-                name: '<:fle:1534937306191102125> Última regeneración',
+                name: '<:fle:1534937306191102125> \u00daltima regeneraci\u00f3n',
                 value: `El enlace fue actualizado a las **${horaFormateada}** (<t:${timestampDiscord}:t>)`,
                 inline: false
             })
@@ -160,7 +188,7 @@ export default {
             .setTimestamp();
 
         await interaction.reply({
-            content: '**@here**',
+            content: '<a:corasdandovueltas:1534939964150907000> **@here** \u00a1Atenci\u00f3n a las reinvitaciones de la sesi\u00f3n!',
             embeds: [embedReinvitacion],
             allowedMentions: { parse: ['everyone', 'roles', 'users'] }
         });
@@ -172,7 +200,7 @@ export default {
         } catch (reactError) {
             console.error('[reinvitaciones] Error reaccionando:', reactError?.message || reactError);
             try {
-                await mensajeEnviado.react('✔️');
+                await mensajeEnviado.react('\u2714\ufe0f');
             } catch {}
         }
 
@@ -180,7 +208,7 @@ export default {
             if (user.bot) return false;
             const id = reaction.emoji?.id;
             const name = reaction.emoji?.name;
-            return id === EMOJI_REACCION || name === 'tilde' || name === '✔️' || name === '✅';
+            return id === EMOJI_REACCION || name === 'tilde' || name === '\u2714\ufe0f' || name === '\u2705';
         };
 
         const collector = mensajeEnviado.createReactionCollector({
@@ -220,43 +248,43 @@ export default {
             const textoCohost = fresh.coHostId ? `<@${fresh.coHostId}>` : 'Ninguno';
 
             let tituloEmbed =
-                '<a:mariquieta:1534954231138746488> Southwest Florida – ***__Reinvitaciones Liberadas__*** <a:mariquieta:1534954231138746488>';
+                '<a:mariquieta:1534954231138746488> Southwest Florida \u2013 ***__Reinvitaciones Liberadas__*** <a:mariquieta:1534954231138746488>';
             let datosExtraSesion = '';
 
             if (fresh.tipo === 'rp') {
                 tituloEmbed =
-                    '<a:mariquieta:1534954231138746488> Southwest Florida – ***__Reinvitaciones Roleplay Liberadas__*** <a:mariquieta:1534954231138746488>';
+                    '<a:mariquieta:1534954231138746488> Southwest Florida \u2013 ***__Reinvitaciones Roleplay Liberadas__*** <a:mariquieta:1534954231138746488>';
                 datosExtraSesion =
-                    `> <:tres:1535001243204718612> **Estado de Peacetime:** **${fresh.peacetime || '—'}**\n` +
-                    `> <:cuatro:1534938460228550857> **Límite de Fail Roleplay:** **${fresh.limiteVelocidad || '—'}**\n` +
-                    `> <:cinco:1534938284218777630> **Servicios de emergencia:** **${fresh.serviciosEmergencia || '—'}**\n` +
-                    `> <:seis:1535001326927220919> **Co-Host de la Sesión:** ${textoCohost}\n` +
-                    `> <:replica:1534982812116062370> Las velocidades de detención son **+6 MPH** sobre el límite establecido.\n`;
+                    `> <:tres:1535001243204718612> **Estado de Peacetime:** **${fresh.peacetime || '\u2014'}**\n` +
+                    `> <:cuatro:1534938460228550857> **L\u00edmite de Fail Roleplay:** **${fresh.limiteVelocidad || '\u2014'}**\n` +
+                    `> <:cinco:1534938284218777630> **Servicios de emergencia:** **${fresh.serviciosEmergencia || '\u2014'}**\n` +
+                    `> <:seis:1535001326927220919> **Co-Host de la Sesi\u00f3n:** ${textoCohost}\n` +
+                    `> <:replica:1534982812116062370> Las velocidades de detenci\u00f3n son **+6 MPH** sobre el l\u00edmite establecido.\n`;
             } else if (fresh.tipo === 'meet') {
                 tituloEmbed =
-                    '<a:mariquieta:1534954231138746488> Southwest Florida – ***__Reinvitaciones Car Meet Liberadas__*** <a:mariquieta:1534954231138746488>';
+                    '<a:mariquieta:1534954231138746488> Southwest Florida \u2013 ***__Reinvitaciones Car Meet Liberadas__*** <a:mariquieta:1534954231138746488>';
                 datosExtraSesion =
-                    `> <:tres:1535001243204718612> **Temática del Meet:** **${fresh.tematica || '—'}**\n` +
-                    `> <:cuatro:1534938460228550857> **Lugar actual:** **${fresh.ubicacion || '—'}**\n` +
-                    `> <:cinco:1534938284218777630> **Spots / Duración:** **${fresh.spots || '—'}**\n` +
-                    `> <:seis:1535001326927220919> **Co-Host de la Sesión:** ${textoCohost}\n` +
-                    `> <:flechareplica:1534982812116062370> Los vehículos deben ingresar __despacio__ al lugar del meet.\n`;
+                    `> <:tres:1535001243204718612> **Tem\u00e1tica del Meet:** **${fresh.tematica || '\u2014'}**\n` +
+                    `> <:cuatro:1534938460228550857> **Lugar actual:** **${fresh.ubicacion || '\u2014'}**\n` +
+                    `> <:cinco:1534938284218777630> **Spots / Duraci\u00f3n:** **${fresh.spots || '\u2014'}**\n` +
+                    `> <:seis:1535001326927220919> **Co-Host de la Sesi\u00f3n:** ${textoCohost}\n` +
+                    `> <:flechareplica:1534982812116062370> Los veh\u00edculos deben ingresar __despacio__ al lugar del meet.\n`;
             } else {
                 datosExtraSesion =
-                    `> <:cuatro:1534938460228550857> **Co-Host de la Sesión:** ${textoCohost}\n`;
+                    `> <:cuatro:1534938460228550857> **Co-Host de la Sesi\u00f3n:** ${textoCohost}\n`;
             }
 
             const infoDescripcion =
-                `> <a:flecha:1534939368035324125> <@${interaction.user.id}> **¡ha lanzado las reinvitaciones de la sesión!** Se ha alcanzado la meta de reacciones requeridas. Podés unirte al servidor usando el botón de abajo.\n\n` +
-                `<:manual:1534999731019972671> **Información de la Reinvitación**\n\n` +
+                `> <a:flecha:1534939368035324125> <@${interaction.user.id}> **\u00a1ha lanzado las reinvitaciones de la sesi\u00f3n!** Se ha alcanzado la meta de reacciones requeridas. Pod\u00e9s unirte al servidor usando el bot\u00f3n de abajo.\n\n` +
+                `<:manual:1534999731019972671> **Informaci\u00f3n de la Reinvitaci\u00f3n**\n\n` +
                 `> <:uno:1534938872977297559> **Reacciones alcanzadas:** \`${reaccionesRequeridas} / ${reaccionesRequeridas}\`\n` +
-                `> <:dos:1535001133729447987> **Hora de liberación:** **${horaRelease}** (<t:${timestampRelease}:t>)\n` +
+                `> <:dos:1535001133729447987> **Hora de liberaci\u00f3n:** **${horaRelease}** (<t:${timestampRelease}:t>)\n` +
                 datosExtraSesion +
                 `\n<:manual:1534999731019972671> **Antes de unirte**\n\n` +
-                `> <:dot:1534938142665084938> Asegurate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-                `> <:dot:1534938142665084938> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399/1536059852432867412) & [vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1536064730223874132).\n` +
-                `> <:dot:1534938142665084938> Registrá tus vehículos en <#1505615426305130657>!\n\n` +
-                `-# <a:adv:1534939309235376328> *¡Ingresá de inmediato antes de que el servidor se complete!*`;
+                `> <:dot:1534938142665084938> Asegurate de estar verificado [aqu\u00ed](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+                `> <:dot:1534938142665084938> Lee la [informaci\u00f3n](https://discord.com/channels/1451939725308067842/1451942179877687399/1536059852432867412) & [veh\u00edculos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1536064730223874132).\n` +
+                `> <:dot:1534938142665084938> Registr\u00e1 tus veh\u00edculos en <#1505615426305130657>!\n\n` +
+                `-# <a:adv:1534939309235376328> *\u00a1Ingres\u00e1 de inmediato antes de que el servidor se complete!*`;
 
             const embedRelease = new EmbedBuilder()
                 .setTitle(tituloEmbed)
@@ -275,7 +303,7 @@ export default {
 
             try {
                 const msgRelease = await interaction.channel.send({
-                    content: '@everyone ¡Las reinvitaciones han sido **LANZADAS**!',
+                    content: '@everyone \u00a1Las reinvitaciones han sido **LANZADAS**!',
                     embeds: [embedRelease],
                     components: [fila],
                     allowedMentions: { parse: ['everyone', 'roles'] }
@@ -338,7 +366,7 @@ export default {
                     guildId: interaction.guildId
                 });
             } catch (sendError) {
-                console.error('[reinvitaciones] Error al enviar liberación:', sendError);
+                console.error('[reinvitaciones] Error al enviar liberaci\u00f3n:', sendError);
             }
         });
     }
