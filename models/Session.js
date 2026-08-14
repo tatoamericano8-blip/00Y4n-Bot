@@ -31,6 +31,7 @@ const sesionSchema = new mongoose.Schema({
 
     limiteVelocidad: { type: String, default: null },
     peacetime: { type: String, default: null },
+    serviciosEmergencia: { type: String, default: null },
 
     tematica: { type: String, default: null },
     ubicacion: { type: String, default: null },
