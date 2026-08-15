@@ -17,66 +17,81 @@ const TIPOS = {
     soporte_general: {
         label: 'Soporte general',
         reason: 'Soporte general — dudas, reglas, sesiones, economía, perks',
-        instrucciones:
-            '**Qué incluir:**\n' +
-            '• Tu duda o problema con el mayor detalle posible\n' +
-            '• Capturas si aplica\n' +
-            '• Horario en que ocurrió (si es un bug o incidente)\n\n' +
-            'Un staff te responderá lo antes posible.'
+        formato:
+            '```\n' +
+            '1) Motivo / duda:\n' +
+            '2) Detalle de lo que pasó:\n' +
+            '3) Canal / sesión (si aplica):\n' +
+            '4) Capturas o evidencia (si aplica):\n' +
+            '```\n' +
+            'Completá este formato en tu próximo mensaje.'
     },
     reportar_miembro: {
         label: 'Reportar miembro',
         reason: 'Reportar miembro (ciudadano)',
-        instrucciones:
-            '**Qué incluir (obligatorio):**\n' +
-            '• Usuario reportado (mención o ID)\n' +
-            '• Qué reglas rompió\n' +
-            '• Pruebas: capturas / clips / hora aproximada\n' +
-            '• Canal o sesión donde pasó\n\n' +
-            'Sin pruebas es más difícil actuar.'
+        formato:
+            '```\n' +
+            '1) Usuario reportado (mención o ID):\n' +
+            '2) Regla(s) infringida(s):\n' +
+            '3) Qué hizo / contexto:\n' +
+            '4) Hora aproximada:\n' +
+            '5) Canal o sesión:\n' +
+            '6) Pruebas (capturas / clips):\n' +
+            '```\n' +
+            '**Sin pruebas es más difícil actuar.** Completá el formato.'
     },
     reportar_staff: {
         label: 'Reportar staff o host',
         reason: 'Reportar staff o host',
-        instrucciones:
-            '**Qué incluir (obligatorio):**\n' +
-            '• Staff/host reportado (mención o ID)\n' +
-            '• Qué hizo mal (abuso, incumplimiento, etc.)\n' +
-            '• Pruebas: capturas / clips\n' +
-            '• Fecha y contexto\n\n' +
-            'La revisión es interna y seria. No uses esto para pelear en público.'
+        formato:
+            '```\n' +
+            '1) Staff / host reportado (mención o ID):\n' +
+            '2) Qué hizo mal (abuso, incumplimiento, etc.):\n' +
+            '3) Fecha y contexto:\n' +
+            '4) Pruebas (capturas / clips):\n' +
+            '5) ¿Fue en Discord o en sesión?:\n' +
+            '```\n' +
+            'La revisión es **interna y seria**. Completá el formato.'
     },
     app_fotografo: {
         label: 'Aplicación fotógrafo',
         reason: 'Aplicación — Fotógrafo',
-        instrucciones:
-            '**Qué incluir:**\n' +
-            '• Tu experiencia en fotografía\n' +
-            '• Ejemplos de tu trabajo (links o adjuntos)\n' +
-            '• Disponibilidad aproximada\n\n' +
-            'Las postulaciones se revisan según necesidad del servidor.'
+        formato:
+            '```\n' +
+            '1) Nombre / nick:\n' +
+            '2) Experiencia en fotografía:\n' +
+            '3) Ejemplos de trabajo (links o adjuntos):\n' +
+            '4) Disponibilidad aproximada:\n' +
+            '5) ¿Por qué querés unirte al equipo de media?:\n' +
+            '```\n' +
+            'Completá el formato para que podamos evaluar tu postulación.'
     },
     app_videografo: {
         label: 'Aplicación videógrafo',
         reason: 'Aplicación — Videógrafo',
-        instrucciones:
-            '**Qué incluir:**\n' +
-            '• Tu experiencia en videografía / edición\n' +
-            '• Ejemplos de tu trabajo (links o adjuntos)\n' +
-            '• Disponibilidad aproximada\n\n' +
-            'Las postulaciones se revisan según necesidad del servidor.'
+        formato:
+            '```\n' +
+            '1) Nombre / nick:\n' +
+            '2) Experiencia en videografía / edición:\n' +
+            '3) Ejemplos de trabajo (links o adjuntos):\n' +
+            '4) Disponibilidad aproximada:\n' +
+            '5) ¿Por qué querés unirte al equipo de media?:\n' +
+            '```\n' +
+            'Completá el formato para que podamos evaluar tu postulación.'
     },
     staff_fastpass: {
         label: 'Staff FastPass',
         reason: 'Staff FastPass — postulación prioritaria',
-        instrucciones:
-            '**Requisito:** experiencia en un servidor de **más de 1.000 miembros**.\n\n' +
-            '**Qué incluir (obligatorio):**\n' +
-            '• Nombre del servidor y approx. de miembros\n' +
-            '• Prueba (captura de roles / miembros / staff)\n' +
-            '• Experiencia breve (moderación, host, etc.)\n' +
-            '• Por qué querés staff en 00Y4n\n\n' +
-            'Sin prueba válida este ticket puede cerrarse.'
+        formato:
+            '```\n' +
+            '1) Nombre del servidor de experiencia:\n' +
+            '2) Approx. de miembros (debe ser 1.000+):\n' +
+            '3) Rol / cargo que tuviste:\n' +
+            '4) Experiencia breve (moderación, host, etc.):\n' +
+            '5) ¿Por qué querés staff en 00Y4n?:\n' +
+            '6) Prueba adjunta (captura de roles / miembros):\n' +
+            '```\n' +
+            '**Requisito:** server de **más de 1.000 miembros** + prueba. Sin eso el ticket puede cerrarse.'
     }
 };
 
@@ -219,9 +234,9 @@ export default {
 
             const embedInstrucciones = new EmbedBuilder()
                 .setColor(COLOR)
-                .setTitle(`Instrucciones — ${tipo.label}`)
+                .setTitle(`Formato a completar — ${tipo.label}`)
                 .setDescription(
-                    tipo.instrucciones +
+                    tipo.formato +
                     '\n\n-# El staff fue notificado. Respondé acá; no abras otro ticket por lo mismo.'
                 );
 
