@@ -1,5 +1,5 @@
 import { getFromDb, setInDb } from './database.js';
-import { obtenerSaldo, restarSaldo } from './gestorEconomia.js';
+import { obtenerSaldo, restarSaldo, agregarSaldo } from './gestorEconomia.js';
 import {
   TIENDA_ITEMS,
   getItem,
@@ -84,11 +84,61 @@ export async function comprarItem(member, itemId) {
     }
   }
 
-  // Seguros: si ya tiene uno, avisar (se reemplaza)
+  // Seguros: si ya tiene uno del mismo tipo, avisar
   if (item.type === 'role_weekly') {
     const actual = await obtenerSeguro(userId);
     if (actual && actual.itemId === item.id) {
       return { ok: false, mensaje: `Ya tenés **${item.name}** activo.` };
+    }
+  }
+
+  // Validar rol ANTES de cobrar (evita cobrar sin poder entregar)
+  let guildMember = member;
+  if (item.type === 'role' || item.type === 'role_weekly') {
+    if (!item.roleId) {
+      return { ok: false, mensaje: `El ítem **${item.name}** no tiene rol configurado. Avisá a un staff.` };
+    }
+    const guild = member.guild;
+    if (!guild) {
+      return { ok: false, mensaje: 'No pude obtener el servidor. Reintentá.' };
+    }
+
+    try {
+      guildMember = await guild.members.fetch(userId);
+    } catch (e) {
+      logger.warn(`[tienda] fetch member: ${e.message}`);
+      guildMember = member;
+    }
+
+    const role = guild.roles.cache.get(item.roleId) || (await guild.roles.fetch(item.roleId).catch(() => null));
+    if (!role) {
+      return {
+        ok: false,
+        mensaje: `El rol de **${item.name}** no existe en el servidor (ID: \`${item.roleId}\`). Revisá la configuración.`
+      };
+    }
+
+    const me = guild.members.me || (await guild.members.fetchMe().catch(() => null));
+    if (me) {
+      const botTop = me.roles.highest;
+      if (role.position >= botTop.position) {
+        return {
+          ok: false,
+          mensaje:
+            `No puedo dar el rol **${role.name}**: está al mismo nivel o por encima del rol del bot.\n` +
+            `Mové el rol del bot **por encima** de los roles de la tienda en Ajustes del servidor → Roles.`
+        };
+      }
+      if (!me.permissions.has('ManageRoles')) {
+        return {
+          ok: false,
+          mensaje: 'El bot no tiene permiso **Gestionar roles**. Activálo en el rol del bot.'
+        };
+      }
+    }
+
+    if (item.type === 'role' && guildMember.roles.cache.has(item.roleId)) {
+      return { ok: false, mensaje: `Ya tenés el rol de **${item.name}**.` };
     }
   }
 
@@ -97,51 +147,85 @@ export async function comprarItem(member, itemId) {
     motivo: `Tienda: compra de ${item.name}`
   });
 
+  const reembolsar = async (motivo) => {
+    try {
+      await agregarSaldo(userId, item.price, {
+        tipo: 'INGRESO',
+        motivo: `Tienda: reembolso — ${motivo}`
+      });
+    } catch (e) {
+      logger.error(`[tienda] Falló reembolso a ${userId}:`, e.message);
+    }
+  };
+
   try {
     if (item.type === 'role' || item.type === 'role_weekly') {
-      if (item.roleId) {
-        // Si compra seguro, quitar el otro seguro si aplica
-        if (item.type === 'role_weekly') {
-          const prev = await obtenerSeguro(userId);
-          if (prev?.roleId && prev.roleId !== item.roleId) {
+      if (item.type === 'role_weekly') {
+        const prev = await obtenerSeguro(userId);
+        if (prev?.roleId && prev.roleId !== item.roleId) {
+          try {
+            await guildMember.roles.remove(prev.roleId, 'Cambio de seguro en tienda');
+          } catch (e) {
+            logger.warn(`[tienda] No se pudo quitar rol seguro anterior: ${e.message}`);
+          }
+        }
+        for (const rid of [ROLES_TIENDA.seguro_regular, ROLES_TIENDA.seguro_lujo]) {
+          if (rid !== item.roleId && guildMember.roles.cache.has(rid)) {
             try {
-              await member.roles.remove(prev.roleId, 'Cambio de seguro en tienda');
-            } catch (e) {
-              logger.warn(`[tienda] No se pudo quitar rol seguro anterior: ${e.message}`);
-            }
+              await guildMember.roles.remove(rid, 'Cambio de seguro en tienda');
+            } catch (_) {}
           }
-          // Quitar el otro rol de seguro del catálogo por si quedó
-          for (const rid of [ROLES_TIENDA.seguro_regular, ROLES_TIENDA.seguro_lujo]) {
-            if (rid !== item.roleId && member.roles.cache.has(rid)) {
-              try {
-                await member.roles.remove(rid, 'Cambio de seguro en tienda');
-              } catch (_) {}
-            }
-          }
-
-          const data = {
-            itemId: item.id,
-            roleId: item.roleId,
-            weekly: item.weekly,
-            nextCharge: Date.now() + WEEK_MS,
-            purchasedAt: Date.now()
-          };
-          await setInDb(SEGURO_KEY(userId), data);
-          await registrarEnIndiceSeguros(userId);
         }
+      }
 
-        try {
-          await member.roles.add(item.roleId, `Compra en tienda: ${item.name}`);
-        } catch (e) {
-          logger.error(`[tienda] Error al dar rol ${item.roleId}:`, e.message);
-          return {
-            ok: true,
-            saldoNuevo: nuevoSaldo,
-            mensaje:
-              `Pagaste **${formatMoney(item.price)}** por **${item.name}**, pero no pude asignar el rol. ` +
-              `Avisá a un staff (permisos del bot / jerarquía de roles). Saldo: **${formatMoney(nuevoSaldo)}**.`
-          };
+      try {
+        await guildMember.roles.add(item.roleId, `Compra en tienda: ${item.name}`);
+      } catch (e) {
+        logger.error(`[tienda] Error al dar rol ${item.roleId}:`, e.message);
+        await reembolsar(`fallo al asignar rol ${item.name}`);
+        if (item.type === 'role_weekly') {
+          await setInDb(SEGURO_KEY(userId), null);
+          await quitarDelIndiceSeguros(userId);
         }
+        const saldoAhora = await obtenerSaldo(userId);
+        return {
+          ok: false,
+          saldoNuevo: saldoAhora,
+          mensaje:
+            `No pude asignar el rol **${item.name}** (${e.message}).\n` +
+            `Se te **reembolsó** el dinero. Saldo: **${formatMoney(saldoAhora)}**.\n` +
+            `Causa habitual: el rol del bot debe estar **por encima** del rol de la tienda.`
+        };
+      }
+
+      const refreshed = await guildMember.guild.members.fetch(userId).catch(() => guildMember);
+      if (!refreshed.roles.cache.has(item.roleId)) {
+        logger.error(`[tienda] Rol ${item.roleId} no quedó en el miembro ${userId} tras add`);
+        await reembolsar(`rol no persistió ${item.name}`);
+        if (item.type === 'role_weekly') {
+          await setInDb(SEGURO_KEY(userId), null);
+          await quitarDelIndiceSeguros(userId);
+        }
+        const saldoAhora = await obtenerSaldo(userId);
+        return {
+          ok: false,
+          saldoNuevo: saldoAhora,
+          mensaje:
+            `El rol **${item.name}** no se aplicó (posible jerarquía/permisos). Se te **reembolsó** el dinero.\n` +
+            `Saldo: **${formatMoney(saldoAhora)}**.`
+        };
+      }
+
+      if (item.type === 'role_weekly') {
+        const data = {
+          itemId: item.id,
+          roleId: item.roleId,
+          weekly: item.weekly,
+          nextCharge: Date.now() + WEEK_MS,
+          purchasedAt: Date.now()
+        };
+        await setInDb(SEGURO_KEY(userId), data);
+        await registrarEnIndiceSeguros(userId);
       }
 
       const extra =
@@ -152,11 +236,12 @@ export async function comprarItem(member, itemId) {
       return {
         ok: true,
         saldoNuevo: nuevoSaldo,
-        mensaje: `Compraste **${item.name}** por **${formatMoney(item.price)}**.${extra}\nSaldo restante: **${formatMoney(nuevoSaldo)}**.`
+        mensaje:
+          `Compraste **${item.name}** por **${formatMoney(item.price)}** y se te asignó el rol.${extra}\n` +
+          `Saldo restante: **${formatMoney(nuevoSaldo)}**.`
       };
     }
 
-    // Inventario (comida, fuma, regalos)
     await agregarAlInventario(userId, item.id, 1);
     return {
       ok: true,
@@ -165,10 +250,12 @@ export async function comprarItem(member, itemId) {
     };
   } catch (err) {
     logger.error('[tienda] Error post-compra:', err);
+    await reembolsar(`error post-compra ${item.name}`);
+    const saldoAhora = await obtenerSaldo(userId);
     return {
-      ok: true,
-      saldoNuevo: nuevoSaldo,
-      mensaje: `Se descontó **${formatMoney(item.price)}**, pero hubo un error al entregar el ítem. Contactá staff.`
+      ok: false,
+      saldoNuevo: saldoAhora,
+      mensaje: `Error al entregar el ítem. Se intentó reembolsar. Saldo: **${formatMoney(saldoAhora)}**. Contactá staff si no volvió la plata.`
     };
   }
 }
@@ -221,7 +308,6 @@ export async function procesarCobrosSeguros(client) {
       if (monto <= 0) continue;
 
       const saldo = await obtenerSaldo(userId);
-      // Buscar miembro en todos los guilds del bot
       let member = null;
       for (const g of client.guilds.cache.values()) {
         member = await g.members.fetch(userId).catch(() => null);
@@ -237,7 +323,6 @@ export async function procesarCobrosSeguros(client) {
         await setInDb(SEGURO_KEY(userId), data);
         cobrados += 1;
 
-        // DM opcional
         try {
           const user = await client.users.fetch(userId).catch(() => null);
           if (user) {
@@ -256,7 +341,6 @@ export async function procesarCobrosSeguros(client) {
           }
         } catch (_) {}
       } else {
-        // Cancelar seguro
         if (member && data.roleId) {
           try {
             await member.roles.remove(data.roleId, 'Seguro cancelado: saldo insuficiente');
