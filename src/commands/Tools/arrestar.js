@@ -1,4 +1,5 @@
-import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder,
+    MessageFlags} from 'discord.js';
 import { generarIDArresto, guardarArresto } from '../../utils/gestorArrestos.js';
 
 export default {
@@ -57,6 +58,10 @@ export default {
             .setTimestamp();
 
         await interaction.reply({
+            content: '<:tilde:1534937809733812286> Arresto registrado.',
+            flags: MessageFlags.Ephemeral
+        });
+        await interaction.channel.send({
             content: `🚨 **Atención <@${ciudadano.id}>, has sido arrestado oficialmente:**`,
             embeds: [embedArresto],
             allowedMentions: { users: [ciudadano.id] }
