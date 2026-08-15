@@ -35,45 +35,45 @@ export default {
 
         const embed = new EmbedBuilder()
             .setColor(COLOR)
-            .setTitle('Soporte del servidor 00Y4n')
+            .setTitle('<:manual:1534999731019972671> Soporte del servidor 00Y4n <:manual:1534999731019972671>')
             .setDescription(
                 [
-                    'Bienvenido al directorio de soporte de **Southwest Florida 00Y4n**.',
+                    '<:dot:1534938142665084938> Bienvenido al directorio de soporte de **Southwest Florida 00Y4n**.',
                     'Desde acá podés pedir ayuda, reportar usuarios o staff, postularte al equipo de media o solicitar **Staff FastPass**.',
                     '',
                     'Elegí el tipo de ticket correcto en el menú de abajo.',
                     '**No abras un ticket de troleo ni uno equivocado:** se aplicará la sanción correspondiente.',
                     'Una vez abierto, explicá el problema con claridad y esperá a que un miembro del staff te atienda.',
                     '',
-                    '**→ Soporte general**',
-                    'Dudas del servidor, reglas, sesiones, economía, comandos o funcionamiento general.',
+                    '**<:flecha:1534937306191102125> Soporte general**',
+                    '<:dot:1534938142665084938> Dudas del servidor, reglas, sesiones, economía, comandos o funcionamiento general.',
                     'También perks o consultas de partnership. **No** uses este ticket para reportar personas.',
                     '',
-                    '**→ Reportar miembro**',
-                    'Reportá a un ciudadano que rompa reglas en Discord o en sesión.',
+                    '**<:flecha:1534937306191102125> Reportar miembro**',
+                    '<:dot:1534938142665084938> Reportá a un ciudadano que rompa reglas en Discord o en sesión.',
                     'Reuní pruebas (capturas, clips, hora). Sin pruebas es más difícil actuar.',
                     '',
-                    '**→ Reportar staff o host**',
-                    'Reportá staff/host que abuse de permisos, incumpla funciones o rompa el reglamento interno.',
+                    '**<:flecha:1534937306191102125> Reportar staff o host**',
+                    '<:dot:1534938142665084938> Reportá staff/host que abuse de permisos, incumpla funciones o rompa el reglamento interno.',
                     'Adjuntá pruebas. Se revisa de forma seria e interna.',
                     '',
-                    '**→ Aplicación de fotógrafo**',
-                    'Si tenés experiencia en fotografía y querés sumarte al equipo de media, usá esta opción.',
+                    '**<:flecha:1534937306191102125> Aplicación de fotógrafo**',
+                    '<:dot:1534938142665084938> Si tenés experiencia en fotografía y querés sumarte al equipo de media, usá esta opción.',
                     'Contá tu experiencia y, si podés, adjuntá ejemplos.',
                     '',
-                    '**→ Aplicación de videógrafo**',
-                    'Si tenés experiencia en videografía y querés sumarte al equipo de media, usá esta opción.',
+                    '**<:flecha:1534937306191102125> Aplicación de videógrafo**',
+                    '<:dot:1534938142665084938> Si tenés experiencia en videografía y querés sumarte al equipo de media, usá esta opción.',
                     'Contá tu experiencia y adjuntá ejemplos si podés.',
                     '',
-                    '**→ Staff FastPass**',
-                    'Postulación prioritaria al staff.',
+                    '**<:flecha:1534937306191102125> Staff FastPass**',
+                    '<:dot:1534938142665084938> Postulación prioritaria al staff.',
                     '**Requisito:** experiencia en un servidor de roleplay/comunidad de **más de 1.000 miembros**.',
                     'Adjuntá prueba (captura del server, rol, etc.). Sin prueba válida el ticket puede cerrarse.',
                     '',
-                    '**Recordatorios**',
-                    '• Tickets solo por kicks de sesión se cierran (salvo strike + apelación de ese strike).',
-                    '• Tickets sin la información pedida se cierran.',
-                    '• **Un ticket a la vez.** Abrir varios sin motivo puede terminar en sanción.'
+                    '<:warn:1534937002695327837> **Recordatorios**',
+                    '<:dot:1534938142665084938> Tickets solo por kicks de sesión se cierran (salvo strike + apelación de ese strike).',
+                    '<:dot:1534938142665084938> Tickets sin la información pedida se cierran.',
+                    '<:dot:1534938142665084938> **Un ticket a la vez.** Abrir varios sin motivo puede terminar en sanción.'
                 ].join('\n')
             )
             .setImage(BANNER)
@@ -88,37 +88,37 @@ export default {
                     label: 'Soporte general',
                     description: 'Dudas, reglas, sesiones, perks',
                     value: 'soporte_general',
-                    emoji: '📋'
+                    emoji: '1535395536012578978'
                 },
                 {
                     label: 'Reportar miembro',
                     description: 'Reportar a un ciudadano',
                     value: 'reportar_miembro',
-                    emoji: '👤'
+                    emoji: '1534937551092187136'
                 },
                 {
                     label: 'Reportar staff o host',
                     description: 'Reportar staff / host',
                     value: 'reportar_staff',
-                    emoji: '🛡️'
+                    emoji: '1535395859196411934'
                 },
                 {
                     label: 'Aplicación fotógrafo',
                     description: 'Postulación a fotografía',
                     value: 'app_fotografo',
-                    emoji: '📷'
+                    emoji: '1534938916057120839'
                 },
                 {
                     label: 'Aplicación videógrafo',
                     description: 'Postulación a videografía',
                     value: 'app_videografo',
-                    emoji: '🎬'
+                    emoji: '1534938916057120839'
                 },
                 {
                     label: 'Staff FastPass',
                     description: 'Postulación prioritaria (server 1k+)',
                     value: 'staff_fastpass',
-                    emoji: '📝'
+                    emoji: '1534956881787752478'
                 }
             );
 
