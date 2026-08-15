@@ -1,5 +1,13 @@
-import { EmbedBuilder, MessageFlags } from 'discord.js';
-import { createTicket } from '../../services/ticket.js';
+import {
+    ChannelType,
+    PermissionFlagsBits,
+    EmbedBuilder,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    MessageFlags
+} from 'discord.js';
+import { saveTicketData, incrementTicketCounter } from '../../utils/database.js';
 import { logger } from '../../utils/logger.js';
 
 const COLOR = 0xfb8b66;
@@ -89,57 +97,166 @@ export default {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         try {
-            await interaction.guild.channels.fetch();
-            await interaction.guild.roles.fetch();
+            await interaction.guild.channels.fetch().catch(() => null);
+            await interaction.guild.roles.fetch().catch(() => null);
         } catch {}
 
+        const guild = interaction.guild;
+        const member = interaction.member;
         const categoryId = args?.[0] && args[0] !== 'auto' ? args[0] : null;
 
         try {
-            const result = await createTicket(
-                interaction.guild,
-                interaction.member,
-                categoryId,
-                tipo.reason,
-                'none'
-            );
+            let category = null;
+            if (categoryId) {
+                const ch = guild.channels.cache.get(categoryId)
+                    || await guild.channels.fetch(categoryId).catch(() => null);
+                if (ch?.type === ChannelType.GuildCategory) category = ch;
+            }
+            if (!category) {
+                category = guild.channels.cache.find(
+                    c => c.type === ChannelType.GuildCategory
+                        && /ticket|asistencia|soporte|support/i.test(c.name)
+                ) || null;
+            }
 
-            if (!result.success) {
-                return interaction.editReply({
-                    content: `<:cruz00y4n:1534937767652495360> ${result.error || 'No se pudo crear el ticket.'}`
+            let ticketNumber = String(Date.now()).slice(-4);
+            try {
+                ticketNumber = await incrementTicketCounter(guild.id);
+            } catch (e) {
+                logger.warn(`[ticket_tipo] contador: ${e?.message}`);
+            }
+
+            const channelName = `ticket-${ticketNumber}`.toLowerCase().slice(0, 100);
+
+            const overwrites = [
+                { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
+                {
+                    id: member.id,
+                    allow: [
+                        PermissionFlagsBits.ViewChannel,
+                        PermissionFlagsBits.SendMessages,
+                        PermissionFlagsBits.AttachFiles,
+                        PermissionFlagsBits.ReadMessageHistory,
+                        PermissionFlagsBits.EmbedLinks
+                    ]
+                }
+            ];
+            if (guild.roles.cache.has(ROLE_STAFF)) {
+                overwrites.push({
+                    id: ROLE_STAFF,
+                    allow: [
+                        PermissionFlagsBits.ViewChannel,
+                        PermissionFlagsBits.SendMessages,
+                        PermissionFlagsBits.AttachFiles,
+                        PermissionFlagsBits.ReadMessageHistory,
+                        PermissionFlagsBits.ManageMessages,
+                        PermissionFlagsBits.EmbedLinks
+                    ]
+                });
+            }
+            if (guild.members.me) {
+                overwrites.push({
+                    id: guild.members.me.id,
+                    allow: [
+                        PermissionFlagsBits.ViewChannel,
+                        PermissionFlagsBits.SendMessages,
+                        PermissionFlagsBits.ManageChannels,
+                        PermissionFlagsBits.ManageMessages,
+                        PermissionFlagsBits.ReadMessageHistory,
+                        PermissionFlagsBits.EmbedLinks,
+                        PermissionFlagsBits.AttachFiles
+                    ]
                 });
             }
 
-            const channel = result.channel;
+            let channel;
+            try {
+                channel = await guild.channels.create({
+                    name: channelName,
+                    type: ChannelType.GuildText,
+                    parent: category?.id,
+                    permissionOverwrites: overwrites,
+                    reason: `Ticket 00Y4n: ${tipo.label} — ${member.user.tag}`
+                });
+            } catch (err1) {
+                logger.warn(`[ticket_tipo] create con parent falló: ${err1.message}`);
+                channel = await guild.channels.create({
+                    name: channelName,
+                    type: ChannelType.GuildText,
+                    permissionOverwrites: overwrites,
+                    reason: `Ticket 00Y4n (sin categoría): ${tipo.label}`
+                });
+            }
 
-            const embedTipo = new EmbedBuilder()
+            const ticketData = {
+                id: channel.id,
+                userId: member.id,
+                guildId: guild.id,
+                createdAt: new Date().toISOString(),
+                status: 'open',
+                claimedBy: null,
+                priority: 'none',
+                reason: tipo.reason,
+                tipo: tipoKey
+            };
+            await saveTicketData(guild.id, channel.id, ticketData).catch((e) => {
+                logger.warn(`[ticket_tipo] saveTicketData: ${e.message}`);
+            });
+
+            const embedMain = new EmbedBuilder()
                 .setColor(COLOR)
-                .setTitle(`Ticket — ${tipo.label}`)
+                .setTitle(`Ticket #${ticketNumber} — ${tipo.label}`)
                 .setDescription(
-                    `Hola <@${interaction.user.id}>, gracias por abrir un ticket.\n\n` +
-                        tipo.instrucciones +
-                        `\n\n-# El staff fue notificado. Respondé acá; no abras otro ticket por lo mismo.`
+                    `${member}, gracias por abrir un ticket.\n\n**Motivo:** ${tipo.reason}`
+                )
+                .addFields(
+                    { name: 'Estado', value: '🟢 Abierto', inline: true },
+                    { name: 'Reclamado por', value: 'Sin reclamar', inline: true },
+                    { name: 'Creado', value: `<t:${Math.floor(Date.now() / 1000)}:R>`, inline: true }
                 )
                 .setFooter({ text: 'Southwest Florida Comunidad 00Y4n ™' })
                 .setTimestamp();
 
-            let mention = '';
-            if (interaction.guild.roles.cache.has(ROLE_STAFF)) {
-                mention = ` <@&${ROLE_STAFF}>`;
-            }
+            const embedInstrucciones = new EmbedBuilder()
+                .setColor(COLOR)
+                .setTitle(`Instrucciones — ${tipo.label}`)
+                .setDescription(
+                    tipo.instrucciones +
+                    '\n\n-# El staff fue notificado. Respondé acá; no abras otro ticket por lo mismo.'
+                );
 
-            await channel.send({
-                content: mention || undefined,
-                embeds: [embedTipo]
+            const row = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId('ticket_close')
+                    .setLabel('Cerrar ticket')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('🔒'),
+                new ButtonBuilder()
+                    .setCustomId('ticket_claim')
+                    .setLabel('Reclamar')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🙋')
+            );
+
+            const staffMention = guild.roles.cache.has(ROLE_STAFF) ? ` <@&${ROLE_STAFF}>` : '';
+
+            const msg = await channel.send({
+                content: `${member}${staffMention}`,
+                embeds: [embedMain, embedInstrucciones],
+                components: [row]
             });
+            await msg.pin().catch(() => null);
 
             return interaction.editReply({
                 content: `<:tilde:1534937809733812286> Ticket creado: ${channel}`
             });
         } catch (err) {
             logger.error('[ticket_tipo] Error:', err);
+            const detail = err?.rawError?.message || err?.message || 'error desconocido';
             return interaction.editReply({
-                content: `<:cruz00y4n:1534937767652495360> Error al crear el ticket: ${err?.message || 'desconocido'}`
+                content:
+                    `<:cruz00y4n:1534937767652495360> No se pudo crear el ticket: **${detail}**\n` +
+                    `-# Revisá que el bot tenga permiso **Gestionar canales** y **Ver canales** en la categoría de tickets.`
             });
         }
     }
