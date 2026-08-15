@@ -88,6 +88,11 @@ export default {
 
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
+        try {
+            await interaction.guild.channels.fetch();
+            await interaction.guild.roles.fetch();
+        } catch {}
+
         const categoryId = args?.[0] && args[0] !== 'auto' ? args[0] : null;
 
         try {
@@ -134,7 +139,7 @@ export default {
         } catch (err) {
             logger.error('[ticket_tipo] Error:', err);
             return interaction.editReply({
-                content: '<:cruz00y4n:1534937767652495360> Error al crear el ticket. Probá de nuevo en unos segundos.'
+                content: `<:cruz00y4n:1534937767652495360> Error al crear el ticket: ${err?.message || 'desconocido'}`
             });
         }
     }
