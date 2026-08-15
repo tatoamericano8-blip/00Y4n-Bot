@@ -31,7 +31,7 @@ export default {
             });
         }
 
-        await interaction.deferReply();
+        await interaction.deferReply({ ephemeral: true });
 
         staffData.premios.push({
             titulo,
@@ -53,6 +53,7 @@ export default {
             .setThumbnail(targetUser.displayAvatarURL())
             .setTimestamp();
 
-        await interaction.editReply({ embeds: [embedAward] });
+        await interaction.editReply({ content: '<:tilde:1534937809733812286> Reconocimiento otorgado.' });
+        await interaction.channel.send({ embeds: [embedAward] });
     }
 };
