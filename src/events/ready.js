@@ -11,6 +11,7 @@ import {
 import { limpiarSuspensionesVencidas } from '../utils/gestorSesionesRestricciones.js';
 import { limpiarSesionesFantasma } from '../utils/cierreSesionAutomatico.js';
 import { limpiarLoaVencidas } from '../utils/gestorLoa.js';
+import { procesarCobrosSeguros } from '../utils/gestorTienda.js';
 
 const ROLE_SUSPEND_SESIONES = '1533180544630788166';
 
@@ -96,6 +97,17 @@ export default {
         });
         limpiarLoaVencidas(client).catch(() => null);
         startupLog('✅ Limpieza de LOAs vencidas iniciada (cada 1h).');
+      }
+
+      // Cobro semanal de seguros de la tienda (revisión cada hora)
+      if (!client._tiendaSeguroCron) {
+        client._tiendaSeguroCron = true;
+        cron.schedule('20 * * * *', () => {
+          procesarCobrosSeguros(client).catch(err =>
+            logger.error('Error cobrando seguros de tienda:', err)
+          );
+        });
+        startupLog('✅ Sistema de cobro de seguros de tienda iniciado (cada 1h).');
       }
     } catch (error) {
       logger.error('Error in ready event:', error);
