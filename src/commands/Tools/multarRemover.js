@@ -1,4 +1,5 @@
-import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder,
+    MessageFlags} from 'discord.js';
 import { obtenerMulta, guardarMulta } from '../../utils/gestorMultas.js';
 
 export default {
@@ -43,7 +44,6 @@ export default {
             });
         }
 
-        // Anular la multa
         multa.estado = 'ANULADA';
         multa.anuladoPor = interaction.user.id;
         multa.motivoAnulacion = motivo;
@@ -67,9 +67,12 @@ export default {
             })
             .setTimestamp();
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.reply({
+            content: '<:tilde:1534937809733812286> Multa anulada.',
+            flags: MessageFlags.Ephemeral
+        });
+        await interaction.channel.send({ embeds: [embed] });
 
-        // Log
         const logsChannel = interaction.guild.channels.cache.get(CHANNEL_LOGS);
         if (logsChannel) {
             const embedLog = new EmbedBuilder()
