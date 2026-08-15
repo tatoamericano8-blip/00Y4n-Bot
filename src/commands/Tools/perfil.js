@@ -3,6 +3,8 @@ import Vehiculo from '../../../models/Vehiculo.js';
 import Licencia from '../../../models/Licencia.js'; 
 import { obtenerSaldo } from '../../utils/gestorEconomia.js';
 import { obtenerTodasLasMultas } from '../../utils/gestorMultas.js';
+import { obtenerInventario, obtenerSeguro, textoInventario } from '../../utils/gestorTienda.js';
+import { getItem, formatMoney, TIENDA_COLOR } from '../../config/tiendaServer.js';
 
 const BLOXLINK_API_KEY = 'e47f3929-9be2-4179-82b1-e53b4a9a6538'; 
 
@@ -138,18 +140,41 @@ export default {
             new ButtonBuilder()
                 .setCustomId(`multas_${miembro.id}`)
                 .setLabel('Multas')
-                .setStyle(ButtonStyle.Danger)
+                .setStyle(ButtonStyle.Danger),
+
+            new ButtonBuilder()
+                .setCustomId(`invtienda_${miembro.id}`)
+                .setLabel('Inventario')
+                .setStyle(ButtonStyle.Secondary)
         );
 
         const mensajePerfil = await interaction.editReply({ embeds: [perfilEmbed], components: [botonera] });
 
         // 6. RECOLECTOR INTERNO (24 Horas)
         const recolector = mensajePerfil.createMessageComponentCollector({
-            filter: (i) => i.customId.startsWith('regs_') || i.customId.startsWith('multas_'),
+            filter: (i) => i.customId.startsWith('regs_') || i.customId.startsWith('multas_') || i.customId.startsWith('invtienda_'),
             time: 86400000 
         });
 
         recolector.on('collect', async (botonInteraction) => {
+            // Inventario de tienda (customId: invtienda_<userId>)
+            if (botonInteraction.customId.startsWith('invtienda_')) {
+                const targetId = botonInteraction.customId.replace('invtienda_', '');
+                const inv = await obtenerInventario(targetId);
+                const seguro = await obtenerSeguro(targetId);
+                let seguroTxt = '_Sin seguro activo._';
+                if (seguro?.itemId) {
+                    const it = getItem(seguro.itemId);
+                    seguroTxt = `**${it?.name || seguro.itemId}** — próximo cobro <t:${Math.floor(seguro.nextCharge / 1000)}:R> (${formatMoney(seguro.weekly)})`;
+                }
+                const embedInv = new EmbedBuilder()
+                    .setTitle('Inventario de tienda')
+                    .setDescription(`Usuario: <@${targetId}>\n\n${textoInventario(inv)}\n\n**Seguro**\n${seguroTxt}`)
+                    .setColor(TIENDA_COLOR)
+                    .setFooter({ text: 'Tienda del servidor 00Y4n' });
+                return await botonInteraction.reply({ embeds: [embedInv], flags: MessageFlags.Ephemeral });
+            }
+
             const [tipo, targetId] = botonInteraction.customId.split('_');
 
             // 🚗 BOTÓN DE MATRÍCULAS
