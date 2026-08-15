@@ -1,4 +1,5 @@
-import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder,
+    MessageFlags} from 'discord.js';
 import { generarIDMulta, guardarMulta, programarWarrant } from '../../utils/gestorMultas.js';
 
 /** Opciones de infracción (máx. 25 en Discord). Name ≤ 100 caracteres. */
@@ -39,7 +40,7 @@ export default {
                 .addChoices(...OPCIONES_MULTA))
         .addIntegerOption(option =>
             option.setName('monto')
-                .setDescription('Monto TOTAL en $ (sumá los recomendados si hay varias infracciones).')
+                .setDescription('Monto total en $ (sumá los recomendados si hay varias infracciones).')
                 .setRequired(true)
                 .setMinValue(1))
         .addStringOption(option =>
@@ -125,6 +126,10 @@ export default {
             .setTimestamp();
 
         await interaction.reply({
+            content: '<:tilde:1534937809733812286> Multa emitida.',
+            flags: MessageFlags.Ephemeral
+        });
+        await interaction.channel.send({
             content: `<:anuncio:1534937667823865956> **Atención <@${infractor.id}>, has sido multado oficialmente:**`,
             embeds: [embedMulta],
             allowedMentions: { users: [infractor.id] }
