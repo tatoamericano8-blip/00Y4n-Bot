@@ -7,7 +7,7 @@ import {
   ButtonStyle,
   MessageFlags
 } from 'discord.js';
-import Sesion from '../../../models/Sesion.js';
+import Sesion from '../../../models/Session.js';
 
 const ROL_STAFF = '1512120103771050005';
 
@@ -152,7 +152,7 @@ export default {
       const res = await Sesion.updateMany(
         {
           guildId: interaction.guildId,
-          estado: { $in: ['activa', 'lanzada', 'abierta'] }
+          estado: { $in: ['activa', 'esperando_reacciones'] }
         },
         { $set: { linkSesion, linkRegeneradoEn: new Date() } }
       );
