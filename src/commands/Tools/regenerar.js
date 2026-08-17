@@ -7,11 +7,26 @@ import {
   ButtonStyle,
   MessageFlags
 } from 'discord.js';
+import Sesion from '../../../models/Sesion.js';
 
 const ROL_STAFF = '1512120103771050005';
 
 const IMAGEN_DEFAULT =
   'https://cdn.discordapp.com/attachments/1529288674091466805/1535400100820549712/Link_regenerado_1.png';
+
+function normalizarLink(raw) {
+  let link = String(raw || '').trim();
+  if (!link) return null;
+  if (!link.startsWith('http://') && !link.startsWith('https://')) {
+    link = `https://${link}`;
+  }
+  try {
+    new URL(link);
+    return link;
+  } catch {
+    return null;
+  }
+}
 
 export default {
   data: {
@@ -19,16 +34,10 @@ export default {
     description: 'Anuncia que el link del servidor fue regenerado (RP o Car Meet).',
     options: [
       {
-        name: 'usuario',
-        description: 'Host/staff que regeneró el link (si lo dejás vacío, sos vos).',
-        type: ApplicationCommandOptionType.User,
-        required: false
-      },
-      {
-        name: 'imagen',
-        description: 'Banner de Link Regenerado (opcional).',
-        type: ApplicationCommandOptionType.Attachment,
-        required: false
+        name: 'link',
+        description: 'Link privado de Roblox (Staff Link del embed).',
+        type: ApplicationCommandOptionType.String,
+        required: true
       }
     ]
   },
@@ -45,11 +54,16 @@ export default {
       });
     }
 
-    const usuarioStaff = interaction.options.getUser('usuario') || interaction.user;
-    const fotoAdjunta = interaction.options.getAttachment('imagen');
+    const linkSesion = normalizarLink(interaction.options.getString('link'));
+    if (!linkSesion) {
+      return interaction.reply({
+        content: '❌ El link no es válido. Pegá la URL completa del servidor privado de Roblox.',
+        flags: MessageFlags.Ephemeral
+      });
+    }
 
     await interaction.reply({
-      content: '🔄 Bloqueando el link anterior y publicando el aviso…',
+      content: '🔄 Link regenerado. Bloqueando el acceso anterior y publicando el aviso…',
       flags: MessageFlags.Ephemeral
     });
 
@@ -65,7 +79,8 @@ export default {
                 c.customId === 'verificar_voto_swfl' ||
                 c.customId === 'verificar_reinvite_swfl' ||
                 c.customId === 'verificar_reinvite_meet_swfl' ||
-                (typeof c.customId === 'string' && c.customId.startsWith('link_'))
+                (typeof c.customId === 'string' &&
+                  (c.customId.startsWith('link_') || c.customId === 'staff_link_regenerar'))
             )
           )
       );
@@ -87,7 +102,7 @@ export default {
     }
 
     const textoDescripcion =
-      `<:dot:1534938142665084938> <@${usuarioStaff.id}> ha **regenerado el link del servidor**.\n` +
+      `<:dot:1534938142665084938> Se ha **regenerado el link del servidor**.\n` +
       `Sean pacientes: las re-invitaciones se harán en los próximos **30 minutos**.\n` +
       `Molestar al host para pedir el link resultará en un **timeout**.`;
 
@@ -95,7 +110,7 @@ export default {
       .setTitle('Southwest Florida 00Y4n — Link del Servidor Regenerado')
       .setDescription(textoDescripcion)
       .setColor('#74d4fc')
-      .setImage(fotoAdjunta?.url || IMAGEN_DEFAULT)
+      .setImage(IMAGEN_DEFAULT)
       .setFooter({ text: 'Southwest Florida Comunidad 00Y4n ™' });
 
     const filaStaff = new ActionRowBuilder().addComponents(
@@ -106,10 +121,53 @@ export default {
         .setStyle(ButtonStyle.Secondary)
     );
 
-    await interaction.channel.send({
+    const msgAviso = await interaction.channel.send({
       content: '@everyone',
       embeds: [embedRegen],
       components: [filaStaff]
     });
+
+    global.coleccionSesiones = global.coleccionSesiones || new Map();
+    global.coleccionReinvites = global.coleccionReinvites || new Map();
+    global.coleccionReinvitesMeet = global.coleccionReinvitesMeet || new Map();
+    global.coleccionStaffLinks = global.coleccionStaffLinks || new Map();
+
+    global.coleccionStaffLinks.set(msgAviso.id, linkSesion);
+    global.coleccionReinvites.set(msgAviso.id, linkSesion);
+    global.coleccionReinvitesMeet.set(msgAviso.id, linkSesion);
+
+    for (const [msgId, data] of global.coleccionSesiones.entries()) {
+      if (data?.guildId && data.guildId !== interaction.guildId) continue;
+      global.coleccionSesiones.set(msgId, { ...data, linkSesion });
+    }
+
+    global.coleccionSesiones.set(msgAviso.id, {
+      linkSesion,
+      guildId: interaction.guildId,
+      tipo: 'regenerado',
+      actualizadoEn: Date.now()
+    });
+
+    try {
+      const res = await Sesion.updateMany(
+        {
+          guildId: interaction.guildId,
+          estado: { $in: ['activa', 'lanzada', 'abierta'] }
+        },
+        { $set: { linkSesion, linkRegeneradoEn: new Date() } }
+      );
+      if (!(res?.modifiedCount || res?.nModified)) {
+        const ultima = await Sesion.findOne({ guildId: interaction.guildId })
+          .sort({ fechaLanzamiento: -1, updatedAt: -1 })
+          .exec();
+        if (ultima) {
+          ultima.linkSesion = linkSesion;
+          ultima.linkRegeneradoEn = new Date();
+          await ultima.save();
+        }
+      }
+    } catch (e) {
+      console.error('[regenerar] DB:', e?.message || e);
+    }
   }
 };

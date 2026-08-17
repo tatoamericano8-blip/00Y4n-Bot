@@ -1,10 +1,4 @@
-import {
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
-  ActionRowBuilder,
-  MessageFlags
-} from 'discord.js';
+import { EmbedBuilder, MessageFlags } from 'discord.js';
 
 const ROL_STAFF = '1512120103771050005';
 
@@ -18,24 +12,47 @@ export default {
 
     if (!esStaff) {
       return interaction.reply({
-        content: '🔒 Solo el **Staff** puede usar este botón.',
+        content: '🔒 Solo el **Staff** puede ver este link.',
         flags: MessageFlags.Ephemeral
       });
     }
 
-    const modal = new ModalBuilder()
-      .setCustomId('staff_link_regenerar_modal')
-      .setTitle('Staff Link — Link privado');
+    global.coleccionStaffLinks = global.coleccionStaffLinks || new Map();
+    global.coleccionSesiones = global.coleccionSesiones || new Map();
+    global.coleccionReinvites = global.coleccionReinvites || new Map();
 
-    const inputLink = new TextInputBuilder()
-      .setCustomId('link_privado')
-      .setLabel('Link del servidor privado de Roblox')
-      .setStyle(TextInputStyle.Short)
-      .setPlaceholder('https://www.roblox.com/share?code=...')
-      .setRequired(true)
-      .setMaxLength(400);
+    const msgId = interaction.message?.id;
+    let link =
+      (msgId && global.coleccionStaffLinks.get(msgId)) ||
+      (msgId && global.coleccionReinvites.get(msgId)) ||
+      (msgId && global.coleccionSesiones.get(msgId)?.linkSesion) ||
+      null;
 
-    modal.addComponents(new ActionRowBuilder().addComponents(inputLink));
-    await interaction.showModal(modal);
+    if (!link) {
+      for (const data of global.coleccionSesiones.values()) {
+        if (data?.guildId === interaction.guildId && data?.linkSesion) {
+          link = data.linkSesion;
+        }
+      }
+    }
+
+    if (!link) {
+      return interaction.reply({
+        content:
+          '❌ No hay link cargado en este aviso. Volvé a usar `/regenerar_swfl` con la opción **link**.',
+        flags: MessageFlags.Ephemeral
+      });
+    }
+
+    const embed = new EmbedBuilder()
+      .setTitle('🔒 Staff Link')
+      .setDescription(
+        `Link privado del servidor regenerado:\n\n🔗 ${link}\n\n` +
+          `_Solo visible para staff. No lo compartas en canales públicos._`
+      )
+      .setColor('#74d4fc')
+      .setFooter({ text: 'Southwest Florida Comunidad 00Y4n ™' });
+
+    return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
   }
 };
