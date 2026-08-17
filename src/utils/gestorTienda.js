@@ -13,6 +13,97 @@ const SEGURO_KEY = (userId) => `tienda:seguro:${userId}`;
 const SEGURO_INDEX_KEY = 'tienda:seguro:index';
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
+/** Textos de DM para Permisos y Seguros */
+const DM_PERMISOS = {
+  permiso_discapacidad: {
+    titulo: 'Permiso de estacionamiento para discapacitados',
+    cuerpo:
+      'Compraste el **Permiso de estacionamiento para discapacitados**.\n\n' +
+      '**¿Para qué sirve?**\n' +
+      'Te otorga el permiso oficial de **estacionamiento prioritario** en sesiones de roleplay.\n\n' +
+      'Usalo de forma responsable. El abuso puede resultar en la pérdida del permiso.'
+  },
+  seguro_regular: {
+    titulo: 'Seguro Regular activado',
+    cuerpo:
+      'Activaste el **Seguro Regular** de tu vehículo.\n\n' +
+      '**Cobertura:** estándar para tu auto en sesiones.\n' +
+      '**Renovación:** se debita **$750** automáticamente cada 7 días.\n' +
+      'Si no tenés saldo en el cobro, el seguro se cancela y se quita el rol.\n\n' +
+      'Podés ver el estado con `/tienda seguro`.'
+  },
+  seguro_lujo: {
+    titulo: 'Seguro de Lujo activado',
+    cuerpo:
+      'Activaste el **Seguro de Lujo** de tu vehículo.\n\n' +
+      '**Cobertura:** premium para tu auto en sesiones.\n' +
+      '**Renovación:** se debita **$1.500** automáticamente cada 7 días.\n' +
+      'Si no tenés saldo en el cobro, el seguro se cancela y se quita el rol.\n\n' +
+      'Podés ver el estado con `/tienda seguro`.'
+  },
+  fastpass: {
+    titulo: 'FastPass adquirido',
+    cuerpo:
+      'Compraste el **FastPass**.\n\n' +
+      '**¿Para qué sirve?**\n' +
+      'Te da **acceso prioritario** a sesiones y eventos del servidor (rol FastPass).\n\n' +
+      'Mostrá el rol cuando el staff lo solicite en reinvitaciones o colas prioritarias.'
+  },
+  licencia_comercial: {
+    titulo: 'Licencia comercial adquirida',
+    cuerpo:
+      'Compraste la **Licencia comercial**.\n\n' +
+      '**¿Para qué sirve?**\n' +
+      'Te autoriza el **uso comercial de vehículos** en el servidor y en sesiones de roleplay.\n\n' +
+      'Mantenela al día y respetá las normas de tránsito del servidor.'
+  },
+  permiso_limusina: {
+    titulo: 'Permiso de limusina adquirido',
+    cuerpo:
+      'Compraste el **Permiso de limusina**.\n\n' +
+      '**¿Para qué sirve?**\n' +
+      'Te autoriza a **conducir limusinas** en las sesiones de roleplay.\n\n' +
+      'Usalo solo cuando el roleplay lo permita y respetá las indicaciones del host.'
+  }
+};
+
+async function enviarDmCompraPermiso(member, item, precioPagado) {
+  try {
+    let target = member.user || null;
+    if (!target && member.client) {
+      target = await member.client.users.fetch(member.id).catch(() => null);
+    }
+    if (!target && member.id) {
+      // fallback: no client on partial member
+      return;
+    }
+    if (!target) return;
+    const info = DM_PERMISOS[item.id];
+    const titulo = info?.titulo || item.name;
+    const cuerpo = info?.cuerpo || (item.description || 'Tu compra fue procesada correctamente.');
+    const extraSeguro =
+      item.type === 'role_weekly'
+        ? `\n\n**Próximo cobro:** en 7 días (**${formatMoney(item.weekly)}**).`
+        : '';
+    await target
+      .send({
+        embeds: [
+          {
+            title: `🧾 ${titulo}`,
+            description:
+              `${cuerpo}${extraSeguro}\n\n` +
+              `**Monto pagado:** ${formatMoney(precioPagado ?? item.price)}\n` +
+              `*Southwest Florida Comunidad 00Y4n ™*`,
+            color: 0xfb8b66
+          }
+        ]
+      })
+      .catch(() => null);
+  } catch (e) {
+    logger.warn(`[tienda] DM compra permiso: ${e.message}`);
+  }
+}
+
 export async function obtenerInventario(userId) {
   const inv = await getFromDb(INV_KEY(userId), {});
   return inv && typeof inv === 'object' ? inv : {};
@@ -125,17 +216,20 @@ export async function comprarItem(member, itemId) {
         await setInDb(SEGURO_KEY(userId), { itemId: item.id, roleId: roleIdStr, weekly: item.weekly, nextCharge: Date.now() + WEEK_MS, purchasedAt: Date.now() });
         await registrarEnIndiceSeguros(userId);
       }
-      // Inventario: permisos y seguros también se registran
       try {
         const inv = await obtenerInventario(userId);
         inv[item.id] = 1;
         await guardarInventario(userId, inv);
       } catch (_) {}
+
+      // DM al jugador con la función del ítem
+      await enviarDmCompraPermiso(guildMember, item, item.price);
+
       const extra = item.type === 'role_weekly' ? `\nCobro semanal **${formatMoney(item.weekly)}** automático.` : '';
       return {
         ok: true,
         saldoNuevo: nuevoSaldo,
-        mensaje: `Compraste **${item.name}** por **${formatMoney(item.price)}** y se te asignó el rol **${roleObj?.name || item.name}**.${extra}\nQuedó en tu inventario.\nSaldo: **${formatMoney(nuevoSaldo)}**.`
+        mensaje: `Compraste **${item.name}** por **${formatMoney(item.price)}** y se te asignó el rol **${roleObj?.name || item.name}**.${extra}\nQuedó en tu inventario.\nTe enviamos un MD con los detalles.\nSaldo: **${formatMoney(nuevoSaldo)}**.`
       };
     }
     await agregarAlInventario(userId, item.id, 1);
