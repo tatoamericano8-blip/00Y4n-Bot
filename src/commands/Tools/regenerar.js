@@ -122,7 +122,6 @@ export default {
     );
 
     const msgAviso = await interaction.channel.send({
-      content: '@everyone',
       embeds: [embedRegen],
       components: [filaStaff]
     });

@@ -6,13 +6,19 @@ export default {
   name: 'staff_link_regenerar',
 
   async execute(interaction) {
-    const esStaff =
-      interaction.member?.roles?.cache?.has(ROL_STAFF) ||
-      interaction.memberPermissions?.has('ManageMessages');
+    let member = interaction.member;
+    try {
+      if (interaction.guild) {
+        member = await interaction.guild.members.fetch(interaction.user.id);
+      }
+    } catch (_) {}
+
+    const esStaff = member?.roles?.cache?.has(ROL_STAFF) === true;
 
     if (!esStaff) {
       return interaction.reply({
-        content: '🔒 Solo el **Staff** puede ver este link.',
+        content:
+          '❌ **No tenés el rol ni el permiso autorizado.** Solo el **Staff** puede usar el botón Staff Link.',
         flags: MessageFlags.Ephemeral
       });
     }
