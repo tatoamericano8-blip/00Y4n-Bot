@@ -7,7 +7,7 @@ global.coleccionStartups = global.coleccionStartups || new Map();
 
 export default {
     data: {
-        name: 'inicio_swfl',
+        name: 'inicio',
         description: 'Lanza un inicio de sesión de Roleplay o Car Meet para SWFL.',
         options: [
             {
@@ -72,18 +72,18 @@ export default {
             : '<a:mari:1534954231138746488> Southwest Florida - __*Car Meet Sesión Inicio*__ <a:mari:1534954231138746488>';
 
         const descExtra = esRP
-            ? `> <:dot:1534938142665084938> Registra tus vehículos en <#1505615426305130657>!\n\n`
-            : `> <:dot:1534938142665084938> Recuerda evitar colisiones con vehículos y mantener el realismo!\n\n`;
+            ? `<:dot:1534938142665084938> Registra tus vehículos en <#1505615426305130657>!\n\n`
+            : `<:dot:1534938142665084938> Recuerda evitar colisiones con vehículos y mantener el realismo!\n\n`;
 
         const embed = new EmbedBuilder()
             .setTitle(titulo)
             .setDescription(
                 `> ${ePunto} <@${interaction.user.id}> ¡está organizando una **sesión de ${esRP ? 'roleplay' : 'car meet oficial'}**! Antes de unirte a la sesión, asegúrate de que la configuración de privacidad de tu cuenta esté establecida en **«Everyone»**. Al unirte, confirmas que has leído todas las normas del servidor. Cuando la sesión esté disponible, el host enviará otro mensaje con una notificación.\n\n` +
                     `**Antes de Unirte**\n\n` +
-                    `> <:felc:1534937306191102125> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-                    `> <:felc:1534937306191102125> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399/1536059852432867412) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1536064730223874132).\n` +
+                    `<:felc:1534937306191102125> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+                    `<:felc:1534937306191102125> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399/1536059852432867412) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1536064730223874132).\n` +
                     descExtra +
-                    `> <:replica:1534982812116062370> El host debe obtener __**${reacciones}+**__ reacciones antes de comenzar.`
+                    `<:replica:1534982812116062370> El host debe obtener __**${reacciones}+**__ reacciones antes de comenzar.`
             )
             .setColor('#74d4fc');
 
