@@ -30,7 +30,7 @@ function normalizarLink(raw) {
 
 export default {
   data: {
-    name: 'regenerar_swfl',
+    name: 'regenerar',
     description: 'Anuncia que el link del servidor fue regenerado (RP o Car Meet).',
     options: [
       {
