@@ -17,7 +17,7 @@ function formatearDuracionMs(ms) {
 
 export default {
     data: {
-        name: 'cerrar_swfl',
+        name: 'cerrar',
         description: 'Cierra oficialmente la sesion de SWFL, elimina avisos de las ultimas 4hs y muestra el resumen.',
         options: [
             {
