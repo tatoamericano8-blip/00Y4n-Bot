@@ -14,14 +14,9 @@ import {
 } from '../../utils/gestorMDT.js';
 
 const ROL_POLICIA_ID = '1529146302783422706';
-const ROL_ALTO_MANDO = '1528870731629465752';
 
 function autorizado(member) {
-  return (
-    member.roles.cache.has(ROL_POLICIA_ID) ||
-    member.roles.cache.has(ROL_ALTO_MANDO) ||
-    member.permissions.has('Administrator')
-  );
+  return member?.roles?.cache?.has(ROL_POLICIA_ID) === true;
 }
 
 function cortar(texto, max = 1024) {
@@ -206,7 +201,7 @@ export default {
     if (!autorizado(interaction.member)) {
       return interaction.reply({
         content:
-          '<:cruz00y4n:1534937767652495360> **Acceso denegado.** Solo personal del **Departamento Policial de Sarasota** o Alto Comando pueden usar el MDT.',
+          '<:cruz00y4n:1534937767652495360> **Acceso denegado.** Solo personal del **Departamento Policial de Sarasota** puede usar el MDT.',
         ephemeral: true
       });
     }
@@ -259,7 +254,11 @@ export default {
 export async function handleMdtButton(interaction) {
   if (!interaction.customId?.startsWith('mdt_')) return false;
   if (!autorizado(interaction.member)) {
-    await interaction.reply({ content: '\u274c Sin permiso para el MDT.', ephemeral: true });
+    await interaction.reply({
+      content:
+        '<:cruz00y4n:1534937767652495360> **Acceso denegado.** Solo personal del **Departamento Policial de Sarasota** puede usar el MDT.',
+      ephemeral: true
+    });
     return true;
   }
 
