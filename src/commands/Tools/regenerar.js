@@ -12,7 +12,7 @@ import Sesion from '../../../models/Session.js';
 const ROL_STAFF = '1512120103771050005';
 
 const IMAGEN_DEFAULT =
-  'https://cdn.discordapp.com/attachments/1529288674091466805/1535400100820549712/Link_regenerado_1.png';
+  'https://cdn.discordapp.com/attachments/1505017301089652898/1536043755579383828/Link_regenerado_1.png?ex=6a85d539&is=6a8483b9&hm=685512be2affda147189d72d957f7791bd288850e906038c386648963db74792&';
 
 function normalizarLink(raw) {
   let link = String(raw || '').trim();
