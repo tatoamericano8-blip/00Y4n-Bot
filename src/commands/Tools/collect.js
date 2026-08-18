@@ -13,6 +13,10 @@ const ROLES_RECOMPENSAS = [
     { id: '1484294519234105638', nombre: 'Booster', recompensa: 1000 },
     { id: '1497267661158092973', nombre: 'Sponsor', recompensa: 2500 },
     { id: '1512120103771050005', nombre: 'Staff', recompensa: 2500 },
+    { id: '1529146302783422706', nombre: 'Policía del condado de Sarasota', recompensa: 1500 },
+    { id: '1530287573547880581', nombre: 'Ciudadano del Día', recompensa: 2000 },
+    { id: '1528870731629465752', nombre: 'Alto Comando', recompensa: 3000 },
+    { id: '1525517592348065904', nombre: 'Server Contribuidor', recompensa: 500 },
     // Podés agregar todos los roles que quieras siguiendo la misma estructura
 ];
 
