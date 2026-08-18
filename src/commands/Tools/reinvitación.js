@@ -163,7 +163,7 @@ export default {
 
         const embedReinvitacion = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<a:esp:1534954134732804308> Reinvitaciones de la Sesion <a:esp:1534954134732804308>')
+            .setTitle('<a:mariquieta:1534954231138746488> Reinvitaciones de la Sesion <a:mariquieta:1534954231138746488>')
             .setDescription(
                 `Reacciona a este mensaje para solicitar tu reinvitacion!\n` +
                 `Las reinvitaciones se liberaran automaticamente una vez alcanzada la meta de reacciones.\n\n` +
@@ -184,7 +184,7 @@ export default {
         });
 
         const mensajeEnviado = await interaction.channel.send({
-            content: '<a:corasdandovueltas:1534939964150907000> **@here** Atencion a las reinvitaciones de la sesion!',
+            content: '**@here**',
             embeds: [embedReinvitacion],
             allowedMentions: { parse: ['everyone', 'roles', 'users'] }
         });
@@ -241,33 +241,33 @@ export default {
             if (fresh.tipo === 'rp') {
                 tituloEmbed = '<a:mariquieta:1534954231138746488> Southwest Florida – ***__Reinvitaciones Roleplay Liberadas__*** <a:mariquieta:1534954231138746488>';
                 datosExtraSesion =
-                    `> <:tres:1535001243204718612> **Estado de Peacetime:** **${fresh.peacetime || '-'}**\n` +
-                    `> <:cuatro:1534938460228550857> **Limite de Fail Roleplay:** **${fresh.limiteVelocidad || '-'}**\n` +
-                    `> <:cinco:1534938284218777630> **Servicios de emergencia:** **${fresh.serviciosEmergencia || '-'}**\n` +
-                    `> <:seis:1535001326927220919> **Co-Host de la Sesion:** ${textoCohost}\n` +
-                    `> <:replica:1534982812116062370> Las velocidades de detencion son **+6 MPH** sobre el limite establecido.\n`;
+                    ` <:tres:1535001243204718612> **Estado de Peacetime:** **${fresh.peacetime || '-'}**\n` +
+                    ` <:cuatro:1534938460228550857> **Limite de Fail Roleplay:** **${fresh.limiteVelocidad || '-'}**\n` +
+                    ` <:cinco:1534938284218777630> **Servicios de emergencia:** **${fresh.serviciosEmergencia || '-'}**\n` +
+                    ` <:seis:1535001326927220919> **Co-Host de la Sesion:** ${textoCohost}\n` +
+                    ` <:replica:1534982812116062370> Las velocidades de detencion son **+6 MPH** sobre el limite establecido.\n`;
             } else if (fresh.tipo === 'meet') {
                 tituloEmbed = '<a:mariquieta:1534954231138746488> Southwest Florida – ***__Reinvitaciones Car Meet Liberadas__*** <a:mariquieta:1534954231138746488>';
                 datosExtraSesion =
-                    `> <:tres:1535001243204718612> **Tematica del Meet:** **${fresh.tematica || '-'}**\n` +
-                    `> <:cuatro:1534938460228550857> **Lugar actual:** **${fresh.ubicacion || '-'}**\n` +
-                    `> <:cinco:1534938284218777630> **Spots / Duracion:** **${fresh.spots || '-'}**\n` +
-                    `> <:seis:1535001326927220919> **Co-Host de la Sesion:** ${textoCohost}\n` +
-                    `> <:flechareplica:1534982812116062370> Los vehiculos deben ingresar __despacio__ al lugar del meet.\n`;
+                    ` <:tres:1535001243204718612> **Tematica del Meet:** **${fresh.tematica || '-'}**\n` +
+                    ` <:cuatro:1534938460228550857> **Lugar actual:** **${fresh.ubicacion || '-'}**\n` +
+                    ` <:cinco:1534938284218777630> **Spots / Duracion:** **${fresh.spots || '-'}**\n` +
+                    ` <:seis:1535001326927220919> **Co-Host de la Sesion:** ${textoCohost}\n` +
+                    ` <:flechareplica:1534982812116062370> Los vehiculos deben ingresar __despacio__ al lugar del meet.\n`;
             } else {
-                datosExtraSesion = `> <:cuatro:1534938460228550857> **Co-Host de la Sesion:** ${textoCohost}\n`;
+                datosExtraSesion = ` <:cuatro:1534938460228550857> **Co-Host de la Sesion:** ${textoCohost}\n`;
             }
 
             const infoDescripcion =
-                `> <a:flecha:1534939368035324125> <@${interaction.user.id}> **ha lanzado las reinvitaciones de la sesion!** Se ha alcanzado la meta de reacciones requeridas. Podes unirte al servidor usando el boton de abajo.\n\n` +
-                `<:manual:1534999731019972671> **Informacion de la Reinvitacion**\n\n` +
-                `> <:uno:1534938872977297559> **Reacciones alcanzadas:** \`${reaccionesRequeridas} / ${reaccionesRequeridas}\`\n` +
-                `> <:dos:1535001133729447987> **Hora de liberacion:** **${horaRelease}** (<t:${timestampRelease}:t>)\n` +
+                ` <a:flecha:1534939368035324125> <@${interaction.user.id}> **ha lanzado las reinvitaciones de la sesion!** Se ha alcanzado la meta de reacciones requeridas. Podes unirte al servidor usando el boton de abajo.\n\n` +
+                `<:manual:1534999731019972671> - **Informacion de la Reinvitacion**\n\n` +
+                ` <:uno:1534938872977297559> **Reacciones alcanzadas:** \`${reaccionesRequeridas} / ${reaccionesRequeridas}\`\n` +
+                ` <:dos:1535001133729447987> **Hora de liberacion:** **${horaRelease}** (<t:${timestampRelease}:t>)\n` +
                 datosExtraSesion +
-                `\n<:manual:1534999731019972671> **Antes de unirte**\n\n` +
-                `> <:dot:1534938142665084938> Asegurate de estar verificado [aqui](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-                `> <:dot:1534938142665084938> Lee la [informacion](https://discord.com/channels/1451939725308067842/1451942179877687399/1536059852432867412) & [vehiculos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1536064730223874132).\n` +
-                `> <:dot:1534938142665084938> Registra tus vehiculos en <#1505615426305130657>!\n\n` +
+                `\n<:manual:1534999731019972671> - **Antes de unirte**\n\n` +
+                ` <:dot:1534938142665084938> Asegurate de estar verificado [aqui](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+                ` <:dot:1534938142665084938> Lee la [informacion](https://discord.com/channels/1451939725308067842/1451942179877687399/1536059852432867412) & [vehiculos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1536064730223874132).\n` +
+                ` <:dot:1534938142665084938> Registra tus vehiculos en <#1505615426305130657>!\n\n` +
                 `-# <a:adv:1534939309235376328> *Ingresa de inmediato antes de que el servidor se complete!*`;
 
             const embedRelease = new EmbedBuilder()
