@@ -64,11 +64,11 @@ export default {
 
                 // Embed estructurado al estilo premium 00Y4n con tus nuevos emojis
                 const embedSetup = new EmbedBuilder()
-                    .setTitle(`<a:circesperando:1534984549929451641> Southwest Florida - *_Configuración de Sesión_* <a:circesperando:1534984549929451641>`)
+                    .setTitle(`<a:circesperando:1534984549929451641> Southwest Florida - *__Configuración de Sesión__* <a:circesperando:1534984549929451641>`)
                     .setDescription(
-                        `> <:punto:1534938142665084938> <@${startup.hostId}> **ya está configurando el servidor para la sesión oficial de ${nombreSesion}!**\n\n` +
-                        `> <:flecha:1534937306191102125> El Staff, miembros con FastPass, colaboradores y el equipo de servicios publicos ya pueden ir ingresando utilizando el enlace de FastPass.\n\n` +
-                        `> <:replica:1534982812116062370> Por favor, dale al host un lapso de hasta **10 minutos** para liberar la sesión por completo.\n\n` +
+                        ` <:punto:1534938142665084938> <@${startup.hostId}> **ya está configurando el servidor para la sesión oficial de ${nombreSesion}!**\n\n` +
+                        ` <:flecha:1534937306191102125> El Staff, miembros con FastPass, colaboradores y el equipo de servicios publicos ya pueden ir ingresando utilizando el enlace de FastPass.\n\n` +
+                        ` <:replica:1534982812116062370> Por favor, dale al host un lapso de hasta **10 minutos** para liberar la sesión por completo.\n\n` +
                         `<a:adv:1534939309235376328> **¡IMPORTANTE!** No molestes ni satures al host con mensajes privados o pings innecesarios durante este proceso. Espera pacientemente el anuncio oficial de apertura.`
                     )
                     .setColor('#74d4fc');
