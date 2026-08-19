@@ -117,7 +117,7 @@ export default {
       new ButtonBuilder()
         .setCustomId('staff_link_regenerar')
         .setLabel('Staff Link')
-        .setEmoji('🔒')
+        .setEmoji('1536868110571806830')
         .setStyle(ButtonStyle.Secondary)
     );
 
