@@ -83,6 +83,7 @@ export default {
             id: ticketID,
             usuarioId: infractor.id,
             emisorId: interaction.user.id,
+            oficialId: interaction.user.id,
             razon: razonTexto,
             razones: razonesUnicas,
             monto,
