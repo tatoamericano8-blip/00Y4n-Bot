@@ -12,6 +12,7 @@ import { limpiarSuspensionesVencidas } from '../utils/gestorSesionesRestriccione
 import { limpiarSesionesFantasma } from '../utils/cierreSesionAutomatico.js';
 import { limpiarLoaVencidas } from '../utils/gestorLoa.js';
 import { procesarCobrosSeguros } from '../utils/gestorTienda.js';
+import { procesarMultasVencidas } from '../utils/gestorMultas.js';
 
 const ROLE_SUSPEND_SESIONES = '1533180544630788166';
 
@@ -51,10 +52,7 @@ export default {
           { timezone: 'America/Argentina/Buenos_Aires' }
         );
         startupLog('✅ Sistema de Reinicio de Cuotas iniciado (Domingos 22:00 hs Argentina).');
-      }
 
-      if (!client._cuotaReminderCron) {
-        client._cuotaReminderCron = true;
         cron.schedule(
           '0 18 * * 3',
           () => {
@@ -99,7 +97,6 @@ export default {
         startupLog('✅ Limpieza de LOAs vencidas iniciada (cada 1h).');
       }
 
-      // Cobro semanal de seguros de la tienda (revisión cada hora)
       if (!client._tiendaSeguroCron) {
         client._tiendaSeguroCron = true;
         cron.schedule('20 * * * *', () => {
@@ -108,6 +105,19 @@ export default {
           );
         });
         startupLog('✅ Sistema de cobro de seguros de tienda iniciado (cada 1h).');
+      }
+
+      if (!client._multasWarrantCron) {
+        client._multasWarrantCron = true;
+        const runMultas = () =>
+          procesarMultasVencidas(client)
+            .then((n) => {
+              if (n > 0) logger.info(`[WARRANT] Órdenes aplicadas por multas vencidas: ${n}`);
+            })
+            .catch((err) => logger.error('Error procesando multas vencidas:', err));
+        cron.schedule('5 * * * *', runMultas);
+        runMultas();
+        startupLog('✅ Sistema de órdenes por multas vencidas iniciado (cada 1h + al arrancar).');
       }
     } catch (error) {
       logger.error('Error in ready event:', error);
