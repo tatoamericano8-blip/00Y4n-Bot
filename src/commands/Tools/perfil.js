@@ -182,12 +182,28 @@ export default {
                         .setTimestamp();
                     return await botonInteraction.reply({ embeds: [embedSinMultas], flags: MessageFlags.Ephemeral });
                 }
-                const stringMultas = multasUsuarioActuales.map((multa) => {
+                const stringMultas = multasUsuarioActuales
+                    .slice()
+                    .sort((a, b) => Number(a.id) - Number(b.id))
+                    .map((multa) => {
                     const estadoTexto = multa.estado === 'PAGADA' ? '🟢 **PAGADA**' : '🔴 **PENDIENTE**';
-                    return `**Multa #${multa.id}** — Estado: ${estadoTexto}\n` +
+                    const oficial = multa.emisorId || multa.oficialId || multa.oficial_id || multa.emisor_id;
+                    const oficialTxt = oficial ? `<@${oficial}>` : 'Sin registrar';
+                    const fmt = (iso) => {
+                        if (!iso) return null;
+                        try {
+                            return new Date(iso).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+                        } catch { return String(iso); }
+                    };
+                    const emitida = fmt(multa.fecha);
+                    const pagada = multa.estado === 'PAGADA' ? fmt(multa.fechaPago || multa.pagadaEn) : null;
+                    let line = `**Multa #${multa.id}** — Estado: ${estadoTexto}\n` +
                            `> • **Razón:** ${multa.razon}\n` +
                            `> • **Monto:** $${Number(multa.monto).toLocaleString()}\n` +
-                           `> • **Oficial Emisor:** <@${multa.oficialId || multa.oficial_id}>`;
+                           `> • **Oficial Emisor:** ${oficialTxt}`;
+                    if (emitida) line += `\n> • **Emitida:** ${emitida}`;
+                    if (pagada) line += `\n> • **Pagada:** ${pagada}`;
+                    return line;
                 }).join('\n\n');
                 const embedConMultas = new EmbedBuilder()
                     .setTitle('<:folder:1534938334650962115> Historial de Multas')
