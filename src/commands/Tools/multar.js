@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder,
     MessageFlags} from 'discord.js';
-import { generarIDMulta, guardarMulta, programarWarrant } from '../../utils/gestorMultas.js';
+import { generarIDMulta, guardarMulta, programarWarrant, calcularVencimiento } from '../../utils/gestorMultas.js';
 
 /** Opciones de infracción (máx. 25 en Discord). Name ≤ 100 caracteres. */
 const OPCIONES_MULTA = [
@@ -78,6 +78,7 @@ export default {
 
         const ticketID = await generarIDMulta();
 
+        const fechaEmision = new Date().toISOString();
         const datosMulta = {
             id: ticketID,
             usuarioId: infractor.id,
@@ -87,7 +88,9 @@ export default {
             monto,
             guildId: interaction.guildId,
             estado: 'PENDIENTE',
-            fecha: new Date().toISOString()
+            fecha: fechaEmision,
+            venceEn: calcularVencimiento(fechaEmision),
+            warrantAplicado: false
         };
 
         await guardarMulta(ticketID, datosMulta);
