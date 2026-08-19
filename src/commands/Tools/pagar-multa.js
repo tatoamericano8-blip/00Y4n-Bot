@@ -41,7 +41,7 @@ export default {
         }
 
         const infractorId = ticket.usuarioId || ticket.usuario_id;
-        const oficialId = ticket.oficialId || ticket.oficial_id || ticket.emisorId;
+        const oficialId = ticket.emisorId || ticket.oficialId || ticket.oficial_id || ticket.emisor_id;
         const montoMulta = Number(ticket.monto);
 
         if (String(infractorId) !== String(usuarioId)) {
@@ -65,6 +65,7 @@ export default {
 
         await restarSaldo(usuarioId, montoMulta);
         ticket.estado = 'PAGADA';
+        ticket.fechaPago = new Date().toISOString();
         await guardarMulta(ticket.id || ticketID, ticket);
 
         try {
@@ -74,13 +75,14 @@ export default {
         }
 
         const saldoRestante = await obtenerSaldo(usuarioId);
+        const issuerTxt = oficialId ? `<@${oficialId}>` : 'Sin registrar';
 
         const embedPagada = new EmbedBuilder()
             .setColor('#74d4fc')
             .setTitle('<:tilde:1534937809733812286> ¡Ticket Pagado Exitosamente!')
             .setDescription(
                 `~~User — <@${infractorId}>~~\n` +
-                `~~Issuer — <@${oficialId}>~~\n` +
+                `~~Issuer — ${issuerTxt}~~\n` +
                 `~~Reason — ${ticket.razon}~~\n` +
                 `~~Amount — $${montoMulta.toLocaleString()}~~\n` +
                 `~~ID — ${ticket.id || ticketID}~~\n\n` +
