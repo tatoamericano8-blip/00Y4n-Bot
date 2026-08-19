@@ -13,14 +13,15 @@ export default {
 
   async execute(message) {
     try {
-      if (!message.guild) return;
-
-      // —— Auto-cierre de sesión si se borra el mensaje de /inicio_swfl ——
+      // Auto-cierre de sesión si se borra el mensaje de /inicio_swfl
+      // (antes de exigir guild: mensajes parciales a veces no traen guild hidratado)
       try {
         await manejarBorradoMensajeInicio(message);
       } catch (sesionErr) {
         logger.warn('Error en auto-cierre por borrado de inicio:', sesionErr.message);
       }
+
+      if (!message.guild) return;
 
       // —— Snipe ——
       try {
