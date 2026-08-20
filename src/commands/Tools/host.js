@@ -58,8 +58,8 @@ export default {
 
         const esCohost = tipo === 'cohost';
         const titulo = esCohost
-            ? '<a:corasfinos:1534953815969890436> 00Y4n Southwest Florida Comunidad — Co-Host de Sesión <a:corasfinos:1534953815969890436>'
-            : '<a:corasfinos:1534953815969890436> 00Y4n Southwest Florida Comunidad — Host de Sesión <a:corasfinos:1534953815969890436>';
+            ? '<a:corasfinos:1534953815969890436> 00Y4n Southwest Florida Comunidad — __Co-Host de Sesión__ <a:corasfinos:1534953815969890436>'
+            : '<a:corasfinos:1534953815969890436> 00Y4n Southwest Florida Comunidad — __Host de Sesión__ <a:corasfinos:1534953815969890436>';
 
         const descripcion = esCohost
             ? `<:dot:1534938142665084938> <@${usuarioStaff.id}> es **Co-Host** de la sesión actual. Si necesitás soporte y el host está ocupado, dirigite al co-host.`
