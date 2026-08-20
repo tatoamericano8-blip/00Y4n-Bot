@@ -68,7 +68,7 @@ export default {
 
         const esRP = tipo === 'rp';
         const titulo = esRP
-            ? '<a:mari:1534954231138746488> **Southwest Florida** - *__Roleplay Sesión Inicio__* <a:mari:1534954231138746488>'
+            ? '<a:mari:1534954231138746488> Southwest Florida - *__Roleplay Sesión Inicio__* <a:mari:1534954231138746488>'
             : '<a:mari:1534954231138746488> Southwest Florida - __*Car Meet Sesión Inicio*__ <a:mari:1534954231138746488>';
 
         const descExtra = esRP
@@ -80,8 +80,8 @@ export default {
             .setDescription(
                 ` ${ePunto} <@${interaction.user.id}> ¡está organizando una **sesión de ${esRP ? 'roleplay' : 'car meet oficial'}**! Antes de unirte a la sesión, asegúrate de que la configuración de privacidad de tu cuenta esté establecida en **«Everyone»**. Al unirte, confirmas que has leído todas las normas del servidor. Cuando la sesión esté disponible, el host enviará otro mensaje con una notificación.\n\n` +
                     `**Antes de Unirte**\n\n` +
-                    `<:felc:1534937306191102125> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-                    `<:felc:1534937306191102125> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399/1536059852432867412) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1536064730223874132).\n` +
+                    `<:dot:1534938142665084938> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
+                    `<:dot:1534938142665084938> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399/1536059852432867412) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1536064730223874132).\n` +
                     descExtra +
                     `<:replica:1534982812116062370> El host debe obtener __**${reacciones}+**__ reacciones antes de comenzar.`
             )
