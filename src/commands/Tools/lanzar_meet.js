@@ -10,7 +10,7 @@ const IMAGEN_MEET_DEFECTO = 'https://cdn.discordapp.com/attachments/150501730108
 
 export default {
     data: {
-        name: 'lanzar_meet_swfl',
+        name: 'lanzar_meet',
         description: 'Libera los accesos para un Car Meet oficial.',
         options: [
             { name: 'mensaje_id', description: 'Pega aca la ID del mensaje de Startup/Inicio de esta sesion.', type: ApplicationCommandOptionType.String, required: true },
@@ -51,14 +51,14 @@ export default {
         } catch (_) {}
 
         const infoDescripcion =
-            `<:dot:1534938142665084938> <@${interaction.user.id}> ha **lanzado el Car Meet**.\n\n` +
-            `> Tematica: **${tematica}**\n` +
-            `> Ubicacion: **${ubicacion}**\n` +
-            `> Spots / Duracion: **${spots}**\n\n` +
-            `Usá el boton **Link de la Sesion** (debes haber votado en el inicio).`;
+            `<:dot:1534938142665084938> <@${interaction.user.id}> ha **lanzado el Car Meet**.Al unirte, spawneá tus vehículos, estacioná en las parqueos correspondientes, y esperá más instrucciones del host. Asegúrate de revisar la información de abajo.\n\n` +
+            `<:dot:1534938142665084938> Tematica: **${tematica}**\n` +
+            `<:dot:1534938142665084938> Ubicacion: **${ubicacion}**\n` +
+            `<:dot:1534938142665084938> Spots / Duracion: **${spots}**\n\n` +
+            `<:replica:1534982812116062370> Usá el boton **Link de la Sesion** (debes haber votado en el inicio).`;
 
         const embedRelease = new EmbedBuilder()
-            .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida – ***__Car Meet Sesion Lanzada__*** <a:mariquieta:1534954231138746488>')
+            .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida – *__Car Meet Sesion Lanzada__* <a:mariquieta:1534954231138746488>')
             .setDescription(infoDescripcion)
             .setColor('#74d4fc');
 
