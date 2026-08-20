@@ -167,7 +167,7 @@ export default {
 
         const embedReinvitacion = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<a:mariquieta:1534954231138746488> Reinvitaciones de la Sesion <a:mariquieta:1534954231138746488>')
+            .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida - *__Reinvitaciones__* <a:mariquieta:1534954231138746488>')
             .setDescription(
                 `Reacciona a este mensaje para solicitar tu reinvitacion!\n` +
                 `Las reinvitaciones se liberaran automaticamente una vez alcanzada la meta de reacciones.\n\n` +
