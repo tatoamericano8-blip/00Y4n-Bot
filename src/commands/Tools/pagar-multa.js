@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { obtenerMulta, obtenerTodasLasMultas, guardarMulta, ROL_WARRANT_ID, revisarWarrantTrasPago } from '../../utils/gestorMultas.js';
+import { getDescuentoMultaPorSeguro } from '../../utils/gestorTienda.js';
 import { obtenerSaldo, restarSaldo } from '../../utils/gestorEconomia.js';
 
 export default {
@@ -51,21 +52,39 @@ export default {
             });
         }
 
+        // Seguro: descuento al pagar
+        const desc = await getDescuentoMultaPorSeguro(interaction.member);
+        const montoOriginal = montoMulta;
+        let montoAPagar = montoOriginal;
+        let textoDescuento = '';
+        if (desc.pct > 0) {
+            montoAPagar = Math.max(1, Math.round(montoOriginal * (1 - desc.pct)));
+            const ahorro = montoOriginal - montoAPagar;
+            textoDescuento =
+                `\n<:tilde:1534937809733812286> **${desc.label}:** -${Math.round(desc.pct * 100)}% ` +
+                `(pagás **$${montoAPagar.toLocaleString()}** en vez de **$${montoOriginal.toLocaleString()}**, ` +
+                `ahorrás **$${ahorro.toLocaleString()}**)`;
+        }
+
         const saldoActual = await obtenerSaldo(usuarioId);
 
-        if (saldoActual < montoMulta) {
+        if (saldoActual < montoAPagar) {
             return await interaction.reply({
                 content: `<:cruz:1534937767652495360> **Fondos insuficientes.**\n` +
-                         `• Costo de la multa: **$${montoMulta.toLocaleString()}**\n` +
+                         `• Costo de la multa: **$${montoAPagar.toLocaleString()}**` +
+                         (desc.pct > 0 ? ` (original $${montoOriginal.toLocaleString()} con descuento)` : '') + `\n` +
                          `• Tu saldo actual: **$${saldoActual.toLocaleString()}**\n\n` +
                          `<:manual:1534999731019972671> *Usa \`/work\` para trabajar y ganar dinero.*`,
                 ephemeral: true
             });
         }
 
-        await restarSaldo(usuarioId, montoMulta);
+        await restarSaldo(usuarioId, montoAPagar);
         ticket.estado = 'PAGADA';
         ticket.fechaPago = new Date().toISOString();
+        ticket.montoPagado = montoAPagar;
+        ticket.montoOriginal = montoOriginal;
+        if (desc.plan) ticket.seguroAplicado = desc.plan;
         await guardarMulta(ticket.id || ticketID, ticket);
 
         try {
@@ -84,8 +103,10 @@ export default {
                 `~~User — <@${infractorId}>~~\n` +
                 `~~Issuer — ${issuerTxt}~~\n` +
                 `~~Reason — ${ticket.razon}~~\n` +
-                `~~Amount — $${montoMulta.toLocaleString()}~~\n` +
-                `~~ID — ${ticket.id || ticketID}~~\n\n` +
+                `~~Amount — $${montoAPagar.toLocaleString()}~~` +
+                (desc.pct > 0 ? ` (orig. $${montoOriginal.toLocaleString()})` : '') + `\n` +
+                `~~ID — ${ticket.id || ticketID}~~` +
+                (textoDescuento || '') + `\n\n` +
                 `<:id:1534937551092187136> **Nuevo saldo en tu cuenta:** $${saldoRestante.toLocaleString()}`
             )
             .setFooter({ text: '00Y4n Comunidad SWFL • Registro de Pagos', iconURL: interaction.guild.iconURL() })
