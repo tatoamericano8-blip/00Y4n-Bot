@@ -17,8 +17,6 @@ export const ROLES_TIENDA = {
   fastpass: '1503769793474597027',
   permiso_discapacidad: '1538284668703608833',
   licencia_conducir: '1529872838557962431',
-  // licencia comercial (si se usa otro rol, cambiar ID)
-  licencia_comercial: '1529872838557962431',
   permiso_limusina: '1521300094710714568'
 };
 
@@ -77,15 +75,6 @@ export const TIENDA_ITEMS = {
     type: 'role',
     roleId: ROLES_TIENDA.licencia_conducir,
     description: 'Vía express: obtenés la licencia de conducir SWFL sin rendir el examen teórico. Precio premium ($75.000).'
-  },
-  licencia_comercial: {
-    id: 'licencia_comercial',
-    name: 'Licencia comercial',
-    price: 1000000,
-    category: 'permisos',
-    type: 'role',
-    roleId: ROLES_TIENDA.licencia_comercial,
-    description: 'Licencia para uso comercial de vehículos (precio premium).'
   },
   permiso_limusina: {
     id: 'permiso_limusina',
