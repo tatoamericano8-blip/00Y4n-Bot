@@ -26,8 +26,8 @@ const DM_PERMISOS = {
   seguro_regular: {
     titulo: 'Seguro Regular activado',
     cuerpo:
-      'Activaste el **Seguro Regular** de tu vehículo.\n\n' +
-      '**Cobertura:** estándar para tu auto en sesiones.\n' +
+      'Activaste el **Seguro Regular**.\n\n' +
+      '**Beneficio:** **15% de descuento** al pagar multas con `/pagar-multa`.\n' +
       '**Renovación:** se debita **$750** automáticamente cada 7 días.\n' +
       'Si no tenés saldo en el cobro, el seguro se cancela y se quita el rol.\n\n' +
       'Podés ver el estado con `/tienda seguro`.'
@@ -35,8 +35,8 @@ const DM_PERMISOS = {
   seguro_lujo: {
     titulo: 'Seguro de Lujo activado',
     cuerpo:
-      'Activaste el **Seguro de Lujo** de tu vehículo.\n\n' +
-      '**Cobertura:** premium para tu auto en sesiones.\n' +
+      'Activaste el **Seguro de Lujo**.\n\n' +
+      '**Beneficio:** **30% de descuento** al pagar multas con `/pagar-multa`.\n' +
       '**Renovación:** se debita **$1.500** automáticamente cada 7 días.\n' +
       'Si no tenés saldo en el cobro, el seguro se cancela y se quita el rol.\n\n' +
       'Podés ver el estado con `/tienda seguro`.'
@@ -57,14 +57,6 @@ const DM_PERMISOS = {
       'Es tu documentación oficial de manejo en Southwest Florida.\n' +
       'No es obligatoria para entrar a sesiones, pero **se recomienda**: sin ella podés recibir multas graves o arrestos.\n\n' +
       'Respetá el reglamento de manejo del servidor.'
-  },
-  licencia_comercial: {
-    titulo: 'Licencia comercial adquirida',
-    cuerpo:
-      'Compraste la **Licencia comercial**.\n\n' +
-      '**¿Para qué sirve?**\n' +
-      'Te autoriza el **uso comercial de vehículos** en el servidor y en sesiones de roleplay.\n\n' +
-      'Mantenela al día y respetá las normas de tránsito del servidor.'
   },
   permiso_limusina: {
     titulo: 'Permiso de limusina adquirido',
@@ -135,6 +127,34 @@ export async function quitarDelInventario(userId, itemId, cantidad = 1) {
 export async function obtenerSeguro(userId) {
   return (await getFromDb(SEGURO_KEY(userId), null)) || null;
 }
+
+/** Descuento al pagar multas según seguro activo (rol o DB). */
+export async function getDescuentoMultaPorSeguro(memberOrUserId) {
+  let userId = memberOrUserId;
+  let member = null;
+  if (memberOrUserId && typeof memberOrUserId === 'object' && memberOrUserId.id) {
+    member = memberOrUserId;
+    userId = memberOrUserId.id;
+  }
+  const seg = await obtenerSeguro(userId);
+  const hasLujo =
+    (member && member.roles?.cache?.has?.(ROLES_TIENDA.seguro_lujo)) ||
+    seg?.itemId === 'seguro_lujo' ||
+    String(seg?.roleId) === String(ROLES_TIENDA.seguro_lujo);
+  const hasRegular =
+    (member && member.roles?.cache?.has?.(ROLES_TIENDA.seguro_regular)) ||
+    seg?.itemId === 'seguro_regular' ||
+    String(seg?.roleId) === String(ROLES_TIENDA.seguro_regular);
+
+  if (hasLujo) {
+    return { pct: 0.3, label: 'Seguro de Lujo', plan: 'seguro_lujo' };
+  }
+  if (hasRegular) {
+    return { pct: 0.15, label: 'Seguro Regular', plan: 'seguro_regular' };
+  }
+  return { pct: 0, label: null, plan: null };
+}
+
 async function registrarEnIndiceSeguros(userId) {
   const index = (await getFromDb(SEGURO_INDEX_KEY, [])) || [];
   const arr = Array.isArray(index) ? index.map(String) : [];
@@ -164,7 +184,7 @@ export async function comprarItem(member, itemId) {
     const actual = await obtenerSeguro(userId);
     if (actual && actual.itemId === item.id) {
       return { ok: false, mensaje: `Ya tenés **${item.name}** activo.` };
-  }
+    }
   }
 
   let guildMember = member;
@@ -229,7 +249,7 @@ export async function comprarItem(member, itemId) {
 
       await enviarDmCompraPermiso(guildMember, item, item.price);
 
-      if (item.id === 'licencia_conducir' || item.id === 'licencia_comercial') {
+      if (item.id === 'licencia_conducir') {
         try {
           await registrarLicenciaPorCompra(userId, guildMember);
         } catch (e) {
