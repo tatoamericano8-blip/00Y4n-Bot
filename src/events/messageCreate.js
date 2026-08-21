@@ -27,12 +27,10 @@ export default {
         return;
       }
 
-      // Contar y procesar solo mensajes de usuarios en servidores (todos los canales)
       if (message.author.bot || !message.guild) return;
 
       try { cachearMensaje(message); } catch {}
 
-      // Ciudadano del día
       const hoyStr = new Date().toISOString().split('T')[0];
       const clavePuntos = `puntos_dia:${hoyStr}:${message.author.id}`;
       const claveListaUsuarios = `usuarios_activos:${hoyStr}`;
@@ -46,7 +44,6 @@ export default {
         await setInDb(claveListaUsuarios, listaUsuarios);
       }
 
-      // Contador permanente por servidor (todos los canales del guild)
       try {
         const claveTotal = `mensajes_totales:${message.guild.id}:${message.author.id}`;
         const totalActual = await getFromDb(claveTotal, 0);
@@ -142,6 +139,64 @@ export default {
           return await message.reply({ embeds: [embedRegistro] });
         } catch (error) {
           logger.error('Error enviando auto-responder de registro:', error);
+        }
+      }
+
+      const disparadoresLicencia = [
+        'como obtengo mi licencia',
+        'como saco la licencia',
+        'como saco mi licencia',
+        'como consigo la licencia',
+        'como consigo mi licencia',
+        'como hago la licencia',
+        'como saco licencia',
+        'como obtener licencia',
+        'como obtengo licencia',
+        'donde saco la licencia',
+        'donde saco licencia',
+        'licencia de conducir',
+        'licencia conducir',
+        'examen de licencia',
+        'examen licencia',
+        'como tramito la licencia',
+        'como tramitar licencia',
+        'necesito licencia',
+        'quiero la licencia',
+        'quiero sacar licencia',
+        'sacar licencia',
+        'obtener licencia',
+        'como recupero la licencia',
+        'licencia revocada',
+        'recuperar licencia'
+      ];
+
+      const activarLicencia = disparadoresLicencia.some(frase => textoNormalizado.includes(frase));
+
+      if (activarLicencia) {
+        const embedLicencia = new EmbedBuilder()
+          .setColor('#fb8b66')
+          .setDescription(
+            `<a:flota:1534954466535674006>\u2503 __**Licencia de Conducir SWFL**__\n\n` +
+            `No es **obligatoria** para entrar a sesiones, pero **se recomienda**: sin ella podés recibir **multas graves** o **arrestos**.\n\n` +
+            `<:dot:1534938142665084938> **Opción A — Examen (recomendado)**\n` +
+            `1. Leé el reglamento en <#1540355602704764968>\n` +
+            `2. \`/licencia examen\` — 8 preguntas (aprobás con 6+)\n` +
+            `3. \`/licencia tramitar\` — pagás **$5.000** y recibís el rol\n\n` +
+            `<:dot:1534938142665084938> **Opción B — Express (tienda)**\n` +
+            `• \`/tienda abrir\` en el canal de **#comandos** → **Licencia de Conducir (Express)** por **$75.000** (sin examen)\n\n` +
+            `<:dot:1534938142665084938> **Si está REVOCADA**\n` +
+            `• \`/licencia recuperar\` — 10 preguntas, mínimo 7 correctas\n\n` +
+            `Más info: \`/licencia info\` · Estado: \`/licencia estado\``
+          )
+          .setFooter({
+            text: message.guild.name,
+            iconURL: message.guild.iconURL({ dynamic: true })
+          });
+
+        try {
+          return await message.reply({ embeds: [embedLicencia] });
+        } catch (error) {
+          logger.error('Error enviando auto-responder de licencia:', error);
         }
       }
     } catch (error) {
