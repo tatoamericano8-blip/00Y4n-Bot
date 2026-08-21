@@ -164,7 +164,7 @@ export async function comprarItem(member, itemId) {
     const actual = await obtenerSeguro(userId);
     if (actual && actual.itemId === item.id) {
       return { ok: false, mensaje: `Ya tenés **${item.name}** activo.` };
-    }
+  }
   }
 
   let guildMember = member;
@@ -322,7 +322,7 @@ export function textoInventario(inv) {
       : `• **${item?.name || id}** ×${qty}`;
     if (!item) porCat.otros.push(line);
     else if (item.category === 'permisos') porCat.permisos.push(line);
-    else if (item.category === 'regalos) porCat.regalos.push(line);
+    else if (item.category === 'regalos') porCat.regalos.push(line);
     else if (item.category === 'comida') porCat.comida.push(line);
     else if (item.category === 'fuma') porCat.fuma.push(line);
     else porCat.otros.push(line);
