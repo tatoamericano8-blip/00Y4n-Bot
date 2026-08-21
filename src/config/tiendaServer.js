@@ -28,7 +28,6 @@ export const ROLES_TIENDA = {
  *  - gift          → va al inventario, se regala con /tienda regalar
  */
 export const TIENDA_ITEMS = {
-  // —— Permisos y Seguros ——
   permiso_discapacidad: {
     id: 'permiso_discapacidad',
     name: 'Permiso de estacionamiento para discapacitados',
@@ -46,7 +45,7 @@ export const TIENDA_ITEMS = {
     type: 'role_weekly',
     roleId: ROLES_TIENDA.seguro_regular,
     weekly: 750,
-    description: 'Cobertura estándar. Se debita $750 cada 7 días automáticamente.'
+    description: 'Cobertura estándar. -15% al pagar multas. Cobro $750 cada 7 días.'
   },
   seguro_lujo: {
     id: 'seguro_lujo',
@@ -56,7 +55,7 @@ export const TIENDA_ITEMS = {
     type: 'role_weekly',
     roleId: ROLES_TIENDA.seguro_lujo,
     weekly: 1500,
-    description: 'Cobertura premium. Se debita $1.500 cada 7 días automáticamente.'
+    description: 'Cobertura premium. -30% al pagar multas. Cobro $1.500 cada 7 días.'
   },
   fastpass: {
     id: 'fastpass',
@@ -86,7 +85,6 @@ export const TIENDA_ITEMS = {
     description: 'Autorización para conducir limusinas en sesiones.'
   },
 
-  // —— Regalos ——
   rosa: {
     id: 'rosa',
     name: 'Rosa',
@@ -96,7 +94,6 @@ export const TIENDA_ITEMS = {
     description: 'Una rosa para regalar a otro ciudadano.'
   },
 
-  // —— Comida ——
   bolsa_bodega: {
     id: 'bolsa_bodega',
     name: 'Bolsa de bodega',
@@ -152,7 +149,6 @@ export const TIENDA_ITEMS = {
     description: 'Langosta de lujo.'
   },
 
-  // —— Fuma y Bebe ——
   pack_newport: {
     id: 'pack_newport',
     name: 'Pack de Newport',
