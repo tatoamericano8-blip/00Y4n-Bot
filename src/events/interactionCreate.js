@@ -1,7 +1,6 @@
 import { Events, MessageFlags } from 'discord.js';
 import { logger } from '../utils/logger.js';
 import { getGuildConfig } from '../services/guildConfig.js';
-import { handleApplicationModal } from '../commands/Community/apply.js';
 import { handleInteractionError, createError, ErrorTypes } from '../utils/errorHandler.js';
 import { MessageTemplates } from '../utils/messageTemplates.js';
 import { InteractionHelper } from '../utils/interactionHelper.js';
@@ -105,24 +104,7 @@ export default {
             if (command && typeof command.autocomplete === 'function') {
               await command.autocomplete(interaction);
             } else {
-              const focusedOption = interaction.options.getFocused(true);
-              if (interaction.commandName === 'apply' && focusedOption.name === 'application') {
-                const { getApplicationRoles } = await import('../utils/database.js');
-                const roles = await getApplicationRoles(client, interaction.guildId);
-                const roleName = interaction.options.getString('application', false);
-                const filtered = roles.filter(role =>
-                  role.enabled !== false &&
-                  role.name.toLowerCase().startsWith(roleName?.toLowerCase() || '')
-                );
-                await interaction.respond(
-                  filtered.slice(0, 25).map(role => ({
-                    name: `${role.name}${role.enabled === false ? ' (disabled)' : ''}`,
-                    value: role.name
-                  }))
-                );
-              } else {
-                await interaction.respond([]);
-              }
+              await interaction.respond([]);
             }
           } catch (error) {
             logger.error('Error en autocomplete:', { error: error.message, commandName: interaction.commandName });
@@ -258,15 +240,7 @@ export default {
 
         } else if (interaction.isModalSubmit()) {
           if (interaction.customId.startsWith('app_modal_')) {
-            try {
-              await handleApplicationModal(interaction);
-            } catch (error) {
-              await handleInteractionError(interaction, error, withTraceContext({
-                type: 'modal',
-                customId: interaction.customId,
-                handler: 'application'
-              }, interactionTraceContext));
-            }
+            // /apply eliminado — ignorar modales viejos
             return;
           }
           if (interaction.customId.startsWith('jtc_')) {
