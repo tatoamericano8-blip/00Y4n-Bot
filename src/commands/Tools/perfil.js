@@ -87,12 +87,15 @@ export default {
         const autosRegistrados = await obtenerVehiculosUsuario(miembro.id);
         const saldoActual = await obtenerSaldo(miembro.id);
 
+        // Solo la DB define el estado. Sin documento = Sin licencia (nunca Activa por defecto).
         let datosLicencia = await Licencia.findOne({ usuario_id: miembro.id });
-        let estadoLicencia = datosLicencia ? datosLicencia.estado : 'Activa';
+        let estadoLicencia = (datosLicencia && datosLicencia.estado) ? datosLicencia.estado : 'Sin licencia';
 
-        let textoLicenciaVisual = '<:tilde:1534937809733812286> Activa';
-        if (estadoLicencia === 'Suspendida') textoLicenciaVisual = '🟡 Suspendida';
+        let textoLicenciaVisual = '⚪ Sin licencia';
+        if (estadoLicencia === 'Activa') textoLicenciaVisual = '<:tilde:1534937809733812286> Activa';
+        else if (estadoLicencia === 'Suspendida') textoLicenciaVisual = '🟡 Suspendida';
         else if (estadoLicencia === 'Revocada') textoLicenciaVisual = '🔴 Revocada';
+        else textoLicenciaVisual = '⚪ Sin licencia';
 
         const multasData = await obtenerTodasLasMultas();
         const arrayMultas = Array.isArray(multasData) ? multasData : Object.values(multasData || {});
