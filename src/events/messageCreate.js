@@ -146,9 +146,9 @@ export default {
             `El ingreso se gestiona por **Servicios Públicos** de 00Y4n.\n\n` +
             `<:dot:1534938142665084938> **Pasos**\n` +
             `1. Unite al servidor de **División de Servicios Públicos**.\n` +
-            `2. Completá el **formulario general** cuando esté abierto.\n` +
-            `3. Si te aceptan, postulá al **Departamento Policial del Condado de Sarasota**.\n` +
-            `4. En SWFL: \`/solicitud-departamento\` → **Policía del Condado de Sarasota**.\n` +
+            `2. Completá el **formulario general** de \`/solicitud-departamento\` en 00Y4n.\n` +
+            `3. Si te aceptan, postulá al **Departamento Policial del Condado de Sarasota** en el servidor de emergencias.\n` +
+            `4. En **División de Servicios Públicos**: #solicitud-de-rol → **Policía del Condado de Sarasota**.\n` +
             `5. Aprobá el **entrenamiento** con Alto Comando / instructores.\n\n` +
             `<:dot:1534938142665084938> **Importante**\n` +
             `• Hay proceso de selección; no se da el rol solo por pedir.\n` +
