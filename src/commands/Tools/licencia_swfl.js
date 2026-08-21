@@ -1,5 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
-import Licencia from '../../../models/Licencia.js'; // Ajusta la ruta a tu modelo
+import Licencia from '../../../models/Licencia.js';
+import { sincronizarRolLicencia } from '../../utils/gestorLicencias.js';
 
 // 👮 ID DEL ROL DE POLICÍA
 const ROL_POLICIA_ID = '1529146302783422706';
@@ -36,7 +37,6 @@ export default {
     },
 
     async execute(interaction) {
-        // 🔒 VERIFICACIÓN EXCLUSIVA: ¿Tiene el rol de Policía especificado?
         const tieneRolPolicia = interaction.member.roles.cache.has(ROL_POLICIA_ID);
         
         if (!tieneRolPolicia) {
@@ -52,7 +52,6 @@ export default {
         const nuevoEstado = interaction.options.getString('estado');
         const motivo = interaction.options.getString('motivo') || 'Sin motivo especificado.';
 
-        // Guardar/Actualizar en MongoDB
         await Licencia.findOneAndUpdate(
             { usuario_id: usuario.id },
             { 
@@ -64,7 +63,11 @@ export default {
             { upsert: true, new: true }
         );
 
-        // Estilos según el estado asignado
+        try {
+            const miembro = await interaction.guild.members.fetch(usuario.id).catch(() => null);
+            if (miembro) await sincronizarRolLicencia(miembro, nuevoEstado);
+        } catch (_) {}
+
         let emojiEstado = '🟢';
         let colorEmbed = '#57f287';
 
