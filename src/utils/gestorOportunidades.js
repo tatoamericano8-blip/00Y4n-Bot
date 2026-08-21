@@ -1,10 +1,12 @@
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { agregarSaldo } from './gestorEconomia.js';
 import { PRIMARIO } from './colores.js';
+import { logger } from './logger.js';
+import { setInDb } from './database.js';
 
 /** Banner de oportunidad (solo imagen) — se envía como primer embed */
 const BANNER_OPORTUNIDAD_URL =
-    'https://cdn.discordapp.com/attachments/1505017301089652898/1536043756028166155/Oportunidad_Economica_1.png?ex=6a7f3db9&is=6a7dec39&hm=11d83177fd097666ca2b954c59cbf095c1f521f4f851ea4d416819e23fc8a81a&';
+    'https://cdn.discordapp.com/attachments/1505017301089652898/1536043756028166155/Oportunidad_Economica_1.png';
 
 const historiasOportunidades = [
     "de un lavaplatos del Diner local que te pagó por decirle a los clientes que la sopa era 'especial del chef' y no las sobras de ayer.",
@@ -22,17 +24,23 @@ function crearEmbedBanner() {
         .setImage(BANNER_OPORTUNIDAD_URL);
 }
 
-/**
- * Lanza una Oportunidad Económica en un canal específico.
- * @param {import('discord.js').Client} client
- * @param {string} canalId
- */
+export const LAST_OPORTUNIDAD_KEY = 'oportunidad:lastLaunch';
+
 export async function lanzarOportunidadEconomica(client, canalId) {
     try {
-        const canal = await client.channels.fetch(canalId);
-        if (!canal) return;
+        const canal = await client.channels.fetch(canalId).catch((e) => {
+            logger.error(`[oportunidad] No se pudo fetch canal ${canalId}:`, e.message);
+            return null;
+        });
+        if (!canal) {
+            logger.warn(`[oportunidad] Canal ${canalId} no encontrado o sin acceso.`);
+            return;
+        }
+        if (!canal.isTextBased?.() && canal.type !== 0 && canal.type !== 5) {
+            logger.warn(`[oportunidad] Canal ${canalId} no es de texto.`);
+            return;
+        }
 
-        // Ganancia aleatoria: $500 – $3.500
         const monto = Math.floor(Math.random() * (3500 - 500 + 1)) + 500;
         const historia = historiasOportunidades[Math.floor(Math.random() * historiasOportunidades.length)];
 
@@ -56,6 +64,10 @@ export async function lanzarOportunidadEconomica(client, canalId) {
             embeds: [embedBanner, embedInicial],
             components: [botonActivo]
         });
+        try {
+            await setInDb(LAST_OPORTUNIDAD_KEY, Date.now());
+        } catch (_) {}
+        logger.info(`[oportunidad] Enviada en #${canal.name || canalId} — $${monto}`);
 
         const collector = mensaje.createMessageComponentCollector({
             filter: (i) => i.customId === 'reclamar_oportunidad',
@@ -95,7 +107,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
                     await interaction.update(payload);
                 }
             } catch (error) {
-                console.error('Error al procesar el reclamo en el collector:', error);
+                logger.error('Error al procesar el reclamo en el collector:', error);
             }
         });
 
@@ -122,10 +134,10 @@ export async function lanzarOportunidadEconomica(client, canalId) {
                     }).catch(() => {});
                 }
             } catch (error) {
-                console.error('Error al finalizar el collector de oportunidades:', error);
+                logger.error('Error al finalizar el collector de oportunidades:', error);
             }
         });
     } catch (error) {
-        console.error('Error al lanzar Oportunidad Económica:', error);
+        logger.error('Error al lanzar Oportunidad Económica:', error);
     }
 }
