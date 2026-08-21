@@ -24,7 +24,8 @@ export default {
                 choices: [
                     { name: '🟢 Activa', value: 'Activa' },
                     { name: '🟡 Suspendida', value: 'Suspendida' },
-                    { name: '🔴 Revocada', value: 'Revocada' }
+                    { name: '🔴 Revocada', value: 'Revocada' },
+                    { name: '⚪ Sin licencia', value: 'Sin licencia' }
                 ]
             },
             {
@@ -77,6 +78,9 @@ export default {
         } else if (nuevoEstado === 'Revocada') {
             emojiEstado = '🔴';
             colorEmbed = '#ed4245';
+        } else if (nuevoEstado === 'Sin licencia') {
+            emojiEstado = '⚪';
+            colorEmbed = '#95a5a6';
         }
 
         const embedRespuesta = new EmbedBuilder()
