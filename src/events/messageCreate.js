@@ -57,23 +57,12 @@ export default {
         .replace(/[\u0300-\u036f]/g, '');
 
       const disparadoresUnirse = [
-        'como me uno',
-        'como unirme',
-        'como se entra',
-        'como entro',
-        'como entro a la sesion',
-        'como me uno a la sesion',
-        'link de la sesion',
-        'link sesion',
-        'como juego',
-        'como se juega',
-        'pc o consola',
-        'como entrar'
+        'como me uno', 'como unirme', 'como se entra', 'como entro',
+        'como entro a la sesion', 'como me uno a la sesion', 'link de la sesion',
+        'link sesion', 'como juego', 'como se juega', 'pc o consola', 'como entrar'
       ];
 
-      const activarUnirse = disparadoresUnirse.some(frase => textoNormalizado.includes(frase));
-
-      if (activarUnirse) {
+      if (disparadoresUnirse.some(frase => textoNormalizado.includes(frase))) {
         const embedComoUnirse = new EmbedBuilder()
           .setColor('#74d4fc')
           .setDescription(
@@ -84,120 +73,92 @@ export default {
             `3. Cuando se publique el link, hacé clic y unite.\n\n` +
             `<:consola:1534938916057120839> **Si jugás en Consola**\n` +
             `1. Registra tu vehículo con \`/matricula_swfl registrar\` (mismas reglas que arriba).\n` +
-            `2. Mantente atento a los canales de <#1452644461745148049> y <#1501739933495201925> para ver una sesión activa. Si no hay, esperá pacientemente a que un host tenga tiempo e inicie una.\n` +
-            `3. Los jugadores de consola **no pueden** hacer clic directamente en los enlaces de servidores privados.\n` +
-            `<:replica:1534982812116062370> Menciona al **Host de la Sesión** en el chat de la sesión y pídele que te **agregue como amigo** en Roblox, luego únete a través de su perfil.`
+            `2. Mantente atento a los canales de <#1452644461745148049> y <#1501739933495201925>.\n` +
+            `3. Los de consola **no pueden** usar links directos: pedile al **Host** que te agregue en Roblox.`
           )
-          .setFooter({
-            text: message.guild.name,
-            iconURL: message.guild.iconURL({ dynamic: true })
-          });
-
-        try {
-          return await message.reply({ embeds: [embedComoUnirse] });
-        } catch (error) {
-          logger.error('Error enviando auto-responder de cómo unirse:', error);
-        }
+          .setFooter({ text: message.guild.name, iconURL: message.guild.iconURL({ dynamic: true }) });
+        try { return await message.reply({ embeds: [embedComoUnirse] }); }
+        catch (error) { logger.error('Error auto-responder unirse:', error); }
       }
 
       const disparadoresRegistro = [
-        'como registro',
-        'como se registra',
-        'como registrar',
-        'donde registro',
-        'como matriculo',
-        'como matricular',
-        'donde matriculo',
-        'como registro mi auto',
-        'registrar',
-        'matriculo',
-        'registro',
-        'como registro mi vehiculo'
+        'como registro', 'como se registra', 'como registrar', 'donde registro',
+        'como matriculo', 'como matricular', 'donde matriculo', 'como registro mi auto',
+        'registrar', 'matriculo', 'registro', 'como registro mi vehiculo'
       ];
 
-      const activarRegistro = disparadoresRegistro.some(frase => textoNormalizado.includes(frase));
-
-      if (activarRegistro) {
+      if (disparadoresRegistro.some(frase => textoNormalizado.includes(frase))) {
         const embedRegistro = new EmbedBuilder()
           .setColor('#74d4fc')
           .setDescription(
             `<a:flota:1534954466535674006>\u2503 __**Cómo Registrar tu Vehículo**__\n\n` +
-            `<:car:1534938916057120839> **Paso a Paso:**\n` +
-            `1. Escribe el comando **\`/matricular registrar\`** en el canal <#1505615426305130657>.\n` +
-            `2. En la opción **patente**, ingresa una combinación de **6 a 7 caracteres** (letras y números sin espacios ni símbolos).\n` +
-            `3. Especifica la **marca y modelo** exacto de tu auto.\n\n` +
-            `<a:adv:1534939309235376328> **Importante:**\n` +
-            `- Revisa el canal de reglas para asegurarte de que tu auto no esté en la lista de **vehículos restringidos o prohibidos**.\n` +
-            `- Tu registro es obligatorio para poder ingresar a las sesiones de roleplay y **evitar multas** (No se permiten patentes iguales).`
+            `1. \`/matricular registrar\` en <#1505615426305130657>.\n` +
+            `2. Patente de **6 a 7 caracteres**.\n` +
+            `3. Marca y modelo exactos.\n\n` +
+            `Obligatorio para sesiones y evitar multas.`
           )
-          .setFooter({
-            text: message.guild.name,
-            iconURL: message.guild.iconURL({ dynamic: true })
-          });
-
-        try {
-          return await message.reply({ embeds: [embedRegistro] });
-        } catch (error) {
-          logger.error('Error enviando auto-responder de registro:', error);
-        }
+          .setFooter({ text: message.guild.name, iconURL: message.guild.iconURL({ dynamic: true }) });
+        try { return await message.reply({ embeds: [embedRegistro] }); }
+        catch (error) { logger.error('Error auto-responder registro:', error); }
       }
 
       const disparadoresLicencia = [
-        'como obtengo mi licencia',
-        'como saco la licencia',
-        'como saco mi licencia',
-        'como consigo la licencia',
-        'como consigo mi licencia',
-        'como hago la licencia',
-        'como saco licencia',
-        'como obtener licencia',
-        'como obtengo licencia',
-        'donde saco la licencia',
-        'donde saco licencia',
-        'licencia de conducir',
-        'licencia conducir',
-        'examen de licencia',
-        'examen licencia',
-        'como tramito la licencia',
-        'como tramitar licencia',
-        'necesito licencia',
-        'quiero la licencia',
-        'quiero sacar licencia',
-        'sacar licencia',
-        'obtener licencia',
-        'como recupero la licencia',
-        'licencia revocada',
-        'recuperar licencia'
+        'como obtengo mi licencia', 'como saco la licencia', 'como saco mi licencia',
+        'como consigo la licencia', 'como consigo mi licencia', 'como hago la licencia',
+        'como saco licencia', 'como obtener licencia', 'como obtengo licencia',
+        'donde saco la licencia', 'donde saco licencia', 'licencia de conducir',
+        'licencia conducir', 'examen de licencia', 'examen licencia',
+        'como tramito la licencia', 'como tramitar licencia', 'necesito licencia',
+        'quiero la licencia', 'quiero sacar licencia', 'sacar licencia',
+        'obtener licencia', 'como recupero la licencia', 'licencia revocada', 'recuperar licencia'
       ];
 
-      const activarLicencia = disparadoresLicencia.some(frase => textoNormalizado.includes(frase));
-
-      if (activarLicencia) {
+      if (disparadoresLicencia.some(frase => textoNormalizado.includes(frase))) {
         const embedLicencia = new EmbedBuilder()
           .setColor('#fb8b66')
           .setDescription(
             `<a:flota:1534954466535674006>\u2503 __**Licencia de Conducir SWFL**__\n\n` +
-            `No es **obligatoria** para entrar a sesiones, pero **se recomienda**: sin ella podés recibir **multas graves** o **arrestos**.\n\n` +
-            `<:dot:1534938142665084938> **Opción A — Examen (recomendado)**\n` +
-            `1. Leé el reglamento en <#1540355602704764968>\n` +
-            `2. \`/licencia examen\` — 8 preguntas (aprobás con 6+)\n` +
-            `3. \`/licencia tramitar\` — pagás **$5.000** y recibís el rol\n\n` +
-            `<:dot:1534938142665084938> **Opción B — Express (tienda)**\n` +
-            `• \`/tienda abrir\` en el canal de **#comandos** → **Licencia de Conducir (Express)** por **$75.000** (sin examen)\n\n` +
-            `<:dot:1534938142665084938> **Si está REVOCADA**\n` +
-            `• \`/licencia recuperar\` — 10 preguntas, mínimo 7 correctas\n\n` +
-            `Más info: \`/licencia info\` · Estado: \`/licencia estado\``
+            `No es **obligatoria**, pero **se recomienda**.\n\n` +
+            `**A — Examen:** \`/licencia examen\` → \`/licencia tramitar\` ($5.000)\n` +
+            `**B — Express:** \`/tienda abrir\` → Licencia Express **$75.000**\n` +
+            `**Revocada:** \`/licencia recuperar\` (10 preg., min 7)\n\n` +
+            `Reglamento: <#1540355602704764968> · \`/licencia info\``
           )
-          .setFooter({
-            text: message.guild.name,
-            iconURL: message.guild.iconURL({ dynamic: true })
-          });
+          .setFooter({ text: message.guild.name, iconURL: message.guild.iconURL({ dynamic: true }) });
+        try { return await message.reply({ embeds: [embedLicencia] }); }
+        catch (error) { logger.error('Error auto-responder licencia:', error); }
+      }
 
-        try {
-          return await message.reply({ embeds: [embedLicencia] });
-        } catch (error) {
-          logger.error('Error enviando auto-responder de licencia:', error);
-        }
+      const disparadoresPolicia = [
+        'como me hago policia', 'como ser policia', 'como me hago poli',
+        'como entro a policia', 'como entro a la policia', 'quiero ser policia',
+        'quiero ser poli', 'postularme a policia', 'postular policia',
+        'solicitud policia', 'formulario policia', 'como ingreso a policia',
+        'como unirme a policia', 'departamento de policia', 'servicios publicos',
+        'como me hago sheriff', 'como ser oficial', 'aplicar a policia', 'aplicacion policia'
+      ];
+
+      if (disparadoresPolicia.some(frase => textoNormalizado.includes(frase))) {
+        const embedPolicia = new EmbedBuilder()
+          .setColor('#2c3e50')
+          .setDescription(
+            `<a:flota:1534954466535674006>\u2503 __**Cómo unirte al Departamento de Policía**__\n\n` +
+            `El ingreso se gestiona por **Servicios Públicos** de 00Y4n.\n\n` +
+            `<:dot:1534938142665084938> **Pasos**\n` +
+            `1. Unite al servidor de **División de Servicios Públicos**.\n` +
+            `2. Completá el **formulario general** cuando esté abierto.\n` +
+            `3. Si te aceptan, postulá al **Departamento Policial del Condado de Sarasota**.\n` +
+            `4. En SWFL: \`/solicitud-departamento\` → **Policía del Condado de Sarasota**.\n` +
+            `5. Aprobá el **entrenamiento** con Alto Comando / instructores.\n\n` +
+            `<:dot:1534938142665084938> **Importante**\n` +
+            `• Hay proceso de selección; no se da el rol solo por pedir.\n` +
+            `• Solo **un departamento** a la vez.\n` +
+            `• Comandos como \`/multar\` y \`/mdt\` requieren el rol de policía.\n\n` +
+            `Dudas: ticket en asistencia o el servidor de Servicios Públicos.`
+          )
+          .setFooter({ text: message.guild.name, iconURL: message.guild.iconURL({ dynamic: true }) });
+        try { return await message.reply({ embeds: [embedPolicia] }); }
+        catch (error) { logger.error('Error auto-responder policia:', error); }
       }
     } catch (error) {
       logger.error('Error in messageCreate event:', error);
