@@ -72,11 +72,11 @@ export const TIENDA_ITEMS = {
   licencia_conducir: {
     id: 'licencia_conducir',
     name: 'Licencia de Conducir (Express)',
-    price: 5000,
+    price: 75000,
     category: 'permisos',
     type: 'role',
     roleId: ROLES_TIENDA.licencia_conducir,
-    description: 'Vía express: obtenés la licencia de conducir SWFL sin rendir el examen teórico. Mismo rol oficial.'
+    description: 'Vía express: obtenés la licencia de conducir SWFL sin rendir el examen teórico. Precio premium ($75.000).'
   },
   licencia_comercial: {
     id: 'licencia_comercial',
