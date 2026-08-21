@@ -1,5 +1,5 @@
 /**
- * Sistema de Licencia de Conducir SWFL (teorico + emision + tienda express)
+ * Sistema de Licencia de Conducir SWFL (teorico + emision + tienda express + recuperacion)
  */
 import Licencia from '../../models/Licencia.js';
 import { restarSaldoExacto, obtenerSaldo } from './gestorEconomia.js';
@@ -12,6 +12,10 @@ export const EXAMEN_VALIDEZ_MS = 72 * 60 * 60 * 1000;
 export const EXAMEN_COOLDOWN_MS = 12 * 60 * 60 * 1000;
 export const EXAMEN_PREGUNTAS = 8;
 export const EXAMEN_MIN_CORRECTAS = 6;
+
+export const RECUP_PREGUNTAS = 10;
+export const RECUP_MIN_CORRECTAS = 7;
+export const RECUP_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
 export const BANCO_PREGUNTAS = [
   { q: 'En que carril se debe circular de forma constante?', opciones: ['Carril izquierdo', 'Carril derecho', 'El que este mas vacio', 'El del medio si hay tres'], correcta: 1 },
@@ -28,8 +32,32 @@ export const BANCO_PREGUNTAS = [
   { q: 'Se puede comprar la licencia en la tienda sin rendir examen?', opciones: ['No, jamas', 'Si: es la via express (pagas y evitas la prueba teorica)', 'Solo con rango Staff', 'Solo los boosters'], correcta: 1 }
 ];
 
+export const BANCO_RECUPERACION = [
+  { q: 'En una ruta de dos carriles, donde debes circular de forma habitual?', opciones: ['Carril izquierdo siempre', 'Carril derecho; el izquierdo solo para adelantar', 'El que este mas vacio', 'Indistinto'], correcta: 1 },
+  { q: 'Para que se usa el carril izquierdo segun las normas de conduccion?', opciones: ['Circular lento', 'Estacionar', 'Adelantar vehiculos mas rapidos / sin demoras', 'Solo vehiculos comerciales'], correcta: 2 },
+  { q: 'Una unidad de servicios publicos atiende una emergencia con sirenas. Que haces?', opciones: ['Aceleras para no molestar', 'La ignoras si vas en peacetime', 'Cedes el paso desplazandote al lado derecho y les das prioridad', 'Frenas en el medio del carril'], correcta: 2 },
+  { q: 'Al cambiar de carril, que tienes en cuenta por el desync del juego?', opciones: ['Nada, el desync no importa', 'Mantener al menos ~5 autos de distancia (retraso de 0,5 a 1,5 s)', 'Cambiar pegado al otro auto', 'Solo usar el bocinazo'], correcta: 1 },
+  { q: 'Despues de un accidente, el protocolo correcto es:', opciones: ['Seguir de largo', 'Orillar a la derecha e intercambiar info de seguro (-intercambia informacion de seguro-)', 'Solo escribir sorry y seguir', 'Desconectarse del juego'], correcta: 1 },
+  { q: 'Si el accidente dano propiedad publica (postes, semaforos, vegetacion), ademas debes:', opciones: ['No hacer nada', 'Reportar el dano al municipio e intercambiar datos por los danos', 'Solo pagar una multa inventada', 'Borrar el chat'], correcta: 1 },
+  { q: 'Que significa ceder el paso a emergencias?', opciones: ['Acelerar junto a ellos', 'Esperar y darles prioridad de paso, desplazandote al lado derecho', 'Pitarles', 'Bloquearles el camino'], correcta: 1 },
+  { q: 'Los vehiculos comerciales o mas lentos deben:', opciones: ['Usar siempre el carril izquierdo', 'Permanecer en el carril derecho', 'Circular en contramano', 'No pueden circular en sesion'], correcta: 1 },
+  { q: 'Si tu licencia esta Revocada y conduces en sesion:', opciones: ['No hay problema', 'Puedes recibir accion policial / sanciones; no debes conducir hasta recuperarla', 'Solo vale en meets', 'Se reactiva sola a las 24 h'], correcta: 1 },
+  { q: 'El objetivo de las normas de conduccion en 00Y4n es:', opciones: ['Cobrar mas multas nomas', 'Promover conduccion realista y una mejor experiencia de RP para todos', 'Prohibir todos los autos rapidos', 'Obligar a usar solo autos stock'], correcta: 1 }
+];
+
 export function mezclarPreguntas(cantidad = EXAMEN_PREGUNTAS) {
   const copia = [...BANCO_PREGUNTAS];
+  for (let i = copia.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copia[i], copia[j]] = [copia[j], copia[i]];
+  }
+  return copia.slice(0, Math.min(cantidad, copia.length)).map((p, idx) => ({
+    idx, q: p.q, opciones: p.opciones, correcta: p.correcta
+  }));
+}
+
+export function mezclarRecuperacion(cantidad = RECUP_PREGUNTAS) {
+  const copia = [...BANCO_RECUPERACION];
   for (let i = copia.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [copia[i], copia[j]] = [copia[j], copia[i]];
@@ -115,7 +143,7 @@ export async function tramitarLicencia(userId, member) {
   if (doc.estado === 'Suspendida' || doc.estado === 'Revocada') {
     return {
       ok: false,
-      mensaje: `Tu licencia esta **${doc.estado}**. Debes resolverlo con el Departamento de Policia (no se tramita por aca).`
+      mensaje: `Tu licencia esta **${doc.estado}**. Si esta Revocada usa \`/licencia recuperar\`. Si esta Suspendida, resuelvelo con Policia.`
     };
   }
   const hasta = doc.examenAprobadoHasta ? new Date(doc.examenAprobadoHasta).getTime() : 0;
@@ -125,7 +153,7 @@ export async function tramitarLicencia(userId, member) {
       mensaje:
         `No tenes un examen aprobado vigente.\n` +
         `• Rinde con \`/licencia examen\`\n` +
-        `• O compra la via express en \`/tienda abrir\` (Permisos y Seguros).`
+        `• O compra la via express en \`/tienda abrir\`.`
     };
   }
   const saldo = await obtenerSaldo(userId);
@@ -152,4 +180,33 @@ export async function tramitarLicencia(userId, member) {
   await doc.save();
   if (member) await sincronizarRolLicencia(member, 'Activa');
   return { ok: true, doc };
+}
+
+export async function reactivarPorRecuperacion(userId, member, puntaje) {
+  const doc = await Licencia.findOneAndUpdate(
+    { usuario_id: String(userId) },
+    {
+      estado: 'Activa',
+      metodo: 'recuperacion',
+      fechaEmision: new Date(),
+      fecha: new Date(),
+      motivo: `Recuperacion por examen (/licencia recuperar) — ${puntaje}%`,
+      examenAprobadoHasta: null,
+      examenCooldownHasta: null,
+      puntos: 12,
+      examenPuntaje: puntaje
+    },
+    { new: true }
+  );
+  if (member) await sincronizarRolLicencia(member, 'Activa');
+  return doc;
+}
+
+export async function marcarRecuperacionFallida(userId) {
+  const hasta = new Date(Date.now() + RECUP_COOLDOWN_MS);
+  return Licencia.findOneAndUpdate(
+    { usuario_id: String(userId) },
+    { $set: { examenCooldownHasta: hasta } },
+    { new: true }
+  );
 }
