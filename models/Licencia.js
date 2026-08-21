@@ -7,21 +7,18 @@ const LicenciaSchema = new mongoose.Schema({
     enum: ['Activa', 'Suspendida', 'Revocada', 'Sin licencia'],
     default: 'Sin licencia'
   },
-  /** Como obtuvo la licencia: examen (tramitó tras aprobar) | compra (tienda express) | policial */
+  /** Como obtuvo la licencia: examen | compra | policial | recuperacion */
   metodo: {
     type: String,
-    enum: ['examen', 'compra', 'policial', null],
+    enum: ['examen', 'compra', 'policial', 'recuperacion', null],
     default: null
   },
   oficial_id: { type: String },
   motivo: { type: String, default: 'Sin motivo especificado' },
   fecha: { type: Date, default: Date.now },
   fechaEmision: { type: Date },
-  /** Timestamp hasta el cual vale el examen aprobado (para tramitar) */
   examenAprobadoHasta: { type: Date },
-  /** Puntos de la última aprobación (0-100) */
   examenPuntaje: { type: Number },
-  /** Cooldown próximo intento de examen */
   examenCooldownHasta: { type: Date },
   puntos: { type: Number, default: 12 }
 });
