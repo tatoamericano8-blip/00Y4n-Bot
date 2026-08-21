@@ -7,13 +7,13 @@ import {
   formatMoney
 } from '../config/tiendaServer.js';
 import { logger } from './logger.js';
+import { registrarLicenciaPorCompra } from './gestorLicencias.js';
 
 const INV_KEY = (userId) => `tienda:inv:${userId}`;
 const SEGURO_KEY = (userId) => `tienda:seguro:${userId}`;
 const SEGURO_INDEX_KEY = 'tienda:seguro:index';
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
-/** Textos de DM para Permisos y Seguros */
 const DM_PERMISOS = {
   permiso_discapacidad: {
     titulo: 'Permiso de estacionamiento para discapacitados',
@@ -49,6 +49,15 @@ const DM_PERMISOS = {
       'Te da **acceso prioritario** a sesiones y eventos del servidor (rol FastPass).\n\n' +
       'Mostrá el rol cuando el staff lo solicite en reinvitaciones o colas prioritarias.'
   },
+  licencia_conducir: {
+    titulo: 'Licencia de Conducir (Express)',
+    cuerpo:
+      'Compraste la **Licencia de Conducir** por vía express.\n\n' +
+      '**¿Para qué sirve?**\n' +
+      'Es tu documentación oficial de manejo en Southwest Florida.\n' +
+      'No es obligatoria para entrar a sesiones, pero **se recomienda**: sin ella podés recibir multas graves o arrestos.\n\n' +
+      'Respetá el reglamento de manejo del servidor.'
+  },
   licencia_comercial: {
     titulo: 'Licencia comercial adquirida',
     cuerpo:
@@ -72,10 +81,6 @@ async function enviarDmCompraPermiso(member, item, precioPagado) {
     let target = member.user || null;
     if (!target && member.client) {
       target = await member.client.users.fetch(member.id).catch(() => null);
-    }
-    if (!target && member.id) {
-      // fallback: no client on partial member
-      return;
     }
     if (!target) return;
     const info = DM_PERMISOS[item.id];
@@ -222,8 +227,15 @@ export async function comprarItem(member, itemId) {
         await guardarInventario(userId, inv);
       } catch (_) {}
 
-      // DM al jugador con la función del ítem
       await enviarDmCompraPermiso(guildMember, item, item.price);
+
+      if (item.id === 'licencia_conducir' || item.id === 'licencia_comercial') {
+        try {
+          await registrarLicenciaPorCompra(userId, guildMember);
+        } catch (e) {
+          logger.warn(`[tienda] registrarLicenciaPorCompra: ${e.message}`);
+        }
+      }
 
       const extra = item.type === 'role_weekly' ? `\nCobro semanal **${formatMoney(item.weekly)}** automático.` : '';
       return {
@@ -310,7 +322,7 @@ export function textoInventario(inv) {
       : `• **${item?.name || id}** ×${qty}`;
     if (!item) porCat.otros.push(line);
     else if (item.category === 'permisos') porCat.permisos.push(line);
-    else if (item.category === 'regalos') porCat.regalos.push(line);
+    else if (item.category === 'regalos) porCat.regalos.push(line);
     else if (item.category === 'comida') porCat.comida.push(line);
     else if (item.category === 'fuma') porCat.fuma.push(line);
     else porCat.otros.push(line);
