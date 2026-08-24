@@ -5,9 +5,11 @@ import {
     ButtonBuilder,
     ButtonStyle,
     ComponentType,
-    PermissionFlagsBits
+    PermissionFlagsBits,
+    MessageFlags
 } from 'discord.js';
 import Vehiculo from '../../../models/Vehiculo.js';
+import PermisoMatriculaExtra from '../../../models/PermisoMatriculaExtra.js';
 import {
     validarRegistroVehiculo,
     marcarRegistroExitoso,
@@ -15,7 +17,21 @@ import {
 } from '../../utils/antiAbusoPatentes.js';
 
 const ROL_ALTO_MANDO = '1528870731629465752';
-const LIMITE_MAXIMO = 4;
+const ROL_PROPIETARIOS = '1528877296977711256';
+const LIMITE_BASE = 4;
+
+async function obtenerLimiteUsuario(guildId, userId) {
+    const doc = await PermisoMatriculaExtra.findOne({ guildId, userId });
+    const extra = Math.max(0, Number(doc?.extraSlots) || 0);
+    return LIMITE_BASE + extra;
+}
+
+function esPropietario(member) {
+    return (
+        member.roles.cache.has(ROL_PROPIETARIOS) ||
+        member.permissions.has(PermissionFlagsBits.Administrator)
+    );
+}
 
 export default {
     data: {
@@ -43,6 +59,31 @@ export default {
                 ]
             },
             {
+                name: 'permiso-extra',
+                description: '(Propietarios) Otorga slots extra de matrícula a un usuario.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                    { name: 'usuario', description: 'Usuario que recibirá el permiso extra', type: ApplicationCommandOptionType.User, required: true },
+                    { name: 'cantidad', description: 'Cantidad de slots extra (1-10)', type: ApplicationCommandOptionType.Integer, required: true, min_value: 1, max_value: 10 }
+                ]
+            },
+            {
+                name: 'quitar-permiso',
+                description: '(Propietarios) Quita el permiso extra de matrícula de un usuario.',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                    { name: 'usuario', description: 'Usuario al que se le quitará el permiso extra', type: ApplicationCommandOptionType.User, required: true }
+                ]
+            },
+            {
+                name: 'forzar-quitar',
+                description: '(Propietarios) Fuerza la baja de una matrícula por patente (cualquier dueño).',
+                type: ApplicationCommandOptionType.Subcommand,
+                options: [
+                    { name: 'patente', description: 'Matrícula a forzar baja', type: ApplicationCommandOptionType.String, required: true }
+                ]
+            },
+            {
                 name: 'reiniciar',
                 description: '(AC Solo)⚠️ ALTO MANDO: Borra TODAS las matriculaciones del servidor (irreversible).',
                 type: ApplicationCommandOptionType.Subcommand,
@@ -59,10 +100,93 @@ export default {
     },
 
     async execute(interaction) {
-        await interaction.deferReply();
-
         const subcomando = interaction.options.getSubcommand();
         const usuarioId = interaction.user.id;
+        const guildId = interaction.guildId;
+
+        // Subcomandos de propietarios: respuesta efímera
+        if (['permiso-extra', 'quitar-permiso', 'forzar-quitar'].includes(subcomando)) {
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+            if (!esPropietario(interaction.member)) {
+                return interaction.editReply({
+                    content: '<:cruz:1534937767652495360> Solo el **Equipo de Propietarios** puede usar este subcomando.'
+                });
+            }
+
+            if (subcomando === 'permiso-extra') {
+                const target = interaction.options.getUser('usuario');
+                const cantidad = interaction.options.getInteger('cantidad');
+
+                await PermisoMatriculaExtra.findOneAndUpdate(
+                    { guildId, userId: target.id },
+                    {
+                        extraSlots: cantidad,
+                        otorgadoPor: interaction.user.id,
+                        otorgadoEn: new Date()
+                    },
+                    { upsert: true, new: true }
+                );
+
+                const limite = LIMITE_BASE + cantidad;
+                return interaction.editReply({
+                    content:
+                        `<:tilde:1534937809733812286> **Permiso extra otorgado** a <@${target.id}>.\n` +
+                        `> Slots extra: **${cantidad}** · Límite total: **${limite}** vehículos (base ${LIMITE_BASE} + extra).`
+                });
+            }
+
+            if (subcomando === 'quitar-permiso') {
+                const target = interaction.options.getUser('usuario');
+                const deleted = await PermisoMatriculaExtra.findOneAndDelete({ guildId, userId: target.id });
+                if (!deleted) {
+                    return interaction.editReply({
+                        content: `<:cruz:1534937767652495360> <@${target.id}> no tenía permiso extra activo.`
+                    });
+                }
+                return interaction.editReply({
+                    content: `<:tilde:1534937809733812286> Permiso extra **revocado** de <@${target.id}>. Límite vuelve a **${LIMITE_BASE}**.`
+                });
+            }
+
+            if (subcomando === 'forzar-quitar') {
+                const check = patenteValida(interaction.options.getString('patente'));
+                if (!check.ok) {
+                    return interaction.editReply({
+                        content: `<:cruz:1534937767652495360> ${check.motivo}`
+                    });
+                }
+                const patente = check.patente;
+
+                const auto = await Vehiculo.findOneAndDelete({ patente });
+                if (!auto) {
+                    return interaction.editReply({
+                        content: `<:cruz:1534937767652495360> No existe ningún vehículo con la matrícula \`${patente}\`.`
+                    });
+                }
+
+                // DM al dueño (si es posible)
+                try {
+                    const owner = await interaction.client.users.fetch(auto.usuario_id).catch(() => null);
+                    if (owner) {
+                        await owner.send({
+                            content:
+                                `<:aviso:1534938916057120839> Tu vehículo con matrícula **\`${patente}\`** (${auto.marca} ${auto.modelo}) fue **dado de baja forzadamente** por el equipo de Propietarios.\n` +
+                                `Motivo: gestión administrativa.`
+                        }).catch(() => null);
+                    }
+                } catch {}
+
+                return interaction.editReply({
+                    content:
+                        `<:tilde:1534937809733812286> Matrícula **\`${patente}\`** forzada a baja.\n` +
+                        `> Dueño: <@${auto.usuario_id}> · ${auto.marca} ${auto.modelo}`
+                });
+            }
+            return;
+        }
+
+        await interaction.deferReply();
 
         if (subcomando === 'registrar') {
             const marca = interaction.options.getString('marca');
@@ -82,11 +206,12 @@ export default {
             const patente = valid.patente;
 
             try {
+                const limite = await obtenerLimiteUsuario(guildId, usuarioId);
                 const cantidadAutos = await Vehiculo.countDocuments({ usuario_id: usuarioId });
-                if (cantidadAutos >= LIMITE_MAXIMO) {
+                if (cantidadAutos >= limite) {
                     return await interaction.editReply({
                         content:
-                            `<:cruz:1534937767652495360> **Límite alcanzado:** Ya tenés el máximo de **${LIMITE_MAXIMO}** vehículos.\n\n` +
+                            `<:cruz:1534937767652495360> **Límite alcanzado:** Ya tenés el máximo de **${limite}** vehículos.\n\n` +
                             `*Dá de baja uno con \`/matricular remover\`.*`
                     });
                 }
