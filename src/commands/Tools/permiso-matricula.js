@@ -65,7 +65,7 @@ export default {
       return interaction.editReply({
         content:
           `<:tilde:1534937809733812286> **Permiso extra** a <@${target.id}>.\n` +
-          `>Slots extra: **${cantidad}** · Límite total: **${LIMITE_BASE + cantidad}** (base ${LIMITE_BASE} + extra).`
+          `> Slots extra: **${cantidad}** · Límite total: **${LIMITE_BASE + cantidad}** (base ${LIMITE_BASE} + extra).`
       });
     }
 
