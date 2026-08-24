@@ -65,7 +65,7 @@ export default {
       return interaction.editReply({
         content:
           `<:tilde:1534937809733812286> **Permiso extra** a <@${target.id}>.\n` +
-          `> Slots extra: **${cantidad}** · Límite total: **${LIMITE_BASE + cantidad}** (base ${LIMITE_BASE} + extra).`
+          `>Slots extra: **${cantidad}** · Límite total: **${LIMITE_BASE + cantidad}** (base ${LIMITE_BASE} + extra).`
       });
     }
 
@@ -91,12 +91,7 @@ export default {
         content: '<:cruz:1534937767652495360> Indicá la matrícula a eliminar.'
       });
     }
-    // Match exacto primero; si no, case-insensitive (patentes viejas)
-    let auto = await Vehiculo.findOneAndDelete({ patente });
-    if (!auto) {
-      const escaped = patente.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      auto = await Vehiculo.findOneAndDelete({ patente: { $regex: new RegExp(`^${escaped}$`, 'i') } });
-    }
+    const auto = await Vehiculo.findOneAndDelete({ patente });
     if (!auto) {
       return interaction.editReply({
         content: `<:cruz:1534937767652495360> No hay vehículo con la matrícula \`${patente}\`.`
