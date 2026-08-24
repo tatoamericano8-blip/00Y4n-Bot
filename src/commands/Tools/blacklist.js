@@ -73,7 +73,7 @@ export default {
 
         // Clonamos el formato limpio de la foto con tu naranja insignia
         const embedBlacklist = new EmbedBuilder()
-            .setTitle('<:cruz:1534938648665915577> Blacklist de la Sesión <:cruz:1523041302764191844>')
+            .setTitle('<:cruz:1534938648665915577> Blacklist de la Sesión <:cruz:1534938648665915577>')
             .setDescription(lineasBlacklist.trim())
             .setColor('#74d4fc')
             .setTimestamp();
