@@ -5,7 +5,6 @@ import {
 } from 'discord.js';
 import Vehiculo from '../../../models/Vehiculo.js';
 import PermisoMatriculaExtra from '../../../models/PermisoMatriculaExtra.js';
-import { patenteValida } from '../../utils/antiAbusoPatentes.js';
 
 const ROL_PROPIETARIOS = '1528877296977711256';
 const LIMITE_BASE = 4;
@@ -85,12 +84,19 @@ export default {
       });
     }
 
-    const check = patenteValida(interaction.options.getString('patente'));
-    if (!check.ok) {
-      return interaction.editReply({ content: `<:cruz:1534937767652495360> ${check.motivo}` });
+    // forzar-quitar — acepta cualquier patente (legacy con espacios/símbolos)
+    const patente = String(interaction.options.getString('patente') || '').trim();
+    if (!patente) {
+      return interaction.editReply({
+        content: '<:cruz:1534937767652495360> Indicá la matrícula a eliminar.'
+      });
     }
-    const patente = check.patente;
-    const auto = await Vehiculo.findOneAndDelete({ patente });
+    // Match exacto primero; si no, case-insensitive (patentes viejas)
+    let auto = await Vehiculo.findOneAndDelete({ patente });
+    if (!auto) {
+      const escaped = patente.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      auto = await Vehiculo.findOneAndDelete({ patente: { $regex: new RegExp(`^${escaped}$`, 'i') } });
+    }
     if (!auto) {
       return interaction.editReply({
         content: `<:cruz:1534937767652495360> No hay vehículo con la matrícula \`${patente}\`.`
