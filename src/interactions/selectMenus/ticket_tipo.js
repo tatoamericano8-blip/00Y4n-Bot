@@ -9,6 +9,7 @@ import {
 } from 'discord.js';
 import { saveTicketData, incrementTicketCounter } from '../../utils/database.js';
 import { logger } from '../../utils/logger.js';
+import { estaEnListaNegraTickets } from '../../utils/gestorTicketBlacklist.js';
 
 const COLOR = 0xfb8b66;
 const ROLE_STAFF = '1512120103771050005';
@@ -119,6 +120,26 @@ export default {
         const guild = interaction.guild;
         const member = interaction.member;
         const categoryId = args?.[0] && args[0] !== 'auto' ? args[0] : null;
+
+        try {
+            const bl = await estaEnListaNegraTickets(guild.id, member.id);
+            if (bl) {
+                const hasta = bl.permanente
+                    ? '**permanente**'
+                    : bl.expiraEn
+                      ? `<t:${Math.floor(new Date(bl.expiraEn).getTime() / 1000)}:R>`
+                      : '—';
+                return interaction.editReply({
+                    content:
+                        `<:cruz:1534937767652495360> **No podés abrir tickets.**\n` +
+                        `Estás en la lista negra de tickets.\n` +
+                        `**Motivo:** ${bl.motivo}\n` +
+                        `**Hasta:** ${hasta}`
+                });
+            }
+        } catch (e) {
+            logger.warn(`[ticket_tipo] lista negra: ${e?.message}`);
+        }
 
         try {
             let category = null;
