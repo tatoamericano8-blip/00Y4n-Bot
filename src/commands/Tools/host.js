@@ -1,5 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import Session from '../../../models/Session.js';
+import { actualizarRolesLogSesion } from '../../utils/logSesionArchivo.js';
 
 export default {
     data: {
@@ -8,7 +9,7 @@ export default {
         options: [
             {
                 name: 'tipo',
-                description: '¿Qué rol vas a anunciar?',
+                description: 'Rol de staff en la sesión.',
                 type: ApplicationCommandOptionType.String,
                 required: true,
                 choices: [
@@ -18,7 +19,7 @@ export default {
             },
             {
                 name: 'usuario',
-                description: 'Miembro del Staff que estará a cargo.',
+                description: 'Miembro del staff que ocupará el rol.',
                 type: ApplicationCommandOptionType.User,
                 required: true
             }
@@ -28,7 +29,7 @@ export default {
     async execute(interaction) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1534937767652495360> Solo el **Staff** puede anunciar encargados de sesión.',
+                content: 'No tenés permisos para anunciar host/co-host.',
                 ephemeral: true
             });
         }
@@ -47,8 +48,10 @@ export default {
                 if (tipo === 'host') {
                     sesion.hostId = usuarioStaff.id;
                     sesion.hostActivo = true;
+                    actualizarRolesLogSesion(interaction.guildId, { hostId: usuarioStaff.id });
                 } else {
                     sesion.coHostId = usuarioStaff.id;
+                    actualizarRolesLogSesion(interaction.guildId, { coHostId: usuarioStaff.id });
                 }
                 await sesion.save();
             }
@@ -58,12 +61,12 @@ export default {
 
         const esCohost = tipo === 'cohost';
         const titulo = esCohost
-            ? '<a:corasfinos:1534953815969890436> 00Y4n Southwest Florida Comunidad — __Co-Host de Sesión__ <a:corasfinos:1534953815969890436>'
-            : '<a:corasfinos:1534953815969890436> 00Y4n Southwest Florida Comunidad — __Host de Sesión__ <a:corasfinos:1534953815969890436>';
+            ? '00Y4n Southwest Florida Comunidad — Co-Host de Sesión'
+            : '00Y4n Southwest Florida Comunidad — Host de Sesión';
 
         const descripcion = esCohost
-            ? `<:dot:1534938142665084938> <@${usuarioStaff.id}> es **Co-Host** de la sesión actual. Si necesitás soporte y el host está ocupado, dirigite al co-host.`
-            : `<:dot:1534938142665084938> <@${usuarioStaff.id}> es el **Host** de la sesión actual. Dirigite a este usuario si tenés dudas o inconvenientes dentro del servidor.`;
+            ? `<@${usuarioStaff.id}> es **Co-Host** de la sesión actual. Si necesitás soporte y el host está ocupado, dirigite al co-host.`
+            : `<@${usuarioStaff.id}> es el **Host** de la sesión actual. Dirigite a este usuario si tenés dudas o inconvenientes dentro del servidor.`;
 
         const embedStaff = new EmbedBuilder()
             .setColor('#74d4fc')
@@ -74,7 +77,7 @@ export default {
             });
 
         await interaction.reply({
-            content: '<:verificacion:1534937809733812286> Anuncio de staff generado.',
+            content: 'Anuncio de staff generado.',
             ephemeral: true
         });
 
