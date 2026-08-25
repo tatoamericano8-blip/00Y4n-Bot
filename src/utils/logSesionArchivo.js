@@ -6,6 +6,7 @@ export const CANAL_LOG_SESIONES = '1541940173011423322';
 
 /**
  * Comandos que se registran dentro de una sesion activa.
+ * Cualquier comando de sesiones del staff debe estar aca.
  */
 export const COMANDOS_SESION = new Set([
   'inicio',
@@ -19,10 +20,12 @@ export const COMANDOS_SESION = new Set([
   'finalizar_host',
   'sesion-blacklist',
   'sesion-suspender',
+  'cerrar',
   'cerrar_swfl',
   'fastpass_swfl'
 ]);
 
+/** @type {Map<string, object>} guildId -> buffer de log en memoria */
 const buffers = new Map();
 
 function keyGuild(guildId) {
@@ -56,6 +59,10 @@ function formatearDuracionMinutos(minutos) {
   return rest > 0 ? `${h}h ${rest}m` : `${h}h`;
 }
 
+/**
+ * Inicia (o reinicia) el buffer de log para una sesion.
+ * Llamar al crear /inicio o /inicio_swfl.
+ */
 export function iniciarLogSesion({
   guildId,
   idInicio,
