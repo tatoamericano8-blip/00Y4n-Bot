@@ -6,9 +6,9 @@ export const CANAL_LOG_SESIONES = '1541940173011423322';
 
 /**
  * Comandos que se registran dentro de una sesion activa.
- * Cualquier comando de sesiones del staff debe estar aca.
  */
 export const COMANDOS_SESION = new Set([
+  'inicio',
   'inicio_swfl',
   'lanzar_rp',
   'lanzar_meet',
@@ -23,7 +23,6 @@ export const COMANDOS_SESION = new Set([
   'fastpass_swfl'
 ]);
 
-/** @type {Map<string, object>} guildId -> buffer de log en memoria */
 const buffers = new Map();
 
 function keyGuild(guildId) {
@@ -57,10 +56,6 @@ function formatearDuracionMinutos(minutos) {
   return rest > 0 ? `${h}h ${rest}m` : `${h}h`;
 }
 
-/**
- * Inicia (o reinicia) el buffer de log para la sesion de un guild.
- * Llamar al crear /inicio_swfl.
- */
 export function iniciarLogSesion({
   guildId,
   idInicio,
@@ -83,9 +78,6 @@ export function iniciarLogSesion({
   });
 }
 
-/**
- * Actualiza host / cohost / supervisor en el buffer vivo.
- */
 export function actualizarRolesLogSesion(guildId, { hostId, coHostId, supervisorId } = {}) {
   const buf = buffers.get(keyGuild(guildId));
   if (!buf) return;
@@ -94,11 +86,6 @@ export function actualizarRolesLogSesion(guildId, { hostId, coHostId, supervisor
   if (supervisorId != null) buf.supervisorId = String(supervisorId);
 }
 
-/**
- * Registra un slash command si pertenece a la lista de sesiones
- * y hay una sesion abierta (buffer o DB).
- * Nunca lanza error al caller.
- */
 export async function registrarComandoSesion(interaction, estado = {}) {
   try {
     if (!interaction?.commandName || !interaction.guildId) return;
@@ -117,7 +104,7 @@ export async function registrarComandoSesion(interaction, estado = {}) {
         .catch(() => null);
 
       if (!sesion) {
-        if (interaction.commandName !== 'inicio_swfl') return;
+        if (interaction.commandName !== 'inicio' && interaction.commandName !== 'inicio_swfl') return;
         iniciarLogSesion({
           guildId,
           hostId: interaction.user.id,
@@ -153,7 +140,7 @@ export async function registrarComandoSesion(interaction, estado = {}) {
       const sup = interaction.options?.getUser?.('supervisor') || interaction.user;
       if (sup) buf.supervisorId = sup.id;
     }
-    if (interaction.commandName === 'inicio_swfl') {
+    if (interaction.commandName === 'inicio' || interaction.commandName === 'inicio_swfl') {
       buf.hostId = interaction.user.id;
       const tipo = interaction.options?.getString?.('tipo');
       if (tipo) buf.tipo = tipo;
@@ -177,10 +164,6 @@ export async function registrarComandoSesion(interaction, estado = {}) {
   }
 }
 
-/**
- * Publica el archivo JSON + embed de resumen en el canal de logs de sesiones
- * y limpia el buffer del guild.
- */
 export async function finalizarYPublicarLogSesion(client, sesion, { notas = null, motivoCierre = null } = {}) {
   try {
     if (!client) return;
@@ -274,21 +257,9 @@ export async function finalizarYPublicarLogSesion(client, sesion, { notas = null
         { name: 'Host', value: mention(buf.hostId), inline: true },
         { name: 'Co-Host', value: mention(buf.coHostId), inline: true },
         { name: 'Supervisor', value: mention(buf.supervisorId), inline: true },
-        {
-          name: 'Inicio',
-          value: `<t:${payload.start_timestamp}:f>`,
-          inline: true
-        },
-        {
-          name: 'Cierre',
-          value: `<t:${payload.end_timestamp}:f>`,
-          inline: true
-        },
-        {
-          name: 'Notas',
-          value: String(notasFinal).slice(0, 1024) || 'Sin notas.',
-          inline: false
-        }
+        { name: 'Inicio', value: `<t:${payload.start_timestamp}:f>`, inline: true },
+        { name: 'Cierre', value: `<t:${payload.end_timestamp}:f>`, inline: true },
+        { name: 'Notas', value: String(notasFinal).slice(0, 1024) || 'Sin notas.', inline: false }
       )
       .setFooter({ text: `id_inicio: ${buf.idInicio || 'n/a'}` })
       .setTimestamp(fechaCierre);
