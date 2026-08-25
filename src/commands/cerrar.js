@@ -205,25 +205,25 @@ export default {
 
         const titulo =
             tipo === 'rp'
-                ? 'SWFL Roleplay | Sesion Concluida'
-                : 'SWFL Meet | Sesion Concluida';
+                ? `<a:cadenacora:1534954014335172729> SWFL Roleplay | Sesion Concluida <a:cadenacora:1534954014335172729>`
+                : `<a:cadenacora:1534954014335172729> SWFL Meet | Sesion Concluida <a:cadenacora:1534954014335172729>`;
 
         const inicioUnix = fechaInicio ? Math.floor(fechaInicio.getTime() / 1000) : null;
         const finUnix = Math.floor(fechaFin.getTime() / 1000);
 
         const lineasTiempo = [];
         if (inicioUnix) {
-            lineasTiempo.push(`**Hora de inicio:** <t:${inicioUnix}:t> (<t:${inicioUnix}:R>)`);
+            lineasTiempo.push(`<:fle:1534937306191102125> **Hora de inicio:** <t:${inicioUnix}:t> (<t:${inicioUnix}:R>)`);
         } else {
-            lineasTiempo.push(`**Hora de inicio:** No registrada`);
+            lineasTiempo.push(`<:fle:1534937306191102125> **Hora de inicio:** No registrada`);
         }
-        lineasTiempo.push(`**Hora de cierre:** <t:${finUnix}:t> (<t:${finUnix}:R>)`);
-        lineasTiempo.push(`**Duracion total:** ${duracionMostrar}`);
+        lineasTiempo.push(`<:fle:1534937306191102125> **Hora de cierre:** <t:${finUnix}:t> (<t:${finUnix}:R>)`);
+        lineasTiempo.push(`<:fle:1534937306191102125> **Duracion total:** ${duracionMostrar}`);
 
         let pagosTxt = '';
         if (pagos && (pagos.host || pagos.cohost)) {
             pagosTxt =
-                `\n**Pagos staff:** Host $${Number(pagos.host).toLocaleString()}` +
+                `\n<:fle:1534937306191102125> **Pagos staff:** Host $${Number(pagos.host).toLocaleString()}` +
                 (pagos.cohost ? ` · Co-host $${Number(pagos.cohost).toLocaleString()}` : '') +
                 (pagos.supervisor ? ` · Supervisor $${Number(pagos.supervisor).toLocaleString()}` : '');
         }
@@ -231,10 +231,10 @@ export default {
         const embedCierre = new EmbedBuilder()
             .setTitle(titulo)
             .setDescription(
-                `La sesion ha concluido oficialmente. Gracias a todos por participar.\n\n` +
-                    `**Anfitrion:** <@${interaction.user.id}>\n` +
+                `<:puntderecha:1534938142665084938> La sesion ha concluido oficialmente. Gracias a todos por participar.\n\n` +
+                    `<:fle:1534937306191102125> **Anfitrion:** <@${interaction.user.id}>\n` +
                     lineasTiempo.join('\n') +
-                    `\n**Notas:** ${notasHost}` +
+                    `\n<:fle:1534937306191102125> **Notas:** ${notasHost}` +
                     pagosTxt
             )
             .setColor('#74d4fc');
@@ -246,6 +246,7 @@ export default {
             new ButtonBuilder()
                 .setCustomId('abrir_feedback_swfl')
                 .setLabel('Opinion de la Sesion')
+                .setEmoji('1534938422202994755')
                 .setStyle(ButtonStyle.Secondary)
         );
 
