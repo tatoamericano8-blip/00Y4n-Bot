@@ -30,7 +30,7 @@ export default {
             if (!sesion) {
                 return interaction.reply({
                     content:
-                        'No hay una sesion activa para supervisar. Primero usa `/inicio`.',
+                        '<:adv:1534937002695327837> No hay una sesion activa para supervisar. Primero usa `/inicio_swfl`.',
                     ephemeral: true
                 });
             }
@@ -42,23 +42,24 @@ export default {
             console.error('Error guardando supervisor en sesion:', err);
             return interaction.reply({
                 content:
-                    'Error al registrar el supervisor en la sesion. Intenta de nuevo.',
+                    '<:cruz:1534937767652495360> Error al registrar el supervisor en la sesion. Intenta de nuevo.',
                 ephemeral: true
             });
         }
 
         const embedSupervision = new EmbedBuilder()
             .setDescription(
-                `<@${supervisor.id}> esta **supervisando** la sesion.` +
+                `<:dot:1534938142665084938> <@${supervisor.id}> esta **supervisando** la sesion.` +
                     (sesion.hostId && sesion.hostId !== supervisor.id
                         ? `\n> Host: <@${sesion.hostId}>`
                         : '')
             )
             .setColor('#74d4fc')
-            .setFooter({ text: 'Southwest Florida Comunidad 00Y4n' });
+            .setFooter({ text: 'Southwest Florida Comunidad 00Y4n \u2122' });
 
+        // Confirmacion solo para quien uso el comando (no se ve el /comando en publico)
         await interaction.reply({
-            content: 'Anuncio de supervision generado.',
+            content: '<:verificacion:1534937809733812286> Anuncio de supervision generado.',
             ephemeral: true
         });
 
