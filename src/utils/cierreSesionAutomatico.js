@@ -127,7 +127,7 @@ export async function cerrarSesionSinCuota(sesion, {
   const tipoTxt = tipo === 'meet' ? 'Car Meet' : 'Roleplay';
   const embed = new EmbedBuilder()
     .setColor('#74d4fc')
-    .setTitle(`SWFL ${tipoTxt} | Sesion Concluida`)
+    .setTitle(`<a:corayendose:1534954014335172729> SWFL ${tipoTxt} | Sesion Concluida <a:corayendose:1534954014335172729>`)
     .setDescription(
       `Esta sesion de **${tipoTxt}** fue **terminada automaticamente**.\n\n` +
         `**Motivo:** ${motivo}\n\n` +
