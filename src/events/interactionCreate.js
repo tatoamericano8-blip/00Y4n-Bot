@@ -7,6 +7,7 @@ import { InteractionHelper } from '../utils/interactionHelper.js';
 import { createInteractionTraceContext, runWithTraceContext } from '../utils/traceContext.js';
 import { validateChatInputPayloadOrThrow } from '../utils/commandInputValidation.js';
 import { logComandoUsado } from '../utils/logComandoUsado.js';
+import { registrarComandoSesion } from '../utils/logSesionArchivo.js';
 import { enforceAbuseProtection, formatCooldownDuration } from '../utils/abuseProtection.js';
 import Sesion from '../../models/Session.js';
 
@@ -90,8 +91,10 @@ export default {
 
             await command.execute(interaction, guildConfig, client);
             logComandoUsado(client, interaction, { ok: true }).catch(() => null);
+            registrarComandoSesion(interaction, { ok: true }).catch(() => null);
           } catch (error) {
             logComandoUsado(client, interaction, { ok: false, error }).catch(() => null);
+            registrarComandoSesion(interaction, { ok: false, error }).catch(() => null);
             await handleInteractionError(interaction, error, withTraceContext({
               type: 'command',
               commandName: interaction.commandName
@@ -240,7 +243,6 @@ export default {
 
         } else if (interaction.isModalSubmit()) {
           if (interaction.customId.startsWith('app_modal_')) {
-            // /apply eliminado — ignorar modales viejos
             return;
           }
           if (interaction.customId.startsWith('jtc_')) {
