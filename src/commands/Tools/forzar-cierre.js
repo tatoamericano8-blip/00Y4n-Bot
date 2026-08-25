@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import Sesion from '../../../models/Session.js';
+import { finalizarYPublicarLogSesion } from '../../utils/logSesionArchivo.js';
 
 const ROL_ALTO_MANDO_ID = '1528870731629465752';
 const HORAS_A_BORRAR = 3;
@@ -46,17 +47,17 @@ async function borrarMensajesUltimasHoras(channel, horas = HORAS_A_BORRAR) {
 export default {
     data: new SlashCommandBuilder()
         .setName('forzar-cierre')
-        .setDescription('Finaliza forzosamente una sesión (sin cuota) y limpia mensajes de 3 horas.')
+        .setDescription('Finaliza forzosamente una sesion (sin cuota) y limpia mensajes de 3 horas.')
         .addUserOption(option =>
             option
                 .setName('host')
-                .setDescription('El usuario que estaba hosteando la sesión.')
+                .setDescription('El usuario que estaba hosteando la sesion.')
                 .setRequired(true)
         )
         .addStringOption(option =>
             option
                 .setName('motivo')
-                .setDescription('Razón por la cual se cancela la sesión.')
+                .setDescription('Razon por la cual se cancela la sesion.')
                 .setRequired(true)
         ),
 
@@ -67,7 +68,7 @@ export default {
         ) {
             return await interaction.reply({
                 content:
-                    '❌ **Acceso denegado.** Este comando es exclusivo para los integrantes del **Alto Mando**.',
+                    'Acceso denegado. Este comando es exclusivo para los integrantes del Alto Mando.',
                 ephemeral: true
             });
         }
@@ -77,7 +78,6 @@ export default {
         const hostUsuario = interaction.options.getUser('host');
         const motivoCancelacion = interaction.options.getString('motivo');
 
-        // Cerrar sesión(es) activas SIN sumar cuota
         let sesionesCerradas = 0;
         try {
             const res = await Sesion.updateMany(
@@ -93,26 +93,52 @@ export default {
                         cuentaParaCuota: false,
                         motivoCierreForzado: motivoCancelacion,
                         cerradoPor: interaction.user.id,
-                        hostId: hostUsuario.id // referencia al host mencionado
+                        hostId: hostUsuario.id
                     }
                 }
             );
             sesionesCerradas = res.modifiedCount || 0;
+
+            try {
+                const sesionCerrada = await Sesion.findOne({
+                    guildId: interaction.guildId,
+                    hostId: hostUsuario.id,
+                    estado: 'cerrada'
+                }).sort({ fechaCierre: -1 });
+                if (sesionCerrada) {
+                    await finalizarYPublicarLogSesion(interaction.client, sesionCerrada, {
+                        notas: motivoCancelacion,
+                        motivoCierre: motivoCancelacion
+                    });
+                } else {
+                    await finalizarYPublicarLogSesion(interaction.client, {
+                        guildId: interaction.guildId,
+                        hostId: hostUsuario.id,
+                        estado: 'cerrada',
+                        fechaCierre: new Date(),
+                        cierreForzado: true,
+                        motivoCierreForzado: motivoCancelacion,
+                        cuentaParaCuota: false
+                    }, { notas: motivoCancelacion, motivoCierre: motivoCancelacion });
+                }
+            } catch (logErr) {
+                console.error('[forzar-cierre] log sesion:', logErr?.message || logErr);
+            }
         } catch (e) {
-            console.error('[forzar-cierre] Error cerrando sesión en DB:', e.message);
+            console.error('[forzar-cierre] Error cerrando sesion en DB:', e.message);
         }
 
         const embedCierreForzado = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<a:corayendose:1534954014335172729> Sesión Finalizada Forzosamente')
+            .setTitle('Sesion Finalizada Forzosamente')
             .setDescription(
-                `La sesión organizada por <@${hostUsuario.id}> fue cancelada por un integrante del **Alto Mando** (<@${interaction.user.id}>).\n\n` +
-                    `<:pin:1534938142665084938> **Motivo:** ${motivoCancelacion}\n\n` +
-                    `<:replica:1534982812116062370> *No se sumó cuota ni sesiones al host, co-host ni supervisor.*\n` +
-                    `🗑️ *Se limpiarán los mensajes de las últimas **${HORAS_A_BORRAR} horas** en este canal.*`
+                `La sesion organizada por <@${hostUsuario.id}> fue cancelada por un integrante del Alto Mando (<@${interaction.user.id}>).\n\n` +
+                    `**Motivo:** ${motivoCancelacion}\n\n` +
+                    `*No se sumo cuota ni sesiones al host, co-host ni supervisor.*\n` +
+                    `*Se limpiaran los mensajes de las ultimas **${HORAS_A_BORRAR} horas** en este canal.*`
             )
             .setFooter({
-                text: '00Y4n Comunidad SWFL • Control de Alto Mando',
+                text: '00Y4n Comunidad SWFL - Control de Alto Mando',
                 iconURL: interaction.guild.iconURL()
             })
             .setTimestamp();
@@ -132,7 +158,7 @@ export default {
         try {
             await interaction.followUp({
                 content:
-                    `🗑️ Limpieza: **${borrados}** mensaje(s). Sesiones forzadas cerradas: **${sesionesCerradas}**. Cuota: **no sumada**.`,
+                    `Limpieza: **${borrados}** mensaje(s). Sesiones forzadas cerradas: **${sesionesCerradas}**. Cuota: **no sumada**.`,
                 ephemeral: true
             });
         } catch {}
