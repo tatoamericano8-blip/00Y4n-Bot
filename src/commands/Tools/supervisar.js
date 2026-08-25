@@ -1,5 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
 import Session from '../../../models/Session.js';
+import { actualizarRolesLogSesion } from '../../utils/logSesionArchivo.js';
 
 export default {
     data: {
@@ -29,39 +30,38 @@ export default {
             if (!sesion) {
                 return interaction.reply({
                     content:
-                        '<:adv:1534937002695327837> No hay una sesion activa para supervisar. Primero usa `/inicio_swfl`.',
+                        'No hay una sesion activa para supervisar. Primero usa `/inicio`.',
                     ephemeral: true
                 });
             }
 
             sesion.supervisorId = supervisor.id;
             await sesion.save();
+            actualizarRolesLogSesion(interaction.guildId, { supervisorId: supervisor.id });
         } catch (err) {
             console.error('Error guardando supervisor en sesion:', err);
             return interaction.reply({
                 content:
-                    '<:cruz:1534937767652495360> Error al registrar el supervisor en la sesion. Intenta de nuevo.',
+                    'Error al registrar el supervisor en la sesion. Intenta de nuevo.',
                 ephemeral: true
             });
         }
 
         const embedSupervision = new EmbedBuilder()
             .setDescription(
-                `<:dot:1534938142665084938> <@${supervisor.id}> esta **supervisando** la sesion.` +
+                `<@${supervisor.id}> esta **supervisando** la sesion.` +
                     (sesion.hostId && sesion.hostId !== supervisor.id
                         ? `\n> Host: <@${sesion.hostId}>`
                         : '')
             )
             .setColor('#74d4fc')
-            .setFooter({ text: 'Southwest Florida Comunidad 00Y4n \u2122' });
+            .setFooter({ text: 'Southwest Florida Comunidad 00Y4n' });
 
-        // Confirmacion solo para quien uso el comando (no se ve el /comando en publico)
         await interaction.reply({
-            content: '<:verificacion:1534937809733812286> Anuncio de supervision generado.',
+            content: 'Anuncio de supervision generado.',
             ephemeral: true
         });
 
-        // Responder al mensaje de /inicio_swfl si existe (igual que host_swfl)
         let enviadoComoReply = false;
         if (sesion?.idInicio) {
             try {
