@@ -57,7 +57,6 @@ export default {
             .setColor('#74d4fc')
             .setFooter({ text: 'Southwest Florida Comunidad 00Y4n \u2122' });
 
-        // Confirmacion solo para quien uso el comando (no se ve el /comando en publico)
         await interaction.reply({
             content: '<:verificacion:1534937809733812286> Anuncio de supervision generado.',
             ephemeral: true
