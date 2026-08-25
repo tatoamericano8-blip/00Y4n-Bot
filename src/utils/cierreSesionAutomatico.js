@@ -2,13 +2,14 @@ import { EmbedBuilder } from 'discord.js';
 import Sesion from '../../models/Session.js';
 import Historial from '../../models/Historial.js';
 import { logger } from './logger.js';
+import { finalizarYPublicarLogSesion } from './logSesionArchivo.js';
 
 const URL_IMAGEN_DEFAULT =
   'https://cdn.discordapp.com/attachments/1505017301089652898/1534978855423574146/Sesion_Concluida_1.png';
 
 /**
- * Cierra una sesión SIN sumar cuota ni horas (mensaje de inicio borrado, timeout, etc.).
- * No cuenta como sesión hecha.
+ * Cierra una sesion SIN sumar cuota ni horas (mensaje de inicio borrado, timeout, etc.).
+ * No cuenta como sesion hecha.
  */
 export async function cerrarSesionSinCuota(sesion, {
   motivo = 'El mensaje de inicio fue eliminado.',
@@ -126,15 +127,12 @@ export async function cerrarSesionSinCuota(sesion, {
   const tipoTxt = tipo === 'meet' ? 'Car Meet' : 'Roleplay';
   const embed = new EmbedBuilder()
     .setColor('#74d4fc')
-    .setTitle(
-      `<a:cadenacora:1534954014335172729> SWFL ${tipoTxt} | Sesión Concluida <a:cadenacora:1534954014335172729>`
-    )
+    .setTitle(`SWFL ${tipoTxt} | Sesion Concluida`)
     .setDescription(
-      `Esta sesión de **${tipoTxt}** fue **terminada automáticamente**.\n\n` +
+      `Esta sesion de **${tipoTxt}** fue **terminada automaticamente**.\n\n` +
         `**Motivo:** ${motivo}\n\n` +
         `> Host: <@${hostId}>\n` +
-        `> *No cuenta para cuota ni horas de staff.*\n` +
-        `> *No se preocupe si no hay sesiones en ejecución en este momento; pronto se iniciará otra.*`
+        `> *No cuenta para cuota ni horas de staff.*`
     )
     .setImage(URL_IMAGEN_DEFAULT)
     .setFooter({ text: '00Y4n Comunidad Southwest Florida' })
@@ -147,15 +145,24 @@ export async function cerrarSesionSinCuota(sesion, {
   }
 
   logger.info(
-    `[cierreAuto] Sesión ${idInicio} cerrada sin cuota (ok=${cerradoOk}). Motivo: ${motivo}`
+    `[cierreAuto] Sesion ${idInicio} cerrada sin cuota (ok=${cerradoOk}). Motivo: ${motivo}`
   );
+
+  try {
+    const sesionFresh = idInicio
+      ? await Sesion.findOne({ idInicio }).catch(() => sesion)
+      : sesion;
+    await finalizarYPublicarLogSesion(client, sesionFresh || sesion, {
+      notas: motivo,
+      motivoCierre: motivo
+    });
+  } catch (e) {
+    logger.error('[cierreAuto] log sesion: ' + (e?.message || e));
+  }
+
   return sesion;
 }
 
-/**
- * Cuando se borra el mensaje de /inicio_swfl → cerrar sesión abierta ligada a ese id.
- * Funciona aunque el mensaje sea parcial (sin message.guild hidratado).
- */
 export async function manejarBorradoMensajeInicio(message) {
   if (!message?.id) return false;
 
@@ -180,7 +187,7 @@ export async function manejarBorradoMensajeInicio(message) {
       : null);
 
   await cerrarSesionSinCuota(sesion, {
-    motivo: 'El mensaje de inicio (/inicio_swfl) fue eliminado.',
+    motivo: 'El mensaje de inicio fue eliminado.',
     channel,
     client: message.client
   });
@@ -198,14 +205,14 @@ export async function limpiarSesionesFantasma(client, horasMax = 8) {
   let cerradas = 0;
   for (const sesion of viejas) {
     await cerrarSesionSinCuota(sesion, {
-      motivo: `Sesión abandonada (abierta más de ${horasMax}h sin /cerrar_swfl).`,
+      motivo: `Sesion abandonada (abierta mas de ${horasMax}h sin cierre).`,
       client
     });
     cerradas++;
   }
 
   if (cerradas > 0) {
-    logger.info(`[cierreAuto] Limpieza fantasma: ${cerradas} sesión(es) cerradas (>${horasMax}h).`);
+    logger.info(`[cierreAuto] Limpieza fantasma: ${cerradas} sesion(es) cerradas (>${horasMax}h).`);
   }
   return cerradas;
 }
