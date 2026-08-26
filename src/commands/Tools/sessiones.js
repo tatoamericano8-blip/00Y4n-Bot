@@ -67,27 +67,19 @@ export default {
         const reacciones = interaction.options.getInteger('reacciones');
         const urlImagen = interaction.options.getString('imagen');
 
-        const ePunto = '<a:felc:1534939368035324125>';
         const idTildeNaranja = '1534937809733812286';
 
         const esRP = tipo === 'rp';
         const titulo = esRP
-            ? '<a:mari:1534954231138746488> Southwest Florida - *__Roleplay Sesión Inicio__* <a:mari:1534954231138746488>'
-            : '<a:mari:1534954231138746488> Southwest Florida - __*Car Meet Sesión Inicio*__ <a:mari:1534954231138746488>';
-
-        const descExtra = esRP
-            ? ` <:dot:1534938142665084938> Registra tus vehículos en <#1505615426305130657>!\n\n`
-            : ` <:dot:1534938142665084938> Recuerda evitar colisiones con vehículos y mantener el realismo!\n\n`;
+            ? '<a:mari:1534954231138746488> Southwest Florida Comunidad 00Y4n — Inicio de Roleplay'
+            : '<a:mari:1534954231138746488> Southwest Florida Comunidad 00Y4n — Inicio de Car Meet';
 
         const embed = new EmbedBuilder()
             .setTitle(titulo)
             .setDescription(
-                ` ${ePunto} <@${interaction.user.id}> está organizando una **sesión de ${esRP ? 'roleplay' : 'car meet oficial'}**! Antes de unirte, asegúrate de que la configuración de privacidad de tu cuenta esté en **Everyone**. Al unirte, confirmas que leíste las normas del servidor.\n\n` +
-                    `**Antes de Unirte**\n\n` +
-                    ` <:dot:1534938142665084938> Asegúrate de estar verificado [aquí](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-                    ` <:dot:1534938142665084938> Lee la [información](https://discord.com/channels/1451939725308067842/1451942179877687399/1536059852432867412) & la [lista de vehículos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1536064730223874132).\n` +
-                    descExtra +
-                    ` <:replica:1534982812116062370> El host debe obtener __**${reacciones}+**__ reacciones antes de comenzar.`
+                `<:dot:1534938142665084938> <@${interaction.user.id}> **está hosteando una sesión de ${esRP ? 'Roleplay' : 'Car Meet'}!** Antes de unirte, asegurate de que la privacidad de tu cuenta esté en **Everyone**. Al unirte, confirmás que leíste todas las regulaciones del servidor. Cuando la sesión se libere, el host enviará otro mensaje con una notificación.\n\n` +
+                    `<:dot:1534938142665084938> Por favor sé paciente mientras el staff configura todo. Hay numerosos factores en la preparación de una sesión para garantizar la máxima calidad de roleplay.\n\n` +
+                    `<:replica:1534982812116062370> Para que el host comience a configurar y la sesión inicie, necesitamos **${reacciones}+** reacciones. Una vez alcanzada la meta, se liberará el acceso anticipado.`
             )
             .setColor('#74d4fc');
 
