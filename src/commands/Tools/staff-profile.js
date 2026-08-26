@@ -23,6 +23,15 @@ export default {
     ),
 
   async execute(interaction) {
+    const ROL_STAFF = '1512120103771050005';
+    if (!interaction.member.roles.cache.has(ROL_STAFF)) {
+      return interaction.reply({
+        content:
+          '<:cruz:1534937767652495360> Solo el **Staff 00Y4n** puede usar `/staff-perfil`.',
+        ephemeral: true
+      });
+    }
+
     const targetUser = interaction.options.getUser('usuario') || interaction.user;
 
     const staffData = await Staff.findOne({
