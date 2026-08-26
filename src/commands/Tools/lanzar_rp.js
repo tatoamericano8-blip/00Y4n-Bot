@@ -112,7 +112,7 @@ export default {
             `<:adv:1534937002695327837> __Cualquier compartición no autorizada del link resultará en un **ban inmediato** del servidor__.`;
 
         const embedRelease = new EmbedBuilder()
-            .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — __*Sesión de Roleplay Liberada__*')
+            .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — __*Sesión de Roleplay Liberada__* <a:mariquieta:1534954231138746488>')
             .setDescription(infoDescripcion)
             .setColor('#74d4fc');
 
