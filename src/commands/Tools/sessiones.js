@@ -71,15 +71,15 @@ export default {
 
         const esRP = tipo === 'rp';
         const titulo = esRP
-            ? '<a:mari:1534954231138746488> Southwest Florida Comunidad 00Y4n — Inicio de Roleplay'
-            : '<a:mari:1534954231138746488> Southwest Florida Comunidad 00Y4n — Inicio de Car Meet';
+            ? '<a:mari:1534954231138746488> Southwest Florida Comunidad 00Y4n — __*Inicio de Roleplay*__ <a:mariquieta:1534954231138746488>'
+            : '<a:mari:1534954231138746488> Southwest Florida Comunidad 00Y4n — __*Inicio de Car Meet*__ <a:mariquieta:1534954231138746488>';
 
         const embed = new EmbedBuilder()
             .setTitle(titulo)
             .setDescription(
-                `<:dot:1534938142665084938> <@${interaction.user.id}> **está hosteando una sesión de ${esRP ? 'Roleplay' : 'Car Meet'}!** Antes de unirte, asegurate de que la privacidad de tu cuenta esté en **Everyone**. Al unirte, confirmás que leíste todas las regulaciones del servidor. Cuando la sesión se libere, el host enviará otro mensaje con una notificación.\n\n` +
-                    `<:dot:1534938142665084938> Por favor sé paciente mientras el staff configura todo. Hay numerosos factores en la preparación de una sesión para garantizar la máxima calidad de roleplay.\n\n` +
-                    `<:replica:1534982812116062370> Para que el host comience a configurar y la sesión inicie, necesitamos **${reacciones}+** reacciones. Una vez alcanzada la meta, se liberará el acceso anticipado.`
+                `<:dot:1534938142665084938> <@${interaction.user.id}> **está hosteando una sesión de ${esRP ? 'Roleplay' : 'Car Meet'}!** Antes de unirte, asegurate de que la privacidad de tu cuenta esté en **'Everyone'**. Al unirte, confirmás que leíste todas las regulaciones del servidor. Cuando la sesión se libere, el host enviará otro mensaje con una notificación.\n\n` +
+                    `<:flecha:1534937306191102125> Por favor sé paciente mientras el staff configura todo. Hay numerosos factores en la preparación de una sesión para garantizar la máxima calidad de roleplay.\n\n` +
+                    `<:replica:1534982812116062370> Para que el host comience a configurar y la sesión inicie, necesitamos __**${reacciones}+**__ reacciones. Una vez alcanzada la meta, se liberará el acceso anticipado.`
             )
             .setColor('#74d4fc');
 
