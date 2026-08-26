@@ -61,12 +61,12 @@ export default {
 
         const esCohost = tipo === 'cohost';
         const titulo = esCohost
-            ? '00Y4n Southwest Florida Comunidad — Co-Host de Sesión'
+            ? '<a:mariquieta:1534954231138746488> 00Y4n Southwest Florida Comunidad — Co-Host de Sesión <a:mariquieta:1534954231138746488>'
             : '00Y4n Southwest Florida Comunidad — Host de Sesión';
 
         const descripcion = esCohost
-            ? `<@${usuarioStaff.id}> es **Co-Host** de la sesión actual. Si necesitás soporte y el host está ocupado, dirigite al co-host.`
-            : `<@${usuarioStaff.id}> es el **Host** de la sesión actual. Dirigite a este usuario si tenés dudas o inconvenientes dentro del servidor.`;
+            ? `<:dot:1534938142665084938> <@${usuarioStaff.id}> **es Co-Host de la sesión actual**. Si necesitás soporte y el host está ocupado, dirigite al co-host.`
+            : `<:dot:1534938142665084938> <@${usuarioStaff.id}> **es el Host de la sesión actual**. Dirigite a este usuario si tenés dudas o inconvenientes dentro del servidor.`;
 
         const embedStaff = new EmbedBuilder()
             .setColor('#74d4fc')
