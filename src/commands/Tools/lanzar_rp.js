@@ -98,21 +98,21 @@ export default {
         } catch (_) {}
 
         const coHostLine = coHostId
-            ? `<:dot:1534938142665084938> Co-Host(s) de la sesión: <@${coHostId}>`
-            : `<:dot:1534938142665084938> Co-Host(s) de la sesión: *Sin asignar*`;
+            ? `<:dotp:1542258368301899866> Co-Host(s) de la sesión: <@${coHostId}>`
+            : `<:dotp:1542258368301899866> Co-Host(s) de la sesión: *Sin asignar*`;
 
         const infoDescripcion =
             `<:dot:1534938142665084938> <@${hostIdSesion}> **ha liberado su sesión de Roleplay!** Asegurate de seguir todas las instrucciones del host y co-hosts antes de salir del spawn. Además, se deben respetar todas las regulaciones de **Southwest Florida Comunidad 00Y4n** durante toda la sesión.\n\n` +
-            `<:dot:1534938142665084938> Los links del servidor se regenerarán a los **tres minutos** de la liberación, así que únete rápido. Las reinvitaciones ocurrirán **cada quince minutos**, así que no le pidas el link al host.\n\n` +
-            `<:manual:1534999731019972671> **Información de la sesión:**\n` +
-            `<:dot:1534938142665084938> Límite de Fail-Roleplay: **${limite}**\n` +
-            `<:dot:1534938142665084938> Estado de Peacetime: **${peacetime}**\n` +
-            `<:dot:1534938142665084938> Servicios de emergencia: **${serviciosEmergencia}**\n` +
+            `<:replica:1534982812116062370> Los links del servidor se regenerarán a los **tres minutos** de la liberación (según las reacciones), así que unite rápido. Las reinvitaciones ocurrirán **cada quince minutos**, así que no le pidas el link al host.\n\n` +
+            `<:manual:1534999731019972671> __**Información de la sesión:**__\n` +
+            `<:dotp:1542258368301899866> Límite de Fail-Roleplay: **${limite}**\n` +
+            `<:dotp:1542258368301899866> Estado de Peacetime: **${peacetime}**\n` +
+            `<:dotp:1542258368301899866> Servicios de emergencia: **${serviciosEmergencia}**\n` +
             `${coHostLine}\n\n` +
-            `<:adv:1534937002695327837> Cualquier compartición no autorizada del link resultará en un **ban inmediato** del servidor.`;
+            `<:adv:1534937002695327837> __Cualquier compartición no autorizada del link resultará en un **ban inmediato** del servidor__.`;
 
         const embedRelease = new EmbedBuilder()
-            .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — Sesión de Roleplay Liberada')
+            .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — __*Sesión de Roleplay Liberada__*')
             .setDescription(infoDescripcion)
             .setColor('#74d4fc');
 
