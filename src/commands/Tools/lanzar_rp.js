@@ -102,15 +102,17 @@ export default {
             : `<:dot:1534938142665084938> Co-Host(s) de la sesión: *Sin asignar*`;
 
         const infoDescripcion =
-            `<:dot:1534938142665084938> El host, <@${hostIdSesion}>, **ha liberado su sesión**. Al unirte, spawneá tus vehículos, estacioná en las parqueos correspondientes, y esperá más instrucciones del host. Asegurate de revisar la información de abajo.\n\n` +
-            `<:manual:1534999731019972671> | **Información de la sesión**\n` +
+            `<:dot:1534938142665084938> <@${hostIdSesion}> **ha liberado su sesión de Roleplay!** Asegurate de seguir todas las instrucciones del host y co-hosts antes de salir del spawn. Además, se deben respetar todas las regulaciones de **Southwest Florida Comunidad 00Y4n** durante toda la sesión.\n\n` +
+            `<:dot:1534938142665084938> Los links del servidor se regenerarán a los **tres minutos** de la liberación, así que únete rápido. Las reinvitaciones ocurrirán **cada quince minutos**, así que no le pidas el link al host.\n\n` +
+            `<:manual:1534999731019972671> **Información de la sesión:**\n` +
+            `<:dot:1534938142665084938> Límite de Fail-Roleplay: **${limite}**\n` +
             `<:dot:1534938142665084938> Estado de Peacetime: **${peacetime}**\n` +
-            `<:dot:1534938142665084938> Límite de Fail Roleplay: **${limite}**\n` +
             `<:dot:1534938142665084938> Servicios de emergencia: **${serviciosEmergencia}**\n` +
-            `${coHostLine}`;
+            `${coHostLine}\n\n` +
+            `<:adv:1534937002695327837> Cualquier compartición no autorizada del link resultará en un **ban inmediato** del servidor.`;
 
         const embedRelease = new EmbedBuilder()
-            .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida – ***__Roleplay Sesion Lanzada__*** <a:mariquieta:1534954231138746488>')
+            .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — Sesión de Roleplay Liberada')
             .setDescription(infoDescripcion)
             .setColor('#74d4fc');
 
