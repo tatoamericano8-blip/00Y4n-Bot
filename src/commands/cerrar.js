@@ -47,6 +47,15 @@ export default {
     },
 
     async execute(interaction) {
+        const ROL_STAFF = '1512120103771050005';
+        if (!interaction.member.roles.cache.has(ROL_STAFF)) {
+            return interaction.reply({
+                content:
+                    '<:cruz:1534937767652495360> Solo el **Staff 00Y4n** puede usar `/cerrar`.',
+                ephemeral: true
+            });
+        }
+
         const URL_IMAGEN_DEFAULT =
             'https://cdn.discordapp.com/attachments/1505017301089652898/1536043758393491549/Sesion_Concluida_1.png';
 
