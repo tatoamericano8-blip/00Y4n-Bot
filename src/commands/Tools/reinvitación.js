@@ -239,40 +239,33 @@ export default {
             const timestampRelease = Math.floor(Date.now() / 1000);
             const textoCohost = fresh.coHostId ? `<@${fresh.coHostId}>` : 'Ninguno';
 
-            let tituloEmbed = '<a:mariquieta:1534954231138746488> Southwest Florida – ***__Reinvitaciones Liberadas__*** <a:mariquieta:1534954231138746488>';
+            let tituloEmbed = '<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — Reinvitaciones Liberadas';
             let datosExtraSesion = '';
 
             if (fresh.tipo === 'rp') {
-                tituloEmbed = '<a:mariquieta:1534954231138746488> Southwest Florida – ***__Reinvitaciones Roleplay Liberadas__*** <a:mariquieta:1534954231138746488>';
+                tituloEmbed = '<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — Reinvitaciones de Roleplay Liberadas';
                 datosExtraSesion =
-                    ` <:tres:1535001243204718612> **Estado de Peacetime:** **${fresh.peacetime || '-'}**\n` +
-                    ` <:cuatro:1534938460228550857> **Limite de Fail Roleplay:** **${fresh.limiteVelocidad || '-'}**\n` +
-                    ` <:cinco:1534938284218777630> **Servicios de emergencia:** **${fresh.serviciosEmergencia || '-'}**\n` +
-                    ` <:seis:1535001326927220919> **Co-Host de la Sesion:** ${textoCohost}\n` +
-                    ` <:replica:1534982812116062370> Las velocidades de detencion son **+6 MPH** sobre el limite establecido.\n`;
+                    `<:dot:1534938142665084938> Límite de Fail-Roleplay: **${fresh.limiteVelocidad || '-'}**\n` +
+                    `<:dot:1534938142665084938> Estado de Peacetime: **${fresh.peacetime || '-'}**\n` +
+                    `<:dot:1534938142665084938> Servicios de emergencia: **${fresh.serviciosEmergencia || '-'}**\n` +
+                    `<:dot:1534938142665084938> Co-Host de la sesión: ${textoCohost}\n`;
             } else if (fresh.tipo === 'meet') {
-                tituloEmbed = '<a:mariquieta:1534954231138746488> Southwest Florida – ***__Reinvitaciones Car Meet Liberadas__*** <a:mariquieta:1534954231138746488>';
+                tituloEmbed = '<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — Reinvitaciones de Car Meet Liberadas';
                 datosExtraSesion =
-                    ` <:tres:1535001243204718612> **Tematica del Meet:** **${fresh.tematica || '-'}**\n` +
-                    ` <:cuatro:1534938460228550857> **Lugar actual:** **${fresh.ubicacion || '-'}**\n` +
-                    ` <:cinco:1534938284218777630> **Spots / Duracion:** **${fresh.spots || '-'}**\n` +
-                    ` <:seis:1535001326927220919> **Co-Host de la Sesion:** ${textoCohost}\n` +
-                    ` <:flechareplica:1534982812116062370> Los vehiculos deben ingresar __despacio__ al lugar del meet.\n`;
+                    `<:dot:1534938142665084938> Temática: **${fresh.tematica || '-'}**\n` +
+                    `<:dot:1534938142665084938> Ubicación: **${fresh.ubicacion || '-'}**\n` +
+                    `<:dot:1534938142665084938> Spots / Duración: **${fresh.spots || '-'}**\n` +
+                    `<:dot:1534938142665084938> Co-Host de la sesión: ${textoCohost}\n`;
             } else {
-                datosExtraSesion = ` <:cuatro:1534938460228550857> **Co-Host de la Sesion:** ${textoCohost}\n`;
+                datosExtraSesion = `<:dot:1534938142665084938> Co-Host de la sesión: ${textoCohost}\n`;
             }
 
             const infoDescripcion =
-                ` <a:flecha:1534939368035324125> <@${interaction.user.id}> **ha lanzado las reinvitaciones de la sesion!** Se ha alcanzado la meta de reacciones requeridas. Podes unirte al servidor usando el boton de abajo.\n\n` +
-                `<:manual:1534999731019972671> - **Informacion de la Reinvitacion**\n\n` +
-                ` <:uno:1534938872977297559> **Reacciones alcanzadas:** \`${reaccionesRequeridas} / ${reaccionesRequeridas}\`\n` +
-                ` <:dos:1535001133729447987> **Hora de liberacion:** **${horaRelease}** (<t:${timestampRelease}:t>)\n` +
+                `<:dot:1534938142665084938> <@${interaction.user.id}> **ha liberado las reinvitaciones de su sesión!** Asegurate de seguir todas las instrucciones del host y co-hosts antes de salir del spawn. Además, se deben respetar todas las regulaciones de **Southwest Florida Comunidad 00Y4n** durante toda la sesión.\n\n` +
+                `<:dot:1534938142665084938> Los links del servidor se regenerarán a los **tres minutos** de la liberación, así que únete rápido. Las reinvitaciones ocurrirán **cada quince minutos**, así que no le pidas el link al host.\n\n` +
+                `<:manual:1534999731019972671> **Información de la sesión:**\n` +
                 datosExtraSesion +
-                `\n<:manual:1534999731019972671> - **Antes de unirte**\n\n` +
-                ` <:dot:1534938142665084938> Asegurate de estar verificado [aqui](https://discord.com/channels/1451939725308067842/1512614400413139045).\n` +
-                ` <:dot:1534938142665084938> Lee la [informacion](https://discord.com/channels/1451939725308067842/1451942179877687399/1536059852432867412) & [vehiculos baneados](https://discord.com/channels/1451939725308067842/1501739933495201925/1536064730223874132).\n` +
-                ` <:dot:1534938142665084938> Registra tus vehiculos en <#1505615426305130657>!\n\n` +
-                `-# <a:adv:1534939309235376328> *Ingresa de inmediato antes de que el servidor se complete!*`;
+                `\n<:adv:1534937002695327837> Cualquier compartición no autorizada del link resultará en un **ban inmediato** del servidor.`;
 
             const embedRelease = new EmbedBuilder()
                 .setTitle(tituloEmbed)
