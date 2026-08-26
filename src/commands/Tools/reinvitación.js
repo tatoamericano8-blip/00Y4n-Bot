@@ -243,29 +243,29 @@ export default {
             let datosExtraSesion = '';
 
             if (fresh.tipo === 'rp') {
-                tituloEmbed = '<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — Reinvitaciones de Roleplay Liberadas';
+                tituloEmbed = '<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — __*Reinvitaciones de Roleplay Liberadas*__ <a:mariquieta:1534954231138746488>';
                 datosExtraSesion =
-                    `<:dot:1534938142665084938> Límite de Fail-Roleplay: **${fresh.limiteVelocidad || '-'}**\n` +
-                    `<:dot:1534938142665084938> Estado de Peacetime: **${fresh.peacetime || '-'}**\n` +
-                    `<:dot:1534938142665084938> Servicios de emergencia: **${fresh.serviciosEmergencia || '-'}**\n` +
-                    `<:dot:1534938142665084938> Co-Host de la sesión: ${textoCohost}\n`;
+                    `<:dotp:1542258368301899866> Límite de Fail-Roleplay: **${fresh.limiteVelocidad || '-'}**\n` +
+                    `<:dotp:1542258368301899866> Estado de Peacetime: **${fresh.peacetime || '-'}**\n` +
+                    `<:dotp:1542258368301899866> Servicios de emergencia: **${fresh.serviciosEmergencia || '-'}**\n` +
+                    `<:dotp:1542258368301899866> Co-Host de la sesión: ${textoCohost}\n`;
             } else if (fresh.tipo === 'meet') {
-                tituloEmbed = '<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — Reinvitaciones de Car Meet Liberadas';
+                tituloEmbed = '<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — __*Reinvitaciones de Car Meet Liberadas*__ <a:mariquieta:1534954231138746488>';
                 datosExtraSesion =
-                    `<:dot:1534938142665084938> Temática: **${fresh.tematica || '-'}**\n` +
-                    `<:dot:1534938142665084938> Ubicación: **${fresh.ubicacion || '-'}**\n` +
-                    `<:dot:1534938142665084938> Spots / Duración: **${fresh.spots || '-'}**\n` +
-                    `<:dot:1534938142665084938> Co-Host de la sesión: ${textoCohost}\n`;
+                    `<:dotp:1542258368301899866> Temática: **${fresh.tematica || '-'}**\n` +
+                    `<:dotp:1542258368301899866> Ubicación: **${fresh.ubicacion || '-'}**\n` +
+                    `<:dotp:1542258368301899866> Spots / Duración: **${fresh.spots || '-'}**\n` +
+                    `<:dotp:1542258368301899866> Co-Host de la sesión: ${textoCohost}\n`;
             } else {
                 datosExtraSesion = `<:dot:1534938142665084938> Co-Host de la sesión: ${textoCohost}\n`;
             }
 
             const infoDescripcion =
                 `<:dot:1534938142665084938> <@${interaction.user.id}> **ha liberado las reinvitaciones de su sesión!** Asegurate de seguir todas las instrucciones del host y co-hosts antes de salir del spawn. Además, se deben respetar todas las regulaciones de **Southwest Florida Comunidad 00Y4n** durante toda la sesión.\n\n` +
-                `<:dot:1534938142665084938> Los links del servidor se regenerarán a los **tres minutos** de la liberación, así que únete rápido. Las reinvitaciones ocurrirán **cada quince minutos**, así que no le pidas el link al host.\n\n` +
-                `<:manual:1534999731019972671> **Información de la sesión:**\n` +
+                `<:replica:1534982812116062370> Los links del servidor se regenerarán a los **tres minutos** de la liberación, así que únete rápido. Las reinvitaciones ocurrirán **cada quince minutos** (según las reacciones), así que no le pidas el link al host.\n\n` +
+                `<:manual:1534999731019972671> __**Información de la sesión:**__\n` +
                 datosExtraSesion +
-                `\n<:adv:1534937002695327837> Cualquier compartición no autorizada del link resultará en un **ban inmediato** del servidor.`;
+                `\n<:adv:1534937002695327837> __Cualquier compartición no autorizada del link resultará en un **ban inmediato** del servidor__.`;
 
             const embedRelease = new EmbedBuilder()
                 .setTitle(tituloEmbed)
