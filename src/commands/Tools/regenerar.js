@@ -103,11 +103,11 @@ export default {
 
     const textoDescripcion =
       `<:dot:1534938142665084938> Se ha **regenerado el link del servidor**.\n` +
-      `Sean pacientes: las re-invitaciones se harán en los próximos **30 minutos**.\n` +
+      `Sean pacientes: las re-invitaciones se harán en los próximos **15 minutos**.\n` +
       `Molestar al host para pedir el link resultará en un **timeout**.`;
 
     const embedRegen = new EmbedBuilder()
-      .setTitle('Southwest Florida 00Y4n — Link del Servidor Regenerado')
+      .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida 00Y4n — __*Link del Servidor Regenerado*__ <a:mariquieta:1534954231138746488>')
       .setDescription(textoDescripcion)
       .setColor('#74d4fc')
       .setImage(IMAGEN_DEFAULT)
