@@ -33,11 +33,11 @@ export default {
     },
 
     async execute(interaction) {
-        const permissions = interaction.memberPermissions || interaction.member?.permissions;
-        if (!permissions?.has(PermissionFlagsBits.ManageRoles)) {
+        const ROL_STAFF = '1512120103771050005';
+        if (!interaction.member.roles.cache.has(ROL_STAFF)) {
             return interaction.reply({
                 content:
-                    '<:cruz00y4n:1534937767652495360> No tenés permisos suficientes (**Administrar Roles**) para utilizar este comando.',
+                    '<:cruz00y4n:1534937767652495360> Solo el **Staff 00Y4n** puede usar `/promover`.',
                 flags: MessageFlags.Ephemeral
             });
         }
