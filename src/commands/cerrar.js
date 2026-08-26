@@ -212,7 +212,7 @@ export default {
             console.error('Error limpiando mensajes en /cerrar:', error);
         }
 
-        const titulo = `<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — Sesión Finalizada`;
+        const titulo = `<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — __*Sesión Finalizada*__ <a:mariquieta:1534954231138746488>`;
 
         const inicioUnix = fechaInicio ? Math.floor(fechaInicio.getTime() / 1000) : null;
         const finUnix = Math.floor(fechaFin.getTime() / 1000);
@@ -242,7 +242,7 @@ export default {
                     lineasTiempo.join('\n') +
                     `\n<:dotn:1542258368301899866> **Notas del host:** ${notasHost}` +
                     pagosTxt +
-                    `\n\n<:replica:1534982812116062370> Los servidores se hostean de forma activa a lo largo del día mientras trabajamos hacia el objetivo de hosting 24/7. No te desanimes si no hay una sesión en curso — otra comenzará pronto.`
+                    `\n\n<:replica:1542264548801777685> *Los servidores se hostean de forma activa a lo largo del día mientras trabajamos hacia el objetivo de hosting 24/7. No te desanimes si no hay una sesión en curso — otra comenzará pronto*.`
             )
             .setColor('#74d4fc');
 
