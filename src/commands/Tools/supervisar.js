@@ -58,9 +58,9 @@ export default {
         }
 
         const embedSupervision = new EmbedBuilder()
-            .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — Supervisor de Servidor <a:mariquieta:1534954231138746488>')
+            .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — __*Supervisor de Servidor*__ <a:mariquieta:1534954231138746488>')
             .setDescription(
-                `<:dot:1534938142665084938> <@${supervisor.id}> ha sido designado como **Supervisor** de la sesión en curso. Este usuario supervisará la sesión y al host para garantizar la máxima calidad de roleplay.`
+                `<:dot:1534938142665084938> <@${supervisor.id}> **ha sido designado como Supervisor de la sesión en curso**. Este usuario supervisará la sesión y al host para garantizar la máxima calidad de roleplay.`
             )
             .setColor('#74d4fc')
             .setFooter({ text: 'Southwest Florida Comunidad 00Y4n ™' });
