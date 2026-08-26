@@ -2,7 +2,7 @@ import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
 import Session from '../../../models/Session.js';
 import { actualizarRolesLogSesion } from '../../utils/logSesionArchivo.js';
 
-const ROL_STAFF = '1512120103771050005';
+const ROL_ALTO_COMANDO = '1528870731629465752';
 
 export default {
     data: {
@@ -19,10 +19,10 @@ export default {
     },
 
     async execute(interaction) {
-        if (!interaction.member.roles.cache.has(ROL_STAFF)) {
+        if (!interaction.member.roles.cache.has(ROL_ALTO_COMANDO)) {
             return interaction.reply({
                 content:
-                    '<:cruz:1534937767652495360> Solo el **Staff 00Y4n** puede usar este comando.',
+                    '<:cruz:1534937767652495360> Solo **Alto Comando** puede usar este comando.',
                 ephemeral: true
             });
         }
@@ -58,20 +58,20 @@ export default {
         }
 
         const embedSupervision = new EmbedBuilder()
+            .setTitle('Southwest Florida Comunidad 00Y4n — Supervisor de Servidor')
             .setDescription(
-                `<:dot:1534938142665084938> <@${supervisor.id}> esta **supervisando** la sesion.` +
-                    (sesion.hostId && sesion.hostId !== supervisor.id
-                        ? `\n> Host: <@${sesion.hostId}>`
-                        : '')
+                `<@${supervisor.id}> ha sido designado como **Supervisor** de la sesión en curso. Este usuario supervisará la sesión y al host para garantizar la máxima calidad de roleplay.`
             )
             .setColor('#74d4fc')
             .setFooter({ text: 'Southwest Florida Comunidad 00Y4n ™' });
 
+        // Confirmacion solo para quien uso el comando (no se ve el /comando en publico)
         await interaction.reply({
             content: '<:verificacion:1534937809733812286> Anuncio de supervision generado.',
             ephemeral: true
         });
 
+        // Responder al mensaje de /inicio_swfl si existe (igual que host_swfl)
         let enviadoComoReply = false;
         if (sesion?.idInicio) {
             try {
