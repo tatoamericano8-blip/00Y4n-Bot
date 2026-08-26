@@ -34,12 +34,13 @@ export default {
             return;
         }
 
-        if (!interaction.member.permissions.has(PermissionFlagsBits.KickMembers)) {
+        const ROL_PROPIETARIOS = '1528877296977711256';
+        if (!interaction.member.roles.cache.has(ROL_PROPIETARIOS)) {
             return await InteractionHelper.safeEditReply(interaction, {
                 embeds: [
                     errorEmbed(
-                        "Permission Denied",
-                        "You do not have permission to kick members."
+                        "Acceso denegado",
+                        "Solo el **Equipo de Propietarios** puede usar `/masskick`."
                     ),
                 ],
             });
@@ -209,6 +210,3 @@ export default {
         }
     }
 };
-
-
-
