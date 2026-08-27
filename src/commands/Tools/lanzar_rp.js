@@ -103,7 +103,7 @@ export default {
 
         const infoDescripcion =
             `<:dot:1534938142665084938> <@${hostIdSesion}> **ha liberado su sesión de Roleplay!** Asegurate de seguir todas las instrucciones del host y co-hosts antes de salir del spawn. Además, se deben respetar todas las regulaciones de **Southwest Florida Comunidad 00Y4n** durante toda la sesión.\n\n` +
-            `<:replica:1534982812116062370> Los links del servidor se regenerarán a los **tres minutos** de la liberación (según las reacciones), así que unite rápido. Las reinvitaciones ocurrirán **cada quince minutos**, así que no le pidas el link al host.\n\n` +
+            `<:replican:1542264548801777685> Los links del servidor se regenerarán a los **tres minutos** de la liberación, así que unite rápido. Las reinvitaciones ocurrirán **cada quince minutos** (según las reacciones), así que no le pidas el link al host.\n\n` +
             `<:manual:1534999731019972671> __**Información de la sesión:**__\n` +
             `<:dotp:1542258368301899866> Límite de Fail-Roleplay: **${limite}**\n` +
             `<:dotp:1542258368301899866> Estado de Peacetime: **${peacetime}**\n` +
