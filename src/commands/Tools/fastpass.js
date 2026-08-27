@@ -49,11 +49,10 @@ export default {
         const mencionesRoles = ROLES_VIP_IDS.map(id => `<@&${id}>`).join(' ');
 
         const embedFastPass = new EmbedBuilder()
-            .setTitle(`<a:explosionfloral:1534954231138746488> __FastPass de la Sesión__ <a:explosionfloral:1534954231138746488>`)
+            .setTitle(`<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — Acceso Anticipado`)
             .setDescription(
-                `<:punto:1534938142665084938> El FastPass ha sido **liberado para la sesión**. Los miembros que adquirieron su pase de FastPass y el Equipo de Staff ya pueden unirse utilizando el botón de abajo.\n\n` +
-                `*Compartir este enlace resultará en la revocación permanente de tus permisos de FastPass.*\n\n` +
-                `<:flecha:1534937306191102125> ¿Quieres unirte antes que el resto? Adquiere tu pase de **FastPass** correspondiente en el canal de beneficios del servidor.`
+                `<:dot:1534938142665084938> <@${interaction.user.id}> **ha liberado el acceso anticipado de su servidor!** Boosters, Staff y Servicios Públicos ya pueden unirse mediante el botón de abajo.\n\n` +
+                `<:replica:1534982812116062370> Asegurate de estacionarte de inmediato al unirte y de seguir todas las indicaciones del host, o tu acceso anticipado puede y será revocado.`
             )
             .setColor('#74d4fc');
 
