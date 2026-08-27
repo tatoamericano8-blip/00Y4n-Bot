@@ -5,6 +5,11 @@ import { puedeUsarSesiones } from '../../utils/gestorSesionesRestricciones.js';
 import { bloquearSiCooldown, setCooldownSesion } from '../../utils/cooldownSesiones.js';
 import { iniciarLogSesion } from '../../utils/logSesionArchivo.js';
 
+const IMAGEN_INICIO_RP =
+    'https://cdn.discordapp.com/attachments/1505017301089652898/1536061264219086898/Inicio_Roleplay_1.png';
+const IMAGEN_INICIO_MEET =
+    'https://cdn.discordapp.com/attachments/1505017301089652898/1536061263556116600/Inicio_carmeett_1.png';
+
 global.coleccionStartups = global.coleccionStartups || new Map();
 
 export default {
@@ -84,6 +89,7 @@ export default {
             .setColor('#74d4fc');
 
         if (urlImagen) embed.setImage(urlImagen);
+        else embed.setImage(esRP ? IMAGEN_INICIO_RP : IMAGEN_INICIO_MEET);
 
         await interaction.reply({ content: `Lanzando Startup de ${esRP ? 'Roleplay' : 'Car Meet'}...`, ephemeral: true });
         const msg = await interaction.channel.send({ content: '@everyone', embeds: [embed] });
@@ -95,12 +101,13 @@ export default {
         }
 
         try {
+            const imagenGuardada = urlImagen || (esRP ? IMAGEN_INICIO_RP : IMAGEN_INICIO_MEET);
             const sesionData = await Sesion.create({
                 idInicio: msg.id,
                 hostId: interaction.user.id,
                 tipo,
                 reaccionesRequeridas: reacciones,
-                imagen: urlImagen,
+                imagen: imagenGuardada,
                 estado: 'esperando_reacciones',
                 guildId: interaction.guildId,
                 reacciones: []
@@ -110,7 +117,7 @@ export default {
                 hostId: interaction.user.id,
                 reaccionesRequeridas: reacciones,
                 tipo,
-                imagen: urlImagen,
+                imagen: imagenGuardada,
                 sesionId: sesionData._id
             });
 
@@ -129,7 +136,7 @@ export default {
                 hostId: interaction.user.id,
                 hostTag: interaction.user.tag,
                 tipo,
-                detalles: { reaccionesRequeridas: reacciones, imagen: urlImagen },
+                detalles: { reaccionesRequeridas: reacciones, imagen: imagenGuardada },
                 guildId: interaction.guildId
             });
         } catch (error) {
