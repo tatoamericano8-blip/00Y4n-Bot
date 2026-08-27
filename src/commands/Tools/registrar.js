@@ -235,9 +235,9 @@ export default {
                 marcarRegistroExitoso(usuarioId);
 
                 const embedRegistro = new EmbedBuilder()
-                    .setTitle('<:car:1534938916057120839> SWFL | FORMATO DE MATRICULACIÓN DE VEHÍCULOS <:seguro:1523041347869868253>')
+                    .setTitle('<:car:1534938916057120839> SWFL | FORMATO DE MATRICULACIÓN DE VEHÍCULOS <:car:1534938916057120839>')
                     .setDescription(
-                        `> <:flecha:1534937306191102125> El siguiente vehículo ha sido cargado exitosamente en el sistema de patentes.\n\n` +
+                        `<:replican:1542264548801777685> El siguiente vehículo **ha sido cargado exitosamente** en el sistema de patentes.\n\n` +
                         `<:si:1534938142665084938> **Marca:** \`${marca}\`\n` +
                         `<:si:1534938142665084938> **Modelo:** \`${modelo}\`\n` +
                         `<:si:1534938142665084938> **Año:** \`${anio}\`\n` +
@@ -278,12 +278,12 @@ export default {
                 }
 
                 const embedRemover = new EmbedBuilder()
-                    .setTitle('<:no:1534937767652495360> SWFL | ANULACIÓN DE MATRÍCULA <:no:1534937767652495360>')
+                    .setTitle('<:form:1535395536012578978> SWFL | ANULACIÓN DE MATRÍCULA <:form:1535395536012578978>')
                     .setDescription(
-                        `> Se revocó el permiso de circulación para:\n\n` +
+                        `<:replican:1542264548801777685> **Se revocó el permiso de circulación para**:\n\n` +
                         `<:si:1534938142665084938> **Matrícula Removida:** \`${patente}\`\n` +
                         `<:si:1534938142665084938> **Solicitante:** <@${usuarioId}>\n\n` +
-                        `*Para registrar otro auto usá \`/matricular registrar\`.*`
+                        `__*Para registrar otro auto usá \`/matricular registrar\`.*__`
                     )
                     .setColor('#74d4fc')
                     .setFooter({ text: 'Bajas del Sistema de Tránsito' })
