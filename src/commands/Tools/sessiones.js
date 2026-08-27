@@ -32,12 +32,6 @@ export default {
                 description: 'Cantidad de reacciones necesarias para abrir.',
                 type: ApplicationCommandOptionType.Integer,
                 required: true
-            },
-            {
-                name: 'imagen',
-                description: 'Link de la foto/banner para el anuncio (opcional).',
-                type: ApplicationCommandOptionType.String,
-                required: false
             }
         ]
     },
@@ -70,7 +64,6 @@ export default {
 
         const tipo = interaction.options.getString('tipo');
         const reacciones = interaction.options.getInteger('reacciones');
-        const urlImagen = interaction.options.getString('imagen');
 
         const idTildeNaranja = '1534937809733812286';
 
@@ -88,8 +81,7 @@ export default {
             )
             .setColor('#74d4fc');
 
-        if (urlImagen) embed.setImage(urlImagen);
-        else embed.setImage(esRP ? IMAGEN_INICIO_RP : IMAGEN_INICIO_MEET);
+        embed.setImage(esRP ? IMAGEN_INICIO_RP : IMAGEN_INICIO_MEET);
 
         await interaction.reply({ content: `Lanzando Startup de ${esRP ? 'Roleplay' : 'Car Meet'}...`, ephemeral: true });
         const msg = await interaction.channel.send({ content: '@everyone', embeds: [embed] });
@@ -101,7 +93,7 @@ export default {
         }
 
         try {
-            const imagenGuardada = urlImagen || (esRP ? IMAGEN_INICIO_RP : IMAGEN_INICIO_MEET);
+            const imagenGuardada = esRP ? IMAGEN_INICIO_RP : IMAGEN_INICIO_MEET;
             const sesionData = await Sesion.create({
                 idInicio: msg.id,
                 hostId: interaction.user.id,
