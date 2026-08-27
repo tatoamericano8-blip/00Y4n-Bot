@@ -52,7 +52,7 @@ export default {
 
         const infoDescripcion =
             `<:dot:1534938142665084938> <@${interaction.user.id}> **ha liberado su sesión de Car Meet!** Asegurate de seguir todas las instrucciones del host y co-hosts antes de salir del spawn. Además, se deben respetar todas las regulaciones de **Southwest Florida Comunidad 00Y4n** durante toda la sesión.\n\n` +
-            `<:replica:1534982812116062370> Los links del servidor se regenerarán a los **tres minutos** de la liberación, así que únete rápido. Las reinvitaciones ocurrirán **cada quince minutos** (según las reacciones), así que no le pidas el link al host.\n\n` +
+            `<:replican:1542264548801777685> Los links del servidor se regenerarán a los **tres minutos** de la liberación, así que únete rápido. Las reinvitaciones ocurrirán **cada quince minutos** (según las reacciones), así que no le pidas el link al host.\n\n` +
             `<:manual:1534999731019972671> **__Información de la sesión:__**\n` +
             `<:dotp:1542258368301899866> Temática: **${tematica}**\n` +
             `<:dotp:1542258368301899866> Ubicación: **${ubicacion}**\n` +
