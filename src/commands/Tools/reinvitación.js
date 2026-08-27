@@ -15,6 +15,8 @@ global.coleccionSesiones = global.coleccionSesiones || new Map();
 
 const EMOJI_REACCION = '1534937809733812286';
 const EMOJI_BOTON = '1534937419231527036';
+const IMAGEN_REINVITACIONES_DEFECTO =
+    'https://cdn.discordapp.com/attachments/1505017301089652898/1536043755579383828/Link_regenerado_1.png';
 
 function esURLValida(cadena) {
     try {
@@ -139,15 +141,6 @@ export default {
             });
         }
 
-        const ahora = new Date();
-        const horaFormateada = ahora.toLocaleTimeString('es-AR', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-            timeZone: 'America/Argentina/Buenos_Aires'
-        });
-        const timestampDiscord = Math.floor(ahora.getTime() / 1000);
-
         let resumenSesion = '';
         if (sesion.tipo === 'rp') {
             resumenSesion =
@@ -172,11 +165,7 @@ export default {
                 `<:dot:1534938142665084938> <@${interaction.user.id}> **está hosteando las reinvitaciones de su sesión!** Para que se libere el link, necesitamos recibir **${reaccionesRequeridas}** reacciones.` +
                 resumenSesion
             )
-            .addFields({
-                name: '<:fle:1534937306191102125> Última regeneración',
-                value: `El enlace fue actualizado a las **${horaFormateada}** (<t:${timestampDiscord}:t>)`,
-                inline: false
-            })
+            .setImage(IMAGEN_REINVITACIONES_DEFECTO)
             .setFooter({ text: '00Y4n Comunidad SWFL', iconURL: interaction.guild.iconURL() || undefined })
             .setTimestamp();
 
