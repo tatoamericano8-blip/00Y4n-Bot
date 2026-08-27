@@ -10,6 +10,12 @@ import { logComandoUsado } from '../utils/logComandoUsado.js';
 import { registrarComandoSesion } from '../utils/logSesionArchivo.js';
 import { enforceAbuseProtection, formatCooldownDuration } from '../utils/abuseProtection.js';
 import Sesion from '../../models/Session.js';
+import {
+  obtenerSesionPorIdInicio,
+  obtenerSesionEnCurso,
+  estaBarredEnSesion,
+  requiereReaccionEnSesion
+} from '../utils/gestorSessionBarGate.js';
 
 function withTraceContext(context = {}, traceContext = {}) {
   return {
@@ -127,7 +133,12 @@ export default {
                   ]
                 });
                 if (sesion && global.coleccionSesiones) {
-                  global.coleccionSesiones.set(interaction.message.id, sesion);
+                  global.coleccionSesiones.set(interaction.message.id, {
+                    idInicio: sesion.idInicio,
+                    linkSesion: sesion.linkSesion,
+                    guildId: sesion.guildId,
+                    tipo: sesion.tipo
+                  });
                 }
               } catch (dbErr) {
                 logger.error(`Error consultando MongoDB en verificar_voto_swfl: ${dbErr.message}`);
@@ -139,31 +150,66 @@ export default {
                 flags: MessageFlags.Ephemeral
               });
             }
-            if (!sesion.idInicio) {
+
+            let sesionDoc = null;
+            try {
+              sesionDoc =
+                (await obtenerSesionPorIdInicio(sesion.idInicio)) ||
+                (await obtenerSesionEnCurso(interaction.guildId));
+              if (sesionDoc?.linkSesion) {
+                sesion.linkSesion = sesion.linkSesion || sesionDoc.linkSesion;
+                sesion.idInicio = sesion.idInicio || sesionDoc.idInicio;
+              }
+            } catch (e) {
+              logger.error(`Error resolviendo sesion bar/gate: ${e.message}`);
+            }
+
+            if (!sesion.idInicio && !sesionDoc?.idInicio) {
               return await interaction.reply({
                 content: '**Error:** No se encontro el mensaje de inicio asociado a esta sesion.',
                 flags: MessageFlags.Ephemeral
               });
             }
+
+            const idInicio = sesion.idInicio || sesionDoc?.idInicio;
+            const linkSesion = sesion.linkSesion || sesionDoc?.linkSesion;
+
+            if (estaBarredEnSesion(sesionDoc, interaction.user.id)) {
+              return await interaction.reply({
+                content: '**Bloqueado:** No podes obtener el link de esta sesion (session bar).',
+                flags: MessageFlags.Ephemeral
+              });
+            }
+
             try {
-              const msgInicio = await interaction.channel.messages.fetch(sesion.idInicio);
-              let haVotado = false;
-              for (const reaction of msgInicio.reactions.cache.values()) {
-                const usuariosQueVotaron = await reaction.users.fetch();
-                if (usuariosQueVotaron.has(interaction.user.id)) {
-                  haVotado = true;
-                  break;
+              if (requiereReaccionEnSesion(sesionDoc)) {
+                const msgInicio = await interaction.channel.messages.fetch(idInicio);
+                let haVotado = false;
+                for (const reaction of msgInicio.reactions.cache.values()) {
+                  const usuariosQueVotaron = await reaction.users.fetch();
+                  if (usuariosQueVotaron.has(interaction.user.id)) {
+                    haVotado = true;
+                    break;
+                  }
+                }
+                if (!haVotado) {
+                  return await interaction.reply({
+                    content: '**No has votado!** Primero debes dejar tu reaccion en el mensaje de inicio.',
+                    flags: MessageFlags.Ephemeral
+                  });
                 }
               }
-              if (!haVotado) {
+
+              if (!linkSesion) {
                 return await interaction.reply({
-                  content: '**No has votado!** Primero debes dejar tu reaccion en el mensaje de inicio.',
+                  content: '**Error:** No se encontro el enlace de esta sesion.',
                   flags: MessageFlags.Ephemeral
                 });
               }
+
               const embedLink = {
                 title: 'Southwest Florida - Enlace de Sesion',
-                description: `**Enlace de la Sesion**\nHaz clic [aqui](${sesion.linkSesion}) para unirte.`,
+                description: `**Enlace de la Sesion**\nHaz clic [aqui](${linkSesion}) para unirte.`,
                 color: 0xfb8b66
               };
               return await interaction.reply({ embeds: [embedLink], flags: MessageFlags.Ephemeral });
