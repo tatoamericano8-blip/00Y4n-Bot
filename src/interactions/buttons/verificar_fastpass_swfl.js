@@ -1,6 +1,10 @@
 import Sesion from '../../../models/Session.js';
 import { puedeUsarSesiones, mensajeBloqueoSesiones } from '../../utils/gestorSesionesRestricciones.js';
 import { obtenerFastPass } from '../../utils/gestorFastPass.js';
+import {
+  estaBarredEnSesion,
+  requiereReaccionEnSesion
+} from '../../utils/gestorSessionBarGate.js';
 
 const ROLES_VIP_IDS = [
     '1512120103771050005',
@@ -106,23 +110,32 @@ export default {
             });
         }
 
-        const votoInfo = await usuarioVotoEnInicio(interaction, sesion);
-        if (!votoInfo.voto) {
-            const linkMensaje = votoInfo.msgInicio && votoInfo.msgInicio.url
-                ? '\n\n👉 Votá acá: ' + votoInfo.msgInicio.url
-                : '\n\n👉 Buscá el mensaje de **`/inicio_swfl`** de esta sesión y reaccioná.';
-            if (votoInfo.sinMensaje) {
+        if (estaBarredEnSesion(sesion, interaction.user.id)) {
+            return interaction.editReply({
+                content:
+                    '❌ **No podés obtener el FastPass de esta sesión.**\nEstás bloqueado del acceso (session bar) hasta que termine la sesión.'
+            });
+        }
+
+        if (requiereReaccionEnSesion(sesion)) {
+            const votoInfo = await usuarioVotoEnInicio(interaction, sesion);
+            if (!votoInfo.voto) {
+                const linkMensaje = votoInfo.msgInicio && votoInfo.msgInicio.url
+                    ? '\n\n👉 Votá acá: ' + votoInfo.msgInicio.url
+                    : '\n\n👉 Buscá el mensaje de **`/inicio_swfl`** de esta sesión y reaccioná.';
+                if (votoInfo.sinMensaje) {
+                    return interaction.editReply({
+                        content:
+                            '❌ **No se pudo verificar tu voto** (no se encontró el mensaje de inicio).\nReaccioná al mensaje de **`/inicio_swfl`** y volvé a intentar.' +
+                            linkMensaje
+                    });
+                }
                 return interaction.editReply({
                     content:
-                        '❌ **No se pudo verificar tu voto** (no se encontró el mensaje de inicio).\nReaccioná al mensaje de **`/inicio_swfl`** y volvé a intentar.' +
+                        '❌ **No obtuviste el FastPass porque todavía no votaste.**\nPrimero tenés que **reaccionar** en el mensaje de inicio de la sesión. Después volvé a apretar el botón.' +
                         linkMensaje
                 });
             }
-            return interaction.editReply({
-                content:
-                    '❌ **No obtuviste el FastPass porque todavía no votaste.**\nPrimero tenés que **reaccionar** en el mensaje de inicio de la sesión. Después volvé a apretar el botón.' +
-                    linkMensaje
-            });
         }
 
         return interaction.editReply({
