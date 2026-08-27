@@ -57,7 +57,12 @@ const sesionSchema = new mongoose.Schema({
     cierreForzado: { type: Boolean, default: false },
     motivoCierreForzado: { type: String, default: null },
     cerradoPor: { type: String, default: null },
-    cuentaParaCuota: { type: Boolean, default: true }
+    cuentaParaCuota: { type: Boolean, default: true },
+
+    // Usuarios bloqueados del link/FastPass solo durante esta sesion
+    barredUserIds: { type: [String], default: [] },
+    // Si true, hace falta reaccionar al /inicio para obtener el link (default)
+    requiereReaccionLink: { type: Boolean, default: true }
 });
 
 export default mongoose.models.Sesion || mongoose.model('Sesion', sesionSchema);
