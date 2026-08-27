@@ -49,10 +49,10 @@ export default {
         const mencionesRoles = ROLES_VIP_IDS.map(id => `<@&${id}>`).join(' ');
 
         const embedFastPass = new EmbedBuilder()
-            .setTitle(`<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — Acceso Anticipado`)
+            .setTitle(`<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — __*Acceso Anticipado*__ <a:mariquieta:1534954231138746488>`)
             .setDescription(
                 `<:dot:1534938142665084938> <@${interaction.user.id}> **ha liberado el acceso anticipado de su servidor!** Boosters, Staff y Servicios Públicos ya pueden unirse mediante el botón de abajo.\n\n` +
-                `<:replica:1534982812116062370> Asegurate de estacionarte de inmediato al unirte y de seguir todas las indicaciones del host, o tu acceso anticipado puede y será revocado.`
+                `<:replican:1542264548801777685> __Asegurate de estacionarte de inmediato al unirte y de seguir todas las indicaciones del host, o tu acceso anticipado puede y será revocado__.`
             )
             .setColor('#74d4fc');
 
