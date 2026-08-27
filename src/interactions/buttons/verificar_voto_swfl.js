@@ -1,5 +1,11 @@
 import Sesion from '../../../models/Session.js';
 import { puedeUsarSesiones, mensajeBloqueoSesiones } from '../../utils/gestorSesionesRestricciones.js';
+import {
+  obtenerSesionPorIdInicio,
+  obtenerSesionEnCurso,
+  estaBarredEnSesion,
+  requiereReaccionEnSesion
+} from '../../utils/gestorSessionBarGate.js';
 
 async function resolverDatosSesion(messageId, guildId) {
   global.coleccionSesiones = global.coleccionSesiones || new Map();
@@ -92,16 +98,29 @@ export default {
       });
     }
 
-    const voto = await usuarioReaccionoEnInicio(interaction, datos.idInicio);
-    if (!voto.ok) {
-      const linkMsg = voto.msgInicio?.url
-        ? `\n\n👉 Votá acá: ${voto.msgInicio.url}`
-        : '\n\n👉 Buscá el mensaje de **`/inicio_swfl`** y reaccioná.';
+    const sesionDoc =
+      (await obtenerSesionPorIdInicio(datos.idInicio)) ||
+      (await obtenerSesionEnCurso(interaction.guildId));
+
+    if (estaBarredEnSesion(sesionDoc, interaction.user.id)) {
       return interaction.editReply({
         content:
-          '❌ **No podés obtener el link todavía.**\nNo se detectó tu reacción en el mensaje de inicio (Startup).' +
-          linkMsg
+          '❌ **No podés obtener el link de esta sesión.**\nEstás bloqueado del acceso al link (session bar) hasta que termine la sesión.'
       });
+    }
+
+    if (requiereReaccionEnSesion(sesionDoc)) {
+      const voto = await usuarioReaccionoEnInicio(interaction, datos.idInicio);
+      if (!voto.ok) {
+        const linkMsg = voto.msgInicio?.url
+          ? `\n\n👉 Votá acá: ${voto.msgInicio.url}`
+          : '\n\n👉 Buscá el mensaje de **`/inicio_swfl`** y reaccioná.';
+        return interaction.editReply({
+          content:
+            '❌ **No podés obtener el link todavía.**\nNo se detectó tu reacción en el mensaje de inicio (Startup).' +
+            linkMsg
+        });
+      }
     }
 
     return interaction.editReply({
