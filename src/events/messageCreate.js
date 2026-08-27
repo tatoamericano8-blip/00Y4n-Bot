@@ -69,8 +69,8 @@ export default {
             `<a:flota:1534954466535674006>\u2503 __**Cómo Unirse a una Sesión**__\n\n` +
             `<:pc:1534938916057120839> **Si jugás en PC**\n` +
             `1. Registra tu vehículo con \`/matricula_swfl registrar\` (patente de 6-7 caracteres).\n` +
-            `2. Esperá a que el host lance la sesión y reaccioná al mensaje de inicio.\n` +
-            `3. Cuando se publique el link, hacé clic y unite.\n\n` +
+            `2. Esperá a que el host lance la sesión y **reaccioná al mensaje de inicio**.\n` +
+            `3. Cuando se publique el link, hacé clic y unite. Si recibes un error, es probable que el link se haya **regenerado** y tengas que esperar a que se envíen las reinvitaciones.\n\n` +
             `<:consola:1534938916057120839> **Si jugás en Consola**\n` +
             `1. Registra tu vehículo con \`/matricula_swfl registrar\` (mismas reglas que arriba).\n` +
             `2. Mantente atento a los canales de <#1452644461745148049> y <#1501739933495201925>.\n` +
