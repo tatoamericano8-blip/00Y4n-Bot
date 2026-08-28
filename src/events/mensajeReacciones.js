@@ -65,7 +65,7 @@ export default {
                 const embedSetup = new EmbedBuilder()
                     .setTitle(`<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — __*Configuración del Servidor*__ <a:mariquieta:1534954231138746488>`)
                     .setDescription(
-                        `<:dot:1534938142665084938> <@${startup.hostId}> **ha comenzado a configurar su servidor** para la sesión de **${nombreSesion}!** Los miembros con acceso anticipado podrán unirse en breve usando el enlace de early access. ¡Asegurate de boostear el servidor para early access!\n\n` +
+                        `<:dot:1534938142665084938> <@${startup.hostId}> **ha comenzado a configurar su servidor** para la sesión de **${nombreSesion}!** Los miembros con acceso anticipado podrán unirse en breve usando el enlace de **FastPass**. *¡Asegurate de boostear el servidor para FastPass!*\n\n` +
                         `<:replican:1542264548801777685> __Por favor sé paciente y dale al host un tiempo razonable para configurar__.`
                     )
                     .setColor('#74d4fc');
