@@ -1,6 +1,6 @@
-import { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
+import { ApplicationCommandOptionType, EmbedBuilder, MessageFlags } from 'discord.js';
 
-const ROL_STAFF = '1512120103771050005';
+const ROL_ALTO_COMANDO = '1528870731629465752';
 
 const ROLEPLAYS = {
   realista: {
@@ -58,13 +58,9 @@ export default {
   },
 
   async execute(interaction) {
-    const puede =
-      interaction.member.roles.cache.has(ROL_STAFF) ||
-      interaction.member.permissions.has(PermissionFlagsBits.ManageMessages);
-
-    if (!puede) {
+    if (!interaction.member.roles.cache.has(ROL_ALTO_COMANDO)) {
       return interaction.reply({
-        content: 'Solo el **Staff 00Y4n** puede anunciar roleplays especiales.',
+        content: 'Solo **Alto Comando** puede anunciar roleplays especiales.',
         flags: MessageFlags.Ephemeral
       });
     }
