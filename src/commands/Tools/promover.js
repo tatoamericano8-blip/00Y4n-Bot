@@ -1,4 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder, MessageFlags } from 'discord.js';
+import Staff from '../../../models/Staff.js';
+import { programarRefreshClasificacion } from '../../utils/clasificacionStaffLive.js';
 
 const ROLES_STAFF = {
     staff_aprendiz: {
@@ -172,6 +174,41 @@ export default {
                     rolesPendientes,
                     `Ascenso por ${interaction.user.tag}: ${razon}`
                 );
+            }
+
+            try {
+                await Staff.findOneAndUpdate(
+                    { guildId: interaction.guildId, userId: usuario.id },
+                    {
+                        $set: {
+                            rango: configRango.nombre,
+                            estado: 'ACTIVO',
+                            'loa.activo': false
+                        },
+                        $setOnInsert: {
+                            guildId: interaction.guildId,
+                            userId: usuario.id,
+                            cuotas: {
+                                horasServicio: 0,
+                                sesionesOrganizadas: 0,
+                                sesionesSupervisadas: 0,
+                                ticketsCerrados: 0
+                            },
+                            estadisticasHistoricas: {
+                                horasTotales: 0,
+                                sesionesHosteadasTotales: 0,
+                                sesionesSupervisadasTotales: 0,
+                                ticketsCerradosTotales: 0
+                            },
+                            rachaActual: 0,
+                            rachaMaxima: 0
+                        }
+                    },
+                    { upsert: true, new: true }
+                );
+                programarRefreshClasificacion(interaction.client, interaction.guildId);
+            } catch (e) {
+                console.error('[promover] Staff DB / clasificacion:', e?.message || e);
             }
 
             const extrasTexto =
