@@ -11,12 +11,10 @@ import {
 } from './scoreCuota.js';
 import { sesionesSemana } from './metasCuota.js';
 import { formatearHoras } from './formatearTiempo.js';
+import { refreshClasificacionLive } from './clasificacionStaffLive.js';
 
 export const CANAL_STAFF_ANUNCIOS = '1505015531793678466';
 
-/**
- * Genera informe semanal, actualiza rachas y reinicia cuotas.
- */
 export async function reiniciarCuotasGuild(client, guildId, {
   anunciosChannelId = CANAL_STAFF_ANUNCIOS,
   executorId = null,
@@ -75,7 +73,6 @@ export async function reiniciarCuotasGuild(client, guildId, {
       exentosLoa.push({ userId: staff.userId, rango });
     }
 
-    // MVP solo entre quienes CUMPLIERON la cuota
     if (evalC.cumplio === true && (!topScore || score > topScore.score)) {
       topScore = { userId: staff.userId, score, rango };
     }
@@ -111,8 +108,6 @@ export async function reiniciarCuotasGuild(client, guildId, {
     logger.warn(`StaffLog CUOTA_RESET falló: ${e.message}`);
   }
 
-  // Un solo embed (reinicio + informe). Solo anuncia si hay staff en ESTE guild
-  // y el canal pertenece a este guild (evita duplicados al tener 2 servidores).
   try {
     if (afectados === 0 && cumplieron.length === 0 && fallaron.length === 0 && exentosLoa.length === 0) {
       logger.info(`Cuotas guild ${guildId}: sin staff para anunciar (omitido).`);
@@ -145,7 +140,7 @@ export async function reiniciarCuotasGuild(client, guildId, {
         };
 
         const fmtFallaron = (arr, max = 10) => {
-          if (!arr.length) return '> Nadie 🎉';
+          if (!arr.length) return '> Nadie';
           return (
             arr
               .slice(0, max)
@@ -168,39 +163,39 @@ export async function reiniciarCuotasGuild(client, guildId, {
           (automatico
             ? 'Se reiniciaron las **cuotas semanales** de todo el Staff.\n'
             : 'Reinicio **manual** de cuotas.\n') +
-          `📅 Semana cerrada: **${semanaId}** · próximo reinicio: **Domingo 22:00 (AR)**\n` +
-          '📈 El **histórico** y las **rachas** se mantienen. Las cuotas de esta semana quedan en **0**.\n';
+          `Semana cerrada: **${semanaId}** · próximo reinicio: **Domingo 22:00 (AR)**\n` +
+          'El **histórico** y las **rachas** se mantienen. Las cuotas de esta semana quedan en **0**.\n';
 
         if (topScore) {
           desc +=
-            `\n🏆 **MVP de la semana:** <@${topScore.userId}> — score **${textoScore(topScore.score)}** (${topScore.rango})\n`;
+            `\n**MVP de la semana:** <@${topScore.userId}> — score **${textoScore(topScore.score)}** (${topScore.rango})\n`;
         }
 
-        desc += `\n> Staff procesados: **${afectados}** · ✅ ${cumplieron.length} · ❌ ${fallaron.length} · 🟡 LOA ${exentosLoa.length}`;
+        desc += `\n> Staff procesados: **${afectados}** · OK ${cumplieron.length} · No ${fallaron.length} · LOA ${exentosLoa.length}`;
 
         const embed = new EmbedBuilder()
-          .setTitle(`📊 Cierre Semanal de Cuotas — ${semanaId}`)
+          .setTitle(`Cierre Semanal de Cuotas — ${semanaId}`)
           .setColor('#74d4fc')
           .setDescription(desc)
           .addFields(
             {
-              name: `✅ Cumplieron (${cumplieron.length})`,
+              name: `Cumplieron (${cumplieron.length})`,
               value: fmtCumplieron(cumplieron),
               inline: false
             },
             {
-              name: `❌ No cumplieron (${fallaron.length})`,
+              name: `No cumplieron (${fallaron.length})`,
               value: fmtFallaron(fallaron),
               inline: false
             },
             {
-              name: `🟡 Exentos por LOA (${exentosLoa.length})`,
+              name: `Exentos por LOA (${exentosLoa.length})`,
               value: fmtLoa(exentosLoa),
               inline: false
             }
           )
           .setFooter({
-            text: '00Y4n Comunidad SWFL • Sistema de Cuotas • LOA no cuenta como fallo',
+            text: '00Y4n Comunidad SWFL · Sistema de Cuotas · LOA no cuenta como fallo',
             iconURL: channel.guild?.iconURL?.() || undefined
           })
           .setTimestamp();
@@ -210,6 +205,12 @@ export async function reiniciarCuotasGuild(client, guildId, {
     }
   } catch (e) {
     logger.error(`Error anunciando reinicio de cuotas: ${e.message}`);
+  }
+
+  try {
+    await refreshClasificacionLive(client, guildId);
+  } catch (e) {
+    logger.warn(`Clasificacion live post-reset: ${e.message}`);
   }
 
   return { afectados, cumplieron: cumplieron.length, fallaron: fallaron.length, exentosLoa: exentosLoa.length };
@@ -229,10 +230,6 @@ export async function reiniciarCuotasTodosLosGuilds(client) {
   return total;
 }
 
-/**
- * Recordatorio mid-week: DM a staff activos con < 50% de meta de sesiones.
- * Miércoles 18:00 Argentina.
- */
 export async function recordatorioCuotaMidWeek(client) {
   let enviados = 0;
   for (const [guildId, guild] of client.guilds.cache) {
@@ -257,7 +254,7 @@ export async function recordatorioCuotaMidWeek(client) {
         try {
           const user = await client.users.fetch(staff.userId);
           const embed = new EmbedBuilder()
-            .setTitle('⏰ Recordatorio de Cuota Semanal')
+            .setTitle('Recordatorio de Cuota Semanal')
             .setColor('#faa61a')
             .setDescription(
               `Hola <@${staff.userId}>, vas **por debajo del 50%** de tu meta semanal en **${guild.name}**.\n\n` +
@@ -265,9 +262,9 @@ export async function recordatorioCuotaMidWeek(client) {
                 `> **Sesiones:** **${ses} / ${metas.sesionesMeta}**\n` +
                 `> **Tickets:** **${staff.cuotas?.ticketsCerrados || 0} / ${metas.ticketsMeta}**\n` +
                 `> **Tiempo:** ${formatearHoras(staff.cuotas?.horasServicio || 0)}\n\n` +
-                `Quedan días hasta el domingo 22:00 (reinicio). ¡Todavía podés recuperar!`
+                `Quedan días hasta el domingo 22:00 (reinicio). Todavía podés recuperar.`
             )
-            .setFooter({ text: '00Y4n Comunidad SWFL • Recordatorio automático (miércoles)' })
+            .setFooter({ text: '00Y4n Comunidad SWFL · Recordatorio automático (miércoles)' })
             .setTimestamp();
 
           await user.send({ embeds: [embed] });
