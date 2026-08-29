@@ -1,5 +1,6 @@
 import Staff from '../../models/Staff.js';
 import StaffLog from '../../models/StaffLog.js';
+import { programarRefreshClasificacion } from './clasificacionStaffLive.js';
 
 /**
  * Suma cuota / stats a un staff. Crea el registro si no existe.
@@ -59,6 +60,11 @@ export async function sumarCuotaStaff(guildId, userId, {
   } catch {
     // Log no crítico
   }
+
+  try {
+    const client = global.discordClient || global.client || null;
+    if (client) programarRefreshClasificacion(client, guildId);
+  } catch (_) {}
 
   return staff;
 }
