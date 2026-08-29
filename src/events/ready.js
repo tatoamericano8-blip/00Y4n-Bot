@@ -22,6 +22,8 @@ export default {
 
   async execute(client) {
     try {
+      global.discordClient = client;
+      global.client = client;
       client.user.setPresence(config.bot.presence);
 
       startupLog(`Ready! Logged in as ${client.user.tag}`);
