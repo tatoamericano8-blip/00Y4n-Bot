@@ -9,6 +9,7 @@ import { calcularScore } from './scoreCuota.js';
 const KEY = (guildId) => `staff:clasificacion:live:${guildId}`;
 const TOP_MAX = 25;
 const pendingTimers = new Map();
+const ROL_STAFF = '1512120103771050005';
 
 export async function guardarMensajeClasificacion(guildId, channelId, messageId) {
   await setInDb(KEY(guildId), {
@@ -30,6 +31,7 @@ export async function limpiarMensajeClasificacion(guildId) {
 
 export async function construirRankingSemanal(guild) {
   const guildId = guild.id;
+
   const listaStaff = await Staff.find({
     guildId,
     estado: { $nin: ['DESPEDIDO', 'RENUNCIADO'] }
@@ -46,8 +48,35 @@ export async function construirRankingSemanal(guild) {
     };
   }
 
+  try {
+    if (!guild.members.cache.size) {
+      await guild.members.fetch().catch(() => null);
+    }
+  } catch (_) {}
+
+  const listaActiva = [];
+  for (const staff of listaStaff) {
+    const member =
+      guild.members.cache.get(staff.userId) ||
+      (await guild.members.fetch(staff.userId).catch(() => null));
+    if (!member) continue;
+    if (!member.roles.cache.has(ROL_STAFF)) continue;
+    listaActiva.push(staff);
+  }
+
+  if (!listaActiva.length) {
+    return {
+      filas: [],
+      embed: new EmbedBuilder()
+        .setColor('#74d4fc')
+        .setTitle('Clasificación semanal de Staff')
+        .setDescription('No hay staff activos en el servidor para mostrar en la clasificación.')
+        .setTimestamp()
+    };
+  }
+
   const enriquecidos = await Promise.all(
-    listaStaff.map(async (staff) => {
+    listaActiva.map(async (staff) => {
       const { rango } = await obtenerRangoDeUsuario(
         guild,
         staff.userId,
