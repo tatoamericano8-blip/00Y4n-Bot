@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { parseFechaFlexible } from '../../utils/gestorLoa.js';
 
 const ROLE_LOA = '1532459272690991318';
+const ROL_ALTO_COMANDO = '1528870731629465752';
 
 async function cargarModelo(nombre, ruta1, ruta2) {
   if (mongoose.models[nombre]) return mongoose.models[nombre];
@@ -24,6 +25,13 @@ export default {
   customId: 'loa_approve',
   name: 'loa_approve',
   async execute(interaction, client, args) {
+    if (!interaction.member?.roles?.cache?.has(ROL_ALTO_COMANDO)) {
+      return interaction.reply({
+        content: 'Solo **Alto Comando** puede aprobar solicitudes de LOA.',
+        ephemeral: true
+      }).catch(() => null);
+    }
+
     if (!interaction.deferred && !interaction.replied) {
       await interaction.deferUpdate().catch(() => {});
     }
@@ -42,7 +50,7 @@ export default {
     if (!userIdTarget) {
       return await interaction.followUp({
         content:
-          '<:cruz00y4n:1523041302764191844> No se pudo determinar el ID del usuario solicitante.',
+          'No se pudo determinar el ID del usuario solicitante.',
         ephemeral: true
       });
     }
@@ -103,7 +111,7 @@ export default {
 
       const embedEditado = EmbedBuilder.from(embedOriginal || {})
         .setColor(0x2ecc71)
-        .setTitle('✅ Solicitud de Ausencia (LOA) — APROBADA')
+        .setTitle('Solicitud de Ausencia (LOA) — APROBADA')
         .setFooter({
           text: `Aprobada por ${interaction.user.tag}`,
           iconURL: interaction.user.displayAvatarURL()
@@ -116,8 +124,7 @@ export default {
     } catch (error) {
       console.error('Error procesando aprobación LOA:', error);
       await interaction.followUp({
-        content:
-          '<:cruz00y4n:1523041302764191844> Ocurrió un error al procesar la aprobación.',
+        content: 'Ocurrió un error al procesar la aprobación.',
         ephemeral: true
       });
     }
