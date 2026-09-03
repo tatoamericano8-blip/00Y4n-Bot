@@ -1,23 +1,23 @@
-import { SlashCommandBuilder, PermissionFlagsBits, PermissionsBitField, ChannelType, MessageFlags } from 'discord.js';
-import { createEmbed, errorEmbed, successEmbed, infoEmbed, warningEmbed } from '../../utils/embeds.js';
+import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
+import { createEmbed, errorEmbed, successEmbed, warningEmbed } from '../../utils/embeds.js';
 import { logEvent } from '../../utils/moderation.js';
 import { logger } from '../../utils/logger.js';
 import { checkRateLimit } from '../../utils/rateLimiter.js';
 import { getColor } from '../../config/bot.js';
-
 import { InteractionHelper } from '../../utils/interactionHelper.js';
+
 export default {
-    data: new SlashCommandBuilder()
-    .setName("purge")
-    .setDescription("Delete a specific amount of messages")
+  data: new SlashCommandBuilder()
+    .setName('purge')
+    .setDescription('Delete a specific amount of messages')
     .addIntegerOption((option) =>
       option
-        .setName("amount")
-        .setDescription("Number of messages (1-100)")
-        .setRequired(true),
+        .setName('amount')
+        .setDescription('Number of messages (1-100)')
+        .setRequired(true)
     )
-.setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
-  category: "moderation",
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
+  category: 'moderation',
 
   async execute(interaction, config, client) {
     const deferSuccess = await InteractionHelper.safeDefer(interaction);
@@ -34,27 +34,23 @@ export default {
       return await InteractionHelper.safeEditReply(interaction, {
         embeds: [
           errorEmbed(
-            "Permission Denied",
-            "You need the `Manage Messages` permission to purge messages.",
-          ),
-        ],
+            'Permission Denied',
+            'You need the `Manage Messages` permission to purge messages.'
+          )
+        ]
       });
 
-    const amount = interaction.options.getInteger("amount");
+    const amount = interaction.options.getInteger('amount');
     const channel = interaction.channel;
 
     if (amount < 1 || amount > 100)
       return await InteractionHelper.safeEditReply(interaction, {
         embeds: [
-          errorEmbed(
-            "Invalid Amount",
-            "Please specify a number between 1 and 100.",
-          ),
-        ],
+          errorEmbed('Invalid Amount', 'Please specify a number between 1 and 100.')
+        ]
       });
 
     try {
-      
       const rateLimitKey = `purge_${interaction.user.id}`;
       const isAllowed = await checkRateLimit(rateLimitKey, 5, 60000);
       if (!isAllowed) {
@@ -62,58 +58,83 @@ export default {
           embeds: [
             warningEmbed(
               "You're purging messages too fast. Please wait a minute before trying again.",
-              "⏳ Rate Limited"
-            ),
+              'Rate Limited'
+            )
           ],
-          flags: MessageFlags.Ephemeral,
+          flags: MessageFlags.Ephemeral
         });
       }
 
       const fetched = await channel.messages.fetch({ limit: amount });
-      const deleted = await channel.bulkDelete(fetched, true);
+      const pinnedSkipped = fetched.filter((m) => m.pinned);
+      const toDelete = fetched.filter((m) => !m.pinned);
+
+      if (toDelete.size === 0) {
+        const pinNote =
+          pinnedSkipped.size > 0
+            ? ` Se omitieron **${pinnedSkipped.size}** mensaje(s) fijado(s).`
+            : '';
+        return await InteractionHelper.safeEditReply(interaction, {
+          embeds: [
+            warningEmbed(`No hay mensajes eliminables en ese rango.${pinNote}`, 'Purge')
+          ],
+          flags: MessageFlags.Ephemeral
+        });
+      }
+
+      const deleted = await channel.bulkDelete(toDelete, true);
       const deletedCount = deleted.size;
+      const pinnedCount = pinnedSkipped.size;
 
       const purgeEmbed = createEmbed(
-        "🗑️ Messages Purged (Action Log)",
-        `${deletedCount} messages were deleted by ${interaction.user}.`,
+        'Messages Purged (Action Log)',
+        `${deletedCount} messages were deleted by ${interaction.user}.` +
+          (pinnedCount > 0 ? ` (${pinnedCount} pinned skipped)` : '')
       )
-.setColor(getColor('moderation'))
+        .setColor(getColor('moderation'))
         .addFields(
-          { name: "Channel", value: channel.toString(), inline: true },
+          { name: 'Channel', value: channel.toString(), inline: true },
           {
-            name: "Moderator",
+            name: 'Moderator',
             value: `${interaction.user.tag} (${interaction.user.id})`,
-            inline: true,
+            inline: true
           },
-          { name: "Count", value: `${deletedCount} messages`, inline: false },
+          { name: 'Count', value: `${deletedCount} messages`, inline: false }
         );
 
       await logEvent({
         client,
         guild: interaction.guild,
         event: {
-          action: "Messages Purged",
+          action: 'Messages Purged',
           target: `${channel} (${deletedCount} messages)`,
           executor: `${interaction.user.tag} (${interaction.user.id})`,
-          reason: `Deleted ${deletedCount} messages`,
+          reason:
+            `Deleted ${deletedCount} messages` +
+            (pinnedCount > 0 ? ` · ${pinnedCount} pinned skipped` : ''),
           metadata: {
             channelId: channel.id,
             messageCount: deletedCount,
+            pinnedSkipped: pinnedCount,
             requestedAmount: amount,
             moderatorId: interaction.user.id
           }
         }
       });
 
+      const pinMsg =
+        pinnedCount > 0
+          ? ` (se omitieron ${pinnedCount} fijado${pinnedCount === 1 ? '' : 's'})`
+          : '';
       await InteractionHelper.safeEditReply(interaction, {
         embeds: [
-          successEmbed(`🗑️ Deleted ${deletedCount} messages in ${channel}.`),
+          successEmbed(`Deleted ${deletedCount} messages in ${channel}.${pinMsg}`)
         ],
-flags: MessageFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral
       });
 
       setTimeout(() => {
-        interaction.deleteReply().catch(err => 
+        interaction.deleteReply().catch((err) =>
           logger.debug('Failed to auto-delete purge response:', err)
         );
       }, 3000);
@@ -122,14 +143,11 @@ flags: MessageFlags.Ephemeral,
       await InteractionHelper.safeEditReply(interaction, {
         embeds: [
           errorEmbed(
-            "An unexpected error occurred during message deletion. Note: Messages older than 14 days cannot be bulk deleted.",
-          ),
+            'An unexpected error occurred during message deletion. Note: Messages older than 14 days cannot be bulk deleted.'
+          )
         ],
-        flags: MessageFlags.Ephemeral,
+        flags: MessageFlags.Ephemeral
       });
     }
   }
 };
-
-
-
