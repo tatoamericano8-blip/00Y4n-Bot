@@ -160,6 +160,41 @@ export default {
         try { return await message.reply({ embeds: [embedPolicia] }); }
         catch (error) { logger.error('Error auto-responder policia:', error); }
       }
+
+      // Auto-respuesta: qué es 00Y4n
+      const textoTrim = textoNormalizado.trim().replace(/[?!.,¡¿]+$/g, '').trim();
+      const activar00y4n =
+        textoTrim === '00y4n' ||
+        textoTrim === '00yan' ||
+        textoTrim === 'ooy4n' ||
+        textoNormalizado.includes('que es 00y4n') ||
+        textoNormalizado.includes('que es 00yan') ||
+        textoNormalizado.includes('que es ooy4n') ||
+        textoNormalizado.includes('que significa 00y4n') ||
+        textoNormalizado.includes('que significa 00yan');
+
+      if (activar00y4n) {
+        const embed00y4n = new EmbedBuilder()
+          .setColor('#fb8b66')
+          .setTitle('Southwest Florida Comunidad 00Y4n')
+          .setDescription(
+            `¡Bienvenidos a **Southwest Florida 00Y4n**!\n\n` +
+            `Somos un servidor **independiente** de Southwest Florida centrado en el ámbito **civil**, ` +
+            `con el objetivo de garantizar una experiencia fluida y profesional para los ciudadanos dentro de nuestra comunidad.\n\n` +
+            `Nuestro servidor ofrece numerosas posibilidades, incluidas **sesiones especiales de Roleplay** y **Carmeets** frecuentes, ` +
+            `¡lo que permite a los jugadores sumergirse por completo en el mundo de Southwest Florida!`
+          )
+          .setFooter({
+            text: message.guild.name,
+            iconURL: message.guild.iconURL({ dynamic: true })
+          });
+
+        try {
+          return await message.reply({ embeds: [embed00y4n] });
+        } catch (error) {
+          logger.error('Error enviando auto-responder de 00Y4n:', error);
+        }
+      }
     } catch (error) {
       logger.error('Error in messageCreate event:', error);
     }
