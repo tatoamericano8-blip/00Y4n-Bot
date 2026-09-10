@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import Staff from '../../../models/Staff.js';
-import { estaEnBlacklistStaff } from './terminate.js';
+import { estaEnBlacklistStaff } from '../../utils/gestorBlacklistStaff.js';
 
 const ROLE_HIGH_COMMAND = '1528870731629465752';
 const ROLE_STAFF = '1512120103771050005';
@@ -24,7 +24,7 @@ export default {
         ) {
             return interaction.reply({
                 content:
-                    '<:cruz00y4n:1534937767652495360> **Permisos insuficientes:** Solo Alto Comando puede contratar personal.',
+                    '**Permisos insuficientes:** Solo Alto Comando puede contratar personal.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -34,7 +34,7 @@ export default {
 
         if (!targetMember) {
             return interaction.reply({
-                content: '<:cruz00y4n:1534937767652495360> El usuario no se encuentra en el servidor.',
+                content: 'El usuario no se encuentra en el servidor.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -43,8 +43,8 @@ export default {
         if (enBlacklist) {
             return interaction.reply({
                 content:
-                    `🚨 **No se puede contratar a <@${targetUser.id}>.**\n` +
-                    `Está en la **blacklist de Staff** (fue destituido con blacklist activa).\n` +
+                    `**No se puede contratar a <@${targetUser.id}>.**\n` +
+                    `Está en la **blacklist de Staff**.\n` +
                     `Solo Alto Comando puede revisar el caso manualmente.`,
                 flags: MessageFlags.Ephemeral
             });
@@ -64,6 +64,7 @@ export default {
                 staffData.estado = 'ACTIVO';
                 staffData.rango = RANGO_DB;
                 staffData.ingreso = new Date();
+                if (!staffData.cuotas) staffData.cuotas = {};
                 staffData.cuotas.sesionesMeta = 3;
                 staffData.despido = undefined;
                 await staffData.save();
@@ -78,7 +79,7 @@ export default {
             }
 
             const embedLog = new EmbedBuilder()
-                .setTitle('<:verificacion:1534938422202994755> Nuevo Reclutamiento – Staff')
+                .setTitle('Nuevo Reclutamiento – Staff')
                 .setColor('#57f287')
                 .setDescription(
                     `> **Usuario contratado:** <@${targetUser.id}> (\`${targetUser.id}\`)\n` +
@@ -95,14 +96,14 @@ export default {
 
             await interaction.editReply({
                 content:
-                    `<:verificacion:1534937809733812286> ¡<@${targetUser.id}> ha sido contratado exitosamente!\n` +
+                    `¡<@${targetUser.id}> ha sido contratado exitosamente!\n` +
                     `Roles: <@&${ROLE_STAFF}> y <@&${ROLE_STAFF_APRENDIZ}>.`
             });
         } catch (error) {
             console.error('Error en /handpick:', error);
             await interaction.editReply({
                 content:
-                    '<:cruz00y4n:1534937767652495360> Ocurrió un error al procesar la contratación. Revisá que el bot pueda gestionar esos roles (jerarquía).'
+                    'Ocurrió un error al procesar la contratación. Revisá que el bot pueda gestionar esos roles (jerarquía).'
             });
         }
     }
