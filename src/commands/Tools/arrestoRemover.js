@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { obtenerArresto, anularArresto } from '../../utils/gestorArrestos.js';
+import { E } from '../../config/emojis.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -47,7 +48,7 @@ export default {
 
         const embed = new EmbedBuilder()
             .setColor('#57f287')
-            .setTitle('<:folder:1534938334650962115> Arresto Anulado')
+            .setTitle(E.carpeta + ' Arresto Anulado')
             .setDescription(
                 `• **ID Arresto -** \`${arrestoID}\`\n` +
                 `• **Ciudadano -** <@${arresto.usuarioId}>\n` +
@@ -66,7 +67,7 @@ export default {
         if (logsChannel) {
             const embedLog = new EmbedBuilder()
                 .setColor('#57f287')
-                .setTitle('<:folder:1534938334650962115> Arresto Anulado')
+                .setTitle(E.carpeta + ' Arresto Anulado')
                 .setDescription(
                     `> **ID:** \`${arrestoID}\`\n` +
                     `> **Ciudadano:** <@${arresto.usuarioId}>\n` +
