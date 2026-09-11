@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder,
     MessageFlags} from 'discord.js';
 import { generarIDArresto, guardarArresto } from '../../utils/gestorArrestos.js';
+import { E } from '../../config/emojis.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -43,7 +44,7 @@ export default {
 
         const embedArresto = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<:folder:1534938334650962115> Arresto Registrado')
+            .setTitle(E.carpeta + ' Arresto Registrado')
             .setDescription(
                 `• **Ciudadano -** <@${ciudadano.id}>\n` +
                 `• **Oficial -** <@${interaction.user.id}>\n` +
@@ -58,7 +59,7 @@ export default {
             .setTimestamp();
 
         await interaction.reply({
-            content: '<:tilde:1534937809733812286> Arresto registrado.',
+            content: E.tilde + ' Arresto registrado.',
             flags: MessageFlags.Ephemeral
         });
         await interaction.channel.send({
@@ -71,7 +72,7 @@ export default {
         if (logsChannel) {
             const embedLog = new EmbedBuilder()
                 .setColor('#ed4245')
-                .setTitle('<:folder:1523041295868756008> Nuevo Arresto Registrado')
+                .setTitle(E.carpeta + ' Nuevo Arresto Registrado')
                 .setDescription(
                     `> **Ciudadano:** <@${ciudadano.id}>\n` +
                     `> **Oficial:** <@${interaction.user.id}>\n` +
@@ -86,7 +87,7 @@ export default {
         try {
             const embedDM = new EmbedBuilder()
                 .setColor('#ff3333')
-                .setTitle('<:folder:1534938334650962115> Notificación de Arresto')
+                .setTitle(E.carpeta + ' Notificación de Arresto')
                 .setDescription(
                     `Has sido arrestado en **${interaction.guild.name}**.\n\n` +
                     `• **Motivo:** ${motivo}\n` +

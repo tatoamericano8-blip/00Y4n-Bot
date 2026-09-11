@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import Staff from '../../../models/Staff.js';
+import { E } from '../../config/emojis.js';
 
 const ROLE_HIGH_COMMAND = '1528870731629465752';
 
@@ -14,7 +15,7 @@ export default {
     async execute(interaction) {
         if (!interaction.member.roles.cache.has(ROLE_HIGH_COMMAND) && !interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1534937767652495360> Solo Alto Comando puede otorgar reconocimientos.',
+                content: E.cruz + ' Solo Alto Comando puede otorgar reconocimientos.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -26,7 +27,7 @@ export default {
         let staffData = await Staff.findOne({ guildId: interaction.guildId, userId: targetUser.id });
         if (!staffData) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1534937767652495360> El usuario no se encuentra en el registro de Staff.',
+                content: E.cruz + ' El usuario no se encuentra en el registro de Staff.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -42,7 +43,7 @@ export default {
         await staffData.save();
 
         const embedAward = new EmbedBuilder()
-            .setTitle('<:trofeo:1534938966950809751> ¡Nuevo Reconocimiento Otorgado!')
+            .setTitle(E.trofeo + ' ¡Nuevo Reconocimiento Otorgado!')
             .setColor('#74d4fc')
             .setDescription(
                 `> **Galardonado:** <@${targetUser.id}>\n` +
@@ -53,7 +54,7 @@ export default {
             .setThumbnail(targetUser.displayAvatarURL())
             .setTimestamp();
 
-        await interaction.editReply({ content: '<:tilde:1534937809733812286> Reconocimiento otorgado.' });
+        await interaction.editReply({ content: E.tilde + ' Reconocimiento otorgado.' });
         await interaction.channel.send({ embeds: [embedAward] });
     }
 };
