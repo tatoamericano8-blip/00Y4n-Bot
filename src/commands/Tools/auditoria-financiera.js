@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { obtenerHistorialFinanciero } from '../../utils/gestorAuditoriaFinanciera.js';
 import { obtenerSaldo } from '../../utils/gestorEconomia.js';
+import { E } from '../../config/emojis.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -22,7 +23,7 @@ export default {
   async execute(interaction) {
     if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
       return interaction.reply({
-        content: '<:cruz00y4n:1534937767652495360> Solo **Administradores** pueden ver la auditoría financiera.',
+        content: E.cruz + ' Solo **Administradores** pueden ver la auditoría financiera.',
         flags: MessageFlags.Ephemeral
       });
     }
@@ -38,7 +39,7 @@ export default {
     if (!historial.length) {
       return interaction.editReply({
         content:
-          `<:multa:1534939040963629066> **Auditoría de <@${target.id}>**\n` +
+          `${E.multa} **Auditoría de <@${target.id}>**\n` +
           `> Saldo actual: **$${saldo.toLocaleString('es-AR')}**\n` +
           `> Sin movimientos registrados aún (el log empieza a contar desde ahora).`
       });
@@ -54,7 +55,7 @@ export default {
 
     const embed = new EmbedBuilder()
       .setColor('#74d4fc')
-      .setTitle(`<:multa:1534939040963629066> Auditoría Financiera — ${target.username}`)
+      .setTitle(`${E.multa} Auditoría Financiera — ${target.username}`)
       .setThumbnail(target.displayAvatarURL({ dynamic: true }))
       .setDescription(
         `> **Saldo actual:** $${saldo.toLocaleString('es-AR')}\n` +
