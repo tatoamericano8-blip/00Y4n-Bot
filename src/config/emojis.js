@@ -59,10 +59,10 @@ export const EMOJI_DEF = {
   trofy: { name: 'nara_trofy', id: '1535396969076490356' },
   warn: { name: 'nara_warn', id: '1534937002695327837' },
 
-  anuncio: { name: 'anuncio', id: '1534937667823865956' },
-  msj: { name: 'msj', id: '1534937713524998304' },
-  checkpoint: { name: 'checkpoint', id: '1534938036494663680' },
-  staff_icon: { name: 'staff', id: '1534956881787752478' },
+  anuncio: { name: 'nara_anuncio', id: '1547994351387541536' },
+  msj: { name: 'nara_msj', id: '1534937713524998304' },
+  checkpoint: { name: 'nara_checkpoint', id: '1547994367913103390' },
+  staff_icon: { name: 'nara_00y4nstaff', id: '1534938829520244846' },
   skirojo: { name: 'skirojo', id: '1534988636460683385' },
 
   a2alas: { name: 'nara_a2alas', id: '1534954231138746488', animated: true },

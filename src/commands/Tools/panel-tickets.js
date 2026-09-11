@@ -119,7 +119,7 @@ export default {
                     label: 'Staff FastPass',
                     description: 'Postulación prioritaria (server 1k+)',
                     value: 'staff_fastpass',
-                    emoji: '1534956881787752478'
+                    emoji: '1534938829520244846'
                 }
             );
 

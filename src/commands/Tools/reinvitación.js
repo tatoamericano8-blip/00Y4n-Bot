@@ -7,15 +7,15 @@ import {
     PermissionFlagsBits,
     MessageFlags
 } from 'discord.js';
-import { E } from '../../config/emojis.js';
+import { E, EMOJI_DEF } from '../../config/emojis.js';
 import Sesion from '../../../models/Session.js';
 import Historial from '../../../models/Historial.js';
 import { bloquearSiCooldown, setCooldownSesion } from '../../utils/cooldownSesiones.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
-const EMOJI_REACCION = '1534937809733812286';
-const EMOJI_BOTON = '1534937419231527036';
+const EMOJI_REACCION = EMOJI_DEF.tilde.id;
+const EMOJI_BOTON = EMOJI_DEF.candado.id;
 const IMAGEN_REINVITACIONES_DEFECTO =
     'https://cdn.discordapp.com/attachments/1505017301089652898/1536043756460183603/Reinvitaciones_1.png';
 

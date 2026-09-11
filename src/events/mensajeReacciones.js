@@ -1,5 +1,5 @@
 import { EmbedBuilder } from 'discord.js';
-import { E } from '../config/emojis.js';
+import { E, EMOJI_DEF } from '../config/emojis.js';
 
 // --- DICCIONARIO COMPLETO DE EMOJIS CUSTOM (00Y4n) ---
 const EMOJIS = {
@@ -12,7 +12,7 @@ const EMOJIS = {
     flechaV: E.flecha,
     star: E.primer_puesto,
     tilde: {
-        id: '1534937809733812286',
+        id: EMOJI_DEF.tilde.id,
         tag: E.tilde
     },
     // Números estáticos

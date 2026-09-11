@@ -4,7 +4,7 @@ import Historial from '../../../models/Historial.js';
 import { puedeUsarSesiones } from '../../utils/gestorSesionesRestricciones.js';
 import { bloquearSiCooldown, setCooldownSesion } from '../../utils/cooldownSesiones.js';
 import { iniciarLogSesion } from '../../utils/logSesionArchivo.js';
-import { E } from '../../config/emojis.js';
+import { E, EMOJI_DEF } from '../../config/emojis.js';
 
 const IMAGEN_INICIO_RP =
     'https://cdn.discordapp.com/attachments/1505017301089652898/1536061264219086898/Inicio_Roleplay_1.png';
@@ -66,7 +66,7 @@ export default {
         const tipo = interaction.options.getString('tipo');
         const reacciones = interaction.options.getInteger('reacciones');
 
-        const idTildeNaranja = '1534937809733812286';
+        const idTildeNaranja = EMOJI_DEF.tilde.id;
 
         const esRP = tipo === 'rp';
         const titulo = esRP

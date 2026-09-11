@@ -1,3 +1,4 @@
+import { EMOJI_DEF } from '../config/emojis.js';
 export async function execute(interaction) {
     if (!interaction.isButton()) return;
 
@@ -21,7 +22,10 @@ export async function execute(interaction) {
 
         try {
             const mensajeInicio = await interaction.channel.messages.fetch(idStartupAsociado);
-            const reaccionTilde = mensajeInicio.reactions.cache.get('✅');
+            const reaccionTilde =
+              mensajeInicio.reactions.cache.get(EMOJI_DEF.tilde.id) ||
+              mensajeInicio.reactions.cache.find(r => r.emoji.id === EMOJI_DEF.tilde.id) ||
+              mensajeInicio.reactions.cache.get('✅');
             
             let usuarioReacciono = false;
 
