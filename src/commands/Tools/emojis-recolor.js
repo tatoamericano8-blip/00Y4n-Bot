@@ -83,7 +83,10 @@ async function descargarEmoji(emoji) {
   for (const url of candidatos) {
     if (!url) continue;
     try {
-      const res = await fetch(url, { headers });
+      const ac = new AbortController();
+      const to = setTimeout(() => ac.abort(), 12000);
+      const res = await fetch(url, { headers, signal: ac.signal });
+      clearTimeout(to);
       if (!res.ok) {
         ultimoError = 'HTTP ' + res.status;
         continue;
@@ -93,27 +96,30 @@ async function descargarEmoji(emoji) {
         ultimoError = 'buffer vacio';
         continue;
       }
+      // Si pedimos animado, solo aceptar GIF real (evitar caer a PNG y fallar luego)
+      if (animado) {
+        const esGif = buf[0] === 0x47 && buf[1] === 0x49 && buf[2] === 0x46;
+        if (!esGif) {
+          ultimoError = 'no es GIF';
+          continue;
+        }
+      }
       return { buffer: buf, animado };
     } catch (e) {
-      ultimoError = e.message || String(e);
+      ultimoError = e.name === 'AbortError' ? 'timeout descarga' : (e.message || String(e));
     }
   }
   throw new Error('No se pudo descargar: ' + ultimoError);
 }
 
-async function aplicarDegradadoEstatico(buffer, { r, g, b }) {
-  const { data, info } = await sharp(buffer, { animated: false, pages: 1 })
-    .ensureAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-
-  const { width, height, channels } = info;
-  if (channels < 4) throw new Error('Imagen sin canal alpha esperado');
-
-  const src = Buffer.from(data);
+/** Aplica degradado blanco->color sobre buffer RGBA crudo (un frame o apilado). */
+function aplicarDegradadoRaw(src, width, height, { r, g, b }) {
   const out = Buffer.alloc(src.length);
   const denom = Math.max(width - 1, 1);
+  const framePixels = width * height;
 
+  // max luminancia por frame si height es multiplo de pageHeight se maneja afuera;
+  // aca height = alto de este bloque (1 frame)
   let maxLum = 0;
   for (let i = 0; i < src.length; i += 4) {
     if (src[i + 3] < 8) continue;
@@ -159,12 +165,34 @@ async function aplicarDegradadoEstatico(buffer, { r, g, b }) {
       out[i + 2] = Math.min(255, Math.round(gb * intensity));
     }
   }
+  return out;
+}
+
+async function aplicarDegradadoEstatico(buffer, rgb) {
+  const { data, info } = await sharp(buffer, { animated: false, pages: 1 })
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  if (info.channels < 4) throw new Error('Imagen sin canal alpha esperado');
+  const out = aplicarDegradadoRaw(Buffer.from(data), info.width, info.height, rgb);
 
   return sharp(out, {
-    raw: { width, height, channels: 4 }
+    raw: { width: info.width, height: info.height, channels: 4 }
   })
     .png()
     .toBuffer();
+}
+
+const MAX_GIF_FRAMES = 48;
+const GIF_TIMEOUT_MS = 45000;
+
+function conTimeout(promise, ms, label) {
+  let timer;
+  const timeout = new Promise((_, rej) => {
+    timer = setTimeout(() => rej(new Error(label + ' timeout (' + Math.round(ms / 1000) + 's)')), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
 async function aplicarDegradadoAnimado(buffer, rgb) {
@@ -173,47 +201,92 @@ async function aplicarDegradadoAnimado(buffer, rgb) {
   }
 
   const meta = await sharp(buffer, { animated: true, pages: -1 }).metadata();
-  const pages = Math.max(1, meta.pages || 1);
+  let pages = Math.max(1, meta.pages || 1);
   const w = meta.width;
-  const h = meta.height;
+  let h = meta.pageHeight || meta.height;
   if (!w || !h) throw new Error('GIF sin dimensiones');
+
+  // Algunos GIFs reportan height total; preferir pageHeight
+  if (meta.pageHeight) h = meta.pageHeight;
+
+  if (pages > MAX_GIF_FRAMES) {
+    pages = MAX_GIF_FRAMES;
+  }
 
   let delays = meta.delay;
   if (!Array.isArray(delays)) {
     delays = Array(pages).fill(typeof delays === 'number' ? delays : 50);
   }
   while (delays.length < pages) delays.push(50);
+  delays = delays.slice(0, pages).map((d) => Math.max(20, Math.min(1000, d || 50)));
 
-  const raws = [];
-  for (let page = 0; page < pages; page++) {
-    const framePng = await sharp(buffer, { animated: true, page })
-      .ensureAlpha()
-      .resize(w, h, { fit: 'fill' })
-      .png()
-      .toBuffer();
-    const tenidoPng = await aplicarDegradadoEstatico(framePng, rgb);
-    const { data, info } = await sharp(tenidoPng)
-      .ensureAlpha()
-      .resize(w, h, { fit: 'fill' })
-      .raw()
-      .toBuffer({ resolveWithObject: true });
-    if (info.width !== w || info.height !== h) {
-      throw new Error('Frame ' + page + ' con tamano inesperado');
-    }
-    raws.push(data);
+  // Una sola extraccion raw de todos los frames (mucho mas rapido que frame-a-frame + PNG)
+  const { data, info } = await sharp(buffer, {
+    animated: true,
+    pages,
+    limitInputPixels: 268402689
+  })
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const frameH = info.pageHeight || h;
+  const frameW = info.width || w;
+  const totalH = info.height;
+  const detectedPages = Math.max(1, Math.round(totalH / frameH));
+  const usePages = Math.min(pages, detectedPages);
+
+  const outFrames = [];
+  for (let page = 0; page < usePages; page++) {
+    const offset = page * frameW * frameH * 4;
+    const frameSize = frameW * frameH * 4;
+    const srcFrame = data.subarray(offset, offset + frameSize);
+    if (srcFrame.length < frameSize) break;
+    outFrames.push(aplicarDegradadoRaw(Buffer.from(srcFrame), frameW, frameH, rgb));
   }
 
-  const stacked = Buffer.concat(raws);
-  const out = await sharp(stacked, {
-    raw: { width: w, height: h * pages, channels: 4 }
+  if (!outFrames.length) throw new Error('No se pudieron procesar frames del GIF');
+
+  const stacked = Buffer.concat(outFrames);
+  const finalPages = outFrames.length;
+  const finalDelays = delays.slice(0, finalPages);
+
+  let out = await sharp(stacked, {
+    raw: { width: frameW, height: frameH * finalPages, channels: 4 }
   })
     .gif({
-      pageHeight: h,
-      delay: delays,
-      effort: 2,
-      loop: meta.loop ?? 0
+      pageHeight: frameH,
+      delay: finalDelays,
+      effort: 1,
+      loop: meta.loop ?? 0,
+      colours: 128
     })
     .toBuffer();
+
+  // Si supera 256KB, reintentar mas chico / menos colores
+  if (out.length > 256 * 1024) {
+    const scale = frameW > 64 ? 64 : frameW;
+    const resizedFrames = [];
+    for (const fr of outFrames) {
+      const png = await sharp(fr, { raw: { width: frameW, height: frameH, channels: 4 } })
+        .resize(scale, scale, { fit: 'fill' })
+        .ensureAlpha()
+        .raw()
+        .toBuffer();
+      resizedFrames.push(png);
+    }
+    out = await sharp(Buffer.concat(resizedFrames), {
+      raw: { width: scale, height: scale * finalPages, channels: 4 }
+    })
+      .gif({
+        pageHeight: scale,
+        delay: finalDelays,
+        effort: 1,
+        loop: meta.loop ?? 0,
+        colours: 64
+      })
+      .toBuffer();
+  }
 
   if (!out || out.length < 50) throw new Error('GIF resultado vacio');
   if (!(out[0] === 0x47 && out[1] === 0x49 && out[2] === 0x46)) {
@@ -229,7 +302,11 @@ async function aplicarDegradadoAnimado(buffer, rgb) {
 
 async function procesarBuffer(buffer, rgb, animado) {
   if (animado) {
-    const gif = await aplicarDegradadoAnimado(buffer, rgb);
+    const gif = await conTimeout(
+      aplicarDegradadoAnimado(buffer, rgb),
+      GIF_TIMEOUT_MS,
+      'Procesado GIF'
+    );
     return { buffer: gif, animado: true };
   }
   const png = await aplicarDegradadoEstatico(buffer, rgb);
@@ -408,6 +485,20 @@ export default {
         if (!nuevoBase) throw new Error('Nombre no valido tras cambiar prefijo');
         const nuevoNombre = nombreUnico(nuevoBase, nombresExistentes);
 
+        if (actual.animated) {
+          await interaction
+            .editReply({
+              content:
+                'Procesando GIF **' +
+                actual.name +
+                '** (' +
+                (i + 1) +
+                '/' +
+                lista.length +
+                ')... esto puede tardar hasta ~45s'
+            })
+            .catch(() => null);
+        }
         const desc = await descargarEmoji(actual);
         const proc = await procesarBuffer(desc.buffer, color, desc.animado);
 
