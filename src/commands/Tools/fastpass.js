@@ -1,10 +1,11 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
 import { guardarFastPass } from '../../utils/gestorFastPass.js';
+import { E } from '../../config/emojis.js';
 
 const EMOJIS = {
-    flechaH: '<:FlechaHoriz00Y4n:1519474590370500608>',
-    flechaV: '<:Flecha_00Y4n:1519473149845045400>',
-    coraaMov: '<a:coraamov00y4n:1519475012283666554>'
+    flechaH: E.flecha,
+    flechaV: E.flecha,
+    coraaMov: E.acorarotacion
 };
 
 global.coleccionFastPass = global.coleccionFastPass || new Map();
@@ -49,10 +50,10 @@ export default {
         const mencionesRoles = ROLES_VIP_IDS.map(id => `<@&${id}>`).join(' ');
 
         const embedFastPass = new EmbedBuilder()
-            .setTitle(`<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — __*Acceso Anticipado*__ <a:mariquieta:1534954231138746488>`)
+            .setTitle(`${E.a2alas} Southwest Florida Comunidad 00Y4n — __*Acceso Anticipado*__ ${E.a2alas}`)
             .setDescription(
-                `<:dot:1534938142665084938> <@${interaction.user.id}> **ha liberado el acceso anticipado de su servidor!** Boosters, Staff y Servicios Públicos ya pueden unirse mediante el botón de abajo.\n\n` +
-                `<:replican:1542264548801777685> __Asegurate de estacionarte de inmediato al unirte y de seguir todas las indicaciones del host, o tu acceso anticipado puede y será revocado__.`
+                `${E.dot} <@${interaction.user.id}> **ha liberado el acceso anticipado de su servidor!** Boosters, Staff y Servicios Públicos ya pueden unirse mediante el botón de abajo.\n\n` +
+                `${E.replican} __Asegurate de estacionarte de inmediato al unirte y de seguir todas las indicaciones del host, o tu acceso anticipado puede y será revocado__.`
             )
             .setColor('#74d4fc');
 
