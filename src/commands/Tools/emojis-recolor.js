@@ -135,21 +135,22 @@ async function aplicarDegradadoEstatico(buffer, { r, g, b }) {
       }
 
       const lum = (src[i] * 0.299 + src[i + 1] * 0.587 + src[i + 2] * 0.114) / 255;
-      let intensity = Math.min(1, (lum / maxLum) * 1.1);
-      intensity = Math.pow(intensity, 0.82);
+      let intensity = Math.min(1, (lum / maxLum) * 1.12);
+      intensity = Math.pow(intensity, 0.78);
 
-      // Menos blanco, mas color (estilo referencia)
+      // Mucho mas color; blanco solo highlight fino a la izquierda
       const tLinear = x / denom;
-      let t = Math.pow(tLinear, 1.12);
+      let t = Math.pow(tLinear, 0.72);
       t = t * t * (3 - 2 * t);
+      t = Math.min(1, t * 0.92 + 0.12);
 
       let gr = 255 * (1 - t) + r * t;
       let gg = 255 * (1 - t) + g * t;
       let gb = 255 * (1 - t) + b * t;
 
-      // Highlight blanco suave solo en el borde izquierdo
-      if (tLinear < 0.22 && intensity > 0.5) {
-        const whitePull = Math.pow((0.22 - tLinear) / 0.22, 1.1) * 0.28 * intensity;
+      // Highlight blanco brillante pero muy local (~12% izquierdo)
+      if (tLinear < 0.12 && intensity > 0.55) {
+        const whitePull = Math.pow((0.12 - tLinear) / 0.12, 1.05) * 0.42 * intensity;
         gr = gr + (255 - gr) * whitePull;
         gg = gg + (255 - gg) * whitePull;
         gb = gb + (255 - gb) * whitePull;
