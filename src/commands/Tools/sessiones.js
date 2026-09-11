@@ -4,6 +4,7 @@ import Historial from '../../../models/Historial.js';
 import { puedeUsarSesiones } from '../../utils/gestorSesionesRestricciones.js';
 import { bloquearSiCooldown, setCooldownSesion } from '../../utils/cooldownSesiones.js';
 import { iniciarLogSesion } from '../../utils/logSesionArchivo.js';
+import { E } from '../../config/emojis.js';
 
 const IMAGEN_INICIO_RP =
     'https://cdn.discordapp.com/attachments/1505017301089652898/1536061264219086898/Inicio_Roleplay_1.png';
@@ -69,15 +70,15 @@ export default {
 
         const esRP = tipo === 'rp';
         const titulo = esRP
-            ? '<a:mari:1534954231138746488> Southwest Florida Comunidad 00Y4n — __*Inicio de Roleplay*__ <a:mariquieta:1534954231138746488>'
-            : '<a:mari:1534954231138746488> Southwest Florida Comunidad 00Y4n — __*Inicio de Car Meet*__ <a:mariquieta:1534954231138746488>';
+            ? E.a2alas + ' Southwest Florida Comunidad 00Y4n — __*Inicio de Roleplay*__ ' + E.a2alas
+            : E.a2alas + ' Southwest Florida Comunidad 00Y4n — __*Inicio de Car Meet*__ ' + E.a2alas;
 
         const embed = new EmbedBuilder()
             .setTitle(titulo)
             .setDescription(
-                `<:dot:1534938142665084938> <@${interaction.user.id}> **está hosteando una sesión de ${esRP ? 'Roleplay' : 'Car Meet'}!** Antes de unirte, asegurate de que la privacidad de tu cuenta esté en **'Everyone'**. Al unirte, confirmás que leíste todas las regulaciones del servidor. Cuando la sesión se libere, el host enviará otro mensaje con una notificación.\n\n` +
-                    `<:flecha:1534937306191102125> Por favor sé paciente mientras el staff configura todo. Hay numerosos factores en la preparación de una sesión para garantizar la máxima calidad de roleplay.\n\n` +
-                    `<:replican:1542264548801777685> Para que el host comience a configurar y la sesión inicie, necesitamos __**${reacciones}+**__ reacciones. Una vez alcanzada la meta, se liberará el acceso anticipado.`
+                E.dot + ` <@${interaction.user.id}> **está hosteando una sesión de ${esRP ? 'Roleplay' : 'Car Meet'}!** Antes de unirte, asegurate de que la privacidad de tu cuenta esté en **'Everyone'**. Al unirte, confirmás que leíste todas las regulaciones del servidor. Cuando la sesión se libere, el host enviará otro mensaje con una notificación.\n\n` +
+                    E.flecha + ` Por favor sé paciente mientras el staff configura todo. Hay numerosos factores en la preparación de una sesión para garantizar la máxima calidad de roleplay.\n\n` +
+                    E.replican + ` Para que el host comience a configurar y la sesión inicie, necesitamos __**${reacciones}+**__ reacciones. Una vez alcanzada la meta, se liberará el acceso anticipado.`
             )
             .setColor('#74d4fc');
 
