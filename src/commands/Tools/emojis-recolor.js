@@ -5,16 +5,11 @@ import {
 } from 'discord.js';
 import sharp from 'sharp';
 
-/** Solo Supervisor Ejecutivo */
 const ROL_PERMITIDO = '1451956429345919008';
-
-/** Prefijo de origen a buscar (fijo segun diseno del server) */
 const PREFIJO_ORIGEN = 'nara_';
 
 function parseHex(hex) {
-  const h = String(hex || '')
-    .trim()
-    .replace(/^#/, '');
+  const h = String(hex || '').trim().replace(/^#/, '');
   if (!/^[0-9a-fA-F]{6}$/.test(h)) return null;
   return {
     r: parseInt(h.slice(0, 2), 16),
@@ -26,11 +21,7 @@ function parseHex(hex) {
 }
 
 function sanitizarPrefijo(raw) {
-  let p = String(raw || '')
-    .trim()
-    .toLowerCase()
-    .replace(/^#+/, '')
-    .replace(/[^a-z0-9_]/g, '_');
+  let p = String(raw || '').trim().toLowerCase().replace(/^#+/, '').replace(/[^a-z0-9_]/g, '_');
   if (!p) return null;
   if (!p.endsWith('_')) p += '_';
   if (p.length > 20) p = p.slice(0, 20);
@@ -119,24 +110,44 @@ async function aplicarDegradadoEstatico(buffer, { r, g, b }) {
   const { width, height, channels } = info;
   if (channels < 4) throw new Error('Imagen sin canal alpha esperado');
 
-  const out = Buffer.from(data);
+  const src = Buffer.from(data);
+  const out = Buffer.alloc(src.length);
   const denom = Math.max(width - 1, 1);
+
+  // Luminancia maxima de pixeles visibles -> evita grises apagados
+  let maxLum = 0;
+  for (let i = 0; i < src.length; i += 4) {
+    if (src[i + 3] < 8) continue;
+    const lum = (src[i] * 0.299 + src[i + 1] * 0.587 + src[i + 2] * 0.114) / 255;
+    if (lum > maxLum) maxLum = lum;
+  }
+  if (maxLum < 0.05) maxLum = 1;
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = (y * width + x) * 4;
-      const a = out[i + 3];
-      if (a === 0) continue;
+      const a = src[i + 3];
+      out[i + 3] = a;
+      if (a === 0) {
+        out[i] = 0;
+        out[i + 1] = 0;
+        out[i + 2] = 0;
+        continue;
+      }
 
-      const lum = (out[i] * 0.299 + out[i + 1] * 0.587 + out[i + 2] * 0.114) / 255;
-      const t = x / denom;
-      const tr = Math.round(255 * (1 - t) + r * t);
-      const tg = Math.round(255 * (1 - t) + g * t);
-      const tb = Math.round(255 * (1 - t) + b * t);
+      const lum = (src[i] * 0.299 + src[i + 1] * 0.587 + src[i + 2] * 0.114) / 255;
+      // Normalizar + boost suave: blancos reales y color hex nitido
+      let intensity = Math.min(1, (lum / maxLum) * 1.08);
+      intensity = Math.pow(intensity, 0.85);
 
-      out[i] = Math.round(tr * lum);
-      out[i + 1] = Math.round(tg * lum);
-      out[i + 2] = Math.round(tb * lum);
+      const t = x / denom; // 0 = blanco puro, 1 = color hex exacto
+      const gr = 255 * (1 - t) + r * t;
+      const gg = 255 * (1 - t) + g * t;
+      const gb = 255 * (1 - t) + b * t;
+
+      out[i] = Math.min(255, Math.round(gr * intensity));
+      out[i + 1] = Math.min(255, Math.round(gg * intensity));
+      out[i + 2] = Math.min(255, Math.round(gb * intensity));
     }
   }
 
@@ -225,10 +236,7 @@ export default {
     .setName('emojis-recolor')
     .setDescription('Degradado blanco a color en emojis nara_*; crea copias con nuevo prefijo.')
     .addStringOption((o) =>
-      o
-        .setName('color')
-        .setDescription('Color hex destino, ej: #fb8b66 o fb8b66')
-        .setRequired(true)
+      o.setName('color').setDescription('Color hex destino, ej: #fb8b66 o fb8b66').setRequired(true)
     )
     .addStringOption((o) =>
       o
@@ -263,9 +271,7 @@ export default {
       if (interaction.guild.emojis.cache.size === 0) {
         await interaction.guild.emojis.fetch().catch(() => null);
       }
-      const q = String(focused.value || '')
-        .toLowerCase()
-        .trim();
+      const q = String(focused.value || '').toLowerCase().trim();
       const todos = [...interaction.guild.emojis.cache.values()].filter((e) =>
         e.name.toLowerCase().startsWith(PREFIJO_ORIGEN)
       );
@@ -288,20 +294,14 @@ export default {
   async execute(interaction) {
     if (!interaction.member.roles.cache.has(ROL_PERMITIDO)) {
       return interaction.reply({
-        content:
-          'Acceso denegado. Este comando es exclusivo del rol **Supervisor Ejecutivo**.',
+        content: 'Acceso denegado. Este comando es exclusivo del rol **Supervisor Ejecutivo**.',
         ephemeral: true
       });
     }
 
-    if (
-      !interaction.guild.members.me.permissions.has(
-        PermissionFlagsBits.ManageGuildExpressions
-      )
-    ) {
+    if (!interaction.guild.members.me.permissions.has(PermissionFlagsBits.ManageGuildExpressions)) {
       return interaction.reply({
-        content:
-          'El bot necesita el permiso **Gestionar expresiones del servidor** (Manage Emojis).',
+        content: 'El bot necesita el permiso **Gestionar expresiones del servidor** (Manage Emojis).',
         ephemeral: true
       });
     }
@@ -317,18 +317,14 @@ export default {
     const nuevoPrefijo = sanitizarPrefijo(interaction.options.getString('prefijo'));
     if (!nuevoPrefijo) {
       return interaction.reply({
-        content:
-          'Prefijo invalido. Solo letras, numeros y `_`. Ejemplo: `coral` -> se usara `coral_`.',
+        content: 'Prefijo invalido. Solo letras, numeros y `_`. Ejemplo: `coral` -> se usara `coral_`.',
         ephemeral: true
       });
     }
 
     if (nuevoPrefijo === PREFIJO_ORIGEN) {
       return interaction.reply({
-        content:
-          'El prefijo nuevo no puede ser igual a `' +
-          PREFIJO_ORIGEN +
-          '`.',
+        content: 'El prefijo nuevo no puede ser igual a `' + PREFIJO_ORIGEN + '`.',
         ephemeral: true
       });
     }
@@ -341,9 +337,7 @@ export default {
     await interaction.guild.emojis.fetch().catch(() => null);
     const cache = interaction.guild.emojis.cache;
 
-    let lista = [...cache.values()].filter((e) =>
-      e.name.toLowerCase().startsWith(PREFIJO_ORIGEN)
-    );
+    let lista = [...cache.values()].filter((e) => e.name.toLowerCase().startsWith(PREFIJO_ORIGEN));
 
     if (modo === 'uno') {
       if (!emojiNombreOpt) {
@@ -351,17 +345,10 @@ export default {
           content: 'En modo **uno** tenes que indicar la opcion `emoji` (ej: `nara_lock`).'
         });
       }
-      const found = lista.find(
-        (e) => e.name.toLowerCase() === emojiNombreOpt.toLowerCase()
-      );
+      const found = lista.find((e) => e.name.toLowerCase() === emojiNombreOpt.toLowerCase());
       if (!found) {
         return interaction.editReply({
-          content:
-            'No encontre un emoji `' +
-            emojiNombreOpt +
-            '` que empiece con `' +
-            PREFIJO_ORIGEN +
-            '`.'
+          content: 'No encontre un emoji `' + emojiNombreOpt + '` que empiece con `' + PREFIJO_ORIGEN + '`.'
         });
       }
       lista = [found];
@@ -397,9 +384,7 @@ export default {
         'Si un GIF falla, **no** se sube estatico; solo se reporta.'
     });
 
-    const nombresExistentes = new Set(
-      [...cache.values()].map((e) => e.name.toLowerCase())
-    );
+    const nombresExistentes = new Set([...cache.values()].map((e) => e.name.toLowerCase()));
 
     let ok = 0;
     let fail = 0;
@@ -411,9 +396,7 @@ export default {
       const actual = lista[i];
       try {
         const nuevoBase = nombreConNuevoPrefijo(actual.name, nuevoPrefijo);
-        if (!nuevoBase) {
-          throw new Error('Nombre no valido tras cambiar prefijo');
-        }
+        if (!nuevoBase) throw new Error('Nombre no valido tras cambiar prefijo');
         const nuevoNombre = nombreUnico(nuevoBase, nombresExistentes);
 
         const desc = await descargarEmoji(actual);
@@ -453,16 +436,7 @@ export default {
       if (i % 2 === 0 || i === lista.length - 1) {
         await interaction
           .editReply({
-            content:
-              'Procesando ' +
-              (i + 1) +
-              '/' +
-              lista.length +
-              '... (ok: ' +
-              ok +
-              ', fail: ' +
-              fail +
-              ')'
+            content: 'Procesando ' + (i + 1) + '/' + lista.length + '... (ok: ' + ok + ', fail: ' + fail + ')'
           })
           .catch(() => null);
       }
