@@ -114,7 +114,6 @@ async function aplicarDegradadoEstatico(buffer, { r, g, b }) {
   const out = Buffer.alloc(src.length);
   const denom = Math.max(width - 1, 1);
 
-  // Luminancia maxima de pixeles visibles -> evita grises apagados
   let maxLum = 0;
   for (let i = 0; i < src.length; i += 4) {
     if (src[i + 3] < 8) continue;
@@ -136,14 +135,25 @@ async function aplicarDegradadoEstatico(buffer, { r, g, b }) {
       }
 
       const lum = (src[i] * 0.299 + src[i + 1] * 0.587 + src[i + 2] * 0.114) / 255;
-      // Normalizar + boost suave: blancos reales y color hex nitido
-      let intensity = Math.min(1, (lum / maxLum) * 1.08);
-      intensity = Math.pow(intensity, 0.85);
+      let intensity = Math.min(1, (lum / maxLum) * 1.15);
+      intensity = Math.pow(intensity, 0.75);
 
-      const t = x / denom; // 0 = blanco puro, 1 = color hex exacto
-      const gr = 255 * (1 - t) + r * t;
-      const gg = 255 * (1 - t) + g * t;
-      const gb = 255 * (1 - t) + b * t;
+      // Mas blanco a la izquierda (estilo candado de referencia)
+      const tLinear = x / denom;
+      let t = Math.pow(tLinear, 1.55);
+      t = t * t * (3 - 2 * t);
+
+      let gr = 255 * (1 - t) + r * t;
+      let gg = 255 * (1 - t) + g * t;
+      let gb = 255 * (1 - t) + b * t;
+
+      // Tercio izquierdo: highlights hacia blanco puro
+      if (tLinear < 0.38 && intensity > 0.45) {
+        const whitePull = Math.pow((0.38 - tLinear) / 0.38, 1.2) * 0.55 * intensity;
+        gr = gr + (255 - gr) * whitePull;
+        gg = gg + (255 - gg) * whitePull;
+        gb = gb + (255 - gb) * whitePull;
+      }
 
       out[i] = Math.min(255, Math.round(gr * intensity));
       out[i + 1] = Math.min(255, Math.round(gg * intensity));
