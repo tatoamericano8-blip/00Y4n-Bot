@@ -1,5 +1,6 @@
 import { EmbedBuilder } from 'discord.js';
 import { logger } from './logger.js';
+import { E } from '../config/emojis.js';
 
 const CANAL_GENERAL_ID = '1451939726230683753'; // ID de tu canal general
 let contadorMensajes = 0;
@@ -36,7 +37,7 @@ export async function procesarMensajeRecordatorio(message) {
             // 2. Crear y enviar el nuevo embed
             const embedRecordatorio = new EmbedBuilder()
                 .setColor('#74d4fc')
-                .setDescription('<a:est:1534956201035436082> **Recordatorio:** ¡Pónte `/00Y4n` en tu estado de Discord para obtener el rol de **Server Contribuidor**!');
+                .setDescription(E.aestrellitas + ' **Recordatorio:** ¡Pónte `/00Y4n` en tu estado de Discord para obtener el rol de **Server Contribuidor**!');
 
             const nuevoMensaje = await message.channel.send({ embeds: [embedRecordatorio] });
 
