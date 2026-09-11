@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 import { obtenerSnipe } from '../../utils/gestorSnipe.js';
+import { E } from '../../config/emojis.js';
 
 const ROLE_STAFF = '1512120103771050005';
 const ROLE_HIGH_COMMAND = '1528870731629465752';
@@ -17,7 +18,7 @@ export default {
 
     if (!esStaff) {
       return interaction.reply({
-        content: '<:cruz00y4n:1523041302764191844> Solo el **Staff** puede usar /snipe.',
+        content: E.cruz + ' Solo el **Staff** puede usar /snipe.',
         flags: MessageFlags.Ephemeral
       });
     }
@@ -25,7 +26,7 @@ export default {
     const data = obtenerSnipe(interaction.channelId);
     if (!data) {
       return interaction.reply({
-        content: '<:cruz00y4n:1523041302764191844> No hay ningún mensaje borrado reciente en este canal.',
+        content: E.cruz + ' No hay ningún mensaje borrado reciente en este canal.',
         flags: MessageFlags.Ephemeral
       });
     }
