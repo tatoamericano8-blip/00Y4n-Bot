@@ -60,7 +60,7 @@ export const EMOJI_DEF = {
   warn: { name: 'nara_warn', id: '1534937002695327837' },
 
   anuncio: { name: 'nara_anuncio', id: '1547994351387541536' },
-  msj: { name: 'nara_msj', id: '1534937713524998304' },
+  msj: { name: 'nara_mensaje', id: '1534937713524998304' },
   checkpoint: { name: 'nara_checkpoint', id: '1547994367913103390' },
   staff_icon: { name: 'nara_00y4nstaff', id: '1534938829520244846' },
   skirojo: { name: 'skirojo', id: '1534988636460683385' },
