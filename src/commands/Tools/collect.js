@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { agregarSaldo } from '../../utils/gestorEconomia.js';
 import { getFromDb, setInDb } from '../../utils/database.js';
+import { E } from '../../config/emojis.js';
 
 // -------------------------------------------------------------
 // ⚙️ CONFIGURACIÓN DE ROLES Y RECOMPENSAS
@@ -40,7 +41,7 @@ export default {
         if (ahora < ultimoReclamo) {
             const tiempoRestanteUnix = Math.floor(ultimoReclamo / 1000);
             return await interaction.reply({
-                content: `<:cruz00y4n:1534937767652495360> Ya has reclamado tu ingreso diario. Podrás volver a recolectar el <t:${tiempoRestanteUnix}:F> (<t:${tiempoRestanteUnix}:R>).`,
+                content: `${E.cruz} Ya has reclamado tu ingreso diario. Podrás volver a recolectar el <t:${tiempoRestanteUnix}:F> (<t:${tiempoRestanteUnix}:R>).`,
                 ephemeral: true
             });
         }
@@ -73,10 +74,10 @@ export default {
 
         // 5. Crear Embed idéntico al de la imagen
         const embedCollect = new EmbedBuilder()
-            .setTitle('<a:si:1534956201035436082> Ingreso Diario Recolectado')
+            .setTitle(E.aestrellitas + ' Ingreso Diario Recolectado')
             .setColor('#74d4fc')
             .setDescription(
-                `<:fle:1534937306191102125> Has recaudado **$${totalIngreso.toLocaleString('es-AR', { minimumFractionDigits: 2 })}** en ingresos diarios. Tu saldo actualizado es ahora **$${nuevoSaldo.toLocaleString('es-AR', { minimumFractionDigits: 2 })}**.\n\n` +
+                `${E.flecha} Has recaudado **$${totalIngreso.toLocaleString('es-AR', { minimumFractionDigits: 2 })}** en ingresos diarios. Tu saldo actualizado es ahora **$${nuevoSaldo.toLocaleString('es-AR', { minimumFractionDigits: 2 })}**.\n\n` +
                 `**Siguiente disponible:** <t:${proximoReclamoUnix}:F>\n\n` +
                 `${desgloseRoles.join('\n')}`
             );
