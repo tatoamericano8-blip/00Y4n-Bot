@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { agregarSaldo } from '../../utils/gestorEconomia.js';
 import { getFromDb, setInDb } from '../../utils/database.js';
+import { E } from '../../config/emojis.js';
 
 // Pensamientos de suspenso mientras se planea el crimen
 const pensamientosCrimen = [
@@ -44,7 +45,7 @@ export default {
         if (proximoCrimen && ahora < proximoCrimen) {
             const timestampUnix = Math.floor(proximoCrimen / 1000);
             return await interaction.reply({
-                content: `<:cruz00y4n:1534937767652495360> Estás manteniendo un perfil bajo por la policía. Podrás intentar otro crimen <t:${timestampUnix}:R> (<t:${timestampUnix}:f>).`,
+                content: `${E.cruz} Estás manteniendo un perfil bajo por la policía. Podrás intentar otro crimen <t:${timestampUnix}:R> (<t:${timestampUnix}:f>).`,
                 ephemeral: true
             });
         }
@@ -53,7 +54,7 @@ export default {
         const pensamientoAleatorio = pensamientosCrimen[Math.floor(Math.random() * pensamientosCrimen.length)];
         
         await interaction.reply({
-            content: `<:skirojo:1534988636460683385> **Planeando el delito...**\n*${pensamientoAleatorio}*`
+            content: `${E.skirojo} **Planeando el delito...**\n*${pensamientoAleatorio}*`
         });
 
         // 3. Pausa dramática de 3 segundos
@@ -73,7 +74,7 @@ export default {
 
             const embedExito = new EmbedBuilder()
                 .setColor('#2ecc71') // Verde
-                .setTitle('<:skirojo:1534988636460683385> ¡Cometiste un delito!')
+                .setTitle(E.skirojo + ' ¡Cometiste un delito!')
                 .setDescription(
                     `${historia}\n\n` +
                     `➔ Te saliste con la tuya y obtuviste **$${ganancia.toLocaleString('es-AR', { minimumFractionDigits: 2 })}**. Tu saldo actualizado es **$${nuevoSaldo.toLocaleString('es-AR', { minimumFractionDigits: 2 })}**.`
@@ -94,7 +95,7 @@ export default {
 
             const embedFallo = new EmbedBuilder()
                 .setColor('#E60404') // Rojo
-                .setTitle('<:skirojo:1534988636460683385> ¡Cometiste un delito!')
+                .setTitle(E.skirojo + ' ¡Cometiste un delito!')
                 .setDescription(
                     `${historia}\n\n` +
                     `➔ Fuiste multado con **$${multa.toLocaleString('es-AR', { minimumFractionDigits: 2 })}**. Tu saldo actualizado es **$${nuevoSaldo.toLocaleString('es-AR', { minimumFractionDigits: 2 })}**.`
