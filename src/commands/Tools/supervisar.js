@@ -1,6 +1,7 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
 import Session from '../../../models/Session.js';
 import { actualizarRolesLogSesion } from '../../utils/logSesionArchivo.js';
+import { E } from '../../config/emojis.js';
 
 const ROL_ALTO_COMANDO = '1528870731629465752';
 
@@ -22,7 +23,7 @@ export default {
         if (!interaction.member.roles.cache.has(ROL_ALTO_COMANDO)) {
             return interaction.reply({
                 content:
-                    '<:cruz:1534937767652495360> Solo **Alto Comando** puede usar este comando.',
+                    E.cruz + ' Solo **Alto Comando** puede usar este comando.',
                 ephemeral: true
             });
         }
@@ -40,7 +41,7 @@ export default {
             if (!sesion) {
                 return interaction.reply({
                     content:
-                        '<:adv:1534937002695327837> No hay una sesion activa para supervisar. Primero usa `/inicio_swfl`.',
+                        E.warn + ' No hay una sesion activa para supervisar. Primero usa `/inicio_swfl`.',
                     ephemeral: true
                 });
             }
@@ -52,22 +53,22 @@ export default {
             console.error('Error guardando supervisor en sesion:', err);
             return interaction.reply({
                 content:
-                    '<:cruz:1534937767652495360> Error al registrar el supervisor en la sesion. Intenta de nuevo.',
+                    E.cruz + ' Error al registrar el supervisor en la sesion. Intenta de nuevo.',
                 ephemeral: true
             });
         }
 
         const embedSupervision = new EmbedBuilder()
-            .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — __*Supervisor de Servidor*__ <a:mariquieta:1534954231138746488>')
+            .setTitle(E.a2alas + ' Southwest Florida Comunidad 00Y4n — __*Supervisor de Servidor*__ ' + E.a2alas)
             .setDescription(
-                `<:dot:1534938142665084938> <@${supervisor.id}> **ha sido designado como Supervisor de la sesión en curso**. Este usuario supervisará la sesión y al host para garantizar la máxima calidad de roleplay.`
+                E.dot + ` <@${supervisor.id}> **ha sido designado como Supervisor de la sesión en curso**. Este usuario supervisará la sesión y al host para garantizar la máxima calidad de roleplay.`
             )
             .setColor('#74d4fc')
             .setFooter({ text: 'Southwest Florida Comunidad 00Y4n ™' });
 
         // Confirmacion solo para quien uso el comando (no se ve el /comando en publico)
         await interaction.reply({
-            content: '<:verificacion:1534937809733812286> Anuncio de supervision generado.',
+            content: E.tilde + ' Anuncio de supervision generado.',
             ephemeral: true
         });
 
