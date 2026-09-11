@@ -9,6 +9,7 @@ import {
   obtenerOCrearRolRestringido,
   obtenerRestriccionActiva
 } from '../../utils/gestorRestricciones.js';
+import { E } from '../../config/emojis.js';
 
 const ROL_ALTO_COMANDO = '1528870731629465752';
 const CANAL_LOG = '1505015805891579934';
@@ -27,7 +28,7 @@ export default {
       !interaction.member.permissions.has(PermissionFlagsBits.Administrator)
     ) {
       return interaction.reply({
-        content: '<:cruz:1534937767652495360> Solo **Alto Comando** puede usar `/desrestringir`.',
+        content: E.cruz + ' Solo **Alto Comando** puede usar `/desrestringir`.',
         flags: MessageFlags.Ephemeral
       });
     }
@@ -71,7 +72,7 @@ export default {
       } catch (e) {
         await interaction.editReply({
           content:
-            `<:warn:1534937002695327837> Restricción marcada como inactiva, pero falló la restauración de roles: **${e.message}**\n` +
+            `${E.warn} Restricción marcada como inactiva, pero falló la restauración de roles: **${e.message}**\n` +
             `-# Revisá jerarquía del bot.`
         });
         doc.activa = false;
