@@ -1,5 +1,6 @@
 import { MessageFlags, PermissionFlagsBits } from 'discord.js';
 import { deleteTicket } from '../../services/ticket.js';
+import { E } from '../../config/emojis.js';
 
 const ROLE_STAFF = '1512120103771050005';
 
@@ -14,7 +15,7 @@ export default {
 
     if (!esStaff) {
       return interaction.reply({
-        content: '<:cruz00y4n:1534937767652495360> Solo el staff puede eliminar tickets.',
+        content: E.cruz + ' Solo el staff puede eliminar tickets.',
         flags: MessageFlags.Ephemeral
       });
     }
@@ -25,12 +26,12 @@ export default {
 
     if (!result.success) {
       return interaction.editReply({
-        content: `<:cruz00y4n:1534937767652495360> ${result.error || 'No se pudo eliminar el ticket.'}`
+        content: `${E.cruz} ${result.error || 'No se pudo eliminar el ticket.'}`
       });
     }
 
     return interaction.editReply({
-      content: '<:tilde:1534937809733812286> El ticket se eliminará en unos segundos.'
+      content: E.tilde + ' El ticket se eliminará en unos segundos.'
     });
   }
 };
