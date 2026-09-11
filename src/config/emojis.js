@@ -1,7 +1,9 @@
 /**
  * Registro central de emojis del server.
- * Al renovar: actualiza name + id aca (o usa /emojis-sync).
+ * Al renovar (nuevo prefijo / recolor): actualiza name + id aca (o usa /emojis-sync).
  * Uso: import { E, em } from '../config/emojis.js'
+ *      em('cruz')  -> tag Discord
+ *      E.cruz      -> mismo string
  */
 
 export const EMOJI_DEF = {
@@ -61,7 +63,7 @@ export const EMOJI_DEF = {
   a2alas: { name: 'nara_a2alas', id: '1534954231138746488', animated: true },
   aalas: { name: 'nara_aalas', id: '1534954409145008269', animated: true },
   abats: { name: 'nara_abats', id: '1534954353356705852', animated: true },
-  aboost: { name: 'nara_aboost', id: '1534940606395936889', animated: true },
+  aboost: { name: 'nara_aboost', id: '1534940006395936889', animated: true },
   abow: { name: 'nara_abow', id: '1534940053846097961', animated: true },
   abow2: { name: 'nara_abow2', id: '1534940091976515674', animated: true },
   acadena: { name: 'nara_acadena', id: '1534956246874980394', animated: true },
@@ -71,7 +73,6 @@ export const EMOJI_DEF = {
   aconfeti: { name: 'nara_aconfeti', id: '1534940499759206512', animated: true },
   acoradibujo: { name: 'nara_acoradibujo', id: '1534952105561817222', animated: true },
   acoraexplota: { name: 'nara_acoraexplota', id: '1534940261837312060', animated: true },
-  acoraexplota2: { name: 'nara_acoraexplota', id: '1535396457773928519', animated: true },
   acoraflotando: { name: 'nara_acoraflotando', id: '1534953815969890436', animated: true },
   acoraflotante: { name: 'nara_acoraflotante', id: '1534954466535674006', animated: true },
   acoraflotante2: { name: 'nara_acoraflotante2', id: '1534956056877334659', animated: true },
