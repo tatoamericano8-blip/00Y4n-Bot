@@ -1,4 +1,5 @@
 import { EmbedBuilder, ActivityType } from 'discord.js';
+import { E } from '../config/emojis.js';
 
 export default {
     name: 'presenceUpdate',
@@ -37,8 +38,8 @@ export default {
 
                 if (canal) {
                     const embedContribuidor = new EmbedBuilder()
-                        .setTitle('<a:colaborador:1534940309723676853> ¡Colaborador del Servidor! <a:colaborador:1534940309723676853>')
-                        .setDescription(`<:puntito:1534938142665084938> ¡<@${member.id}>, gracias por apoyar a **${guild.name}** usando **${TEXTO_REQUERIDO}** en tu estado! Se te ha otorgado el rol <@&${ROL_CONTRIBUIDOR_ID}> para mostrar nuestro aprecio por tu dedicación y apoyo a nuestra comunidad.`)
+                        .setTitle(`${E.amariposas} ¡Colaborador del Servidor! ${E.amariposas}`)
+                        .setDescription(`${E.dot} ¡<@${member.id}>, gracias por apoyar a **${guild.name}** usando **${TEXTO_REQUERIDO}** en tu estado! Se te ha otorgado el rol <@&${ROL_CONTRIBUIDOR_ID}> para mostrar nuestro aprecio por tu dedicación y apoyo a nuestra comunidad.`)
                         .setThumbnail(member.user.displayAvatarURL({ dynamic: true, size: 256 }))
                         .setColor('#74d4fc')
                         .setFooter({ text: `${guild.name} 💎`, iconURL: guild.iconURL({ dynamic: true }) })

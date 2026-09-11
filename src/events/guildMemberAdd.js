@@ -8,6 +8,7 @@ import { getServerCounters, updateCounter } from '../services/serverstatsService
 import { setBirthday as dbSetBirthday } from '../utils/database.js';
 import { logger } from '../utils/logger.js';
 import { PRIMARIO } from '../utils/colores.js';
+import { E } from '../config/emojis.js';
 
 /** Bienvenida personalizada 00Y4n (Southwest Florida) */
 const GUILD_00Y4N = '1451939725308067842';
@@ -47,11 +48,11 @@ export default {
                     if (guild.id === GUILD_00Y4N && canEmbed) {
                         const embedBienvenida = new EmbedBuilder()
                             .setColor(PRIMARIO)
-                            .setTitle('<a:nubes:1534940454876086393> __Bienvenido/a a Southwest Florida Comunidad 00Y4n ™__ <a:nubes:1534940454876086393>')
+                            .setTitle(`${E.anubes2} __Bienvenido/a a Southwest Florida Comunidad 00Y4n ™__ ${E.anubes2}`)
                             .setDescription(
-                                `<:dot:1534938142665084938> Bienvenido/a a **Southwest Florida Comunidad 00Y4n ™**.\n\n` +
+                                `${E.dot} Bienvenido/a a **Southwest Florida Comunidad 00Y4n ™**.\n\n` +
                                 `Para convertirte en ciudadano y obtener acceso al servidor, verifica tu cuenta en <#1512614400413139045> y lee las **Reglas** y las **Directrices** del servidor.\n\n` +
-                                `-# <:replica:1534982812116062370> **¿Necesitas ayuda?** Contacta a un miembro de __Alto Comando__ y te asistirán.`
+                                `-# ${E.flechareplica} **¿Necesitas ayuda?** Contacta a un miembro de __Alto Comando__ y te asistirán.`
                             )
                             .setImage(IMAGEN_BIENVENIDA)
                             .setTimestamp();
