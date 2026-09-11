@@ -8,7 +8,7 @@ import sharp from 'sharp';
 /** Solo Supervisor Ejecutivo */
 const ROL_PERMITIDO = '1451956429345919008';
 
-/** Prefijo de origen a buscar (fijo segun diseño del server) */
+/** Prefijo de origen a buscar (fijo segun diseno del server) */
 const PREFIJO_ORIGEN = 'nara_';
 
 function parseHex(hex) {
@@ -223,9 +223,7 @@ function sleep(ms) {
 export default {
   data: new SlashCommandBuilder()
     .setName('emojis-recolor')
-    .setDescription(
-      'ADMIN: Degradado blanco a color en emojis nara_* y crea copias con nuevo prefijo (conserva originales).'
-    )
+    .setDescription('Degradado blanco a color en emojis nara_*; crea copias con nuevo prefijo.')
     .addStringOption((o) =>
       o
         .setName('color')
@@ -276,7 +274,7 @@ export default {
         .sort((a, b) => a.name.localeCompare(b.name))
         .slice(0, 25)
         .map((e) => ({
-          name: (e.animated ? '(A) ' : '') + e.name.slice(0, 100),
+          name: ((e.animated ? '(A) ' : '') + e.name).slice(0, 100),
           value: e.name
         }));
       await interaction.respond(filtrados);
