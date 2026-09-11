@@ -264,17 +264,27 @@ export default {
       )
     );
 
-    const slots = interaction.guild.maximumEmojis ?? 50;
-    const slotsAnim = interaction.guild.maximumAnimatedEmojis ?? 50;
-    const staticCount = interaction.guild.emojis.cache.filter((e) => !e.animated)
-      .size;
-    const animCount = interaction.guild.emojis.cache.filter((e) => e.animated)
-      .size;
+    // Límites oficiales según boost del server (estáticos y animados por separado)
+    const maxStatic = interaction.guild.maximumEmojis ?? 50;
+    const maxAnim = interaction.guild.maximumAnimatedEmojis ?? 50;
+    let staticCount = interaction.guild.emojis.cache.filter((e) => !e.animated).size;
+    let animCount = interaction.guild.emojis.cache.filter((e) => e.animated).size;
+    const tier = interaction.guild.premiumTier ?? 0;
 
     const creados = [];
     const errores = [];
     let ok = 0;
     let fail = 0;
+    let okStatic = 0;
+    let okAnim = 0;
+
+    await interaction
+      .editReply({
+        content:
+          `Slots: **${staticCount}/${maxStatic}** estáticos · **${animCount}/${maxAnim}** animados (boost lvl ${tier})\n` +
+          `Copiando 1/${lista.length}...`
+      })
+      .catch(() => null);
 
     for (let i = 0; i < lista.length; i++) {
       const item = lista[i];
@@ -282,25 +292,24 @@ export default {
 
       await interaction
         .editReply({
-          content: `Copiando **${label}** (${i + 1}/${lista.length})...`
+          content:
+            `Slots: **${staticCount}/${maxStatic}** estáticos · **${animCount}/${maxAnim}** animados\n` +
+            `Copiando **${label}** (${i + 1}/${lista.length})...`
         })
         .catch(() => null);
 
       try {
-        if (item.animated && animCount + ok >= slotsAnim) {
-          // contar solo animados exitosos aproximado
-          const animOk = creados.filter((c) => c.includes('(GIF)')).length;
-          if (animCount + animOk >= slotsAnim) {
+        // Chequeo local (rápido). Discord también valida al crear.
+        if (item.animated) {
+          if (animCount >= maxAnim) {
             throw new Error(
-              `límite de emojis animados alcanzado (${slotsAnim})`
+              `sin slots animados (${animCount}/${maxAnim}). Borrá GIFs o subí el boost del server.`
             );
           }
-        }
-        if (!item.animated && staticCount + ok >= slots) {
-          const staticOk = creados.filter((c) => !c.includes('(GIF)')).length;
-          if (staticCount + staticOk >= slots) {
-            throw new Error(`límite de emojis estáticos alcanzado (${slots})`);
-          }
+        } else if (staticCount >= maxStatic) {
+          throw new Error(
+            `sin slots estáticos (${staticCount}/${maxStatic}). Borrá emojis estáticos o subí el boost.`
+          );
         }
 
         let buffer;
@@ -324,6 +333,14 @@ export default {
         existentes.add(creado.name.toLowerCase());
         interaction.guild.emojis.cache.set(creado.id, creado);
 
+        if (creado.animated) {
+          animCount++;
+          okAnim++;
+        } else {
+          staticCount++;
+          okStatic++;
+        }
+
         const nota = creado.animated ? ' (GIF)' : '';
         creados.push(
           `${item.name || 'src'} → ${creado} \`:${creado.name}:\`${nota}`
@@ -331,30 +348,50 @@ export default {
         ok++;
       } catch (e) {
         fail++;
-        const msg = String(e.message || e).slice(0, 140);
-        errores.push(`${label}: ${msg}`);
+        let msg = String(e.message || e);
+        // Traducir errores típicos de la API de Discord
+        const code = e.code || e.rawError?.code;
+        if (code === 30008 || /Maximum number of emojis/i.test(msg)) {
+          msg = item.animated
+            ? `sin slots animados (${animCount}/${maxAnim})`
+            : `sin slots estáticos (${staticCount}/${maxStatic})`;
+        } else if (code === 50035 || /Invalid Form Body/i.test(msg)) {
+          msg = 'archivo inválido o nombre no permitido';
+        } else if (code === 50013 || /Missing Permissions/i.test(msg)) {
+          msg = 'el bot no tiene permiso Manage Emojis';
+        } else if (code === 429 || /rate limit/i.test(msg)) {
+          msg = 'rate limit de Discord — reintentá en unos segundos';
+        }
+        errores.push(`${label}: ${msg.slice(0, 140)}`);
       }
 
-      // rate limit amable con la API de Discord
       if (i < lista.length - 1) await sleep(900);
     }
 
+    const libresStatic = Math.max(0, maxStatic - staticCount);
+    const libresAnim = Math.max(0, maxAnim - animCount);
+
     const embed = new EmbedBuilder()
       .setTitle('Copy de emojis')
-      .setColor('#74d4fc')
+      .setColor(ok > 0 ? '#74d4fc' : '#e74c3c')
       .setDescription(
         [
-          `> **Exitosos:** ${ok}`,
+          `> **Exitosos:** ${ok} (${okStatic} estáticos, ${okAnim} GIF)`,
           `> **Fallidos:** ${fail}`,
+          `> **Slots ahora:** ${staticCount}/${maxStatic} estáticos · ${animCount}/${maxAnim} animados`,
+          `> **Libres:** ${libresStatic} estáticos · ${libresAnim} animados · boost lvl ${tier}`,
           creados.length
             ? `\n**Creados:**\n${creados.slice(0, 25).join('\n')}${
                 creados.length > 25 ? '\n…' : ''
               }`
             : '',
           errores.length
-            ? `\n**Errores:**\n\`\`\`\n${errores.slice(0, 12).join('\n')}${
-                errores.length > 12 ? '\n…' : ''
+            ? `\n**Errores:**\n\`\`\`\n${errores.slice(0, 15).join('\n')}${
+                errores.length > 15 ? '\n…' : ''
               }\n\`\`\``
+            : '',
+          fail && !ok && libresStatic === 0 && libresAnim === 0
+            ? '\n-# El server está **lleno**. Borrá emojis viejos (nara_/coral_ de prueba) o boosteá el server para más slots.'
             : ''
         ]
           .filter(Boolean)
