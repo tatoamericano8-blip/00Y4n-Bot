@@ -1,13 +1,11 @@
 /**
  * Registro central de emojis del server.
- * Al renovar (nuevo prefijo / recolor): actualiza name + id aca (o usa /emojis-sync).
+ * Al renovar: actualiza name + id aca (o usa /emojis-sync).
  * Uso: import { E, em } from '../config/emojis.js'
- *      em('cruz')  -> tag Discord
- *      E.cruz      -> mismo string
  */
 
 export const EMOJI_DEF = {
-  logo: { name: '00Y4n', id: '1535772407904735362' },
+  logo: { name: '00Y4n', id: '1535772407904735302' },
   nivel: { name: 'nivel', id: '1532515659269935256', animated: true },
 
   cruz: { name: 'nara_cruzmarca', id: '1534937767652495360' },
@@ -27,7 +25,7 @@ export const EMOJI_DEF = {
   staff_badge: { name: 'nara_00y4nstaff', id: '1534938829520244846' },
   carpeta: { name: 'nara_carpeta', id: '1534938334650962115' },
   comida: { name: 'nara_comida', id: '1534939245574099094' },
-  cora: { name: 'nara_cora', id: '1535395452223581313' },
+  cora: { name: 'nara_cora', id: '15353954522235813137' },
   corona: { name: 'nara_corona', id: '1534937949320253610' },
   cuatro: { name: 'nara_cuatro', id: '1534938460228550857' },
   dos: { name: 'nara_dos', id: '1535001133729447987' },
@@ -38,10 +36,10 @@ export const EMOJI_DEF = {
   esposas: { name: 'nara_esposas', id: '1535395385508368506' },
   faq: { name: 'nara_faq', id: '1534938077032611851' },
   flechareplica: { name: 'nara_flechareplica', id: '1534982812116062370' },
-  form: { name: 'nara_form', id: '1535395553601257897' },
+  form: { name: 'nara_form', id: '15353955536012578978' },
   fugaz: { name: 'nara_fugaz', id: '1535395772684697651' },
   gift: { name: 'nara_gift', id: '1534938520861413376' },
-  hyperlink: { name: 'nara_hyperLink', id: '1535045942456090634' },
+  hyperlink: { name: 'nara_hyperlink', id: '1535045942456090634' },
   jpuntderecha: { name: 'nara_jpuntderecha', id: '1542258368301899866' },
   louis: { name: 'nara_louis', id: '1535049295169065040' },
   manual: { name: 'nara_manual', id: '1534999731019972671' },
