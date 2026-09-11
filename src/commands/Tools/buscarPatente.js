@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import Vehiculo from '../../../models/Vehiculo.js';
+import { E } from '../../config/emojis.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -35,7 +36,7 @@ export default {
 
             const embed = new EmbedBuilder()
                 .setColor('#74d4fc')
-                .setTitle('<:folder:1523041319046479964> Consulta de Patente')
+                .setTitle(E.carpeta + ' Consulta de Patente')
                 .setDescription(
                     `• **Matrícula -** \`${vehiculo.patente}\`\n` +
                     `• **Marca -** ${vehiculo.marca}\n` +
