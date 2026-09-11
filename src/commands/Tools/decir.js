@@ -1,4 +1,5 @@
 import { PermissionFlagsBits, MessageFlags, SlashCommandBuilder } from 'discord.js';
+import { E } from '../../config/emojis.js';
 
 const ROLE_ALTO_COMANDO = '1528870731629465752';
 
@@ -23,7 +24,7 @@ export default {
 
         if (!esAltoComando) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1534937767652495360> **Sin acceso:** Solo **Alto Comando** puede usar `/decir`.',
+                content: E.cruz + ' **Sin acceso:** Solo **Alto Comando** puede usar `/decir`.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -39,7 +40,7 @@ export default {
         await interaction.channel.send(opcionesMensaje);
 
         await interaction.reply({
-            content: '<:tilde:1534937809733812286> Mensaje enviado como el bot.',
+            content: E.tilde + ' Mensaje enviado como el bot.',
             flags: MessageFlags.Ephemeral
         });
     }
