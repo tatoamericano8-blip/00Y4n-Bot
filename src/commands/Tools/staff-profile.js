@@ -4,6 +4,7 @@ import { obtenerRangoDeUsuario } from '../../utils/rangoStaff.js';
 import { formatearHoras } from '../../utils/formatearTiempo.js';
 import { obtenerMetasPorRango, sesionesSemana } from '../../utils/metasCuota.js';
 import { calcularScore, evaluarCumplimiento, textoScore } from '../../utils/scoreCuota.js';
+import { E } from '../../config/emojis.js';
 
 function textoEstado(staffData) {
   const est = staffData.estado || 'ACTIVO';
@@ -27,7 +28,7 @@ export default {
     if (!interaction.member.roles.cache.has(ROL_STAFF)) {
       return interaction.reply({
         content:
-          '<:cruz:1534937767652495360> Solo el **Staff 00Y4n** puede usar `/staff-perfil`.',
+          E.cruz + ' Solo el **Staff 00Y4n** puede usar `/staff-perfil`.',
         ephemeral: true
       });
     }
@@ -41,7 +42,7 @@ export default {
 
     if (!staffData) {
       return interaction.reply({
-        content: `<:cruz00y4n:1523041302764191844> <@${targetUser.id}> no posee registro en la base de datos del Staff.`,
+        content: `${E.cruz} <@${targetUser.id}> no posee registro en la base de datos del Staff.`,
         flags: MessageFlags.Ephemeral
       });
     }

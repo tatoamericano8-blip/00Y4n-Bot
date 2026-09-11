@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 import Staff from '../../../models/Staff.js';
+import { E } from '../../config/emojis.js';
 
 const ROLE_STAFF = '1512120103771050005';
 const CHANNEL_LOGS = '1505015805891579934';
@@ -13,7 +14,7 @@ export default {
     async execute(interaction) {
         if (!interaction.member.roles.cache.has(ROLE_STAFF)) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1534937767652495360> No tienes el rol de Staff para realizar esta acción.',
+                content: E.cruz + ' No tienes el rol de Staff para realizar esta acción.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -35,7 +36,7 @@ export default {
             }
 
             const embedLog = new EmbedBuilder()
-                .setTitle('<:staff:1534956881787752478> Renuncia de Staff')
+                .setTitle(E.staff_icon + ' Renuncia de Staff')
                 .setColor('#fee75c')
                 .setDescription(
                     `> **Usuario:** <@${interaction.user.id}> (\`${interaction.user.id}\`)\n` +
@@ -49,11 +50,11 @@ export default {
             if (logsChannel) await logsChannel.send({ embeds: [embedLog] });
 
             await interaction.editReply({
-                content: `<:tilde:1534937809733812286> Tu renuncia ha sido procesada correctamente. Agradecemos tu trabajo en el equipo.`
+                content: `${E.tilde} Tu renuncia ha sido procesada correctamente. Agradecemos tu trabajo en el equipo.`
             });
         } catch (error) {
             console.error('Error en /resign:', error);
-            await interaction.editReply({ content: '<:cruz00y4n:1534937767652495360> Ocurrió un error al procesar tu renuncia.' });
+            await interaction.editReply({ content: E.cruz + ' Ocurrió un error al procesar tu renuncia.' });
         }
     }
 };

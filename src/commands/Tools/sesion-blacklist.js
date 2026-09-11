@@ -1,4 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
+import { em } from '../../config/emojis.js';
 import {
   agregarBlacklistSesiones,
   removerBlacklistSesiones,
@@ -39,7 +40,7 @@ export default {
       !interaction.member.permissions.has(PermissionFlagsBits.Administrator)
     ) {
       return interaction.reply({
-        content: '<:cruz00y4n:1523041302764191844> Solo **Alto Comando** puede gestionar la blacklist de sesiones.',
+        content: em('cruz') + ' Solo **Alto Comando** puede gestionar la blacklist de sesiones.',
         flags: MessageFlags.Ephemeral
       });
     }
@@ -52,7 +53,7 @@ export default {
       const motivo = interaction.options.getString('motivo');
       if (await estaEnBlacklistSesiones(guildId, target.id)) {
         return interaction.reply({
-          content: `<:warn00y4n:1523041352714158240> <@${target.id}> ya está en la blacklist de sesiones.`,
+          content: em('warn') + ` <@${target.id}> ya está en la blacklist de sesiones.`,
           flags: MessageFlags.Ephemeral
         });
       }
@@ -64,12 +65,12 @@ export default {
 
       const embed = new EmbedBuilder()
         .setColor('#ed4245')
-        .setTitle('<:cruz:1534937767652495360> Blacklist de Sesiones — Añadido')
+        .setTitle('' + em('cruz') + ' Blacklist de Sesiones — Añadido')
         .setDescription(
-          `> <:dot:1534938142665084938> **Usuario:** <@${target.id}> (\`${target.id}\`)\n` +
-            `> <:dot:1534938142665084938> **Motivo:** ${motivo}\n` +
-            `> <:dot:1534938142665084938> **Por:** <@${interaction.user.id}>\n` +
-            `> <:dot:1534938142665084938> **Efecto:** Bloqueo **permanente** de toda actividad de sesiones.`
+          `> ${em('dot')} **Usuario:** <@${target.id}> (\`${target.id}\`)\n` +
+            `> ${em('dot')} **Motivo:** ${motivo}\n` +
+            `> ${em('dot')} **Por:** <@${interaction.user.id}>\n` +
+            `> ${em('dot')} **Efecto:** Bloqueo **permanente** de toda actividad de sesiones.`
         )
         .setTimestamp();
 
@@ -83,18 +84,18 @@ export default {
       const prev = await removerBlacklistSesiones(guildId, target.id);
       if (!prev) {
         return interaction.reply({
-          content: `<:cruz00y4n:1523041302764191844> <@${target.id}> no está en la blacklist.`,
+          content: em('cruz') + ` <@${target.id}> no está en la blacklist.`,
           flags: MessageFlags.Ephemeral
         });
       }
 
       const embed = new EmbedBuilder()
         .setColor('#57f287')
-        .setTitle('<:lista:1534938422202994755> Blacklist de Sesiones — Removido')
+        .setTitle('' + em('lista') + ' Blacklist de Sesiones — Removido')
         .setDescription(
-          `> <:dot:1534938142665084938> **Usuario:** <@${target.id}>\n` +
-            `> <:dot:1534938142665084938> **Motivo original:** ${prev.motivo || '—'}\n` +
-            `> <:dot:1534938142665084938> **Removido por:** <@${interaction.user.id}>`
+          `> ${em('dot')} **Usuario:** <@${target.id}>\n` +
+            `> ${em('dot')} **Motivo original:** ${prev.motivo || '—'}\n` +
+            `> ${em('dot')} **Removido por:** <@${interaction.user.id}>`
         )
         .setTimestamp();
 
@@ -109,13 +110,13 @@ export default {
       const entry = bl[target.id];
       if (!entry) {
         return interaction.reply({
-          content: `<a:verificacion:1523027148326047878> <@${target.id}> **no** está en la blacklist de sesiones.`,
+          content: em('tilde') + ` <@${target.id}> **no** está en la blacklist de sesiones.`,
           flags: MessageFlags.Ephemeral
         });
       }
       return interaction.reply({
         content:
-          `<:lock:1534938648665915577> <@${target.id}> **SÍ** está en blacklist.\n` +
+          `${em('lock')} <@${target.id}> **SÍ** está en blacklist.\n` +
           `> Motivo: ${entry.motivo}\n` +
           `> Desde: <t:${Math.floor(new Date(entry.fecha).getTime() / 1000)}:F>\n` +
           `> Por: <@${entry.por}>`,

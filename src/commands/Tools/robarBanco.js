@@ -4,6 +4,7 @@ import {
 } from 'discord.js';
 import { agregarSaldo } from '../../utils/gestorEconomia.js';
 import { getFromDb, setInDb } from '../../utils/database.js';
+import { E } from '../../config/emojis.js';
 
 const ROL_POLICIA_ID = '1529146302783422706';
 const ROL_ALTO_MANDO_ID = '1528870731629465752';
@@ -137,7 +138,7 @@ async function resolverHeist(client, guildId, channel) {
 
         const embed = new EmbedBuilder()
             .setColor('#57f287')
-            .setTitle('<:redski:1534988636460683385> ¡Robo al banco exitoso!')
+            .setTitle(E.skirojo + ' ¡Robo al banco exitoso!')
             .setDescription(
                 `El equipo logró escapar con el botín.\n\n` +
                     `• **Participantes:** ${menciones}\n` +
@@ -169,7 +170,7 @@ async function resolverHeist(client, guildId, channel) {
 
     const embed = new EmbedBuilder()
         .setColor('#E60404')
-        .setTitle('<:redski:1534988636460683385> Robo al banco fallido')
+        .setTitle(E.skirojo + ' Robo al banco fallido')
         .setDescription(
             `La alarma se activó o el plan falló. Nadie se lleva el botín.\n\n` +
                 `• **Participantes:** ${menciones}\n` +
@@ -305,7 +306,7 @@ export default {
             if (cooldown) {
                 const ts = Math.floor(cooldown / 1000);
                 return interaction.reply({
-                    content: `<:lock:1523041298796384418> Todavía estás en cooldown de robar el banco. Podrás volver a participar <t:${ts}:R>.`,
+                    content: `${E.lock} Todavía estás en cooldown de robar el banco. Podrás volver a participar <t:${ts}:R>.`,
                     ephemeral: true
                 });
             }
@@ -332,7 +333,7 @@ export default {
 
             const embed = new EmbedBuilder()
                 .setColor('#f1c40f')
-                .setTitle('<:redski:1534988636460683385> Robo al banco iniciado')
+                .setTitle(E.skirojo + ' Robo al banco iniciado')
                 .setDescription(
                     `<@${usuarioId}> inició un robo al banco.\n\n` +
                         `• **Participantes:** 1/${MAX_PERSONAS}\n` +
@@ -382,7 +383,7 @@ export default {
             if (cooldown) {
                 const ts = Math.floor(cooldown / 1000);
                 return interaction.reply({
-                    content: `<:lock:1523041298796384418> Todavía estás en cooldown de robar el banco. Podrás volver a participar <t:${ts}:R>.`,
+                    content: `${E.lock} Todavía estás en cooldown de robar el banco. Podrás volver a participar <t:${ts}:R>.`,
                     ephemeral: true
                 });
             }
@@ -407,7 +408,7 @@ export default {
 
             const embed = new EmbedBuilder()
                 .setColor('#f1c40f')
-                .setTitle('<:redski:1534988636460683385> Alguien se unió al robo')
+                .setTitle(E.skirojo + ' Alguien se unió al robo')
                 .setDescription(
                     `<@${usuarioId}> se sumó al robo.\n\n` +
                         `• **Participantes (${cantidad}/${MAX_PERSONAS}):** ${menciones}`

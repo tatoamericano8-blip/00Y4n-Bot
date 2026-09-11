@@ -1,4 +1,5 @@
 import { MessageFlags, PermissionFlagsBits } from 'discord.js';
+import { E } from '../../config/emojis.js';
 
 export default {
   // customId: roleall_confirm:ROLEID:USERID
@@ -11,14 +12,14 @@ export default {
 
     if (interaction.user.id !== ownerId) {
       return interaction.reply({
-        content: '<:cruz00y4n:1523041302764191844> Solo quien ejecutó el comando puede confirmar.',
+        content: E.cruz + ' Solo quien ejecutó el comando puede confirmar.',
         flags: MessageFlags.Ephemeral
       });
     }
 
     if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
       return interaction.reply({
-        content: '<:cruz00y4n:1523041302764191844> Permisos insuficientes.',
+        content: E.cruz + ' Permisos insuficientes.',
         flags: MessageFlags.Ephemeral
       });
     }
@@ -26,7 +27,7 @@ export default {
     const rol = await interaction.guild.roles.fetch(roleId).catch(() => null);
     if (!rol) {
       return interaction.update({
-        content: '<:cruz00y4n:1523041302764191844> El rol ya no existe.',
+        content: E.cruz + ' El rol ya no existe.',
         embeds: [],
         components: []
       });
@@ -62,7 +63,7 @@ export default {
 
     await interaction.followUp({
       content:
-        `<a:verificacion:1523027148326047878> **Roleall finalizado**\n` +
+        `${E.tilde} **Roleall finalizado**\n` +
         `> Rol: ${rol}\n` +
         `> Asignados: **${ok}**\n` +
         `> Omitidos (bots/ya lo tenían): **${skipped}**\n` +

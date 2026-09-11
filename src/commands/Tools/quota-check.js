@@ -4,6 +4,7 @@ import { obtenerRangoDeUsuario } from '../../utils/rangoStaff.js';
 import { formatearHoras } from '../../utils/formatearTiempo.js';
 import { obtenerMetasPorRango, sesionesSemana } from '../../utils/metasCuota.js';
 import { calcularScore, evaluarCumplimiento, textoScore } from '../../utils/scoreCuota.js';
+import { E } from '../../config/emojis.js';
 
 function crearBarraProgreso(actual, meta, tamaño = 10) {
   if (!meta || meta <= 0) {
@@ -33,7 +34,7 @@ export default {
     if (!interaction.member.roles.cache.has(ROL_STAFF)) {
       return interaction.reply({
         content:
-          '<:cruz:1534937767652495360> Solo el **Staff 00Y4n** puede usar `/chequear-cuota`.',
+          E.cruz + ' Solo el **Staff 00Y4n** puede usar `/chequear-cuota`.',
         ephemeral: true
       });
     }
@@ -47,7 +48,7 @@ export default {
 
     if (!staffData) {
       return await interaction.editReply({
-        content: `<:cruz00y4n:1523041302764191844> El usuario **${usuarioObjetivo.tag}** no está registrado en el sistema de Staff.`
+        content: `${E.cruz} El usuario **${usuarioObjetivo.tag}** no está registrado en el sistema de Staff.`
       });
     }
 

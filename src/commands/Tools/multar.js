@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder,
     MessageFlags} from 'discord.js';
 import { generarIDMulta, guardarMulta, programarWarrant, calcularVencimiento } from '../../utils/gestorMultas.js';
+import { E } from '../../config/emojis.js';
 
 /** Opciones de infracción (máx. 25 en Discord). Name ≤ 100 caracteres. */
 const OPCIONES_MULTA = [
@@ -59,7 +60,7 @@ export default {
 
         if (!interaction.member.roles.cache.has(ROL_POLICIA_ID)) {
             return interaction.reply({
-                content: '<:cruz:1534937767652495360> Solo personal del **Departamento Policial de Sarasota** puede emitir multas.',
+                content: E.cruz + ' Solo personal del **Departamento Policial de Sarasota** puede emitir multas.',
                 ephemeral: true
             });
         }
@@ -100,14 +101,14 @@ export default {
         try {
             const embedDM = new EmbedBuilder()
                 .setColor('#ff3333')
-                .setTitle('<:folder:1534938334650962115> Notificación Oficial de Multa')
+                .setTitle(E.carpeta + ' Notificación Oficial de Multa')
                 .setDescription(
                     `Has recibido una multa de tránsito en **${interaction.guild.name}**.\n\n` +
                     `• **Infracción(es):**\n${razonTexto}\n\n` +
                     `• **Monto a Pagar:** $${monto.toLocaleString('es-AR')}\n` +
                     `• **ID Ticket:** \`${ticketID}\`\n` +
                     `• **Oficial Emisor:** <@${interaction.user.id}>\n\n` +
-                    `<:checkpoint:1534938036494663680> *Dispones de **7 días** para abonarla con \`/pagar-multa\` antes de que se emita una Orden de Arresto.*`
+                    `${E.checkpoint} *Dispones de **7 días** para abonarla con \`/pagar-multa\` antes de que se emita una Orden de Arresto.*`
                 )
                 .setTimestamp();
 
@@ -118,7 +119,7 @@ export default {
 
         const embedMulta = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<:folder:1534938334650962115> Ticket de Multa Emitido')
+            .setTitle(E.carpeta + ' Ticket de Multa Emitido')
             .setDescription(
                 `• **Usuario —** <@${infractor.id}>\n` +
                 `• **Oficial —** <@${interaction.user.id}>\n` +
@@ -130,11 +131,11 @@ export default {
             .setTimestamp();
 
         await interaction.reply({
-            content: '<:tilde:1534937809733812286> Multa emitida.',
+            content: E.tilde + ' Multa emitida.',
             flags: MessageFlags.Ephemeral
         });
         await interaction.channel.send({
-            content: `<:anuncio:1534937667823865956> **Atención <@${infractor.id}>, has sido multado oficialmente:**`,
+            content: `${E.anuncio} **Atención <@${infractor.id}>, has sido multado oficialmente:**`,
             embeds: [embedMulta],
             allowedMentions: { users: [infractor.id] }
         });

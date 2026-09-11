@@ -12,6 +12,7 @@ import {
   colorAlerta,
   formatearFecha
 } from '../../utils/gestorMDT.js';
+import { E } from '../../config/emojis.js';
 
 const ROL_POLICIA_ID = '1529146302783422706';
 
@@ -201,7 +202,7 @@ export default {
     if (!autorizado(interaction.member)) {
       return interaction.reply({
         content:
-          '<:cruz00y4n:1534937767652495360> **Acceso denegado.** Solo personal del **Departamento Policial de Sarasota** puede usar el MDT.',
+          E.cruz + ' **Acceso denegado.** Solo personal del **Departamento Policial de Sarasota** puede usar el MDT.',
         ephemeral: true
       });
     }
@@ -256,7 +257,7 @@ export async function handleMdtButton(interaction) {
   if (!autorizado(interaction.member)) {
     await interaction.reply({
       content:
-        '<:cruz00y4n:1534937767652495360> **Acceso denegado.** Solo personal del **Departamento Policial de Sarasota** puede usar el MDT.',
+        E.cruz + ' **Acceso denegado.** Solo personal del **Departamento Policial de Sarasota** puede usar el MDT.',
       ephemeral: true
     });
     return true;

@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import Session from '../../../models/Session.js';
 import { sumarCuotaStaff } from '../../utils/gestorCuotas.js';
+import { E } from '../../config/emojis.js';
 
 function horasDesde(inicio, fin = new Date()) {
     if (!inicio) return 0;
@@ -43,7 +44,7 @@ export default {
         if (!interaction.member.roles.cache.has(ROL_STAFF)) {
             return interaction.reply({
                 content:
-                    '<:cruz:1534937767652495360> Solo el **Staff 00Y4n** puede usar `/finalizar_host`.',
+                    E.cruz + ' Solo el **Staff 00Y4n** puede usar `/finalizar_host`.',
                 ephemeral: true
             });
         }
@@ -54,17 +55,17 @@ export default {
 
         const datosRoles = {
             host: {
-                titulo: '<a:si:1534954014335172729> Host Finalizado',
+                titulo: E.aflotacoras + ' Host Finalizado',
                 etiqueta: 'Host',
                 estado: 'Ha finalizado la gestión de la sesión.'
             },
             cohost: {
-                titulo: '<a:si:1534954014335172729> Co-Host Finalizado',
+                titulo: E.aflotacoras + ' Co-Host Finalizado',
                 etiqueta: 'Co-Host',
                 estado: 'Ha concluido su labor de apoyo en la sesión.'
             },
             supervisor: {
-                titulo: '<a:si:1534954014335172729> Supervisión Finalizada',
+                titulo: E.aflotacoras + ' Supervisión Finalizada',
                 etiqueta: 'Supervisor',
                 estado: 'Ha dejado de monitorear la sesión.'
             }
@@ -119,7 +120,7 @@ export default {
         let descExtra = '';
         if (tiempoTxt) {
             descExtra =
-                `\n\n<:fle:1534937306191102125> **Tiempo acreditado (parcial):** ${tiempoTxt}\n` +
+                `\n\n${E.flecha} **Tiempo acreditado (parcial):** ${tiempoTxt}\n` +
                 `_Solo horas/minutos — no cuenta como sesión completa._`;
         }
 
@@ -129,7 +130,7 @@ export default {
             .setDescription(
                 `**${config.etiqueta}:** <@${uid}> (\`${interaction.user.username}\`)\n` +
                 `**Estado:** ${config.estado}\n\n` +
-                `<:notas:1534938422202994755> **Notas / Observaciones:**\n${notas}` +
+                `${E.lista} **Notas / Observaciones:**\n${notas}` +
                 descExtra
             )
             .setFooter({ text: '00Y4n Comunidad SWFL • Control de Sesiones', iconURL: interaction.guild.iconURL() })

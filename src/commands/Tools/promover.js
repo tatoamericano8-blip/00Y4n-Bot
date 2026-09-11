@@ -1,6 +1,7 @@
 import { ApplicationCommandOptionType, EmbedBuilder, MessageFlags } from 'discord.js';
 import Staff from '../../../models/Staff.js';
 import { programarRefreshClasificacion } from '../../utils/clasificacionStaffLive.js';
+import { E } from '../../config/emojis.js';
 
 const ROLES_STAFF = {
     staff_aprendiz: {
@@ -74,7 +75,7 @@ export default {
         if (!interaction.member.roles.cache.has(ROL_ALTO_COMANDO)) {
             return interaction.reply({
                 content:
-                    '<:cruz00y4n:1534937767652495360> Solo **Alto Comando** puede usar `/promover`.',
+                    E.cruz + ' Solo **Alto Comando** puede usar `/promover`.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -92,7 +93,7 @@ export default {
         if (!usuario) {
             return interaction.reply({
                 content:
-                    '<:cruz00y4n:1534937767652495360> No se pudo obtener el usuario seleccionado. Intentá de nuevo.',
+                    E.cruz + ' No se pudo obtener el usuario seleccionado. Intentá de nuevo.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -100,7 +101,7 @@ export default {
         if (!configRango) {
             return interaction.reply({
                 content:
-                    '<:cruz00y4n:1534937767652495360> Rango de staff inválido. Seleccioná una de las opciones disponibles.',
+                    E.cruz + ' Rango de staff inválido. Seleccioná una de las opciones disponibles.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -109,7 +110,7 @@ export default {
         if (!miembroTarget) {
             return interaction.reply({
                 content:
-                    '<:cruz00y4n:1534937767652495360> No se encontró a ese miembro en el servidor.',
+                    E.cruz + ' No se encontró a ese miembro en el servidor.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -121,14 +122,14 @@ export default {
             const rol = await interaction.guild.roles.fetch(roleId).catch(() => null);
             if (!rol) {
                 return interaction.reply({
-                    content: `<:cruz00y4n:1534937767652495360> No se encontró el rol configurado (\`${roleId}\`). Revisá que exista en el servidor.`,
+                    content: `${E.cruz} No se encontró el rol configurado (\`${roleId}\`). Revisá que exista en el servidor.`,
                     flags: MessageFlags.Ephemeral
                 });
             }
             if (rol.managed) {
                 return interaction.reply({
                     content:
-                        '<:cruz00y4n:1534937767652495360> Ese rol es gestionado por una integración y no se puede asignar manualmente.',
+                        E.cruz + ' Ese rol es gestionado por una integración y no se puede asignar manualmente.',
                     flags: MessageFlags.Ephemeral
                 });
             }
@@ -142,7 +143,7 @@ export default {
             if (botMember && rol.position >= botMember.roles.highest.position) {
                 return interaction.reply({
                     content:
-                        '<:cruz00y4n:1534937767652495360> No puedo asignar ese rol: está al mismo nivel o por encima del rol más alto del bot. Subí el rol del bot en la lista de roles.',
+                        E.cruz + ' No puedo asignar ese rol: está al mismo nivel o por encima del rol más alto del bot. Subí el rol del bot en la lista de roles.',
                     flags: MessageFlags.Ephemeral
                 });
             }
@@ -151,7 +152,7 @@ export default {
             if (!esOwner && interaction.member.roles.highest.position <= rol.position) {
                 return interaction.reply({
                     content:
-                        '<:cruz00y4n:1534937767652495360> No podés asignar un rol igual o superior al tuyo en la jerarquía.',
+                        E.cruz + ' No podés asignar un rol igual o superior al tuyo en la jerarquía.',
                     flags: MessageFlags.Ephemeral
                 });
             }
@@ -159,7 +160,7 @@ export default {
 
         if (miembroTarget.roles.cache.has(nuevoRol.id)) {
             return interaction.reply({
-                content: `<:cruz00y4n:1534937767652495360> <@${usuario.id}> ya tiene el rol **${nuevoRol.name}**.`,
+                content: `${E.cruz} <@${usuario.id}> ya tiene el rol **${nuevoRol.name}**.`,
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -176,6 +177,7 @@ export default {
                 );
             }
 
+            // Alta / actualización en base Staff + refresco de clasificación viva
             try {
                 await Staff.findOneAndUpdate(
                     { guildId: interaction.guildId, userId: usuario.id },
@@ -220,7 +222,7 @@ export default {
                     : '';
 
             const embedPromote = new EmbedBuilder()
-                .setTitle('<a:caram00y4nmov:1534954409145008269> ASCENSO DE STAFF')
+                .setTitle(E.aalas + ' ASCENSO DE STAFF')
                 .setDescription(
                     '> Se ha registrado un ascenso oficial dentro del equipo administrativo.'
                 )
@@ -256,14 +258,14 @@ export default {
                 .setTimestamp();
 
             await interaction.reply({
-                content: '<:tilde:1534937809733812286> Ascenso registrado.',
+                content: E.tilde + ' Ascenso registrado.',
                 flags: MessageFlags.Ephemeral
             });
             await interaction.channel.send({ embeds: [embedPromote] });
 
             try {
                 const embedDM = new EmbedBuilder()
-                    .setTitle('<a:confeti:1534940499759206512> ¡Felicidades por tu Ascenso!')
+                    .setTitle(E.aconfeti + ' ¡Felicidades por tu Ascenso!')
                     .setDescription(
                         `Has recibido un nuevo rango en **${interaction.guild.name}**.`
                     )
@@ -288,7 +290,7 @@ export default {
                     : interaction.reply.bind(interaction);
             return msg({
                 content:
-                    '<:cruz00y4n:1534937767652495360> Hubo un error al intentar asignar el rol al miembro. Revisá la jerarquía de roles del bot.',
+                    E.cruz + ' Hubo un error al intentar asignar el rol al miembro. Revisá la jerarquía de roles del bot.',
                 flags: MessageFlags.Ephemeral
             });
         }

@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { obtenerSaldo, agregarSaldo } from '../../utils/gestorEconomia.js';
+import { E } from '../../config/emojis.js';
 
 // Límite máximo por transferencia (igual al de la imagen)
 const MONTO_MAXIMO_TRANSFERENCIA = 100000;
@@ -27,14 +28,14 @@ export default {
         // 1. Validaciones básicas de seguridad
         if (receptor.id === emisor.id) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1523041302764191844> No podés transferirte dinero a vos mismo.',
+                content: E.cruz + ' No podés transferirte dinero a vos mismo.',
                 ephemeral: true
             });
         }
 
         if (receptor.bot) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1534937767652495360> No podés transferirle dinero a un bot.',
+                content: E.cruz + ' No podés transferirle dinero a un bot.',
                 ephemeral: true
             });
         }
@@ -44,7 +45,7 @@ export default {
 
         if (saldoEmisor < monto) {
             return await interaction.reply({
-                content: `<:cruz00y4n:1534937767652495360> No tenés suficiente dinero para realizar esta transferencia.\n` +
+                content: `${E.cruz} No tenés suficiente dinero para realizar esta transferencia.\n` +
                          `• **Tu saldo actual:** $${saldoEmisor.toLocaleString('es-AR')}`,
                 ephemeral: true
             });
@@ -57,7 +58,7 @@ export default {
         // 4. Enviar confirmación en un Embed con diseño de 00Y4n
         const embedPay = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<:tilde:1534937809733812286> Transferencia Exitosa')
+            .setTitle(E.tilde + ' Transferencia Exitosa')
             .setDescription(
                 `Le has transferido **$${monto.toLocaleString('es-AR')}** a ${receptor}.\n\n` +
                 `• **Tu nuevo saldo:** $${nuevoSaldoEmisor.toLocaleString('es-AR')}\n` +

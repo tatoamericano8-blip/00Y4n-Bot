@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder,
     MessageFlags} from 'discord.js';
 import { obtenerMulta, guardarMulta } from '../../utils/gestorMultas.js';
+import { E } from '../../config/emojis.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -53,7 +54,7 @@ export default {
 
         const embed = new EmbedBuilder()
             .setColor('#57f287')
-            .setTitle('<:folder:1534938334650962115> Multa Anulada')
+            .setTitle(E.carpeta + ' Multa Anulada')
             .setDescription(
                 `• **ID Multa -** \`${ticketID}\`\n` +
                 `• **Ciudadano -** <@${multa.usuarioId}>\n` +
@@ -68,7 +69,7 @@ export default {
             .setTimestamp();
 
         await interaction.reply({
-            content: '<:tilde:1534937809733812286> Multa anulada.',
+            content: E.tilde + ' Multa anulada.',
             flags: MessageFlags.Ephemeral
         });
         await interaction.channel.send({ embeds: [embed] });
@@ -77,7 +78,7 @@ export default {
         if (logsChannel) {
             const embedLog = new EmbedBuilder()
                 .setColor('#57f287')
-                .setTitle('<:folder:1534938334650962115> Multa Anulada')
+                .setTitle(E.carpeta + ' Multa Anulada')
                 .setDescription(
                     `> **ID:** \`${ticketID}\`\n` +
                     `> **Ciudadano:** <@${multa.usuarioId}>\n` +

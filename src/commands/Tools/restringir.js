@@ -11,6 +11,7 @@ import {
   rolesRemovibles,
   obtenerRestriccionActiva
 } from '../../utils/gestorRestricciones.js';
+import { E } from '../../config/emojis.js';
 
 const ROL_ALTO_COMANDO = '1528870731629465752';
 const CANAL_LOG = '1505015805891579934';
@@ -46,7 +47,7 @@ export default {
       !interaction.member.permissions.has(PermissionFlagsBits.Administrator)
     ) {
       return interaction.reply({
-        content: '<:cruz:1534937767652495360> Solo **Alto Comando** puede usar `/restringir`.',
+        content: E.cruz + ' Solo **Alto Comando** puede usar `/restringir`.',
         flags: MessageFlags.Ephemeral
       });
     }
@@ -93,7 +94,7 @@ export default {
     } catch (e) {
       return interaction.editReply({
         content:
-          `<:cruz:1534937767652495360> No se pudo crear/obtener el rol Restringido: **${e.message}**\n` +
+          `${E.cruz} No se pudo crear/obtener el rol Restringido: **${e.message}**\n` +
           `-# El bot necesita **Gestionar roles**.`
       });
     }
@@ -101,7 +102,7 @@ export default {
     if (botMember && rolRestringido.position >= botMember.roles.highest.position) {
       return interaction.editReply({
         content:
-          '<:cruz:1534937767652495360> El rol **Restringido | 00Y4n** está por encima (o al mismo nivel) del rol más alto del bot. Subí el rol del bot en la lista de roles.'
+          E.cruz + ' El rol **Restringido | 00Y4n** está por encima (o al mismo nivel) del rol más alto del bot. Subí el rol del bot en la lista de roles.'
       });
     }
 
@@ -116,7 +117,7 @@ export default {
     } catch (e) {
       return interaction.editReply({
         content:
-          `<:cruz:1534937767652495360> Error al cambiar roles: **${e.message}**\n` +
+          `${E.cruz} Error al cambiar roles: **${e.message}**\n` +
           `-# Revisá jerarquía de roles y permisos del bot.`
       });
     }

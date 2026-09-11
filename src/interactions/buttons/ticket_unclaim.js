@@ -2,6 +2,7 @@ import { MessageFlags, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, But
 import { unclaimTicket } from '../../services/ticket.js';
 import { getTicketData, saveTicketData } from '../../utils/database.js';
 import { createEmbed } from '../../utils/embeds.js';
+import { E } from '../../config/emojis.js';
 
 const ROLE_STAFF = '1512120103771050005';
 const ROLE_ALTO_COMANDO = '1528870731629465752';
@@ -17,7 +18,7 @@ export default {
 
     if (!esStaff) {
       return interaction.reply({
-        content: '<:cruz00y4n:1534937767652495360> Solo el staff puede dejar de reclamar.',
+        content: E.cruz + ' Solo el staff puede dejar de reclamar.',
         flags: MessageFlags.Ephemeral
       });
     }
@@ -31,14 +32,14 @@ export default {
 
     if (!ticketData) {
       return interaction.editReply({
-        content: '<:cruz00y4n:1534937767652495360> Este canal no es un ticket.'
+        content: E.cruz + ' Este canal no es un ticket.'
       });
     }
 
     const claimedBy = ticketData.claimedBy || null;
     if (!claimedBy) {
       return interaction.editReply({
-        content: '<:cruz00y4n:1534937767652495360> Este ticket no está reclamado.'
+        content: E.cruz + ' Este ticket no está reclamado.'
       });
     }
 
@@ -50,23 +51,25 @@ export default {
     if (!esClaimer && !esAltoComando) {
       return interaction.editReply({
         content:
-          '<:cruz00y4n:1534937767652495360> Solo quien **reclamó** el ticket o **Alto Comando** puede quitar el reclamo.\n' +
+          E.cruz + ' Solo quien **reclamó** el ticket o **Alto Comando** puede quitar el reclamo.\n' +
           `> Reclamado por: <@${claimedBy}>`
       });
     }
 
+    // Claimer: flujo normal del servicio
     if (esClaimer) {
       const result = await unclaimTicket(interaction.channel, interaction.user);
       if (!result.success) {
         return interaction.editReply({
-          content: `<:cruz00y4n:1534937767652495360> ${result.error || 'No se pudo quitar el reclamo.'}`
+          content: `${E.cruz} ${result.error || 'No se pudo quitar el reclamo.'}`
         });
       }
       return interaction.editReply({
-        content: '<:tilde:1534937809733812286> Ya no reclamás este ticket.'
+        content: E.tilde + ' Ya no reclamás este ticket.'
       });
     }
 
+    // Alto Comando force-unclaim (sin ser el claimer)
     try {
       const previousClaimer = ticketData.claimedBy;
       ticketData.claimedBy = null;
@@ -108,12 +111,13 @@ export default {
       else await channel.send({ embeds: [unclaimEmbed] }).catch(() => null);
 
       return interaction.editReply({
-        content: '<:tilde:1534937809733812286> Alto Comando quitó el reclamo de este ticket.'
+        content: E.tilde + ' Alto Comando quitó el reclamo de este ticket.'
       });
     } catch (err) {
       return interaction.editReply({
-        content: `<:cruz00y4n:1534937767652495360> Error al quitar reclamo: ${err.message}`
+        content: `${E.cruz} Error al quitar reclamo: ${err.message}`
       });
     }
   }
 };
+

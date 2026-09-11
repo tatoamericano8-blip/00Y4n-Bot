@@ -4,6 +4,7 @@ import Sesion from '../../../models/Session.js';
 import { obtenerRangoDeUsuario } from '../../utils/rangoStaff.js';
 import { obtenerMetasPorRango, sesionesSemana } from '../../utils/metasCuota.js';
 import { calcularScore, evaluarCumplimiento, textoScore } from '../../utils/scoreCuota.js';
+import { E } from '../../config/emojis.js';
 
 const ROL_ALTO_MANDO = '1528870731629465752';
 
@@ -25,7 +26,7 @@ export default {
       !interaction.member.permissions.has(PermissionFlagsBits.Administrator)
     ) {
       return interaction.reply({
-        content: '<:cruz00y4n:1523041302764191844> Solo **Alto Comando** puede usar este panel.',
+        content: E.cruz + ' Solo **Alto Comando** puede usar este panel.',
         ephemeral: true
       });
     }

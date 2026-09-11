@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { obtenerArrestosPorUsuario, contarArrestosActivos } from '../../utils/gestorArrestos.js';
+import { E } from '../../config/emojis.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -57,7 +58,7 @@ export default {
 
         const embed = new EmbedBuilder()
             .setColor(activos > 0 ? '#ed4245' : '#57f287')
-            .setTitle('<:folder:1534938334650962115> Historial de Arrestos')
+            .setTitle(E.carpeta + ' Historial de Arrestos')
             .setDescription(
                 `**Ciudadano:** <@${ciudadano.id}> (\`${ciudadano.id}\`)\n` +
                 `**Arrestos activos:** \`${activos}\`\n` +

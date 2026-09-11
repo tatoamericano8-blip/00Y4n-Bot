@@ -2,6 +2,7 @@ import { Events, EmbedBuilder } from 'discord.js';
 import { logEvent, EVENT_TYPES } from '../services/loggingService.js';
 import { logger } from '../utils/logger.js';
 import { getFromDb, setInDb } from '../utils/database.js';
+import { E } from '../config/emojis.js';
 
 /**
  * Canal de anuncios de boost. También se usa desde messageCreate (mensaje del sistema).
@@ -27,13 +28,13 @@ export async function anunciarBoostAutomatico(memberOrUser, guild, vecesEstaAcci
 
   const embedBoost = new EmbedBuilder()
     .setTitle(
-      `<a:soad:1532515659269935256> 00Y4n SWFL | Notificación de Mejora <a:soad:1532515659269935256>`
+      `${E.nivel} 00Y4n SWFL | Notificación de Mejora ${E.nivel}`
     )
     .setDescription(
       `¡Gracias, <@${user.id}>!\n\n` +
-        `<:si:1534938142665084938> ¡Has mejorado el servidor **${totalBoosts} ${totalBoosts === 1 ? 'vez' : 'veces'}**! Lo apreciamos muchísimo. ` +
+        `${E.dot} ¡Has mejorado el servidor **${totalBoosts} ${totalBoosts === 1 ? 'vez' : 'veces'}**! Lo apreciamos muchísimo. ` +
         `Tu mejora ha sido registrada dentro de 00Y4n SWFL, ¡y se han aplicado automáticamente tus beneficios de Booster según el total de mejoras!\n\n` +
-        `<:afa:1534982812116062370> *¿Tienes algún problema o te falta algún beneficio? ¡No dudes en abrir un ticket de asistencia si necesitas soporte adicional!*`
+        `${E.flechareplica} *¿Tienes algún problema o te falta algún beneficio? ¡No dudes en abrir un ticket de asistencia si necesitas soporte adicional!*`
     )
     .setColor('#74d4fc')
     .setThumbnail(user.displayAvatarURL({ dynamic: true, size: 512 }))

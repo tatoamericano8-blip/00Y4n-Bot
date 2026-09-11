@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { randomBytes } from 'crypto';
 import Staff from '../../../models/Staff.js';
+import { E } from '../../config/emojis.js';
 
 const ROLE_HIGH_COMMAND = '1528870731629465752';
 const CHANNEL_LOGS = '1505015805891579934';
@@ -49,7 +50,7 @@ export default {
     async execute(interaction) {
         if (!interaction.member.roles.cache.has(ROLE_HIGH_COMMAND) && !interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1523041302764191844> **Permisos insuficientes:** Solo High Command puede gestionar sanciones.',
+                content: E.cruz + ' **Permisos insuficientes:** Solo High Command puede gestionar sanciones.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -61,7 +62,7 @@ export default {
         let staffData = await Staff.findOne({ guildId: interaction.guildId, userId: targetUser.id });
         if (!staffData) {
             return await interaction.reply({ 
-                content: '<:cruz00y4n:1523041302764191844> El usuario no posee registro de Staff en la base de datos.', 
+                content: E.cruz + ' El usuario no posee registro de Staff en la base de datos.', 
                 flags: MessageFlags.Ephemeral 
             });
         }
@@ -87,7 +88,7 @@ export default {
             await sincronizarRolesStrike(targetMember, strikesActivos);
 
             const embedLog = new EmbedBuilder()
-                .setTitle('<:advertencia:1525172022475489472> Sanción Aplicada – Staff Strike')
+                .setTitle(E.warn + ' Sanción Aplicada – Staff Strike')
                 .setColor(strikesActivos >= 3 ? '#992d22' : '#ed4245')
                 .setDescription(
                     `> **Staff Sancionado:** <@${targetUser.id}>\n` +
@@ -101,7 +102,7 @@ export default {
 
             if (logsChannel) await logsChannel.send({ embeds: [embedLog] });
 
-            let mensajeRespuesta = `<a:verificacion:1523027148326047878> Strike \`${idStrike}\` aplicado correctamente a <@${targetUser.id}>. Total activos: **${strikesActivos}/3**.`;
+            let mensajeRespuesta = `${E.tilde} Strike \`${idStrike}\` aplicado correctamente a <@${targetUser.id}>. Total activos: **${strikesActivos}/3**.`;
             if (strikesActivos >= 3) {
                 mensajeRespuesta += '\n🚨 **ALERTA:** Este miembro ha alcanzado los **3 strikes**. Se recomienda evaluar su expulsión del equipo de Staff.';
             }
@@ -114,7 +115,7 @@ export default {
 
             if (!strikeObj) {
                 return await interaction.editReply({ 
-                    content: `<a:cruz00y4n:1523027120538910830> No se encontró un strike activo con el ID \`${idStrike}\` para este usuario.` 
+                    content: `${E.cruz} No se encontró un strike activo con el ID \`${idStrike}\` para este usuario.` 
                 });
             }
 
@@ -130,7 +131,7 @@ export default {
             await sincronizarRolesStrike(targetMember, strikesActivos);
 
             const embedLog = new EmbedBuilder()
-                .setTitle('<a:verificacion:1523027148326047878> Sanción Removida – Staff Strike')
+                .setTitle(E.tilde + ' Sanción Removida – Staff Strike')
                 .setColor('#57f287')
                 .setDescription(
                     `> **Staff:** <@${targetUser.id}>\n` +
@@ -144,7 +145,7 @@ export default {
             if (logsChannel) await logsChannel.send({ embeds: [embedLog] });
 
             await interaction.editReply({
-                content: `<a:verificacion:1523027148326047878> El strike \`${idStrike}\` fue desactivado correctamente. Total activos: **${strikesActivos}/3**.`
+                content: `${E.tilde} El strike \`${idStrike}\` fue desactivado correctamente. Total activos: **${strikesActivos}/3**.`
             });
         }
     }

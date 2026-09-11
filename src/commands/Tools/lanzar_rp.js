@@ -3,6 +3,7 @@ import Sesion from '../../../models/Session.js';
 import Historial from '../../../models/Historial.js';
 import { cerrarFastPassesDeGuild } from '../../utils/gestorFastPass.js';
 import { bloquearSiCooldown, setCooldownSesion } from '../../utils/cooldownSesiones.js';
+import { E } from '../../config/emojis.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
@@ -72,7 +73,7 @@ export default {
     async execute(interaction) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1534937767652495360> **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesion.',
+                content: E.cruz + ' **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesion.',
                 ephemeral: true
             });
         }
@@ -98,21 +99,21 @@ export default {
         } catch (_) {}
 
         const coHostLine = coHostId
-            ? `<:dotp:1542258368301899866> Co-Host(s) de la sesión: <@${coHostId}>`
-            : `<:dotp:1542258368301899866> Co-Host(s) de la sesión: *Sin asignar*`;
+            ? E.jpuntderecha + ` Co-Host(s) de la sesión: <@${coHostId}>`
+            : E.jpuntderecha + ` Co-Host(s) de la sesión: *Sin asignar*`;
 
         const infoDescripcion =
-            `<:dot:1534938142665084938> <@${hostIdSesion}> **ha liberado su sesión de Roleplay!** Asegurate de seguir todas las instrucciones del host y co-hosts antes de salir del spawn. Además, se deben respetar todas las regulaciones de **Southwest Florida Comunidad 00Y4n** durante toda la sesión.\n\n` +
-            `<:replican:1542264548801777685> Los links del servidor se regenerarán a los **tres minutos** de la liberación, así que unite rápido. Las reinvitaciones ocurrirán **cada quince minutos** (según las reacciones), así que no le pidas el link al host.\n\n` +
-            `<:manual:1534999731019972671> __**Información de la sesión:**__\n` +
-            `<:dotp:1542258368301899866> Límite de Fail-Roleplay: **${limite}**\n` +
-            `<:dotp:1542258368301899866> Estado de Peacetime: **${peacetime}**\n` +
-            `<:dotp:1542258368301899866> Servicios de emergencia: **${serviciosEmergencia}**\n` +
+            E.dot + ` <@${hostIdSesion}> **ha liberado su sesión de Roleplay!** Asegurate de seguir todas las instrucciones del host y co-hosts antes de salir del spawn. Además, se deben respetar todas las regulaciones de **Southwest Florida Comunidad 00Y4n** durante toda la sesión.\n\n` +
+            E.replican + ` Los links del servidor se regenerarán a los **tres minutos** de la liberación, así que unite rápido. Las reinvitaciones ocurrirán **cada quince minutos** (según las reacciones), así que no le pidas el link al host.\n\n` +
+            E.manual + ` __**Información de la sesión:**__\n` +
+            E.jpuntderecha + ` Límite de Fail-Roleplay: **${limite}**\n` +
+            E.jpuntderecha + ` Estado de Peacetime: **${peacetime}**\n` +
+            E.jpuntderecha + ` Servicios de emergencia: **${serviciosEmergencia}**\n` +
             `${coHostLine}\n\n` +
-            `<:adv:1534937002695327837> __Cualquier compartición no autorizada del link resultará en un **ban inmediato** del servidor__.`;
+            E.warn + ` __Cualquier compartición no autorizada del link resultará en un **ban inmediato** del servidor__.`;
 
         const embedRelease = new EmbedBuilder()
-            .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — __*Sesión de Roleplay Liberada*__ <a:mariquieta:1534954231138746488>')
+            .setTitle(E.a2alas + ' Southwest Florida Comunidad 00Y4n — __*Sesión de Roleplay Liberada*__ ' + E.a2alas)
             .setDescription(infoDescripcion)
             .setColor('#74d4fc');
 

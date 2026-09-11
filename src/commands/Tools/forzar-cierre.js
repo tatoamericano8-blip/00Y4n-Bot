@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import Sesion from '../../../models/Session.js';
 import { finalizarYPublicarLogSesion } from '../../utils/logSesionArchivo.js';
+import { E } from '../../config/emojis.js';
 
 const ROL_ALTO_MANDO_ID = '1528870731629465752';
 const HORAS_A_BORRAR = 3;
@@ -68,7 +69,7 @@ export default {
         ) {
             return await interaction.reply({
                 content:
-                    'Acceso denegado. Este comando es exclusivo para los integrantes del Alto Mando.',
+                    '❌ **Acceso denegado.** Este comando es exclusivo para los integrantes del **Alto Mando**.',
                 ephemeral: true
             });
         }
@@ -78,9 +79,9 @@ export default {
         const hostUsuario = interaction.options.getUser('host');
         const motivoCancelacion = interaction.options.getString('motivo');
 
+        // Cerrar sesión(es) activas SIN sumar cuota
         let sesionesCerradas = 0;
         try {
-            // Cerrar sesión(es) activas SIN sumar cuota
             const res = await Sesion.updateMany(
                 {
                     guildId: interaction.guildId,
@@ -131,15 +132,15 @@ export default {
 
         const embedCierreForzado = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<a:corayendose:1534954014335172729> Sesión Finalizada Forzosamente')
+            .setTitle(E.aflotacoras + ' Sesión Finalizada Forzosamente')
             .setDescription(
                 `La sesión organizada por <@${hostUsuario.id}> fue cancelada por un integrante del **Alto Mando** (<@${interaction.user.id}>).\n\n` +
-                    `<:pin:1534938142665084938> **Motivo:** ${motivoCancelacion}\n\n` +
-                    `<:replica:1534982812116062370> *No se sumó cuota ni sesiones al host, co-host ni supervisor.*\n` +
+                    `${E.dot} **Motivo:** ${motivoCancelacion}\n\n` +
+                    `${E.flechareplica} *No se sumó cuota ni sesiones al host, co-host ni supervisor.*\n` +
                     `🗑️ *Se limpiarán los mensajes de las últimas **${HORAS_A_BORRAR} horas** en este canal.*`
             )
             .setFooter({
-                text: '00Y4n Comunidad SWFL - Control de Alto Mando',
+                text: '00Y4n Comunidad SWFL • Control de Alto Mando',
                 iconURL: interaction.guild.iconURL()
             })
             .setTimestamp();

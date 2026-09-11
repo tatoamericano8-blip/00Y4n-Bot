@@ -3,10 +3,11 @@ import { agregarSaldo } from './gestorEconomia.js';
 import { PRIMARIO } from './colores.js';
 import { logger } from './logger.js';
 import { setInDb } from './database.js';
+import { E } from '../config/emojis.js';
 
 /** Banner de oportunidad (solo imagen) — se envía como primer embed */
 const BANNER_OPORTUNIDAD_URL =
-    'https://cdn.discordapp.com/attachments/1505017301089652898/1536043756028166155/Oportunidad_Economica_1.png';
+    'https://cdn.discordapp.com/attachments/1505017301089652898/1536043756028166155/Oportunidad_Economica_1.png?ex=6a7f3db9&is=6a7dec39&hm=11d83177fd097666ca2b954c59cbf095c1f521f4f851ea4d416819e23fc8a81a&';
 
 const historiasOportunidades = [
     "de un lavaplatos del Diner local que te pagó por decirle a los clientes que la sopa era 'especial del chef' y no las sobras de ayer.",
@@ -24,6 +25,11 @@ function crearEmbedBanner() {
         .setImage(BANNER_OPORTUNIDAD_URL);
 }
 
+/**
+ * Lanza una Oportunidad Económica en un canal específico.
+ * @param {import('discord.js').Client} client
+ * @param {string} canalId
+ */
 export const LAST_OPORTUNIDAD_KEY = 'oportunidad:lastLaunch';
 
 export async function lanzarOportunidadEconomica(client, canalId) {
@@ -41,6 +47,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
             return;
         }
 
+        // Ganancia aleatoria: $500 – $3.500
         const monto = Math.floor(Math.random() * (3500 - 500 + 1)) + 500;
         const historia = historiasOportunidades[Math.floor(Math.random() * historiasOportunidades.length)];
 
@@ -48,8 +55,8 @@ export async function lanzarOportunidadEconomica(client, canalId) {
 
         const embedInicial = new EmbedBuilder()
             .setColor(PRIMARIO)
-            .setTitle('<a:est:1534954231138746488> ¡Oportunidad Economica!')
-            .setDescription(`<:dinero:1534938520861413376> **$${monto.toLocaleString('es-AR')}** ${historia}`)
+            .setTitle(E.a2alas + ' ¡Oportunidad Economica!')
+            .setDescription(`${E.gift} **$${monto.toLocaleString('es-AR')}** ${historia}`)
             .setTimestamp();
 
         const botonActivo = new ActionRowBuilder().addComponents(
@@ -83,8 +90,8 @@ export async function lanzarOportunidadEconomica(client, canalId) {
                 const embedGanador = EmbedBuilder.from(embedInicial)
                     .setColor('#57F287')
                     .setDescription(
-                        `<:dinero:1534938520861413376> **$${monto.toLocaleString('es-AR')}** ${historia}\n\n` +
-                        `<:fle:1534937306191102125> **Reclamado por:** <@${usuarioId}>`
+                        `${E.gift} **$${monto.toLocaleString('es-AR')}** ${historia}\n\n` +
+                        `${E.flecha} **Reclamado por:** <@${usuarioId}>`
                     );
 
                 const botonDesactivado = new ActionRowBuilder().addComponents(
@@ -107,7 +114,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
                     await interaction.update(payload);
                 }
             } catch (error) {
-                logger.error('Error al procesar el reclamo en el collector:', error);
+                console.error('Error al procesar el reclamo en el collector:', error);
             }
         });
 
@@ -134,7 +141,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
                     }).catch(() => {});
                 }
             } catch (error) {
-                logger.error('Error al finalizar el collector de oportunidades:', error);
+                console.error('Error al finalizar el collector de oportunidades:', error);
             }
         });
     } catch (error) {

@@ -11,7 +11,7 @@ export default {
     .addStringOption((o) =>
       o
         .setName('accion')
-        .setDescription('Que hacer')
+        .setDescription('Qué hacer')
         .setRequired(true)
         .addChoices(
           { name: 'Verificar (faltantes / OK)', value: 'check' },
@@ -20,10 +20,16 @@ export default {
         )
     )
     .addStringOption((o) =>
-      o.setName('prefijo_viejo').setDescription('Solo remap: ej nara_').setRequired(false)
+      o
+        .setName('prefijo_viejo')
+        .setDescription('Solo remap: ej nara_')
+        .setRequired(false)
     )
     .addStringOption((o) =>
-      o.setName('prefijo_nuevo').setDescription('Solo remap: ej coral_').setRequired(false)
+      o
+        .setName('prefijo_nuevo')
+        .setDescription('Solo remap: ej coral_')
+        .setRequired(false)
     )
     .setDefaultMemberPermissions(null),
 
@@ -56,18 +62,22 @@ export default {
         if (byName && byId && byName.id === def.id) {
           ok.push(key);
         } else if (byName && byName.id !== def.id) {
-          idMismatch.push(`${key}: registro id=${def.id} server id=${byName.id} (${def.name})`);
+          idMismatch.push(
+            `${key}: registro id=${def.id} server id=${byName.id} (${def.name})`
+          );
         } else if (!byName && !byId) {
           miss.push(`${key} (${def.name})`);
         } else if (byId && byId.name !== def.name) {
-          idMismatch.push(`${key}: id existe como ${byId.name}, registro dice ${def.name}`);
+          idMismatch.push(
+            `${key}: id existe como ${byId.name}, registro dice ${def.name}`
+          );
         } else {
           ok.push(key);
         }
       }
 
       const embed = new EmbedBuilder()
-        .setTitle('Emojis - verificacion registro')
+        .setTitle('Emojis — verificación registro')
         .setColor('#fb8b66')
         .setDescription(
           [
@@ -75,15 +85,12 @@ export default {
             `> **Faltan en server:** ${miss.length}`,
             `> **ID/nombre distinto:** ${idMismatch.length}`,
             miss.length
-              ? '\n**Faltantes:**\n```\n' +
-                miss.slice(0, 25).join('\n') +
-                (miss.length > 25 ? '\n...' : '') +
-                '\n```'
+              ? '\n**Faltantes:**\n```\n' + miss.slice(0, 25).join('\n') + (miss.length > 25 ? '\n…' : '') + '\n```'
               : '',
             idMismatch.length
               ? '\n**Mismatch:**\n```\n' +
                 idMismatch.slice(0, 15).join('\n') +
-                (idMismatch.length > 15 ? '\n...' : '') +
+                (idMismatch.length > 15 ? '\n…' : '') +
                 '\n```'
               : ''
           ]
@@ -98,14 +105,22 @@ export default {
       const oldP = interaction.options.getString('prefijo_viejo') || 'nara_';
       const newP = interaction.options.getString('prefijo_nuevo');
       if (!newP) {
-        return interaction.editReply({ content: 'Indica `prefijo_nuevo` (ej: `coral_`).' });
+        return interaction.editReply({
+          content: 'Indicá `prefijo_nuevo` (ej: `coral_`).'
+        });
       }
       let np = newP.toLowerCase();
       if (!np.endsWith('_')) np += '_';
 
       const preview = previewRemapPrefix(oldP, np);
-      const updates = [];
+      const lines = Object.entries(preview)
+        .filter(([_, d]) => d.name.startsWith(np))
+        .slice(0, 30)
+        .map(([k, d]) => `${k}: ${d.name}`);
+
+      // Match server emojis by new names
       let found = 0;
+      const updates = [];
       for (const [key, def] of Object.entries(preview)) {
         const onServer = cache.find((e) => e.name === def.name);
         if (onServer) {
@@ -118,15 +133,18 @@ export default {
 
       return interaction.editReply({
         content:
-          `Preview remap \`${oldP}\` -> \`${np}\`\n` +
-          `Encontrados en el server: **${found}**\n\n` +
-          `Copia a \`src/config/emojis.js\`:\n\`\`\`js\n` +
-          updates.slice(0, 25).join('\n') +
-          (updates.length > 25 ? '\n//' : '') +
-          `\n\`\`\``
+          `Preview remap \`${oldP}\` → \`${np}\`\n` +
+          `Nombres nuevos en registro: **${lines.length}+**\n` +
+          `Encontrados ya en el server: **${found}**\n\n` +
+          `Copiá esto a \`src/config/emojis.js\` (parcial):\n\`\`\`js\n` +
+          updates.slice(0, 20).join('\n') +
+          (updates.length > 20 ? '\n// …' : '') +
+          `\n\`\`\`\n` +
+          `Ejemplos de claves: \`${lines.slice(0, 8).join('`, `')}\``
       });
     }
 
+    // export
     const lines = Object.entries(EMOJI_DEF).map(([key, def]) => {
       const tag = em(key);
       const onServer = cache.find((e) => e.name === def.name || e.id === def.id);
@@ -138,7 +156,7 @@ export default {
     return interaction.editReply({
       content:
         `**Export registro** (${lines.length} claves)\n` +
-        `Uso: \`import { em, E } from '../../config/emojis.js'\` -> \`em('cruz')\`\n\`\`\`\n${chunk}\n\`\`\``
+        `Uso en código: \`import { em, E } from '../../config/emojis.js'\` → \`em('cruz')\`\n\`\`\`\n${chunk}\n\`\`\``
     });
   }
 };

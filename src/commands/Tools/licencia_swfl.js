@@ -1,6 +1,7 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
 import Licencia from '../../../models/Licencia.js';
 import { sincronizarRolLicencia } from '../../utils/gestorLicencias.js';
+import { E } from '../../config/emojis.js';
 
 const ROL_POLICIA_ID = '1529146302783422706';
 
@@ -145,7 +146,7 @@ export default {
     }
 
     const embedRespuesta = new EmbedBuilder()
-      .setTitle('<:lista:1534938422202994755> Actualización de Licencia de Conducir')
+      .setTitle(E.lista + ' Actualización de Licencia de Conducir')
       .setDescription(
         `Se ha actualizado la documentación del ciudadano <@${usuario.id}>.\n\n` +
           `• **Nuevo Estado:** ${emojiEstado} **${nuevoEstado.toUpperCase()}**\n` +

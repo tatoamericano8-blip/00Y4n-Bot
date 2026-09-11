@@ -2,6 +2,7 @@ import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { obtenerMulta, obtenerTodasLasMultas, guardarMulta, ROL_WARRANT_ID, revisarWarrantTrasPago } from '../../utils/gestorMultas.js';
 import { getDescuentoMultaPorSeguro } from '../../utils/gestorTienda.js';
 import { obtenerSaldo, restarSaldo } from '../../utils/gestorEconomia.js';
+import { E } from '../../config/emojis.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -47,7 +48,7 @@ export default {
 
         if (String(infractorId) !== String(usuarioId)) {
             return await interaction.reply({
-                content: `<:cruz:1534937767652495360> Solo el usuario multado (<@${infractorId}>) puede abonar esta multa.`,
+                content: `${E.cruz} Solo el usuario multado (<@${infractorId}>) puede abonar esta multa.`,
                 ephemeral: true
             });
         }
@@ -61,7 +62,7 @@ export default {
             montoAPagar = Math.max(1, Math.round(montoOriginal * (1 - desc.pct)));
             const ahorro = montoOriginal - montoAPagar;
             textoDescuento =
-                `\n<:tilde:1534937809733812286> **${desc.label}:** -${Math.round(desc.pct * 100)}% ` +
+                `\n${E.tilde} **${desc.label}:** -${Math.round(desc.pct * 100)}% ` +
                 `(pagás **$${montoAPagar.toLocaleString()}** en vez de **$${montoOriginal.toLocaleString()}**, ` +
                 `ahorrás **$${ahorro.toLocaleString()}**)`;
         }
@@ -70,11 +71,11 @@ export default {
 
         if (saldoActual < montoAPagar) {
             return await interaction.reply({
-                content: `<:cruz:1534937767652495360> **Fondos insuficientes.**\n` +
+                content: `${E.cruz} **Fondos insuficientes.**\n` +
                          `• Costo de la multa: **$${montoAPagar.toLocaleString()}**` +
                          (desc.pct > 0 ? ` (original $${montoOriginal.toLocaleString()} con descuento)` : '') + `\n` +
                          `• Tu saldo actual: **$${saldoActual.toLocaleString()}**\n\n` +
-                         `<:manual:1534999731019972671> *Usa \`/work\` para trabajar y ganar dinero.*`,
+                         `${E.manual} *Usa \`/work\` para trabajar y ganar dinero.*`,
                 ephemeral: true
             });
         }
@@ -98,7 +99,7 @@ export default {
 
         const embedPagada = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<:tilde:1534937809733812286> ¡Ticket Pagado Exitosamente!')
+            .setTitle(E.tilde + ' ¡Ticket Pagado Exitosamente!')
             .setDescription(
                 `~~User — <@${infractorId}>~~\n` +
                 `~~Issuer — ${issuerTxt}~~\n` +
@@ -107,7 +108,7 @@ export default {
                 (desc.pct > 0 ? ` (orig. $${montoOriginal.toLocaleString()})` : '') + `\n` +
                 `~~ID — ${ticket.id || ticketID}~~` +
                 (textoDescuento || '') + `\n\n` +
-                `<:id:1534937551092187136> **Nuevo saldo en tu cuenta:** $${saldoRestante.toLocaleString()}`
+                `${E.id} **Nuevo saldo en tu cuenta:** $${saldoRestante.toLocaleString()}`
             )
             .setFooter({ text: '00Y4n Comunidad SWFL • Registro de Pagos', iconURL: interaction.guild.iconURL() })
             .setTimestamp();

@@ -7,6 +7,7 @@ import {
 } from 'discord.js';
 import Staff from '../../../models/Staff.js';
 import { db } from '../../utils/database.js';
+import { E } from '../../config/emojis.js';
 
 function parseCustomEmoji(tag) {
     const match = String(tag || '').match(/^<(a?):([\w~]+):(\d+)>$/);
@@ -18,7 +19,7 @@ function parseCustomEmoji(tag) {
 const CATEGORIAS = {
     economia: {
         label: 'Economía',
-        emojiTag: '<:gift:1534938520861413376>',
+        emojiTag: E.gift,
         async fetch() {
             const keys = await db.list('economy:');
             const datos = await Promise.all(keys.map(async (key) => {
@@ -35,7 +36,7 @@ const CATEGORIAS = {
 
     mensajes: {
         label: 'Mensajes Totales',
-        emojiTag: '<:msj:1534937713524998304>',
+        emojiTag: E.msj,
         async fetch(guildId) {
             // Clave actual: mensajes_totales:{guildId}:{userId}
             // Legacy: mensajes_totales:{userId} — se suma para no perder historial
@@ -72,7 +73,7 @@ const CATEGORIAS = {
 
     reacciones_sesiones: {
         label: 'Reacciones en Sesiones',
-        emojiTag: '<:tilde:1534937809733812286>',
+        emojiTag: E.tilde,
         async fetch(guildId) {
             const prefix = `reacciones_sesiones:${guildId}:`;
             const keys = await db.list(prefix);
@@ -90,7 +91,7 @@ const CATEGORIAS = {
 
     sesiones_hosteadas: {
         label: 'Sesiones Hosteadas (Staff)',
-        emojiTag: '<:staff:1534956881787752478>',
+        emojiTag: E.staff_icon,
         async fetch(guildId) {
             const staff = await Staff.find({ guildId }).lean();
             return staff
@@ -105,7 +106,7 @@ const CATEGORIAS = {
 
     horas_servicio: {
         label: 'Horas de Servicio (Staff)',
-        emojiTag: '<:reloj:1535027476559040655>',
+        emojiTag: E.tiempo,
         async fetch(guildId) {
             const staff = await Staff.find({ guildId }).lean();
             return staff
@@ -129,7 +130,7 @@ function construirEmbed(categoriaKey, datos, guildName) {
         embed.setDescription('Aún no hay datos registrados en esta categoría.');
     } else {
         const lineas = datos.slice(0, 10).map((d, i) => {
-            const medal = i === 0 ? '<:si:1534937484880904292>' : i === 1 ? '🥈' : i === 2 ? '🥉' : `**${i + 1}.**`;
+            const medal = i === 0 ? E.primer_puesto : i === 1 ? '🥈' : i === 2 ? '🥉' : `**${i + 1}.**`;
             return `${medal} <@${d.userId}> — **${d.texto}**`;
         });
         embed.setDescription(lineas.join('\n'));

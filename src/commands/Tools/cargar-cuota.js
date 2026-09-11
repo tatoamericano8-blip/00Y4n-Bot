@@ -3,6 +3,7 @@ import Staff from '../../../models/Staff.js';
 import StaffLog from '../../../models/StaffLog.js';
 import { formatearHoras } from '../../utils/formatearTiempo.js';
 import { programarRefreshClasificacion } from '../../utils/clasificacionStaffLive.js';
+import { E } from '../../config/emojis.js';
 
 const ROLE_LOA = '1532459272690991318';
 const CHANNEL_LOA = '1505015938544701490';
@@ -36,15 +37,15 @@ async function aplicarCambioCuota(interaction, signo) {
     if (sinTiempo && sinSesiones) {
       return interaction.editReply({
         content:
-          'Debes especificar al menos un valor.\n' +
-          'Ejemplo tiempo: `horas: 2` + `minutos: 41`  ·  sesiones: `1`'
+          E.cruz + ' Debes especificar al menos un valor.\n' +
+          'Ejemplo tiempo: `horas: 2` + `minutos: 41`  ·  sesiones: `1`' 
       });
     }
 
     if (horasDecimal === 0 && sesionesOrgRaw === 0 && sesionesSupRaw === 0 && ticketsRaw === 0) {
       return interaction.editReply({
         content:
-          'El valor debe ser mayor a **0**.\n' +
+          E.cruz + ' El valor debe ser mayor a **0**.\n' +
           'Ejemplo: `horas: 3` y `minutos: 56` para restar **3h 56 min**.'
       });
     }
@@ -65,7 +66,7 @@ async function aplicarCambioCuota(interaction, signo) {
     if (!staffData) {
       if (signo < 0) {
         return interaction.editReply({
-          content: `**${usuarioTarget.tag}** no tiene registro de Staff para restar cuota.`
+          content: `${E.cruz} **${usuarioTarget.tag}** no tiene registro de Staff para restar cuota.`
         });
       }
       staffData = new Staff({
@@ -127,9 +128,7 @@ async function aplicarCambioCuota(interaction, signo) {
     );
 
     await staffData.save();
-    try {
-      programarRefreshClasificacion(interaction.client, interaction.guildId);
-    } catch (_) {}
+    try { programarRefreshClasificacion(interaction.client, interaction.guildId); } catch (_) {}
 
     try {
       await StaffLog.create({
@@ -153,7 +152,10 @@ async function aplicarCambioCuota(interaction, signo) {
     }
 
     const prefijo = signo > 0 ? '+' : '−';
-    const titulo = signo > 0 ? 'Cuota Añadida' : 'Cuota Removida';
+    const titulo =
+      signo > 0
+        ? E.tilde + ' Cuota Añadida'
+        : '🗑️ Cuota Removida';
     const color = signo > 0 ? 0x2ecc71 : 0xed4245;
 
     const embed = new EmbedBuilder()
@@ -164,33 +166,33 @@ async function aplicarCambioCuota(interaction, signo) {
       )
       .addFields(
         {
-          name: 'Tiempo',
+          name: '⏱️ Tiempo',
           value: `> **${prefijo}${textoTiempoIngresado}** → Semana: **${formatearHoras(staffData.cuotas.horasServicio)}**`,
           inline: true
         },
         {
-          name: 'Sesiones Organizadas',
+          name: '🚗 Sesiones Organizadas',
           value: `> **${signo > 0 ? '+' : '−'}${Math.abs(sesionesOrgToAdd)}** → Semana: **${staffData.cuotas.sesionesOrganizadas}**`,
           inline: true
         },
         {
-          name: 'Sesiones Supervisadas',
+          name: '👁️ Sesiones Supervisadas',
           value: `> **${signo > 0 ? '+' : '−'}${Math.abs(sesionesSupToAdd)}** → Semana: **${staffData.cuotas.sesionesSupervisadas}**`,
           inline: true
         },
         {
-          name: 'Tickets',
+          name: '🎫 Tickets',
           value: `> **${signo > 0 ? '+' : '−'}${Math.abs(ticketsToAdd)}** → Semana: **${staffData.cuotas.ticketsCerrados}**`,
           inline: true
         },
         {
-          name: 'Motivo',
+          name: '📝 Motivo',
           value: `> ${motivo}`,
           inline: false
         }
       )
       .setFooter({
-        text: `Por ${interaction.user.tag} · 00Y4n Comunidad SWFL`,
+        text: `Por ${interaction.user.tag} • 00Y4n Comunidad SWFL`,
         iconURL: interaction.guild.iconURL()
       })
       .setTimestamp();
@@ -200,16 +202,20 @@ async function aplicarCambioCuota(interaction, signo) {
     console.error('[cargar-cuota] Error:', error);
     return interaction
       .editReply({
-        content: `Error al modificar la cuota: \`${error.message}\``
+        content: `${E.cruz} Error al modificar la cuota: \`${error.message}\``
       })
       .catch(() => null);
   }
 }
 
+/**
+ * Cambiar estado LOA de forma centralizada (ACTIVO <-> LOA)
+ * Actualiza: Staff.estado + Staff.loa.activo + rol LOA + canal de ausencias
+ */
 async function cambiarEstadoLoa(interaction) {
   try {
     const usuarioTarget = interaction.options.getUser('usuario');
-    const accion = interaction.options.getString('accion');
+    const accion = interaction.options.getString('accion'); // finalizar | activar
     const motivo =
       interaction.options.getString('motivo') ||
       (accion === 'finalizar'
@@ -235,9 +241,10 @@ async function cambiarEstadoLoa(interaction) {
     const canalLoa = await interaction.guild.channels.fetch(CHANNEL_LOA).catch(() => null);
 
     if (accion === 'finalizar') {
+      // ── Volver a ACTIVO ──
       if (staffData.estado !== 'LOA' && !staffData.loa.activo) {
         return interaction.editReply({
-          content: `**${usuarioTarget.tag}** no está en LOA actualmente (estado: \`${staffData.estado || 'ACTIVO'}\`).`
+          content: `${E.cruz} **${usuarioTarget.tag}** no está en LOA actualmente (estado: \`${staffData.estado || 'ACTIVO'}\`).`
         });
       }
 
@@ -254,10 +261,9 @@ async function cambiarEstadoLoa(interaction) {
       });
 
       await staffData.save();
-      try {
-        programarRefreshClasificacion(interaction.client, interaction.guildId);
-      } catch (_) {}
+    try { programarRefreshClasificacion(interaction.client, interaction.guildId); } catch (_) {}
 
+      // Quitar rol LOA
       if (member) {
         await member.roles.remove(ROLE_LOA).catch(() => null);
       }
@@ -275,7 +281,7 @@ async function cambiarEstadoLoa(interaction) {
       }
 
       const embed = new EmbedBuilder()
-        .setTitle('LOA Finalizada — Staff Activo')
+        .setTitle('🟢 LOA Finalizada — Staff Activo')
         .setColor(0x57f287)
         .setThumbnail(usuarioTarget.displayAvatarURL({ dynamic: true }))
         .setDescription(
@@ -284,26 +290,25 @@ async function cambiarEstadoLoa(interaction) {
             `> **Motivo:** ${motivo}\n` +
             `> **Finalizado por:** <@${interaction.user.id}>`
         )
-        .setFooter({ text: '00Y4n Comunidad SWFL · Sistema de Ausencias' })
+        .setFooter({ text: '00Y4n Comunidad SWFL • Sistema de Ausencias' })
         .setTimestamp();
 
       await interaction.editReply({ embeds: [embed] });
 
       if (canalLoa?.isTextBased()) {
-        await canalLoa
-          .send({
-            content: `<@${usuarioTarget.id}>`,
-            embeds: [embed]
-          })
-          .catch(() => null);
+        await canalLoa.send({
+          content: `<@${usuarioTarget.id}>`,
+          embeds: [embed]
+        }).catch(() => null);
       }
 
       return;
     }
 
+    // ── Activar LOA ──
     if (staffData.estado === 'LOA' && staffData.loa.activo) {
       return interaction.editReply({
-        content: `**${usuarioTarget.tag}** ya está en LOA.`
+        content: `${E.cruz} **${usuarioTarget.tag}** ya está en LOA.`
       });
     }
 
@@ -314,9 +319,7 @@ async function cambiarEstadoLoa(interaction) {
     staffData.loa.motivo = motivo;
 
     await staffData.save();
-    try {
-      programarRefreshClasificacion(interaction.client, interaction.guildId);
-    } catch (_) {}
+    try { programarRefreshClasificacion(interaction.client, interaction.guildId); } catch (_) {}
 
     if (member) {
       await member.roles.add(ROLE_LOA).catch(() => null);
@@ -335,7 +338,7 @@ async function cambiarEstadoLoa(interaction) {
     }
 
     const embed = new EmbedBuilder()
-      .setTitle('LOA Activada')
+      .setTitle('🟡 LOA Activada')
       .setColor(0xf1c40f)
       .setThumbnail(usuarioTarget.displayAvatarURL({ dynamic: true }))
       .setDescription(
@@ -344,24 +347,22 @@ async function cambiarEstadoLoa(interaction) {
           `> **Motivo:** ${motivo}\n` +
           `> **Activado por:** <@${interaction.user.id}>`
       )
-      .setFooter({ text: '00Y4n Comunidad SWFL · Sistema de Ausencias' })
+      .setFooter({ text: '00Y4n Comunidad SWFL • Sistema de Ausencias' })
       .setTimestamp();
 
     await interaction.editReply({ embeds: [embed] });
 
     if (canalLoa?.isTextBased()) {
-      await canalLoa
-        .send({
-          content: `<@${usuarioTarget.id}>`,
-          embeds: [embed]
-        })
-        .catch(() => null);
+      await canalLoa.send({
+        content: `<@${usuarioTarget.id}>`,
+        embeds: [embed]
+      }).catch(() => null);
     }
   } catch (error) {
     console.error('[cargar-cuota loa] Error:', error);
     return interaction
       .editReply({
-        content: `Error al cambiar LOA: \`${error.message}\``
+        content: `${E.cruz} Error al cambiar LOA: \`${error.message}\``
       })
       .catch(() => null);
   }
@@ -441,7 +442,7 @@ export default {
         .addStringOption(o =>
           o
             .setName('accion')
-            .setDescription('Qué querés hacer con la LOA?')
+            .setDescription('¿Qué querés hacer con la LOA?')
             .setRequired(true)
             .addChoices(
               { name: 'Finalizar LOA (volver a Activo)', value: 'finalizar' },

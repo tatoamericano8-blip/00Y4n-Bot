@@ -15,6 +15,7 @@ import {
     marcarRegistroExitoso,
     patenteValida
 } from '../../utils/antiAbusoPatentes.js';
+import { E } from '../../config/emojis.js';
 
 const ROL_ALTO_MANDO = '1528870731629465752';
 const ROL_PROPIETARIOS = '1528877296977711256';
@@ -110,7 +111,7 @@ export default {
 
             if (!esPropietario(interaction.member)) {
                 return interaction.editReply({
-                    content: '<:cruz:1534937767652495360> Solo el **Equipo de Propietarios** puede usar este subcomando.'
+                    content: E.cruz + ' Solo el **Equipo de Propietarios** puede usar este subcomando.'
                 });
             }
 
@@ -131,7 +132,7 @@ export default {
                 const limite = LIMITE_BASE + cantidad;
                 return interaction.editReply({
                     content:
-                        `<:tilde:1534937809733812286> **Permiso extra otorgado** a <@${target.id}>.\n` +
+                        `${E.tilde} **Permiso extra otorgado** a <@${target.id}>.\n` +
                         `> Slots extra: **${cantidad}** · Límite total: **${limite}** vehículos (base ${LIMITE_BASE} + extra).`
                 });
             }
@@ -141,11 +142,11 @@ export default {
                 const deleted = await PermisoMatriculaExtra.findOneAndDelete({ guildId, userId: target.id });
                 if (!deleted) {
                     return interaction.editReply({
-                        content: `<:cruz:1534937767652495360> <@${target.id}> no tenía permiso extra activo.`
+                        content: `${E.cruz} <@${target.id}> no tenía permiso extra activo.`
                     });
                 }
                 return interaction.editReply({
-                    content: `<:tilde:1534937809733812286> Permiso extra **revocado** de <@${target.id}>. Límite vuelve a **${LIMITE_BASE}**.`
+                    content: `${E.tilde} Permiso extra **revocado** de <@${target.id}>. Límite vuelve a **${LIMITE_BASE}**.`
                 });
             }
 
@@ -153,7 +154,7 @@ export default {
                 const check = patenteValida(interaction.options.getString('patente'));
                 if (!check.ok) {
                     return interaction.editReply({
-                        content: `<:cruz:1534937767652495360> ${check.motivo}`
+                        content: `${E.cruz} ${check.motivo}`
                     });
                 }
                 const patente = check.patente;
@@ -161,7 +162,7 @@ export default {
                 const auto = await Vehiculo.findOneAndDelete({ patente });
                 if (!auto) {
                     return interaction.editReply({
-                        content: `<:cruz:1534937767652495360> No existe ningún vehículo con la matrícula \`${patente}\`.`
+                        content: `${E.cruz} No existe ningún vehículo con la matrícula \`${patente}\`.`
                     });
                 }
 
@@ -171,7 +172,7 @@ export default {
                     if (owner) {
                         await owner.send({
                             content:
-                                `<:aviso:1534938916057120839> Tu vehículo con matrícula **\`${patente}\`** (${auto.marca} ${auto.modelo}) fue **dado de baja forzadamente** por el equipo de Propietarios.\n` +
+                                `${E.auto} Tu vehículo con matrícula **\`${patente}\`** (${auto.marca} ${auto.modelo}) fue **dado de baja forzadamente** por el equipo de Propietarios.\n` +
                                 `Motivo: gestión administrativa.`
                         }).catch(() => null);
                     }
@@ -179,7 +180,7 @@ export default {
 
                 return interaction.editReply({
                     content:
-                        `<:tilde:1534937809733812286> Matrícula **\`${patente}\`** forzada a baja.\n` +
+                        `${E.tilde} Matrícula **\`${patente}\`** forzada a baja.\n` +
                         `> Dueño: <@${auto.usuario_id}> · ${auto.marca} ${auto.modelo}`
                 });
             }
@@ -200,7 +201,7 @@ export default {
             });
             if (!valid.ok) {
                 return await interaction.editReply({
-                    content: `<:cruz:1534937767652495360> ${valid.motivo}`
+                    content: `${E.cruz} ${valid.motivo}`
                 });
             }
             const patente = valid.patente;
@@ -211,7 +212,7 @@ export default {
                 if (cantidadAutos >= limite) {
                     return await interaction.editReply({
                         content:
-                            `<:cruz:1534937767652495360> **Límite alcanzado:** Ya tenés el máximo de **${limite}** vehículos.\n\n` +
+                            `${E.cruz} **Límite alcanzado:** Ya tenés el máximo de **${limite}** vehículos.\n\n` +
                             `*Dá de baja uno con \`/matricular remover\`.*`
                     });
                 }
@@ -219,7 +220,7 @@ export default {
                 const patenteExistente = await Vehiculo.findOne({ patente });
                 if (patenteExistente) {
                     return await interaction.editReply({
-                        content: `<:cruz:1534937767652495360> La matrícula \`${patente}\` ya está registrada por otro ciudadano.`
+                        content: `${E.cruz} La matrícula \`${patente}\` ya está registrada por otro ciudadano.`
                     });
                 }
 
@@ -235,15 +236,15 @@ export default {
                 marcarRegistroExitoso(usuarioId);
 
                 const embedRegistro = new EmbedBuilder()
-                    .setTitle('<:car:1534938916057120839> SWFL | FORMATO DE MATRICULACIÓN DE VEHÍCULOS <:car:1534938916057120839>')
+                    .setTitle(E.auto + ' SWFL | FORMATO DE MATRICULACIÓN DE VEHÍCULOS ' + E.lock)
                     .setDescription(
-                        `<:replican:1542264548801777685> El siguiente vehículo **ha sido cargado exitosamente** en el sistema de patentes.\n\n` +
-                        `<:si:1534938142665084938> **Marca:** \`${marca}\`\n` +
-                        `<:si:1534938142665084938> **Modelo:** \`${modelo}\`\n` +
-                        `<:si:1534938142665084938> **Año:** \`${anio}\`\n` +
-                        `<:si:1534938142665084938> **Color:** \`${color}\`\n` +
-                        `<:si:1534938142665084938> **Matrícula:** \`${patente}\`\n` +
-                        `<:si:1534938142665084938> **Propietario:** <@${usuarioId}>`
+                        `> ${E.flecha} El siguiente vehículo ha sido cargado exitosamente en el sistema de patentes.\n\n` +
+                        `${E.dot} **Marca:** \`${marca}\`\n` +
+                        `${E.dot} **Modelo:** \`${modelo}\`\n` +
+                        `${E.dot} **Año:** \`${anio}\`\n` +
+                        `${E.dot} **Color:** \`${color}\`\n` +
+                        `${E.dot} **Matrícula:** \`${patente}\`\n` +
+                        `${E.dot} **Propietario:** <@${usuarioId}>`
                     )
                     .setColor('#74d4fc')
                     .setFooter({ text: 'Sistema de Tránsito Oficial' })
@@ -260,7 +261,7 @@ export default {
             const check = patenteValida(interaction.options.getString('patente'));
             if (!check.ok) {
                 return await interaction.editReply({
-                    content: `<:cruz:1534937767652495360> ${check.motivo}`
+                    content: `${E.cruz} ${check.motivo}`
                 });
             }
             const patente = check.patente;
@@ -273,17 +274,17 @@ export default {
 
                 if (!autoBorrado) {
                     return await interaction.editReply({
-                        content: `<:cruz:1534937767652495360> No poseés ningún vehículo con la matrícula \`${patente}\`.`
+                        content: `${E.cruz} No poseés ningún vehículo con la matrícula \`${patente}\`.`
                     });
                 }
 
                 const embedRemover = new EmbedBuilder()
-                    .setTitle('<:form:1535395536012578978> SWFL | ANULACIÓN DE MATRÍCULA <:form:1535395536012578978>')
+                    .setTitle(E.cruz + ' SWFL | ANULACIÓN DE MATRÍCULA ' + E.cruz)
                     .setDescription(
-                        `<:replican:1542264548801777685> **Se revocó el permiso de circulación para**:\n\n` +
-                        `<:si:1534938142665084938> **Matrícula Removida:** \`${patente}\`\n` +
-                        `<:si:1534938142665084938> **Solicitante:** <@${usuarioId}>\n\n` +
-                        `__*Para registrar otro auto usá \`/matricular registrar\`.*__`
+                        `> Se revocó el permiso de circulación para:\n\n` +
+                        `${E.dot} **Matrícula Removida:** \`${patente}\`\n` +
+                        `${E.dot} **Solicitante:** <@${usuarioId}>\n\n` +
+                        `*Para registrar otro auto usá \`/matricular registrar\`.*`
                     )
                     .setColor('#74d4fc')
                     .setFooter({ text: 'Bajas del Sistema de Tránsito' })
@@ -303,7 +304,7 @@ export default {
 
             if (!esAltoMando) {
                 return await interaction.editReply({
-                    content: '<:cruz:1534937767652495360> **Acceso denegado.** Solo **Alto Mando** puede reiniciar todas las matriculaciones.'
+                    content: E.cruz + ' **Acceso denegado.** Solo **Alto Mando** puede reiniciar todas las matriculaciones.'
                 });
             }
 
@@ -311,7 +312,7 @@ export default {
             if (confirmacion !== 'REINICIAR') {
                 return await interaction.editReply({
                     content:
-                        '<:cruz:1534937767652495360> Para confirmar, en **confirmacion** escribí exactamente: `REINICIAR`\n\n' +
+                        E.cruz + ' Para confirmar, en **confirmacion** escribí exactamente: `REINICIAR`\n\n' +
                         '⚠️ Esto borra **todas** las patentes de **todos** los jugadores.'
                 });
             }
@@ -319,7 +320,7 @@ export default {
             const total = await Vehiculo.countDocuments({});
             if (total === 0) {
                 return await interaction.editReply({
-                    content: '<a:verificacion:1534940142823804969> No hay vehículos registrados. Nada que borrar.'
+                    content: E.acajatilde + ' No hay vehículos registrados. Nada que borrar.'
                 });
             }
 
@@ -355,7 +356,7 @@ export default {
 
                 if (clicked.customId === 'matricular_reiniciar_no') {
                     await clicked.update({
-                        content: '<:cruz:1534937767652495360> Reinicio **cancelado**.',
+                        content: E.cruz + ' Reinicio **cancelado**.',
                         embeds: [],
                         components: []
                     });
@@ -367,7 +368,7 @@ export default {
                 const borrados = resultado.deletedCount || 0;
 
                 const embedOk = new EmbedBuilder()
-                    .setTitle('<:tilde:1534937809733812286> Matriculaciones reiniciadas')
+                    .setTitle(E.tilde + ' Matriculaciones reiniciadas')
                     .setColor('#57f287')
                     .setDescription(
                         `Se eliminaron **${borrados}** vehículo(s).\n\n` +

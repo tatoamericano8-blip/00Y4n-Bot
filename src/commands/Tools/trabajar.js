@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { agregarSaldo } from '../../utils/gestorEconomia.js';
 import { getFromDb, setInDb } from '../../utils/database.js';
+import { E } from '../../config/emojis.js';
 
 // Historias al estilo SWFL / Sarasota RP
 const historiasTrabajo = [
@@ -31,7 +32,7 @@ export default {
         if (proximoTrabajo && ahora < proximoTrabajo) {
             const timestampUnix = Math.floor(proximoTrabajo / 1000);
             return await interaction.reply({
-                content: `<:lock:1534938648665915577> Ya trabajaste recientemente y estás descansando. Podrás volver a trabajar <t:${timestampUnix}:R> (<t:${timestampUnix}:f>).`,
+                content: `${E.lock} Ya trabajaste recientemente y estás descansando. Podrás volver a trabajar <t:${timestampUnix}:R> (<t:${timestampUnix}:f>).`,
                 ephemeral: true
             });
         }
@@ -54,12 +55,12 @@ export default {
         // 7. Responder con Embed estilo 00Y4n (#74d4fc)
         const embedWork = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<:llaves:1534937600857608283> ¡Fuiste a trabajar!')
+            .setTitle(E.llaves + ' ¡Fuiste a trabajar!')
             .setDescription(
                 `${historia}\n\n` +
                 `Ganaste **$${ganancia.toLocaleString('es-AR')}**.\n\n` +
-                `<:dot:1534938142665084938> **Balance:** $${nuevoSaldo.toLocaleString('es-AR')}\n` +
-                `<:dot:1534938142665084938> **Próximo turno:** <t:${siguienteTurnoUnix}:f>`
+                `${E.dot} **Balance:** $${nuevoSaldo.toLocaleString('es-AR')}\n` +
+                `${E.dot} **Próximo turno:** <t:${siguienteTurnoUnix}:f>`
             )
             .setFooter({ text: '00Y4n Comunidad SWFL • Sistema de Economía', iconURL: interaction.guild.iconURL() })
             .setTimestamp();

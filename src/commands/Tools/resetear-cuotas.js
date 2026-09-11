@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import { reiniciarCuotasGuild, CANAL_STAFF_ANUNCIOS } from '../../utils/reinicioCuotas.js';
+import { E } from '../../config/emojis.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -11,7 +12,7 @@ export default {
     const ROL_GERENTE_STAFF = '1452684893850177587';
     if (!interaction.member.roles.cache.has(ROL_GERENTE_STAFF)) {
       return interaction.reply({
-        content: '<:cruz:1534937767652495360> **Acceso denegado.** Este comando es exclusivo del rol **Gerente de Staff**.',
+        content: E.cruz + ' **Acceso denegado.** Este comando es exclusivo del rol **Gerente de Staff**.',
         ephemeral: true
       });
     }
@@ -27,7 +28,7 @@ export default {
 
       if (afectados === 0) {
         return await interaction.editReply({
-          content: '<:cruz00y4n:1534937767652495360> No se modificó ningún registro de Staff (puede que ya estuvieran en 0).'
+          content: E.cruz + ' No se modificó ningún registro de Staff (puede que ya estuvieran en 0).'
         });
       }
 
@@ -46,7 +47,7 @@ export default {
     } catch (error) {
       console.error('Error al resetear cuotas:', error);
       return await interaction.editReply({
-        content: '<:cruz00y4n:1534937767652495360> Ocurrió un error al intentar reinicializar las cuotas.'
+        content: E.cruz + ' Ocurrió un error al intentar reinicializar las cuotas.'
       });
     }
   }

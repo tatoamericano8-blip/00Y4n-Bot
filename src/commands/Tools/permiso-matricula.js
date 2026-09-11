@@ -5,6 +5,7 @@ import {
 } from 'discord.js';
 import Vehiculo from '../../../models/Vehiculo.js';
 import PermisoMatriculaExtra from '../../../models/PermisoMatriculaExtra.js';
+import { E } from '../../config/emojis.js';
 
 const ROL_PROPIETARIOS = '1528877296977711256';
 const LIMITE_BASE = 4;
@@ -45,7 +46,7 @@ export default {
   async execute(interaction) {
     if (!esPropietario(interaction.member)) {
       return interaction.reply({
-        content: '<:cruz:1534937767652495360> Solo el **Equipo de Propietarios** puede usar este comando.',
+        content: E.cruz + ' Solo el **Equipo de Propietarios** puede usar este comando.',
         flags: MessageFlags.Ephemeral
       });
     }
@@ -64,7 +65,7 @@ export default {
       );
       return interaction.editReply({
         content:
-          `<:tilde:1534937809733812286> **Permiso extra** a <@${target.id}>.\n` +
+          `${E.tilde} **Permiso extra** a <@${target.id}>.\n` +
           `> Slots extra: **${cantidad}** · Límite total: **${LIMITE_BASE + cantidad}** (base ${LIMITE_BASE} + extra).`
       });
     }
@@ -74,12 +75,12 @@ export default {
       const deleted = await PermisoMatriculaExtra.findOneAndDelete({ guildId, userId: target.id });
       if (!deleted) {
         return interaction.editReply({
-          content: `<:warn:1534937002695327837> <@${target.id}> no tenía permiso extra.`
+          content: `${E.warn} <@${target.id}> no tenía permiso extra.`
         });
       }
       return interaction.editReply({
         content:
-          `<:tilde:1534937809733812286> Se quitó el permiso extra de <@${target.id}>.\n` +
+          `${E.tilde} Se quitó el permiso extra de <@${target.id}>.\n` +
           `> Vuelve al límite base de **${LIMITE_BASE}**.`
       });
     }
@@ -88,13 +89,13 @@ export default {
     const patente = String(interaction.options.getString('patente') || '').trim();
     if (!patente) {
       return interaction.editReply({
-        content: '<:cruz:1534937767652495360> Indicá la matrícula a eliminar.'
+        content: E.cruz + ' Indicá la matrícula a eliminar.'
       });
     }
     const auto = await Vehiculo.findOneAndDelete({ patente });
     if (!auto) {
       return interaction.editReply({
-        content: `<:cruz:1534937767652495360> No hay vehículo con la matrícula \`${patente}\`.`
+        content: `${E.cruz} No hay vehículo con la matrícula \`${patente}\`.`
       });
     }
     try {
@@ -109,7 +110,7 @@ export default {
     } catch (_) {}
     return interaction.editReply({
       content:
-        `<:tilde:1534937809733812286> Matrícula \`${patente}\` eliminada.\n` +
+        `${E.tilde} Matrícula \`${patente}\` eliminada.\n` +
         `> Dueño: <@${auto.usuario_id}> · ${auto.marca} ${auto.modelo}\n` +
         `-# Se intentó notificar por MD al propietario.`
     });

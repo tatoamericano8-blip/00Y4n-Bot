@@ -5,6 +5,7 @@ import { obtenerSaldo } from '../../utils/gestorEconomia.js';
 import { obtenerTodasLasMultas } from '../../utils/gestorMultas.js';
 import { armarInventarioCompleto } from '../../utils/gestorTienda.js';
 import { TIENDA_COLOR } from '../../config/tiendaServer.js';
+import { E } from '../../config/emojis.js';
 
 const BLOXLINK_API_KEY = 'e47f3929-9be2-4179-82b1-e53b4a9a6538';
 
@@ -55,7 +56,7 @@ export default {
 
         if (!robloxId) {
             const embedError = new EmbedBuilder()
-                .setTitle('<:cruz:1534937767652495360> CONTROL DE VERIFICACIÓN')
+                .setTitle(E.cruz + ' CONTROL DE VERIFICACIÓN')
                 .setDescription(`> El usuario <@${miembro.id}> no se encuentra verificado en la base de datos global de **Bloxlink**.\n\nPor favor, asegúrate de estar verificado antes de vincular tu documentación de SWFL.`)
                 .setColor('#ff3333')
                 .setTimestamp();
@@ -92,7 +93,7 @@ export default {
         let estadoLicencia = (datosLicencia && datosLicencia.estado) ? datosLicencia.estado : 'Sin licencia';
 
         let textoLicenciaVisual = '⚪ Sin licencia';
-        if (estadoLicencia === 'Activa') textoLicenciaVisual = '<:tilde:1534937809733812286> Activa';
+        if (estadoLicencia === 'Activa') textoLicenciaVisual = E.tilde + ' Activa';
         else if (estadoLicencia === 'Suspendida') textoLicenciaVisual = '🟡 Suspendida';
         else if (estadoLicencia === 'Revocada') textoLicenciaVisual = '🔴 Revocada';
         else textoLicenciaVisual = '⚪ Sin licencia';
@@ -104,15 +105,15 @@ export default {
         const deudaTotal = multasPendientes.reduce((acc, m) => acc + (Number(m.monto) || 0), 0);
 
         const perfilEmbed = new EmbedBuilder()
-            .setTitle('<:id:1534937551092187136> Southwest Florida | *Perfil de Ciudadano*')
+            .setTitle(E.id + ' Southwest Florida | *Perfil de Ciudadano*')
             .setDescription(
                 `> Ficha de registro oficial del ciudadano dentro de nuestra base de datos de regulaciones de tránsito y economía.\n\n` +
-                `<:dot:1534938142665084938> **Usuario:** <@${miembro.id}>\n` +
-                `<:dot:1534938142665084938> **Perfil de Roblox:** [${robloxUsername}](https://www.roblox.com/users/${robloxId}/profile)\n` +
-                `<:dot:1534938142665084938> **Estado de Licencia:** ${textoLicenciaVisual}\n` +
-                `<:dot:1534938142665084938> **Balance Bancario:** **$${saldoActual.toLocaleString()}**\n` +
-                `<:dot:1534938142665084938> **Vehículos Registrados:** \`${autosRegistrados.length}\`\n` +
-                `<:dot:1534938142665084938> **Multas Pendientes:** \`${multasPendientes.length}\` ${deudaTotal > 0 ? `*(Deuda: $${deudaTotal.toLocaleString()})*` : '*(Al día)*'}\n\n` +
+                `${E.dot} **Usuario:** <@${miembro.id}>\n` +
+                `${E.dot} **Perfil de Roblox:** [${robloxUsername}](https://www.roblox.com/users/${robloxId}/profile)\n` +
+                `${E.dot} **Estado de Licencia:** ${textoLicenciaVisual}\n` +
+                `${E.dot} **Balance Bancario:** **$${saldoActual.toLocaleString()}**\n` +
+                `${E.dot} **Vehículos Registrados:** \`${autosRegistrados.length}\`\n` +
+                `${E.dot} **Multas Pendientes:** \`${multasPendientes.length}\` ${deudaTotal > 0 ? `*(Deuda: $${deudaTotal.toLocaleString()})*` : '*(Al día)*'}\n\n` +
                 `⤷ *Para registrar una nueva unidad en tu garaje utiliza el comando \`/matricula registrar\` de forma pública.*`
             )
             .setThumbnail(fotoAvatar)
@@ -153,7 +154,7 @@ export default {
                 const listaAutosActuales = await obtenerVehiculosUsuario(targetId);
                 if (listaAutosActuales.length === 0) {
                     const embedVacio = new EmbedBuilder()
-                        .setTitle('<:form:1523041319046479964> Vehículos Registrados')
+                        .setTitle(E.carpeta + ' Vehículos Registrados')
                         .setDescription(`No se encontraron vehículos ni patentes activas registradas en el sistema para <@${targetId}>.`)
                         .setColor('#74d4fc')
                         .setFooter({ text: 'Sistema de Tránsito Oficial' });
@@ -165,7 +166,7 @@ export default {
                     `> • Matrícula: \`${auto.patente}\``
                 ).join('\n\n');
                 const embedConAutos = new EmbedBuilder()
-                    .setTitle('<:form:1534938422202994755> Vehículos Registrados')
+                    .setTitle(E.lista + ' Vehículos Registrados')
                     .setDescription(`Lista de vehículos activos en el sistema para <@${targetId}>:\n\n${stringAutos}`)
                     .setColor('#74d4fc')
                     .setFooter({ text: 'Sistema de Tránsito Oficial' });
@@ -178,8 +179,8 @@ export default {
                 const multasUsuarioActuales = arrayMultasActuales.filter(multa => String(multa.usuarioId || multa.usuario_id) === String(targetId));
                 if (multasUsuarioActuales.length === 0) {
                     const embedSinMultas = new EmbedBuilder()
-                        .setTitle('<:folder:1534938334650962115> Historial de Multas')
-                        .setDescription(`<:tilde:1534937809733812286> El usuario <@${targetId}> **no tiene ningún tipo de multa.**`)
+                        .setTitle(E.carpeta + ' Historial de Multas')
+                        .setDescription(`${E.tilde} El usuario <@${targetId}> **no tiene ningún tipo de multa.**`)
                         .setColor('#74d4fc')
                         .setFooter({ text: 'Departamento de Policía' })
                         .setTimestamp();
@@ -209,8 +210,8 @@ export default {
                     return line;
                 }).join('\n\n');
                 const embedConMultas = new EmbedBuilder()
-                    .setTitle('<:folder:1534938334650962115> Historial de Multas')
-                    .setDescription(`<:dot:1534938142665084938> Multas de tránsito aplicadas a <@${targetId}>:\n\n${stringMultas}`)
+                    .setTitle(E.carpeta + ' Historial de Multas')
+                    .setDescription(`${E.dot} Multas de tránsito aplicadas a <@${targetId}>:\n\n${stringMultas}`)
                     .setColor('#ff3333')
                     .setFooter({ text: 'Departamento de Policía' })
                     .setTimestamp();

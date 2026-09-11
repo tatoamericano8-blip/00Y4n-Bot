@@ -7,6 +7,7 @@ import {
   ButtonBuilder,
   ButtonStyle
 } from 'discord.js';
+import { E } from '../../config/emojis.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -21,7 +22,7 @@ export default {
     const ROL_GERENTE_STAFF = '1452684893850177587';
     if (!interaction.member.roles.cache.has(ROL_GERENTE_STAFF)) {
       return interaction.reply({
-        content: '<:cruz00y4n:1523041302764191844> **Acceso denegado.** Solo **Gerente de Staff** puede usar este comando.',
+        content: E.cruz + ' **Acceso denegado.** Solo **Gerente de Staff** puede usar este comando.',
         flags: MessageFlags.Ephemeral
       });
     }
@@ -31,21 +32,21 @@ export default {
 
     if (rol.managed) {
       return interaction.reply({
-        content: '<:cruz00y4n:1523041302764191844> No se puede asignar un rol gestionado por una integración.',
+        content: E.cruz + ' No se puede asignar un rol gestionado por una integración.',
         flags: MessageFlags.Ephemeral
       });
     }
 
     if (rol.position >= botMember.roles.highest.position) {
       return interaction.reply({
-        content: '<:cruz00y4n:1523041302764191844> Ese rol está por encima (o al mismo nivel) del rol del bot.',
+        content: E.cruz + ' Ese rol está por encima (o al mismo nivel) del rol del bot.',
         flags: MessageFlags.Ephemeral
       });
     }
 
     if (rol.position >= interaction.member.roles.highest.position && interaction.guild.ownerId !== interaction.user.id) {
       return interaction.reply({
-        content: '<:cruz00y4n:1523041302764191844> No puedes asignar un rol igual o superior al tuyo.',
+        content: E.cruz + ' No puedes asignar un rol igual o superior al tuyo.',
         flags: MessageFlags.Ephemeral
       });
     }

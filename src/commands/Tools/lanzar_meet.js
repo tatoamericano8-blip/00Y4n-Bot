@@ -3,6 +3,7 @@ import Sesion from '../../../models/Session.js';
 import Historial from '../../../models/Historial.js';
 import { cerrarFastPassesDeGuild } from '../../utils/gestorFastPass.js';
 import { bloquearSiCooldown, setCooldownSesion } from '../../utils/cooldownSesiones.js';
+import { E } from '../../config/emojis.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
@@ -25,7 +26,7 @@ export default {
     async execute(interaction) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
-                content: '<:cruz00y4n:1534937767652495360> **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesion.',
+                content: E.cruz + ' **No tienes permisos:** Solo el Staff puede liberar los accesos de la sesion.',
                 ephemeral: true
             });
         }
@@ -51,16 +52,16 @@ export default {
         } catch (_) {}
 
         const infoDescripcion =
-            `<:dot:1534938142665084938> <@${interaction.user.id}> **ha liberado su sesión de Car Meet!** Asegurate de seguir todas las instrucciones del host y co-hosts antes de salir del spawn. Además, se deben respetar todas las regulaciones de **Southwest Florida Comunidad 00Y4n** durante toda la sesión.\n\n` +
-            `<:replican:1542264548801777685> Los links del servidor se regenerarán a los **tres minutos** de la liberación, así que únete rápido. Las reinvitaciones ocurrirán **cada quince minutos** (según las reacciones), así que no le pidas el link al host.\n\n` +
-            `<:manual:1534999731019972671> **__Información de la sesión:__**\n` +
-            `<:dotp:1542258368301899866> Temática: **${tematica}**\n` +
-            `<:dotp:1542258368301899866> Ubicación: **${ubicacion}**\n` +
-            `<:dotp:1542258368301899866> Spots / Duración: **${spots}**\n\n` +
-            `<:adv:1534937002695327837> __Cualquier compartición no autorizada del link resultará en un **ban inmediato** del servidor__.`;
+            E.dot + ` <@${interaction.user.id}> **ha liberado su sesión de Car Meet!** Asegurate de seguir todas las instrucciones del host y co-hosts antes de salir del spawn. Además, se deben respetar todas las regulaciones de **Southwest Florida Comunidad 00Y4n** durante toda la sesión.\n\n` +
+            E.replican + ` Los links del servidor se regenerarán a los **tres minutos** de la liberación, así que únete rápido. Las reinvitaciones ocurrirán **cada quince minutos** (según las reacciones), así que no le pidas el link al host.\n\n` +
+            E.manual + ` **__Información de la sesión:__**\n` +
+            E.jpuntderecha + ` Temática: **${tematica}**\n` +
+            E.jpuntderecha + ` Ubicación: **${ubicacion}**\n` +
+            E.jpuntderecha + ` Spots / Duración: **${spots}**\n\n` +
+            E.warn + ` __Cualquier compartición no autorizada del link resultará en un **ban inmediato** del servidor__.`;
 
         const embedRelease = new EmbedBuilder()
-            .setTitle('<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — *__Sesión de Car Meet Liberada__* <a:mariquieta:1534954231138746488>')
+            .setTitle(E.a2alas + ' Southwest Florida Comunidad 00Y4n — *__Sesión de Car Meet Liberada__* ' + E.a2alas)
             .setDescription(infoDescripcion)
             .setColor('#74d4fc');
 

@@ -1,6 +1,7 @@
 import { EmbedBuilder } from 'discord.js';
 import { getFromDb, setInDb } from './database.js';
 import { logger } from './logger.js';
+import { E } from '../config/emojis.js';
 
 // ⚙️ CONFIGURACIÓN
 const ID_ROL_CIUDADANO_DIA = '1530287573547880581'; // Reemplaza con el ID del rol @Ciudadano del Día
@@ -63,9 +64,9 @@ export async function procesarCiudadanoDelDia(client) {
         // 🎨 EMBED TRADUCIDO Y ESTILIZADO (Igual a la imagen)
         const embedCiudadano = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle('<:trofeo:1534938966950809751> Ciudadano del Día')
+            .setTitle(E.trofeo + ' Ciudadano del Día')
             .setDescription(
-                `<:fle:1534937306191102125> Cada día, **${guild.name}** muestra su agradecimiento al ciudadano más activo en los canales de texto y voz.\n\n` +
+                `${E.flecha} Cada día, **${guild.name}** muestra su agradecimiento al ciudadano más activo en los canales de texto y voz.\n\n` +
                 `¡Este usuario recibe el rol de <@&${ID_ROL_CIUDADANO_DIA}>, otorgándole **exención de vehículos restringidos**, **acceso anticipado** y **permiso para enviar imágenes** durante todo el día!\n\n` +
                 `Hoy nos gustaría extender nuestro mayor agradecimiento a <@${idGanador}> por su gran participación e interacción.\n\n` +
                 `*Si querés ganar, ¡simplemente sé activo en el servidor y podrías ser el próximo ganador!*`

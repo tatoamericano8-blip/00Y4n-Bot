@@ -4,6 +4,7 @@ import Session from '../../models/Session.js';
 import { sumarCuotaStaff } from '../utils/gestorCuotas.js';
 import { pagarStaffSesion } from '../utils/gestorPagoHost.js';
 import { finalizarYPublicarLogSesion } from '../utils/logSesionArchivo.js';
+import { E } from '../config/emojis.js';
 
 function formatearDuracionMs(ms) {
     if (!ms || ms < 0) return 'No disponible';
@@ -51,7 +52,7 @@ export default {
         if (!interaction.member.roles.cache.has(ROL_STAFF)) {
             return interaction.reply({
                 content:
-                    '<:cruz:1534937767652495360> Solo el **Staff 00Y4n** puede usar `/cerrar`.',
+                    E.cruz + ' Solo el **Staff 00Y4n** puede usar `/cerrar`.',
                 ephemeral: true
             });
         }
@@ -212,7 +213,7 @@ export default {
             console.error('Error limpiando mensajes en /cerrar:', error);
         }
 
-        const titulo = `<a:mariquieta:1534954231138746488> Southwest Florida Comunidad 00Y4n — __*Sesión Finalizada*__ <a:mariquieta:1534954231138746488>`;
+        const titulo = E.a2alas + ` Southwest Florida Comunidad 00Y4n — __*Sesión Finalizada*__ ` + E.a2alas;
 
         const inicioUnix = fechaInicio ? Math.floor(fechaInicio.getTime() / 1000) : null;
         const finUnix = Math.floor(fechaFin.getTime() / 1000);
@@ -220,17 +221,17 @@ export default {
 
         const lineasTiempo = [];
         if (inicioUnix) {
-            lineasTiempo.push(`<:dotn:1542258368301899866> **Hora de inicio:** <t:${inicioUnix}:F>`);
+            lineasTiempo.push(E.jpuntderecha + ` **Hora de inicio:** <t:${inicioUnix}:F>`);
         } else {
-            lineasTiempo.push(`<:dotn:1542258368301899866> **Hora de inicio:** No registrada`);
+            lineasTiempo.push(E.jpuntderecha + ` **Hora de inicio:** No registrada`);
         }
-        lineasTiempo.push(`<:dotn:1542258368301899866> **Hora de cierre:** <t:${finUnix}:F>`);
-        lineasTiempo.push(`<:dotn:1542258368301899866> **Duración:** ${duracionMostrar}`);
+        lineasTiempo.push(E.jpuntderecha + ` **Hora de cierre:** <t:${finUnix}:F>`);
+        lineasTiempo.push(E.jpuntderecha + ` **Duración:** ${duracionMostrar}`);
 
         let pagosTxt = '';
         if (pagos && (pagos.host || pagos.cohost)) {
             pagosTxt =
-                `\n<:dotn:1542258368301899866> **Pagos staff:** Host $${Number(pagos.host).toLocaleString()}` +
+                `\n` + E.jpuntderecha + ` **Pagos staff:** Host $${Number(pagos.host).toLocaleString()}` +
                 (pagos.cohost ? ` · Co-host $${Number(pagos.cohost).toLocaleString()}` : '') +
                 (pagos.supervisor ? ` · Supervisor $${Number(pagos.supervisor).toLocaleString()}` : '');
         }
@@ -238,11 +239,11 @@ export default {
         const embedCierre = new EmbedBuilder()
             .setTitle(titulo)
             .setDescription(
-                `<:dot:1534938142665084938> <@${hostMencion}> **ha finalizado su servidor.** Agradecemos a todos los que participaron y los invitamos a volver pronto para la próxima sesión.\n\n` +
+                E.dot + ` <@${hostMencion}> **ha finalizado su servidor.** Agradecemos a todos los que participaron y los invitamos a volver pronto para la próxima sesión.\n\n` +
                     lineasTiempo.join('\n') +
-                    `\n<:dotn:1542258368301899866> **Notas del host:** ${notasHost}` +
+                    `\n` + E.jpuntderecha + ` **Notas del host:** ${notasHost}` +
                     pagosTxt +
-                    `\n\n<:replica:1542264548801777685> *Los servidores se hostean de forma activa a lo largo del día mientras trabajamos hacia el objetivo de hosting 24/7. No te desanimes si no hay una sesión en curso — otra comenzará pronto*.`
+                    `\n\n` + E.replican + ` *Los servidores se hostean de forma activa a lo largo del día mientras trabajamos hacia el objetivo de hosting 24/7. No te desanimes si no hay una sesión en curso — otra comenzará pronto*.`
             )
             .setColor('#74d4fc');
 

@@ -10,6 +10,7 @@ import {
 import { saveTicketData, incrementTicketCounter } from '../../utils/database.js';
 import { logger } from '../../utils/logger.js';
 import { estaEnListaNegraTickets } from '../../utils/gestorTicketBlacklist.js';
+import { E } from '../../config/emojis.js';
 
 const COLOR = 0xfb8b66;
 const ROLE_STAFF = '1512120103771050005';
@@ -105,7 +106,7 @@ export default {
 
         if (!tipo) {
             return interaction.reply({
-                content: '<:cruz00y4n:1534937767652495360> Tipo de ticket inválido.',
+                content: E.cruz + ' Tipo de ticket inválido.',
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -131,7 +132,7 @@ export default {
                       : '—';
                 return interaction.editReply({
                     content:
-                        `<:cruz:1534937767652495360> **No podés abrir tickets.**\n` +
+                        `${E.cruz} **No podés abrir tickets.**\n` +
                         `Estás en la lista negra de tickets.\n` +
                         `**Motivo:** ${bl.motivo}\n` +
                         `**Hasta:** ${hasta}`
@@ -284,14 +285,14 @@ export default {
             await msg.pin().catch(() => null);
 
             return interaction.editReply({
-                content: `<:tilde:1534937809733812286> Ticket creado: ${channel}`
+                content: `${E.tilde} Ticket creado: ${channel}`
             });
         } catch (err) {
             logger.error('[ticket_tipo] Error:', err);
             const detail = err?.rawError?.message || err?.message || 'error desconocido';
             return interaction.editReply({
                 content:
-                    `<:cruz00y4n:1534937767652495360> No se pudo crear el ticket: **${detail}**\n` +
+                    `${E.cruz} No se pudo crear el ticket: **${detail}**\n` +
                     `-# Revisá que el bot tenga permiso **Gestionar canales** y **Ver canales** en la categoría de tickets.`
             });
         }

@@ -3,6 +3,7 @@ import { obtenerStrikesUsuario } from '../../utils/gestorStrikes.js';
 import { WarningService } from '../../services/warningService.js';
 import { getModerationCases } from '../../utils/moderation.js';
 import Staff from '../../../models/Staff.js';
+import { E } from '../../config/emojis.js';
 
 const ROLE_STAFF = '1512120103771050005';
 const ROLE_HIGH_COMMAND = '1528870731629465752';
@@ -117,7 +118,7 @@ export default {
 
         const embed = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle(`<:folder:1534938334650962115> Modlogs – ${target.username}`)
+            .setTitle(`${E.carpeta} Modlogs – ${target.username}`)
             .setThumbnail(target.displayAvatarURL({ dynamic: true }))
             .setDescription(
                 `**Usuario:** <@${target.id}>\n` +
@@ -146,7 +147,7 @@ export default {
 
         if (staffStrikesTexto) {
             embed.addFields({
-                name: '<:staff:1534956881787752478> Staff Strikes',
+                name: E.staff_icon + ' Staff Strikes',
                 value: staffStrikesTexto.length > 1024
                     ? staffStrikesTexto.slice(0, 1000) + '...'
                     : staffStrikesTexto

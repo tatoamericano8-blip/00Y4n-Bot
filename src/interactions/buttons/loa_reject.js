@@ -1,7 +1,6 @@
 import { EmbedBuilder } from 'discord.js';
 import mongoose from 'mongoose';
-
-const ROL_ALTO_COMANDO = '1528870731629465752';
+import { E } from '../../config/emojis.js';
 
 async function cargarModelo(nombre, ruta1, ruta2) {
   if (mongoose.models[nombre]) return mongoose.models[nombre];
@@ -23,6 +22,7 @@ export default {
   customId: 'loa_reject',
   name: 'loa_reject',
   async execute(interaction, client, args) {
+    const ROL_ALTO_COMANDO = '1528870731629465752';
     if (!interaction.member?.roles?.cache?.has(ROL_ALTO_COMANDO)) {
       return interaction.reply({
         content: 'Solo **Alto Comando** puede rechazar solicitudes de LOA.',
@@ -64,7 +64,7 @@ export default {
 
       const embedEditado = EmbedBuilder.from(embedOriginal || {})
         .setColor(0xe74c3c)
-        .setTitle('Solicitud de Ausencia (LOA) — RECHAZADA')
+        .setTitle('❌ Solicitud de Ausencia (LOA) — RECHAZADA')
         .setFooter({
           text: `Rechazada por ${interaction.user.tag}`,
           iconURL: interaction.user.displayAvatarURL()
@@ -77,7 +77,8 @@ export default {
     } catch (error) {
       console.error('Error procesando rechazo LOA:', error);
       await interaction.followUp({
-        content: 'Ocurrió un error al procesar el rechazo.',
+        content:
+          E.cruz + ' Ocurrió un error al procesar el rechazo.',
         ephemeral: true
       });
     }

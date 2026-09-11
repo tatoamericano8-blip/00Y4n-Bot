@@ -3,6 +3,7 @@ import { closeTicket } from '../../services/ticket.js';
 import { getTicketData } from '../../utils/database.js';
 import { sumarCuotaStaff } from '../../utils/gestorCuotas.js';
 import { logger } from '../../utils/logger.js';
+import { E } from '../../config/emojis.js';
 
 const ROLE_STAFF = '1512120103771050005';
 const ROLE_ALTO_COMANDO = '1528870731629465752';
@@ -14,6 +15,7 @@ export default {
   async execute(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
+    // Leer datos ANTES de cerrar (claimedBy, etc.)
     let ticketBefore = null;
     try {
       ticketBefore = await getTicketData(interaction.guildId, interaction.channelId);
@@ -31,6 +33,7 @@ export default {
     }
 
     const ticketData = result.ticketData || ticketBefore || {};
+    // Preferir claimedBy de antes del cierre
     const claimedBy = String(
       ticketBefore?.claimedBy || ticketData?.claimedBy || ''
     ) || null;
@@ -39,6 +42,10 @@ export default {
       ticketData?.userId && String(ticketData.userId) === closerId;
 
     const esStaffRol = interaction.member.roles.cache.has(ROLE_STAFF);
+    const esAltoComando =
+      interaction.member.roles.cache.has(ROLE_ALTO_COMANDO) ||
+      interaction.member.permissions.has(PermissionFlagsBits.Administrator);
+    // Cuota solo con rol Staff (como pediste). Alto Comando también puede si tiene el rol Staff.
     const puedeCuota = esStaffRol;
 
     let cuotaOk = false;
@@ -66,6 +73,7 @@ export default {
       motivoNoCuota = err.message;
     }
 
+    // SIEMPRE loguear el cierre en el canal (sume o no)
     try {
       const logCh = await interaction.client.channels.fetch(LOG_CUOTA_TICKETS).catch((e) => {
         logger.warn(`[ticket_close] fetch log channel: ${e.message}`);
@@ -97,7 +105,7 @@ export default {
     if (cuotaOk) {
       return interaction.editReply({
         content:
-          '✅ Ticket cerrado correctamente.\n<:tilde:1534937809733812286> Se sumó **+1 ticket** a tu cuota de staff.'
+          '✅ Ticket cerrado correctamente.\n' + E.tilde + ' Se sumó **+1 ticket** a tu cuota de staff.'
       });
     }
 
