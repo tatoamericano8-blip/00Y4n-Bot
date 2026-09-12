@@ -3,7 +3,7 @@ import Sesion from '../../../models/Session.js';
 import Historial from '../../../models/Historial.js';
 import { cerrarFastPassesDeGuild } from '../../utils/gestorFastPass.js';
 import { bloquearSiCooldown, setCooldownSesion } from '../../utils/cooldownSesiones.js';
-import { E } from '../../config/emojis.js';
+import { E, EMOJI_DEF } from '../../config/emojis.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
@@ -128,7 +128,7 @@ export default {
                 .setCustomId('verificar_voto_swfl')
                 .setLabel('Link de la Sesion')
                 .setStyle(ButtonStyle.Secondary)
-                .setEmoji('1534937419231527036')
+                .setEmoji(EMOJI_DEF.lock.id)
         );
 
         await interaction.reply({ content: 'Liberando accesos de Roleplay...', ephemeral: true });

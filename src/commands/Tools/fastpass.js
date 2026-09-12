@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
 import { guardarFastPass } from '../../utils/gestorFastPass.js';
-import { E } from '../../config/emojis.js';
+import { E, EMOJI_DEF } from '../../config/emojis.js';
 
 const EMOJIS = {
     flechaH: E.flecha,
@@ -65,7 +65,7 @@ export default {
             new ButtonBuilder()
                 .setCustomId('verificar_fastpass_swfl')
                 .setLabel('FastPass')
-                .setEmoji('1534937419231527036')
+                .setEmoji(EMOJI_DEF.lock.id)
                 .setStyle(ButtonStyle.Secondary)
         );
 

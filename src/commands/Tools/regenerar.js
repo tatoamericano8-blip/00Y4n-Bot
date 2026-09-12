@@ -8,7 +8,7 @@ import {
   MessageFlags
 } from 'discord.js';
 import Sesion from '../../../models/Session.js';
-import { E } from '../../config/emojis.js';
+import { E, EMOJI_DEF } from '../../config/emojis.js';
 
 const ROL_STAFF = '1512120103771050005';
 
@@ -90,7 +90,7 @@ export default {
         const botonBloqueado = new ButtonBuilder()
           .setCustomId(`link_bloqueado_${Date.now()}`)
           .setLabel('Link Regenerado')
-          .setEmoji('1534938648665915577')
+          .setEmoji(EMOJI_DEF.lock.id)
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(true);
 
@@ -118,7 +118,7 @@ export default {
       new ButtonBuilder()
         .setCustomId('staff_link_regenerar')
         .setLabel('Staff Link')
-        .setEmoji('1536868110571806830')
+        .setEmoji(EMOJI_DEF.lock.id)
         .setStyle(ButtonStyle.Secondary)
     );
 

@@ -3,7 +3,7 @@ import { agregarSaldo } from './gestorEconomia.js';
 import { PRIMARIO } from './colores.js';
 import { logger } from './logger.js';
 import { setInDb } from './database.js';
-import { E } from '../config/emojis.js';
+import { E, EMOJI_DEF } from '../config/emojis.js';
 
 /** Banner de oportunidad (solo imagen) — se envía como primer embed */
 const BANNER_OPORTUNIDAD_URL =
@@ -63,7 +63,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
             new ButtonBuilder()
                 .setCustomId('reclamar_oportunidad')
                 .setLabel('Reclamar')
-                .setEmoji('1534937419231527036')
+                .setEmoji(EMOJI_DEF.lock.id)
                 .setStyle(ButtonStyle.Secondary)
         );
 
@@ -98,7 +98,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
                     new ButtonBuilder()
                         .setCustomId('reclamado_done')
                         .setLabel('Reclamado')
-                        .setEmoji('1534938648665915577')
+                        .setEmoji(EMOJI_DEF.lock.id)
                         .setStyle(ButtonStyle.Secondary)
                         .setDisabled(true)
                 );

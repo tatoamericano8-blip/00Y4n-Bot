@@ -4,7 +4,7 @@ import Session from '../../models/Session.js';
 import { sumarCuotaStaff } from '../utils/gestorCuotas.js';
 import { pagarStaffSesion } from '../utils/gestorPagoHost.js';
 import { finalizarYPublicarLogSesion } from '../utils/logSesionArchivo.js';
-import { E } from '../config/emojis.js';
+import { E, EMOJI_DEF } from '../config/emojis.js';
 
 function formatearDuracionMs(ms) {
     if (!ms || ms < 0) return 'No disponible';
@@ -254,7 +254,7 @@ export default {
             new ButtonBuilder()
                 .setCustomId('abrir_feedback_swfl')
                 .setLabel('Opinion de la Sesion')
-                .setEmoji('1534938422202994755')
+                .setEmoji(EMOJI_DEF.lista.id)
                 .setStyle(ButtonStyle.Secondary)
         );
 
