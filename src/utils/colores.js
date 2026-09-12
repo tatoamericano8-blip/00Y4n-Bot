@@ -22,7 +22,7 @@
  */
 
 /** Color principal de marca 00Y4n — CAMBIÁ SOLO ESTA LÍNEA */
-export const PRIMARIO = '#FB8B66';
+export const PRIMARIO = '#8ae6fa';
 
 /** Alias legibles para embeds */
 export const COLORES = {
