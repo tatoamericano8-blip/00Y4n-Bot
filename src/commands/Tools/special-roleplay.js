@@ -6,32 +6,32 @@ const ROLEPLAYS = {
   realista: {
     name: 'Roleplay realista',
     image:
-      'https://cdn.discordapp.com/attachments/1505017301089652898/1543016291760210040/Roleplay_Realista_1.png'
+      'https://cdn.discordapp.com/attachments/1505017301089652898/1548141457414684692/Roleplay_Realista.png?ex=6aa5fa96&is=6aa4a916&hm=893c7b16cb993439cb29a604c6fdfb8ca222be3701596e36b9f2f94c7a4ee83d&'
   },
   reino_unido: {
     name: 'Reino Unido Roleplay',
     image:
-      'https://cdn.discordapp.com/attachments/1505017301089652898/1543015950570229870/Reino_unido_Roleplay.png'
+      'https://cdn.discordapp.com/attachments/1505017301089652898/1548141459583008788/Reino_unido_Roleplay.jpg?ex=6aa5fa97&is=6aa4a917&hm=8b3eac31d1b4d04fb5003c61dff02647cd9544590c05fd24b72144a43bdfa2fd&'
   },
   funeral: {
     name: 'Funeral Roleplay',
     image:
-      'https://cdn.discordapp.com/attachments/1505017301089652898/1543015949249286144/Funeral_Roleplay.png'
+      'https://cdn.discordapp.com/attachments/1505017301089652898/1548141459239338094/Funeral_Roleplay.jpg?ex=6aa5fa96&is=6aa4a916&hm=4c96abf056c2772d315cd5f3dff61f41721911cd70f4d09f9c7af6dfea38b6f7&'
   },
   cars_coffee: {
     name: "Cars & Coffee",
     image:
-      'https://cdn.discordapp.com/attachments/1505017301089652898/1543015948590518282/Cars__Coffe.png'
+      'https://cdn.discordapp.com/attachments/1505017301089652898/1548141458731573321/Cars__Coffe.jpg?ex=6aa5fa96&is=6aa4a916&hm=ae0b66774826c38db1a15bb999dd2919ecda254eed616fc303663e7a1cb109f4&'
   },
   ano_2000s: {
     name: "Roleplay Año 2000's",
     image:
-      'https://cdn.discordapp.com/attachments/1505017301089652898/1543015946707542036/Roleplay_Ano_200s.png'
+      'https://cdn.discordapp.com/attachments/1505017301089652898/1548141459868360776/ROLEPLAY_ANO_2000s.jpg?ex=6aa5fa97&is=6aa4a917&hm=c3e220e669974dcffb0657379b67f3b12e587990eb3bfdaf23ca4cefa41fd50e&'
   },
   area_centro: {
     name: 'Area RP Centro',
     image:
-      'https://cdn.discordapp.com/attachments/1505017301089652898/1543015947814576209/Area_RP_Centro.png'
+      'https://cdn.discordapp.com/attachments/1505017301089652898/1548141458261807104/AREA_RP_Centro.jpg?ex=6aa5fa96&is=6aa4a916&hm=29110bd474f00d81ef14cba692decc9a67f239fbc442833ec913d12756ab05a8&'
   }
 };
 
