@@ -236,7 +236,7 @@ export default {
                 marcarRegistroExitoso(usuarioId);
 
                 const embedRegistro = new EmbedBuilder()
-                    .setTitle(E.auto + ' SWFL | FORMATO DE MATRICULACIÓN DE VEHÍCULOS ' + E.lock)
+                    .setTitle(E.auto + ' SWFL | FORMATO DE MATRICULACIÓN DE VEHÍCULOS ' + E.auto)
                     .setDescription(
                         `> ${E.flecha} El siguiente vehículo ha sido cargado exitosamente en el sistema de patentes.\n\n` +
                         `${E.dot} **Marca:** \`${marca}\`\n` +
