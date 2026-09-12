@@ -39,7 +39,7 @@ async function handlePanelButton(interaction) {
             return `**${i + 1}.** \`${s.estado}\` \u00b7 host <@${s.hostId}>` + (s.coHostId ? ` \u00b7 co-host <@${s.coHostId}>` : '') + ` \u00b7 inicio ${ini}\nID inicio: \`${s.idInicio}\``;
         });
         return interaction.editReply({
-            embeds: [new EmbedBuilder().setColor('#FB8B66').setTitle('Sesiones abiertas').setDescription(lineas.join('\n\n').slice(0, 4000)).setFooter({ text: 'Para cerrar: /cerrar_swfl o /forzar-cierre' })]
+            embeds: [new EmbedBuilder().setColor('#8ae6fa').setTitle('Sesiones abiertas').setDescription(lineas.join('\n\n').slice(0, 4000)).setFooter({ text: 'Para cerrar: /cerrar_swfl o /forzar-cierre' })]
         });
     }
 

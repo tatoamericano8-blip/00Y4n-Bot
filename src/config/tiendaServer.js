@@ -6,7 +6,7 @@
 export const TIENDA_BANNER =
   'https://cdn.discordapp.com/attachments/1505017301089652898/1536043757949161492/Server_Tienda_1.png';
 
-export const TIENDA_COLOR = 0xfb8b66;
+export const TIENDA_COLOR = 0x8ae6fa;
 
 /** Solo se puede usar /tienda en canales cuyo nombre sea exactamente este */
 export const TIENDA_CANAL_NOMBRE = 'comandos';

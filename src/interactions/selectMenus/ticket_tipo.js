@@ -12,7 +12,7 @@ import { logger } from '../../utils/logger.js';
 import { estaEnListaNegraTickets } from '../../utils/gestorTicketBlacklist.js';
 import { E } from '../../config/emojis.js';
 
-const COLOR = 0xfb8b66;
+const COLOR = 0x8ae6fa;
 const ROLE_STAFF = '1512120103771050005';
 
 const TIPOS = {

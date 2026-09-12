@@ -91,7 +91,7 @@ async function enviarDmCompraPermiso(member, item, precioPagado) {
               `${cuerpo}${extraSeguro}\n\n` +
               `**Monto pagado:** ${formatMoney(precioPagado ?? item.price)}\n` +
               `*Southwest Florida Comunidad 00Y4n ™*`,
-            color: 0xfb8b66
+            color: 0x8ae6fa
           }
         ]
       })

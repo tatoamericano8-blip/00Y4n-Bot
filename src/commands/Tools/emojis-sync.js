@@ -78,7 +78,7 @@ export default {
 
       const embed = new EmbedBuilder()
         .setTitle('Emojis — verificación registro')
-        .setColor('#fb8b66')
+        .setColor('#8ae6fa')
         .setDescription(
           [
             `> **OK:** ${ok.length}`,

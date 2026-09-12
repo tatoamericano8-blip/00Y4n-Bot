@@ -70,7 +70,7 @@ export default {
 
     if (sub === 'info') {
       const embed = new EmbedBuilder()
-        .setColor('#fb8b66')
+        .setColor('#8ae6fa')
         .setTitle('Licencia de Conducir — Southwest Florida')
         .setDescription(
           `**No es obligatoria** para entrar a sesiones, pero se recomienda.\n\n` +

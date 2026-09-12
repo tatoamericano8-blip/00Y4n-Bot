@@ -1,13 +1,28 @@
 /**
- * Redirige setColor('#74d4fc' | 0x74d4fc) al color PRIMARIO de colores.js.
+ * Redirige setColor de hex legacy al color PRIMARIO de colores.js.
  * Así, cambiar PRIMARIO en un solo archivo afecta TODOS los embeds
  * aunque todavía tengan el hex hardcodeado.
  */
 import { EmbedBuilder } from 'discord.js';
 import { PRIMARIO } from './colores.js';
 
-const HEX_LEGACY = new Set(['#74d4fc', '#74D4FC', '74d4fc', '74D4FC']);
-const INT_LEGACY = new Set([0x74d4fc, 0x74D4FC]);
+/** Celeste anterior + naranja de marca vieja */
+const HEX_LEGACY = new Set([
+  '#74d4fc',
+  '#74D4FC',
+  '74d4fc',
+  '74D4FC',
+  '#fb8b66',
+  '#FB8B66',
+  'fb8b66',
+  'FB8B66'
+]);
+const INT_LEGACY = new Set([
+  0x74d4fc,
+  0x74d4fc,
+  0xfb8b66,
+  0xfb8b66
+]);
 
 let aplicado = false;
 

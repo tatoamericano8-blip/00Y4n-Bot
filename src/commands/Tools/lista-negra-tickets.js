@@ -152,7 +152,7 @@ export default {
     }
 
     const embed = new EmbedBuilder()
-      .setColor('#fb8b66')
+      .setColor('#8ae6fa')
       .setTitle('Lista negra de tickets')
       .setDescription(
         vigentes.length

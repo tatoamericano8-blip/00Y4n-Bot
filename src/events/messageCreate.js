@@ -178,7 +178,7 @@ export default {
 
       if (activarLicencia) {
         const embedLicencia = new EmbedBuilder()
-          .setColor('#fb8b66')
+          .setColor('#8ae6fa')
           .setDescription(
             `${E.acoraflotante}\u2503 __**Licencia de Conducir SWFL**__\n\n` +
             `No es **obligatoria** para entrar a sesiones, pero **se recomienda**: sin ella podés recibir **multas graves** o **arrestos**.\n\n` +
@@ -273,7 +273,7 @@ export default {
 
       if (activar00y4n) {
         const embed00y4n = new EmbedBuilder()
-          .setColor('#fb8b66')
+          .setColor('#8ae6fa')
           .setTitle('Southwest Florida Comunidad 00Y4n')
           .setDescription(
             `¡Bienvenidos a **Southwest Florida 00Y4n**!\n\n` +

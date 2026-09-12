@@ -253,7 +253,7 @@ export default {
                         inline: false
                     }
                 )
-                .setColor('#FB8B66')
+                .setColor('#8ae6fa')
                 .setThumbnail(usuario.displayAvatarURL({ size: 256 }))
                 .setTimestamp();
 
@@ -277,7 +277,7 @@ export default {
                         },
                         { name: 'Motivo', value: razon, inline: false }
                     )
-                    .setColor('#FB8B66')
+                    .setColor('#8ae6fa')
                     .setTimestamp();
 
                 await usuario.send({ embeds: [embedDM] });
