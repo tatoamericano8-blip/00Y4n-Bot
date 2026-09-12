@@ -6,7 +6,7 @@ import { finalizarYPublicarLogSesion } from './logSesionArchivo.js';
 import { E } from '../config/emojis.js';
 
 const URL_IMAGEN_DEFAULT =
-  'https://cdn.discordapp.com/attachments/1505017301089652898/1534978855423574146/Sesion_Concluida_1.png';
+  'https://cdn.discordapp.com/attachments/1505017301089652898/1548119384529309797/Sesion_Concluida_1.png?ex=6aa5e607&is=6aa49487&hm=41f67f388a23c3391bfdfc371ee920df7d1c39370767d1db41fa65bf11dcd7ee&';
 
 /**
  * Cierra una sesión SIN sumar cuota ni horas (mensaje de inicio borrado, timeout, etc.).
