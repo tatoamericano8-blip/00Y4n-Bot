@@ -13,7 +13,7 @@ import { E, EMOJI_DEF } from '../../config/emojis.js';
 const ROL_STAFF = '1512120103771050005';
 
 const IMAGEN_DEFAULT =
-  'https://cdn.discordapp.com/attachments/1505017301089652898/1536043755579383828/Link_regenerado_1.png?ex=6a85d539&is=6a8483b9&hm=685512be2affda147189d72d957f7791bd288850e906038c386648963db74792&';
+  'https://cdn.discordapp.com/attachments/1505017301089652898/1548338479237435402/Link_regenerado_1.png?ex=6aa6b214&is=6aa56094&hm=71f83b806ae83c7b4c3a1570c2c4224eac1b927bdc8d90e0d59272f63e6dd03f';
 
 function normalizarLink(raw) {
   let link = String(raw || '').trim();
@@ -108,7 +108,7 @@ export default {
       `Molestar al host para pedir el link resultará en un **timeout**.`;
 
     const embedRegen = new EmbedBuilder()
-      .setTitle('Southwest Florida 00Y4n — Link del Servidor Regenerado')
+      .setTitle('${E.a2alas} Southwest Florida 00Y4n — Link del Servidor Regenerado ${E.a2alas}')
       .setDescription(textoDescripcion)
       .setColor('#74d4fc')
       .setImage(IMAGEN_DEFAULT)
