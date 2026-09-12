@@ -6,7 +6,7 @@ import {
 import sharp from 'sharp';
 
 const ROL_PERMITIDO = '1451956429345919008';
-const PREFIJO_ORIGEN = 'nara_';
+const PREFIJO_ORIGEN = 'cielo_';
 
 function parseHex(hex) {
   const h = String(hex || '').trim().replace(/^#/, '');
@@ -320,31 +320,31 @@ function sleep(ms) {
 export default {
   data: new SlashCommandBuilder()
     .setName('emojis-recolor')
-    .setDescription('Degradado blanco a color en emojis nara_*; crea copias con nuevo prefijo.')
+    .setDescription('Degradado blanco a color en emojis cielo_*; crea copias con nuevo prefijo.')
     .addStringOption((o) =>
       o.setName('color').setDescription('Color hex destino, ej: #fb8b66 o fb8b66').setRequired(true)
     )
     .addStringOption((o) =>
       o
         .setName('prefijo')
-        .setDescription('Nuevo prefijo que reemplaza nara_ (ej: coral -> coral_lock)')
+        .setDescription('Nuevo prefijo que reemplaza cielo_ (ej: coral -> coral_lock)')
         .setRequired(true)
         .setMaxLength(20)
     )
     .addStringOption((o) =>
       o
         .setName('modo')
-        .setDescription('Procesar uno (prueba) o todos los nara_*')
+        .setDescription('Procesar uno (prueba) o todos los cielo_*')
         .setRequired(true)
         .addChoices(
           { name: 'Uno (probar de a uno)', value: 'uno' },
-          { name: 'Todos los nara_*', value: 'todos' }
+          { name: 'Todos los cielo_*', value: 'todos' }
         )
     )
     .addStringOption((o) =>
       o
         .setName('emoji')
-        .setDescription('Nombre del emoji (obligatorio si modo = uno), ej: nara_lock')
+        .setDescription('Nombre del emoji (obligatorio si modo = uno), ej: cielo_lock')
         .setRequired(false)
         .setAutocomplete(true)
     )
@@ -428,7 +428,7 @@ export default {
     if (modo === 'uno') {
       if (!emojiNombreOpt) {
         return interaction.editReply({
-          content: 'En modo **uno** tenes que indicar la opcion `emoji` (ej: `nara_lock`).'
+          content: 'En modo **uno** tenes que indicar la opcion `emoji` (ej: `cielo_lock`).'
         });
       }
       const found = lista.find((e) => e.name.toLowerCase() === emojiNombreOpt.toLowerCase());

@@ -22,7 +22,7 @@ export default {
     .addStringOption((o) =>
       o
         .setName('prefijo_viejo')
-        .setDescription('Solo remap: ej nara_')
+        .setDescription('Solo remap: ej cielo_')
         .setRequired(false)
     )
     .addStringOption((o) =>
@@ -102,7 +102,7 @@ export default {
     }
 
     if (accion === 'remap') {
-      const oldP = interaction.options.getString('prefijo_viejo') || 'nara_';
+      const oldP = interaction.options.getString('prefijo_viejo') || 'cielo_';
       const newP = interaction.options.getString('prefijo_nuevo');
       if (!newP) {
         return interaction.editReply({
