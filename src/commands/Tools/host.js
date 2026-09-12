@@ -63,7 +63,7 @@ export default {
         const esCohost = tipo === 'cohost';
         const titulo = esCohost
             ? `${E.a2alas} **00Y4n Southwest Florida Comunidad** — **Co-Host de Sesión** ${E.a2alas}`
-            : `${E.2alas} **00Y4n Southwest Florida Comunidad** — **Host de Sesión** ${E.2alas}`;
+            : `${E.a2alas} **00Y4n Southwest Florida Comunidad** — **Host de Sesión** ${E.a2alas}`;
 
         const descripcion = esCohost
             ? `${E.dot} <@${usuarioStaff.id}> **es Co-Host de la sesión actual**. Si necesitás soporte y el host está ocupado, dirigite al co-host.`
