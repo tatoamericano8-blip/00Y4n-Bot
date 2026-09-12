@@ -15,7 +15,7 @@ import { bloquearSiCooldown, setCooldownSesion } from '../../utils/cooldownSesio
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
 const EMOJI_REACCION = EMOJI_DEF.tilde.id;
-const EMOJI_BOTON = EMOJI_DEF.candado.id;
+const EMOJI_BOTON = EMOJI_DEF.hyperlink.id;
 const IMAGEN_REINVITACIONES_DEFECTO =
     'https://cdn.discordapp.com/attachments/1505017301089652898/1548119382700466207/Reinvitaciones_1.png?ex=6aa5e607&is=6aa49487&hm=d3c050fcf99d62123042c6fcb3dd96e483f47f0f2ef3fbfd662998b711c4dee9&';
 
