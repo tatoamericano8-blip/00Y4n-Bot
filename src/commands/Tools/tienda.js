@@ -33,7 +33,7 @@ function canalPermitido(channel) {
 
 function embedPrincipal(saldo) {
   return new EmbedBuilder()
-    .setTitle('🛒 Tienda del servidor — 00Y4n')
+    .setTitle('<:cielo_money:1548067297485389974> Tienda del servidor — 00Y4n')
     .setDescription(
       'Elegí una **categoría** abajo y después el ítem que quieras comprar.\n\n' +
         `Tu saldo: **${formatMoney(saldo)}**\n\n` +
@@ -74,9 +74,9 @@ const MENSAJES_COMER = {
 };
 
 const MENSAJES_FUMAR = {
-  pack_newport: 'Encendiste un Newport. Break rápido antes de volver a la sesión.',
-  shot_henny: 'Un shot de Henny. La garganta arde, el RP sigue.',
-  joint: 'Te armaste el joint y bajaste un cambio. Tranqui en el server.'
+  pack_newport: '<:cielo_cigarro:1548067082527047723> Encendiste un Newport. Break rápido antes de volver a la sesión.',
+  shot_henny: '<:cielo_cigarro:1548067082527047723> Un shot de Henny. La garganta arde, el RP sigue.',
+  joint: '<:cielo_cigarro:1548067082527047723> Te armaste el joint y bajaste un cambio. Tranqui en el server.'
 };
 
 export default {
@@ -186,7 +186,7 @@ export default {
       if (!res.ok) {
         return interaction.reply({ content: res.mensaje, flags: MessageFlags.Ephemeral });
       }
-      const msg = MENSAJES_COMER[itemId] || `Consumiste **${res.item.name}**.`;
+      const msg = MENSAJES_COMER[itemId] || `<:cielo_comida:1548121968744730654> Consumiste **${res.item.name}**.`;
       return interaction.reply({
         embeds: [
           new EmbedBuilder()
@@ -203,7 +203,7 @@ export default {
       if (!res.ok) {
         return interaction.reply({ content: res.mensaje, flags: MessageFlags.Ephemeral });
       }
-      const msg = MENSAJES_FUMAR[itemId] || `Usaste **${res.item.name}**.`;
+      const msg = MENSAJES_FUMAR[itemId] || `<:cielo_cigarro:1548067082527047723> Usaste **${res.item.name}**.`;
       return interaction.reply({
         embeds: [
           new EmbedBuilder()
@@ -231,7 +231,7 @@ export default {
         embeds: [
           new EmbedBuilder()
             .setTitle('Regalo')
-            .setDescription(`${interaction.user} le regaló una **${res.item.name}** a ${target}.`)
+            .setDescription(`<:cielo_rosa:1548384728938455090> ${interaction.user} le regaló una **${res.item.name}** a ${target}.`)
             .setColor(TIENDA_COLOR)
         ]
       });
