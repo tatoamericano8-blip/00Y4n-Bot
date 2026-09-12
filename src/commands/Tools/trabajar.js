@@ -58,7 +58,7 @@ export default {
             .setTitle(E.llaves + ' ¡Fuiste a trabajar!')
             .setDescription(
                 `${historia}\n\n` +
-                `Ganaste **$${ganancia.toLocaleString('es-AR')}**.\n\n` +
+                `${E.dinero} Ganaste **$${ganancia.toLocaleString('es-AR')}**.\n\n` +
                 `${E.dot} **Balance:** $${nuevoSaldo.toLocaleString('es-AR')}\n` +
                 `${E.dot} **Próximo turno:** <t:${siguienteTurnoUnix}:f>`
             )
