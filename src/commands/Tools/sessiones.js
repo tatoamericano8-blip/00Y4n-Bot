@@ -7,9 +7,9 @@ import { iniciarLogSesion } from '../../utils/logSesionArchivo.js';
 import { E, EMOJI_DEF } from '../../config/emojis.js';
 
 const IMAGEN_INICIO_RP =
-    'https://cdn.discordapp.com/attachments/1505017301089652898/1536061264219086898/Inicio_Roleplay_1.png';
+    'https://cdn.discordapp.com/attachments/1505017301089652898/1548119322105479209/Inicio_roleplay_1.png?ex=6aa5e5f9&is=6aa49479&hm=4289dc7a03339ff070272a1edff97cda6932bb4ada18b74c899e8aa9c0e45373&';
 const IMAGEN_INICIO_MEET =
-    'https://cdn.discordapp.com/attachments/1505017301089652898/1536061263556116600/Inicio_carmeett_1.png';
+    'https://cdn.discordapp.com/attachments/1505017301089652898/1548119321752895508/Inicio_Carmeet_1.png?ex=6aa5e5f8&is=6aa49478&hm=7a35a93f01e0f3c438abebe945fe4caa9dac31b8c1008391ce1ef1ef4bca55b8&';
 
 global.coleccionStartups = global.coleccionStartups || new Map();
 
