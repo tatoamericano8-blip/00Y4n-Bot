@@ -6,7 +6,7 @@ import {
     PermissionFlagsBits,
     MessageFlags
 } from 'discord.js';
-import { E } from '../../config/emojis.js';
+import { E, EMOJI_DEF } from '../../config/emojis.js';
 
 const BANNER =
     'https://cdn.discordapp.com/attachments/1505017301089652898/1548119319227924583/Asistencia_1.png';
@@ -94,37 +94,37 @@ export default {
                     label: 'Soporte general',
                     description: 'Dudas, reglas, sesiones, perks',
                     value: 'soporte_general',
-                    emoji: '1535395536012578978'
+                    emoji: EMOJI_DEF.form.id
                 },
                 {
                     label: 'Reportar miembro',
                     description: 'Reportar a un ciudadano',
                     value: 'reportar_miembro',
-                    emoji: '1534937551092187136'
+                    emoji: EMOJI_DEF.id.id
                 },
                 {
                     label: 'Reportar staff o host',
                     description: 'Reportar staff / host',
                     value: 'reportar_staff',
-                    emoji: '1535395859196411934'
+                    emoji: EMOJI_DEF.warn.id
                 },
                 {
                     label: 'Aplicación fotógrafo',
                     description: 'Postulación a fotografía',
                     value: 'app_fotografo',
-                    emoji: '1534938916057120839'
+                    emoji: EMOJI_DEF.perfil.id
                 },
                 {
                     label: 'Aplicación videógrafo',
                     description: 'Postulación a videografía',
                     value: 'app_videografo',
-                    emoji: '1534938916057120839'
+                    emoji: EMOJI_DEF.auto.id
                 },
                 {
                     label: 'Staff FastPass',
                     description: 'Postulación prioritaria (server 1k+)',
                     value: 'staff_fastpass',
-                    emoji: '1534938829520244846'
+                    emoji: EMOJI_DEF.staff_icon.id
                 }
             );
 
