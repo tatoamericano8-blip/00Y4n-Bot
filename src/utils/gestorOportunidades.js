@@ -56,7 +56,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
         const embedInicial = new EmbedBuilder()
             .setColor(PRIMARIO)
             .setTitle(E.a2alas + ' ¡Oportunidad Economica!')
-            .setDescription(`${E.gift} **$${monto.toLocaleString('es-AR')}** ${historia}`)
+            .setDescription(`${E.dinero} **$${monto.toLocaleString('es-AR')}** ${historia}`)
             .setTimestamp();
 
         const botonActivo = new ActionRowBuilder().addComponents(
