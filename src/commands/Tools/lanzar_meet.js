@@ -76,7 +76,7 @@ export default {
                 .setCustomId('verificar_voto_swfl')
                 .setLabel('Link de la Sesion')
                 .setStyle(ButtonStyle.Secondary)
-                .setEmoji(EMOJI_DEF.lock.id)
+                .setEmoji(EMOJI_DEF.hyperlink.id)
         );
 
         await interaction.reply({ content: 'Liberando accesos del Car Meet...', ephemeral: true });
