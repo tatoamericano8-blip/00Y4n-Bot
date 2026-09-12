@@ -49,7 +49,7 @@ export default {
 
     const texto =
       extra ||
-      `¡Hemos alcanzado oficialmente **${cantidad.toLocaleString('es-AR')} miembros**! Gracias a todos por su apoyo incondicional ' + E.aflotacoras + '`;
+      `¡Hemos alcanzado oficialmente **${cantidad.toLocaleString('es-AR')} miembros**! Gracias a todos por su apoyo incondicional ${E.aflotacoras}`;
 
     const embed = new EmbedBuilder()
       .setColor('#74d4fc')
