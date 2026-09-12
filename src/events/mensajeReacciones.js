@@ -73,7 +73,7 @@ export default {
                         `${E.flechareplica} Por favor sé paciente y dale al host un tiempo razonable para configurar.`
                     )
                     .setColor('#74d4fc')
-                    .setImage(startup.imagen || IMAGEN_CONFIG_DEFAULT);
+                    .setImage(IMAGEN_CONFIG_DEFAULT);
 
                     // Responde directamente al embed de los votos conectando los mensajes de manera limpia
                 await reaction.message.reply({
