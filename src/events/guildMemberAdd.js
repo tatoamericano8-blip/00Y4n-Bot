@@ -14,7 +14,7 @@ import { E } from '../config/emojis.js';
 const GUILD_00Y4N = '1451939725308067842';
 const CHANNEL_BIENVENIDA = '1451942119827570830';
 const IMAGEN_BIENVENIDA =
-    'https://cdn.discordapp.com/attachments/1505017301089652898/1536043678131425451/Bienvenida_1.png?ex=6a7c9aa7&is=6a7b4927&hm=914b95016370db69cc30c49c76893a7497b0ad785748875158d59bc600b7428e&';
+    'https://cdn.discordapp.com/attachments/1505017301089652898/1548158765772185680/Bienvenida_1.png?ex=6aa60ab5&is=6aa4b935&hm=73878f66d6e1e892fe44900b5e2cf4edf423233b2ac245da584f45730951d1ec';
 
 export default {
   name: Events.GuildMemberAdd,
@@ -48,7 +48,7 @@ export default {
                     if (guild.id === GUILD_00Y4N && canEmbed) {
                         const embedBienvenida = new EmbedBuilder()
                             .setColor(PRIMARIO)
-                            .setTitle(`${E.anubes2} __Bienvenido/a a Southwest Florida Comunidad 00Y4n ™__ ${E.anubes2}`)
+                            .setTitle(`${E.saludo} __Bienvenido/a a Southwest Florida Comunidad 00Y4n ™__ ${E.saludo}`)
                             .setDescription(
                                 `${E.dot} Bienvenido/a a **Southwest Florida Comunidad 00Y4n ™**.\n\n` +
                                 `Para convertirte en ciudadano y obtener acceso al servidor, verifica tu cuenta en <#1512614400413139045> y lee las **Reglas** y las **Directrices** del servidor.\n\n` +
