@@ -6,7 +6,7 @@
  */
 
 export const EMOJI_DEF = {
-  logo: { name: '00Y4n', id: '1535772407904735302' },
+  logo: { name: 'Logo_00y4n_v3', id: '1548155893256953926' },
 
   // --- Estáticos cielo_* ---
   uno: { name: 'cielo_1', id: '1548066862913429625' },
