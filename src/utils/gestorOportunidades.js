@@ -63,7 +63,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
             new ButtonBuilder()
                 .setCustomId('reclamar_oportunidad')
                 .setLabel('Reclamar')
-                .setEmoji(EMOJI_DEF.lock.id)
+                .setEmoji(EMOJI_DEF.money.id)
                 .setStyle(ButtonStyle.Secondary)
         );
 
