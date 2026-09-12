@@ -15,7 +15,7 @@ import {
 } from '../../services/serverstatsService.js';
 
 const GUILD_OBJETIVO = '1451939725308067842';
-const CATEGORY_NAME = '゛◟🌴﹒00Y4n › Estadísticas◞';
+const CATEGORY_NAME = '゛◟💎﹒00Y4n › Estadísticas◞';
 const NAME_FORMAT = NAME_FORMAT_DEFAULT;
 
 const TIPOS_DEFAULT = ['members', 'members_only'];
