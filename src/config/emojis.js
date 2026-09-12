@@ -51,7 +51,7 @@ export const EMOJI_DEF = {
   roblox: { name: 'cielo_roblox', id: '1548121948771455029' },
   saludo: { name: 'cielo_saludo', id: '1548067389378265129' },
   ski: { name: 'cielo_ski', id: '1548067344977502278' },
-  skirojo: { name: 'cielo_ski', id: '1548067344977502278' },
+  skirojo: { name: 'skirojo', id: '1534988636460683385' },
   tiempo: { name: 'cielo_tiempo', id: '1548067097047998464' },
   tilde: { name: 'cielo_tilde', id: '1548067068002312364' },
   triostar: { name: 'cielo_triostar', id: '1548066959180955648' },
@@ -59,11 +59,24 @@ export const EMOJI_DEF = {
 
   lista: { name: 'cielo_pin', id: '1548066941342847036' },
   gift: { name: 'cielo_premio', id: '1548067022083063909' },
-  multa: { name: 'cielo_money', id: '1548067297485389974' },
+  multa: { name: 'cielo_multa', id: '1548325908547510383' },
   anuncio: { name: 'cielo_saludo', id: '1548067389378265129' },
   checkpoint: { name: 'cielo_tilde', id: '1548067068002312364' },
-  staff_icon: { name: 'cielo_bot', id: '1548067112445157438' },
-  staff_badge: { name: 'cielo_bot', id: '1548067112445157438' },
+  staff_icon: { name: 'cielo_staff', id: '1548325926738067616' },
+  staff_badge: { name: 'cielo_staff', id: '1548325926738067616' },
+
+
+  // --- Nuevos cielo_* (revamp) ---
+  blackjack: { name: 'cielo_blackjack', id: '1548384807346507836' },
+  herramienta: { name: 'cielo_herramienta', id: '1548325589199185941' },
+  rosa: { name: 'cielo_rosa', id: '1548384728938455090' },
+  segundopuesto: { name: 'cielo_segundopuesto', id: '1548384746835419178' },
+  shot: { name: 'cielo_shot', id: '1548384787188682842' },
+  sombreroegresado: { name: 'cielo_sombreroegresado', id: '1548325979381043271' },
+  egresado: { name: 'cielo_sombreroegresado', id: '1548325979381043271' },
+  staff: { name: 'cielo_staff', id: '1548325926738067616' },
+  stafftarjeta: { name: 'cielo_stafftarjeta', id: '1548325953833533491' },
+  trofeoalas: { name: 'cielo_trofeoalas', id: '1548384766334865419' },
 
   // --- Animados cielo_* ---
   a2alas: { name: 'cielo_2alas', id: '1548030945607553125', animated: true },
@@ -98,7 +111,7 @@ export const EMOJI_DEF = {
   acargando: { name: 'cielo_confeti', id: '1548069687919648768', animated: true },
   acoradibujo: { name: 'cielo_coraflotando', id: '1548030814946861089', animated: true },
   acorarotacion: { name: 'cielo_coraexplota', id: '1548030730184171561', animated: true },
-  nivel: { name: 'cielo_estrellaanimada', id: '1548009451590656123', animated: true }
+  nivel: { name: 'nivel', id: '1532515659269935256', animated: true }
 };
 
 export const E = Object.fromEntries(
