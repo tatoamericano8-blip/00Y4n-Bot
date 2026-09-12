@@ -7,7 +7,7 @@ import { E } from '../../config/emojis.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
-const IMAGEN_MEET_DEFECTO = 'https://cdn.discordapp.com/attachments/1505017301089652898/1536043754753097910/Lanzamiento_Carmeet_1.png?ex=6a79f7b9&is=6a78a639&hm=6da28e85a72b67d84936e1bd857c7ed0e7665a82ee3789ad59b582bc30833e64&';
+const IMAGEN_MEET_DEFECTO = 'https://cdn.discordapp.com/attachments/1505017301089652898/1548119380938723348/Lanzamiento_Carmeet_1.png?ex=6aa5e607&is=6aa49487&hm=a39c31aec52948a1e1fd4b5f7dde8ae37718d77c7bf83dd82f3ac0e73ea6af84&';
 
 export default {
     data: {
