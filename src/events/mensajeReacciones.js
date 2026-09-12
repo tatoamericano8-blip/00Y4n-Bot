@@ -64,18 +64,16 @@ export default {
                 const nombreSesion = startup.tipo === 'rp' ? 'Roleplay' : 'Car Meet';
 
                 // Embed estructurado al estilo premium 00Y4n con tus nuevos emojis
+                const IMAGEN_CONFIG_DEFAULT =
+                    'https://cdn.discordapp.com/attachments/1505017301089652898/1548119320104534117/Configurando_sesion_1.png';
                 const embedSetup = new EmbedBuilder()
                     .setTitle(`${E.acargando} Southwest Florida Comunidad 00Y4n — Configuración del Servidor`)
                     .setDescription(
                         `${E.dot} <@${startup.hostId}> **ha comenzado a configurar su servidor** para la sesión de **${nombreSesion}!** Los miembros con acceso anticipado podrán unirse en breve usando el enlace de early access. ¡Asegurate de boostear el servidor para early access!\n\n` +
                         `${E.flechareplica} Por favor sé paciente y dale al host un tiempo razonable para configurar.`
                     )
-                    .setColor('#74d4fc');
-
-                // Si se pasó un banner opcional al iniciar, lo inyectamos acá
-                if (startup.imagen) {
-                    embedSetup.setImage(startup.imagen);
-                }
+                    .setColor('#74d4fc')
+                    .setImage(startup.imagen || IMAGEN_CONFIG_DEFAULT);
 
                     // Responde directamente al embed de los votos conectando los mensajes de manera limpia
                 await reaction.message.reply({

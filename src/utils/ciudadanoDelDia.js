@@ -61,6 +61,13 @@ export async function procesarCiudadanoDelDia(client) {
         // Guardar nuevo ganador
         await setInDb('ultimo_ciudadano_del_dia', idGanador);
 
+        // Banner superior (solo imagen)
+        const BANNER_CIUDADANO =
+            'https://cdn.discordapp.com/attachments/1505017301089652898/1548164327004053585/Ciudadano_del_Dia_1.png';
+        const embedBanner = new EmbedBuilder()
+            .setColor('#74d4fc')
+            .setImage(BANNER_CIUDADANO);
+
         // 🎨 EMBED TRADUCIDO Y ESTILIZADO (Igual a la imagen)
         const embedCiudadano = new EmbedBuilder()
             .setColor('#74d4fc')
@@ -77,7 +84,7 @@ export async function procesarCiudadanoDelDia(client) {
             })
             .setTimestamp();
 
-        await canalAnuncios.send({ embeds: [embedCiudadano] });
+        await canalAnuncios.send({ embeds: [embedBanner, embedCiudadano] });
         logger.info(`[Ciudadano del Día]: Ganador del día procesado correctamente (${idGanador} con ${maxPuntos} msgs).`);
 
     } catch (error) {
