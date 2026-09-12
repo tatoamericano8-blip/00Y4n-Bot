@@ -58,8 +58,8 @@ export const EMOJI_DEF = {
   warn: { name: 'cielo_warn', id: '1548066974901338153' },
 
   lista: { name: 'cielo_pin', id: '1548066941342847036' },
-  gift: { name: 'cielo_premio', id: '1548067022083063909' },
-  multa: { name: 'cielo_money', id: '1548067297485389974' },
+  gift: { name: 'cielo_dinero', id: '1548030394719543446' },
+  multa: { name: 'cielo_multa', id: '1548325908547510383' },
   anuncio: { name: 'cielo_saludo', id: '1548067389378265129' },
   checkpoint: { name: 'cielo_tilde', id: '1548067068002312364' },
   staff_icon: { name: 'cielo_bot', id: '1548067112445157438' },
