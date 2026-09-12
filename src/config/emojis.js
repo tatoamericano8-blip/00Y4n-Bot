@@ -68,7 +68,7 @@ export const EMOJI_DEF = {
 
   // --- Nuevos cielo_* (revamp) ---
   blackjack: { name: 'cielo_blackjack', id: '1548384807346507836' },
-  herramienta: { name: 'cielo_herramienta', id: '1548325589199185941' },
+  herramental: { name: 'cielo_herramental', id: '1548325589199185941' },
   rosa: { name: 'cielo_rosa', id: '1548384728938455090' },
   segundopuesto: { name: 'cielo_segundopuesto', id: '1548384746835419178' },
   shot: { name: 'cielo_shot', id: '1548384787188682842' },
