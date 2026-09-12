@@ -105,7 +105,7 @@ export default {
         const deudaTotal = multasPendientes.reduce((acc, m) => acc + (Number(m.monto) || 0), 0);
 
         const perfilEmbed = new EmbedBuilder()
-            .setTitle(E.id + ' Southwest Florida | *Perfil de Ciudadano*')
+            .setTitle(E.perfil + ' Southwest Florida | *Perfil de Ciudadano*')
             .setDescription(
                 `> Ficha de registro oficial del ciudadano dentro de nuestra base de datos de regulaciones de tránsito y economía.\n\n` +
                 `${E.dot} **Usuario:** <@${miembro.id}>\n` +
