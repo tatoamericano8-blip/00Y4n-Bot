@@ -108,7 +108,7 @@ export default {
       `Molestar al host para pedir el link resultará en un **timeout**.`;
 
     const embedRegen = new EmbedBuilder()
-      .setTitle(E.a2alas + ' Southwest Florida 00Y4n — Link del Servidor Regenerado ' + E.a2alas)
+      .setTitle(E.a2alas + ' Southwest Florida 00Y4n — __*Link del Servidor Regenerado*__ ' + E.a2alas)
       .setDescription(textoDescripcion)
       .setColor('#74d4fc')
       .setImage(IMAGEN_DEFAULT)
