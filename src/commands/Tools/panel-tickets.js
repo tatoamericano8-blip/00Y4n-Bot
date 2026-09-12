@@ -9,8 +9,8 @@ import {
 import { E } from '../../config/emojis.js';
 
 const BANNER =
-    'https://cdn.discordapp.com/attachments/1505017301089652898/1536043677573447770/Asistencia_1.png';
-const COLOR = 0xfb8b66;
+    'https://cdn.discordapp.com/attachments/1505017301089652898/1548119319227924583/Asistencia_1.png';
+const COLOR = 0x8ae6fa;
 
 export default {
     data: new SlashCommandBuilder()
@@ -34,6 +34,12 @@ export default {
         const categoria = interaction.options.getChannel('categoria');
         const catId = categoria?.id || 'auto';
 
+        // Embed 1: solo la imagen de asistencia (arriba)
+        const embedBanner = new EmbedBuilder()
+            .setColor(COLOR)
+            .setImage(BANNER);
+
+        // Embed 2: textos / tipos de ticket (igual que antes, sin imagen)
         const embed = new EmbedBuilder()
             .setColor(COLOR)
             .setTitle(E.manual + ' Soporte del servidor 00Y4n ' + E.manual)
@@ -77,7 +83,6 @@ export default {
                     E.dot + ' **Un ticket a la vez.** Abrir varios sin motivo puede terminar en sanción.'
                 ].join('\n')
             )
-            .setImage(BANNER)
             .setFooter({ text: 'Southwest Florida Comunidad 00Y4n ™' })
             .setTimestamp();
 
@@ -131,7 +136,7 @@ export default {
         });
 
         await interaction.channel.send({
-            embeds: [embed],
+            embeds: [embedBanner, embed],
             components: [row]
         });
     }
