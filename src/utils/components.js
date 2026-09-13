@@ -6,12 +6,12 @@ export function getConfirmationButtons(customIdPrefix = 'confirm') {
         new ButtonBuilder()
             .setCustomId(`${customIdPrefix}_yes`)
             .setLabel('Confirm')
-            .setStyle(ButtonStyle.Success)
+            .setStyle(ButtonStyle.Secondary)
             .setEmoji('✅'),
         new ButtonBuilder()
             .setCustomId(`${customIdPrefix}_no`)
             .setLabel('Cancel')
-            .setStyle(ButtonStyle.Danger)
+            .setStyle(ButtonStyle.Secondary)
             .setEmoji('❌')
     );
 }
@@ -72,7 +72,7 @@ export function createButton(customId, label, style = 'primary', emoji = null, d
     
     
     const normalizedStyle = style.charAt(0).toUpperCase() + style.slice(1).toLowerCase();
-    const buttonStyle = ButtonStyle[normalizedStyle] || ButtonStyle.Primary;
+    const buttonStyle = ButtonStyle[normalizedStyle] || ButtonStyle.Secondary;
     
     const button = new ButtonBuilder()
         .setCustomId(validCustomId)

@@ -170,10 +170,10 @@ function buildEmbedVehiculos(user, ficha) {
 
 function filaBotones(userId) {
   return new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId(`mdt_resumen_${userId}`).setLabel('Resumen').setStyle(ButtonStyle.Primary),
-    new ButtonBuilder().setCustomId(`mdt_multas_${userId}`).setLabel('Multas').setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId(`mdt_resumen_${userId}`).setLabel('Resumen').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId(`mdt_multas_${userId}`).setLabel('Multas').setStyle(ButtonStyle.Secondary),
     new ButtonBuilder().setCustomId(`mdt_arrestos_${userId}`).setLabel('Arrestos').setStyle(ButtonStyle.Secondary),
-    new ButtonBuilder().setCustomId(`mdt_vehiculos_${userId}`).setLabel('Vehiculos').setStyle(ButtonStyle.Success)
+    new ButtonBuilder().setCustomId(`mdt_vehiculos_${userId}`).setLabel('Vehiculos').setStyle(ButtonStyle.Secondary)
   );
 }
 

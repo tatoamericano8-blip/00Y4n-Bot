@@ -151,11 +151,11 @@ export default {
                 new ButtonBuilder()
                     .setCustomId(`sheriff_si_${interaction.user.id}`)
                     .setLabel('Sí, tengo el pase')
-                    .setStyle(ButtonStyle.Success),
+                    .setStyle(ButtonStyle.Secondary),
                 new ButtonBuilder()
                     .setCustomId(`sheriff_no_${interaction.user.id}`)
                     .setLabel('No tengo el pase')
-                    .setStyle(ButtonStyle.Danger)
+                    .setStyle(ButtonStyle.Secondary)
             );
 
             const msg = await interaction.reply({

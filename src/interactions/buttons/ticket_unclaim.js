@@ -88,8 +88,8 @@ export default {
         const idx = fields.findIndex((f) => f.name === 'Reclamado por' || f.name === 'Claimed By');
         if (idx >= 0) fields[idx].value = 'Sin reclamar';
         const row = new ActionRowBuilder().addComponents(
-          new ButtonBuilder().setCustomId('ticket_close').setLabel('Cerrar ticket').setStyle(ButtonStyle.Danger).setEmoji('🔒'),
-          new ButtonBuilder().setCustomId('ticket_claim').setLabel('Reclamar').setStyle(ButtonStyle.Primary).setEmoji('🙋'),
+          new ButtonBuilder().setCustomId('ticket_close').setLabel('Cerrar ticket').setStyle(ButtonStyle.Secondary).setEmoji('🔒'),
+          new ButtonBuilder().setCustomId('ticket_claim').setLabel('Reclamar').setStyle(ButtonStyle.Secondary).setEmoji('🙋'),
           new ButtonBuilder().setCustomId('ticket_pin').setLabel('Fijar').setStyle(ButtonStyle.Secondary).setEmoji('📌')
         );
         await ticketMessage.edit({ embeds: [embed], components: [row] }).catch(() => null);

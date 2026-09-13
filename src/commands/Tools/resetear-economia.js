@@ -36,7 +36,7 @@ export default {
                 .setCustomId('confirmar_reset_economia')
                 .setLabel('Sí, reiniciar todo')
                 .setEmoji('⚠️')
-                .setStyle(ButtonStyle.Danger),
+                .setStyle(ButtonStyle.Secondary),
             new ButtonBuilder()
                 .setCustomId('cancelar_reset_economia')
                 .setLabel('Cancelar')

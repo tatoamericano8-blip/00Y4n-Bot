@@ -42,7 +42,7 @@ async function updateLivePanel(guild, cfg) {
             new ButtonBuilder()
                 .setCustomId('verify_user')
                 .setLabel(cfg.buttonText || botConfig.verification.defaultButtonText)
-                .setStyle(ButtonStyle.Success)
+                .setStyle(ButtonStyle.Secondary)
                 .setEmoji('✅'),
         );
 
@@ -118,7 +118,7 @@ function buildButtonRow(cfg, guildId, disabled = false) {
         new ButtonBuilder()
             .setCustomId(`verif_cfg_toggle_${guildId}`)
             .setLabel('Verification')
-            .setStyle(systemOn ? ButtonStyle.Success : ButtonStyle.Danger)
+            .setStyle(systemOn ? ButtonStyle.Secondary : ButtonStyle.Secondary)
             .setEmoji('🔒')
             .setDisabled(disabled),
     );
@@ -336,7 +336,7 @@ export default {
                                 new ButtonBuilder()
                                     .setCustomId('verify_user')
                                     .setLabel(cfg.buttonText || botConfig.verification.defaultButtonText)
-                                    .setStyle(ButtonStyle.Success)
+                                    .setStyle(ButtonStyle.Secondary)
                                     .setEmoji('✅'),
                             );
 
@@ -470,7 +470,7 @@ async function handleChannel(selectInteraction, rootInteraction, cfg, guildId, c
                     new ButtonBuilder()
                         .setCustomId('verify_user')
                         .setLabel(cfg.buttonText || botConfig.verification.defaultButtonText)
-                        .setStyle(ButtonStyle.Success)
+                        .setStyle(ButtonStyle.Secondary)
                         .setEmoji('✅'),
                 );
 

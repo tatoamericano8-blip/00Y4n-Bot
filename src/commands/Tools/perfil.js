@@ -122,8 +122,8 @@ export default {
             .setTimestamp();
 
         const botonera = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setCustomId(`regs_${miembro.id}`).setLabel('Matrículas').setStyle(ButtonStyle.Primary),
-            new ButtonBuilder().setCustomId(`multas_${miembro.id}`).setLabel('Multas').setStyle(ButtonStyle.Danger),
+            new ButtonBuilder().setCustomId(`regs_${miembro.id}`).setLabel('Matrículas').setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId(`multas_${miembro.id}`).setLabel('Multas').setStyle(ButtonStyle.Secondary),
             new ButtonBuilder().setCustomId(`invtienda_${miembro.id}`).setLabel('Inventario').setStyle(ButtonStyle.Secondary)
         );
 

@@ -266,12 +266,12 @@ export default {
                 new ButtonBuilder()
                     .setCustomId('ticket_close')
                     .setLabel('Cerrar ticket')
-                    .setStyle(ButtonStyle.Danger)
+                    .setStyle(ButtonStyle.Secondary)
                     .setEmoji('🔒'),
                 new ButtonBuilder()
                     .setCustomId('ticket_claim')
                     .setLabel('Reclamar')
-                    .setStyle(ButtonStyle.Primary)
+                    .setStyle(ButtonStyle.Secondary)
                     .setEmoji('🙋')
             );
 

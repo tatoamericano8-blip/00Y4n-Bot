@@ -66,11 +66,11 @@ export default {
       new ButtonBuilder()
         .setCustomId(`roleall_confirm:${rol.id}:${interaction.user.id}`)
         .setLabel('Confirmar')
-        .setStyle(ButtonStyle.Success),
+        .setStyle(ButtonStyle.Secondary),
       new ButtonBuilder()
         .setCustomId(`roleall_cancel:${interaction.user.id}`)
         .setLabel('Cancelar')
-        .setStyle(ButtonStyle.Danger)
+        .setStyle(ButtonStyle.Secondary)
     );
 
     return interaction.reply({

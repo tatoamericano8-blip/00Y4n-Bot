@@ -113,11 +113,11 @@ export default {
         new ButtonBuilder()
           .setCustomId(`loa_approve:${interaction.user.id}:${inicioId}:${finId}`)
           .setLabel('Aprobar LOA')
-          .setStyle(ButtonStyle.Success),
+          .setStyle(ButtonStyle.Secondary),
         new ButtonBuilder()
           .setCustomId(`loa_reject:${interaction.user.id}`)
           .setLabel('Rechazar')
-          .setStyle(ButtonStyle.Danger)
+          .setStyle(ButtonStyle.Secondary)
       );
 
       await loaChannel.send({

@@ -36,7 +36,7 @@ function createDashboardCategoryButtons(enabledEvents = {}, loggingEnabled = fal
     return new ButtonBuilder()
       .setCustomId(`log_dash_toggle:${category}.*`)
       .setLabel(label)
-      .setStyle(isEnabled ? ButtonStyle.Success : ButtonStyle.Danger);
+      .setStyle(isEnabled ? ButtonStyle.Secondary : ButtonStyle.Secondary);
   });
 
   const rows = [];
@@ -52,7 +52,7 @@ export function createLoggingDashboardComponents(enabledEvents, loggingEnabled =
     new ButtonBuilder()
       .setCustomId('log_dash_toggle:audit_enabled')
       .setLabel(loggingEnabled ? '🧾 Audit: ON' : '🧾 Audit: OFF')
-      .setStyle(loggingEnabled ? ButtonStyle.Success : ButtonStyle.Danger),
+      .setStyle(loggingEnabled ? ButtonStyle.Secondary : ButtonStyle.Secondary),
     new ButtonBuilder()
       .setCustomId('log_dash_toggle:all')
       .setLabel('Toggle All')
@@ -60,7 +60,7 @@ export function createLoggingDashboardComponents(enabledEvents, loggingEnabled =
     new ButtonBuilder()
       .setCustomId('log_dash_refresh')
       .setLabel('🔄 Refresh')
-      .setStyle(ButtonStyle.Primary),
+      .setStyle(ButtonStyle.Secondary),
   );
   return [...categoryRows, actionRow];
 }
@@ -120,11 +120,11 @@ export function createLoggingButtons() {
       new ButtonBuilder()
         .setCustomId('logging_toggle:all')
         .setLabel('Toggle All')
-        .setStyle(ButtonStyle.Danger),
+        .setStyle(ButtonStyle.Secondary),
       new ButtonBuilder()
         .setCustomId('logging_refresh_status')
         .setLabel('🔄 Refresh')
-        .setStyle(ButtonStyle.Primary)
+        .setStyle(ButtonStyle.Secondary)
     )
   ];
 
@@ -137,7 +137,7 @@ export function createLoggingButtons() {
 
 
 export function getButtonStatusStyle(isEnabled) {
-  return isEnabled ? ButtonStyle.Success : ButtonStyle.Danger;
+  return isEnabled ? ButtonStyle.Secondary : ButtonStyle.Secondary;
 }
 
 
@@ -173,7 +173,7 @@ export function createStatusIndicatorButtons(enabledEvents = {}, loggingEnabled 
       new ButtonBuilder()
         .setCustomId(`logging_toggle:${category}.*`)
         .setLabel(`${emoji} ${category.charAt(0).toUpperCase() + category.slice(1)}`)
-        .setStyle(isEnabled ? ButtonStyle.Success : ButtonStyle.Danger)
+        .setStyle(isEnabled ? ButtonStyle.Secondary : ButtonStyle.Secondary)
     );
   }
 
@@ -198,7 +198,7 @@ export function createLoggingStatusComponents(enabledEvents, loggingEnabled = fa
     new ButtonBuilder()
       .setCustomId('logging_toggle:audit_enabled')
       .setLabel(loggingEnabled ? '🧾 Audit: ON' : '🧾 Audit: OFF')
-      .setStyle(loggingEnabled ? ButtonStyle.Success : ButtonStyle.Danger),
+      .setStyle(loggingEnabled ? ButtonStyle.Secondary : ButtonStyle.Secondary),
     new ButtonBuilder()
       .setCustomId('logging_toggle:all')
       .setLabel('Toggle Categories')
@@ -206,7 +206,7 @@ export function createLoggingStatusComponents(enabledEvents, loggingEnabled = fa
     new ButtonBuilder()
       .setCustomId('logging_refresh_status')
       .setLabel('🔄 Refresh')
-      .setStyle(ButtonStyle.Primary)
+      .setStyle(ButtonStyle.Secondary)
   );
 
   return [...categoryRows, actionRow];

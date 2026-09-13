@@ -44,7 +44,7 @@ function embedPregunta(userId, data, prefix = 'lic_ex') {
       new ButtonBuilder()
         .setCustomId(`${prefix}:${userId}:${data.i}:${i}`)
         .setLabel(letra)
-        .setStyle(ButtonStyle.Primary)
+        .setStyle(ButtonStyle.Secondary)
     )
   );
   return { embeds: [embed], components: [row] };

@@ -106,7 +106,7 @@ export default {
                 const pageInfoButton = new ButtonBuilder()
                     .setCustomId('page_info')
                     .setLabel(`Page ${page}/${totalPages}`)
-                    .setStyle(ButtonStyle.Primary)
+                    .setStyle(ButtonStyle.Secondary)
                     .setDisabled(true);
 
                 const nextButton = new ButtonBuilder()

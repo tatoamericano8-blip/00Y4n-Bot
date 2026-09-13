@@ -50,7 +50,7 @@ export default {
       new ButtonBuilder()
         .setCustomId('verificar_bloxlink_swfl')
         .setLabel('Verificar con Bloxlink')
-        .setStyle(ButtonStyle.Success),
+        .setStyle(ButtonStyle.Secondary),
       new ButtonBuilder()
         .setLabel('Necesito ayuda')
         .setStyle(ButtonStyle.Link)

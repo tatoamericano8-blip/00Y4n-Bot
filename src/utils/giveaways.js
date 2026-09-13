@@ -239,18 +239,18 @@ export function giveawayButtons(ended = false) {
                 new ButtonBuilder()
                     .setCustomId('giveaway_view')
                     .setLabel('👁️ View')
-                    .setStyle(ButtonStyle.Primary)
+                    .setStyle(ButtonStyle.Secondary)
             );
         } else {
             row.addComponents(
                 new ButtonBuilder()
                     .setCustomId('giveaway_join')
                     .setLabel('🎉 Join')
-                    .setStyle(ButtonStyle.Primary),
+                    .setStyle(ButtonStyle.Secondary),
                 new ButtonBuilder()
                     .setCustomId('giveaway_end')
                     .setLabel('🛑 End')
-                    .setStyle(ButtonStyle.Danger)
+                    .setStyle(ButtonStyle.Secondary)
             );
         }
         return row;

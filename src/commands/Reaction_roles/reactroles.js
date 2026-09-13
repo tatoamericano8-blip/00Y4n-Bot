@@ -609,13 +609,13 @@ async function showPanelDashboard(interaction, panelData, discordMsg, guildId, g
     const editTextButton = new ButtonBuilder()
         .setCustomId(`rr_edit_text_${guildId}`)
         .setLabel('Edit Panel Text')
-        .setStyle(ButtonStyle.Primary)
+        .setStyle(ButtonStyle.Secondary)
         .setEmoji('✏️');
 
     const deleteButton = new ButtonBuilder()
         .setCustomId(`rr_delete_${guildId}`)
         .setLabel('Delete Panel')
-        .setStyle(ButtonStyle.Danger)
+        .setStyle(ButtonStyle.Secondary)
         .setEmoji('🗑️');
 
     const optionsSelect = new StringSelectMenuBuilder()

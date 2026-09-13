@@ -86,7 +86,7 @@ function botonesJuego(partidaId, { puedeDoblar }) {
     new ButtonBuilder()
       .setCustomId(`bj:${partidaId}:hit`)
       .setLabel('Pedir')
-      .setStyle(ButtonStyle.Primary),
+      .setStyle(ButtonStyle.Secondary),
     new ButtonBuilder()
       .setCustomId(`bj:${partidaId}:stand`)
       .setLabel('Plantarse')
@@ -97,7 +97,7 @@ function botonesJuego(partidaId, { puedeDoblar }) {
       new ButtonBuilder()
         .setCustomId(`bj:${partidaId}:double`)
         .setLabel('Doblar')
-        .setStyle(ButtonStyle.Success)
+        .setStyle(ButtonStyle.Secondary)
     );
   }
   return row;
@@ -108,7 +108,7 @@ function botonesDeshabilitados(partidaId) {
     new ButtonBuilder()
       .setCustomId(`bj:${partidaId}:hit`)
       .setLabel('Pedir')
-      .setStyle(ButtonStyle.Primary)
+      .setStyle(ButtonStyle.Secondary)
       .setDisabled(true),
     new ButtonBuilder()
       .setCustomId(`bj:${partidaId}:stand`)

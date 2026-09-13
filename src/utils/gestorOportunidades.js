@@ -131,7 +131,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
                         new ButtonBuilder()
                             .setCustomId('expirado_done')
                             .setLabel('Expirado')
-                            .setStyle(ButtonStyle.Danger)
+                            .setStyle(ButtonStyle.Secondary)
                             .setDisabled(true)
                     );
 

@@ -110,8 +110,8 @@ export async function createTicket(guild, member, categoryId, reason = 'Sin moti
       ],
     });
     const row = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId('ticket_close').setLabel('Cerrar ticket').setStyle(ButtonStyle.Danger).setEmoji('🔒'),
-      new ButtonBuilder().setCustomId('ticket_claim').setLabel('Reclamar').setStyle(ButtonStyle.Primary).setEmoji('🙋'),
+      new ButtonBuilder().setCustomId('ticket_close').setLabel('Cerrar ticket').setStyle(ButtonStyle.Secondary).setEmoji('🔒'),
+      new ButtonBuilder().setCustomId('ticket_claim').setLabel('Reclamar').setStyle(ButtonStyle.Secondary).setEmoji('🙋'),
       new ButtonBuilder().setCustomId('ticket_pin').setLabel('Fijar').setStyle(ButtonStyle.Secondary).setEmoji('📌')
     );
     const staffMention = (staffRoleId && guild.roles.cache.has(staffRoleId)) ? ` <@&${staffRoleId}>` : '';
@@ -187,8 +187,8 @@ export async function closeTicket(channel, closer, reason = 'Sin motivo') {
       footer: { text: `Ticket ID: ${ticketData.id}` }
     });
     const controlRow = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId('ticket_reopen').setLabel('Reabrir ticket').setStyle(ButtonStyle.Success).setEmoji('🔓'),
-      new ButtonBuilder().setCustomId('ticket_delete').setLabel('Eliminar ticket').setStyle(ButtonStyle.Danger).setEmoji('🗑️')
+      new ButtonBuilder().setCustomId('ticket_reopen').setLabel('Reabrir ticket').setStyle(ButtonStyle.Secondary).setEmoji('🔓'),
+      new ButtonBuilder().setCustomId('ticket_delete').setLabel('Eliminar ticket').setStyle(ButtonStyle.Secondary).setEmoji('🗑️')
     );
     await channel.send({ embeds: [closeEmbed], components: [controlRow] });
     await logTicketEvent({ client: channel.client, guildId: channel.guild.id, event: { type: 'close', ticketId: channel.id, ticketNumber: ticketData.id, userId: ticketData.userId, executorId: closer.id, reason, metadata: { dmSent: dmOnClose, closedAt: ticketData.closedAt, movedToClosedCategory } } }).catch(() => {});
@@ -211,7 +211,7 @@ export async function claimTicket(channel, claimer) {
     const ticketMessage = messages.find(m => m.embeds.length > 0 && m.embeds[0].title?.startsWith('Ticket #'));
     if (ticketMessage) {
       const row = new ActionRowBuilder().addComponents(
-        new ButtonBuilder().setCustomId('ticket_close').setLabel('Cerrar ticket').setStyle(ButtonStyle.Danger).setEmoji('🔒'),
+        new ButtonBuilder().setCustomId('ticket_close').setLabel('Cerrar ticket').setStyle(ButtonStyle.Secondary).setEmoji('🔒'),
         new ButtonBuilder().setCustomId('ticket_claim').setLabel('Reclamado').setStyle(ButtonStyle.Secondary).setEmoji('🙋').setDisabled(true),
         new ButtonBuilder().setCustomId('ticket_pin').setLabel('Fijar').setStyle(ButtonStyle.Secondary).setEmoji('📌')
       );
@@ -268,8 +268,8 @@ export async function reopenTicket(channel, reopener) {
     const ticketMessage = messages.find(m => m.embeds.length > 0 && m.embeds[0].title?.startsWith('Ticket #'));
     if (ticketMessage) {
       const row = new ActionRowBuilder().addComponents(
-        new ButtonBuilder().setCustomId('ticket_close').setLabel('Cerrar ticket').setStyle(ButtonStyle.Danger).setEmoji('🔒'),
-        new ButtonBuilder().setCustomId('ticket_claim').setLabel(ticketData.claimedBy ? 'Reclamado' : 'Reclamar').setStyle(ticketData.claimedBy ? ButtonStyle.Secondary : ButtonStyle.Primary).setEmoji('🙋').setDisabled(!!ticketData.claimedBy),
+        new ButtonBuilder().setCustomId('ticket_close').setLabel('Cerrar ticket').setStyle(ButtonStyle.Secondary).setEmoji('🔒'),
+        new ButtonBuilder().setCustomId('ticket_claim').setLabel(ticketData.claimedBy ? 'Reclamado' : 'Reclamar').setStyle(ticketData.claimedBy ? ButtonStyle.Secondary : ButtonStyle.Secondary).setEmoji('🙋').setDisabled(!!ticketData.claimedBy),
         new ButtonBuilder().setCustomId('ticket_pin').setLabel('Fijar').setStyle(ButtonStyle.Secondary).setEmoji('📌')
       );
       const embeds = rebuildTicketEmbeds(ticketMessage, (builder, e) => {
@@ -358,8 +358,8 @@ export async function unclaimTicket(channel, unclaimer) {
     const ticketMessage = messages.find(m => m.embeds.length > 0 && m.embeds[0].title?.startsWith('Ticket #'));
     if (ticketMessage) {
       const row = new ActionRowBuilder().addComponents(
-        new ButtonBuilder().setCustomId('ticket_close').setLabel('Cerrar ticket').setStyle(ButtonStyle.Danger).setEmoji('🔒'),
-        new ButtonBuilder().setCustomId('ticket_claim').setLabel('Reclamar').setStyle(ButtonStyle.Primary).setEmoji('🙋'),
+        new ButtonBuilder().setCustomId('ticket_close').setLabel('Cerrar ticket').setStyle(ButtonStyle.Secondary).setEmoji('🔒'),
+        new ButtonBuilder().setCustomId('ticket_claim').setLabel('Reclamar').setStyle(ButtonStyle.Secondary).setEmoji('🙋'),
         new ButtonBuilder().setCustomId('ticket_pin').setLabel('Fijar').setStyle(ButtonStyle.Secondary).setEmoji('📌')
       );
       const embeds = rebuildTicketEmbeds(ticketMessage, (builder, e) => {

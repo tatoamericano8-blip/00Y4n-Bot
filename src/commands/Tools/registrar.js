@@ -338,7 +338,7 @@ export default {
                 new ButtonBuilder()
                     .setCustomId('matricular_reiniciar_si')
                     .setLabel('Sí, borrar todo')
-                    .setStyle(ButtonStyle.Danger),
+                    .setStyle(ButtonStyle.Secondary),
                 new ButtonBuilder()
                     .setCustomId('matricular_reiniciar_no')
                     .setLabel('Cancelar')

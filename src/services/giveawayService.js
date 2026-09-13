@@ -230,7 +230,7 @@ export function createGiveawayButtons(ended = false) {
                 new ButtonBuilder()
                     .setCustomId('giveaway_view')
                     .setLabel('👁️ View Winners')
-                    .setStyle(ButtonStyle.Primary)
+                    .setStyle(ButtonStyle.Secondary)
                     .setDisabled(false)
             );
         } else {
@@ -238,12 +238,12 @@ export function createGiveawayButtons(ended = false) {
                 new ButtonBuilder()
                     .setCustomId('giveaway_join')
                     .setLabel('🎉 Join')
-                    .setStyle(ButtonStyle.Primary)
+                    .setStyle(ButtonStyle.Secondary)
                     .setDisabled(false),
                 new ButtonBuilder()
                     .setCustomId('giveaway_end')
                     .setLabel('🛑 End')
-                    .setStyle(ButtonStyle.Danger)
+                    .setStyle(ButtonStyle.Secondary)
                     .setDisabled(false)
             );
         }

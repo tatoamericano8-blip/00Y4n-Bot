@@ -162,11 +162,11 @@ export default {
       .setTimestamp();
 
     const row = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId('panel_staff_sesiones').setLabel('Sesiones abiertas').setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId('panel_staff_sesiones').setLabel('Sesiones abiertas').setStyle(ButtonStyle.Secondary),
       new ButtonBuilder().setCustomId('panel_staff_loa').setLabel('LOA activos').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId('panel_staff_incumplidores').setLabel('Incumplidores').setStyle(ButtonStyle.Danger),
-      new ButtonBuilder().setCustomId('panel_staff_forzar').setLabel('C\u00f3mo forzar cierre').setStyle(ButtonStyle.Success),
-      new ButtonBuilder().setCustomId('panel_staff_hosts').setLabel('Ranking hosts').setStyle(ButtonStyle.Primary)
+      new ButtonBuilder().setCustomId('panel_staff_incumplidores').setLabel('Incumplidores').setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder().setCustomId('panel_staff_forzar').setLabel('C\u00f3mo forzar cierre').setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder().setCustomId('panel_staff_hosts').setLabel('Ranking hosts').setStyle(ButtonStyle.Secondary)
     );
 
     return interaction.editReply({ embeds: [embed], components: [row] });
