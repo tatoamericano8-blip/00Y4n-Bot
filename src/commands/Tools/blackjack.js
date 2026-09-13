@@ -141,6 +141,18 @@ function embedPartida({ user, apuesta, jugador, dealer, ocultarDealer, estadoTxt
 async function resolverDealerYPago(estado) {
   const { mazo, jugador, dealer, apuesta, userId, naturalJugador } = estado;
 
+  // Evita doble pago si se resuelve dos veces (race de botones / timeout)
+  if (estado.pagado) {
+    const saldo = await obtenerSaldo(userId);
+    return {
+      resultado: estado.ultimoResultado || 'push',
+      mensaje: estado.ultimoMensaje || 'Partida ya resuelta.',
+      gananciaNeta: 0,
+      saldo
+    };
+  }
+  estado.pagado = true;
+
   // Si el jugador ya se pasó, no juega el dealer
   if (valorMano(jugador) <= 21) {
     while (valorMano(dealer) < 17) {
@@ -201,6 +213,8 @@ async function resolverDealerYPago(estado) {
   }
 
   const saldo = await obtenerSaldo(userId);
+  estado.ultimoResultado = resultado;
+  estado.ultimoMensaje = mensaje;
   return { resultado, mensaje, gananciaNeta, saldo, vJ, vD };
 }
 
@@ -227,42 +241,45 @@ export default {
       });
     }
 
-    const saldo = await obtenerSaldo(userId);
-    const apuesta = parseApuesta(interaction.options.getString('apuesta'), saldo);
-
-    if (apuesta == null) {
-      return interaction.reply({
-        content: `${E.cruz || '❌'} Apuesta inválida. Usá un número o \`all\`.`,
-        flags: MessageFlags.Ephemeral
-      });
-    }
-    if (apuesta < MIN_APUESTA) {
-      return interaction.reply({
-        content: `${E.cruz || '❌'} La apuesta mínima es **$${MIN_APUESTA.toLocaleString('es-AR')}**.`,
-        flags: MessageFlags.Ephemeral
-      });
-    }
-    if (apuesta > MAX_APUESTA) {
-      return interaction.reply({
-        content: `${E.cruz || '❌'} La apuesta máxima es **$${MAX_APUESTA.toLocaleString('es-AR')}**.`,
-        flags: MessageFlags.Ephemeral
-      });
-    }
-    if (saldo < apuesta) {
-      return interaction.reply({
-        content: `${E.cruz || '❌'} Saldo insuficiente. Tenés **$${saldo.toLocaleString('es-AR')}**.`,
-        flags: MessageFlags.Ephemeral
-      });
-    }
-
     if (activeGames.has(userId)) {
       return interaction.reply({
         content: `${E.warn || '⚠️'} Ya tenés una partida de blackjack en curso. Terminála antes de empezar otra.`,
         flags: MessageFlags.Ephemeral
       });
     }
-
     activeGames.add(userId);
+
+    const saldo = await obtenerSaldo(userId);
+    const apuesta = parseApuesta(interaction.options.getString('apuesta'), saldo);
+
+    if (apuesta == null) {
+      activeGames.delete(userId);
+      return interaction.reply({
+        content: `${E.cruz || '❌'} Apuesta inválida. Usá un número o \`all\`.`,
+        flags: MessageFlags.Ephemeral
+      });
+    }
+    if (apuesta < MIN_APUESTA) {
+      activeGames.delete(userId);
+      return interaction.reply({
+        content: `${E.cruz || '❌'} La apuesta mínima es **$${MIN_APUESTA.toLocaleString('es-AR')}**.`,
+        flags: MessageFlags.Ephemeral
+      });
+    }
+    if (apuesta > MAX_APUESTA) {
+      activeGames.delete(userId);
+      return interaction.reply({
+        content: `${E.cruz || '❌'} La apuesta máxima es **$${MAX_APUESTA.toLocaleString('es-AR')}**.`,
+        flags: MessageFlags.Ephemeral
+      });
+    }
+    if (saldo < apuesta) {
+      activeGames.delete(userId);
+      return interaction.reply({
+        content: `${E.cruz || '❌'} Saldo insuficiente. Tenés **$${saldo.toLocaleString('es-AR')}**.`,
+        flags: MessageFlags.Ephemeral
+      });
+    }
 
     const cobro = await restarSaldoExacto(userId, apuesta, {
       tipo: 'EGRESO',
@@ -291,6 +308,7 @@ export default {
       dealer,
       naturalJugador,
       terminada: false,
+      pagado: false,
       procesando: false
     };
 
@@ -497,7 +515,10 @@ export default {
     });
 
     collector.on('end', async (_, reason) => {
-      if (estado.terminada) return;
+      if (estado.terminada) {
+        activeGames.delete(userId);
+        return;
+      }
       if (reason === 'time') {
         estado.terminada = true;
         cooldowns.set(userId, Date.now() + COOLDOWN_MS);
