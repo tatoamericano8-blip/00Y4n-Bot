@@ -122,9 +122,9 @@ export default {
             .setTimestamp();
 
         const botonera = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setCustomId(`regs_${miembro.id}`).setLabel('Matrículas').setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder().setCustomId(`multas_${miembro.id}`).setLabel('Multas').setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder().setCustomId(`invtienda_${miembro.id}`).setLabel('Inventario').setStyle(ButtonStyle.Secondary)
+            new ButtonBuilder().setCustomId(`regs_${miembro.id}`).setLabel('Matrículas').setStyle(ButtonStyle.Secondary).setEmoji(EMOJI_DEF.hyperlink.id),
+            new ButtonBuilder().setCustomId(`multas_${miembro.id}`).setLabel('Multas').setStyle(ButtonStyle.Secondary).setEmoji(EMOJI_DEF.hyperlink.id),
+            new ButtonBuilder().setCustomId(`invtienda_${miembro.id}`).setLabel('Inventario').setStyle(ButtonStyle.Secondary).setEmoji(EMOJI_DEF.hyperlink.id)
         );
 
         const mensajePerfil = await interaction.editReply({ embeds: [perfilEmbed], components: [botonera] });
