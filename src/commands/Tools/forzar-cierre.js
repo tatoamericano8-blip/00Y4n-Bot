@@ -65,7 +65,7 @@ function buildEmbedCierreForzado({ hostId, staffId, motivo, guild }) {
                 ` **Motivo:** ${motivo}\n` +
                 (E.jpuntderecha || '›') +
                 ` **Hora de cierre:** <t:${Math.floor(Date.now() / 1000)}:F>\n\n` +
-                (E.replican || '') +
+                (E.menos || '') +
                 ` *No se sumó cuota ni sesiones al host, co-host ni supervisor.*\n\n` +
                 (E.replican || '') +
                 ` *Los servidores se hostean de forma activa a lo largo del día mientras trabajamos hacia el objetivo de hosting 24/7. No te desanimes si no hay una sesión en curso — otra comenzará pronto*.`
