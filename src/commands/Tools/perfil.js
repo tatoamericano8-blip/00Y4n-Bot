@@ -5,7 +5,7 @@ import { obtenerSaldo } from '../../utils/gestorEconomia.js';
 import { obtenerTodasLasMultas } from '../../utils/gestorMultas.js';
 import { armarInventarioCompleto } from '../../utils/gestorTienda.js';
 import { TIENDA_COLOR } from '../../config/tiendaServer.js';
-import { E } from '../../config/emojis.js';
+import { E, EMOJI_DEF } from '../../config/emojis.js';
 
 const BLOXLINK_API_KEY = 'e47f3929-9be2-4179-82b1-e53b4a9a6538';
 
@@ -122,9 +122,9 @@ export default {
             .setTimestamp();
 
         const botonera = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setCustomId(`regs_${miembro.id}`).setLabel('Matrículas').setStyle(ButtonStyle.Secondary).setEmoji(EMOJI_DEF.auto.id),
-            new ButtonBuilder().setCustomId(`multas_${miembro.id}`).setLabel('Multas').setStyle(ButtonStyle.Secondary).setEmoji(EMOJI_DEF.multa.id),
-            new ButtonBuilder().setCustomId(`invtienda_${miembro.id}`).setLabel('Inventario').setStyle(ButtonStyle.Secondary).setEmoji(EMOJI_DEF.mochila.id)
+            new ButtonBuilder().setCustomId(`regs_${miembro.id}`).setLabel('Matrículas').setStyle(ButtonStyle.Secondary).setEmoji({ id: EMOJI_DEF.auto.id }),
+            new ButtonBuilder().setCustomId(`multas_${miembro.id}`).setLabel('Multas').setStyle(ButtonStyle.Secondary).setEmoji({ id: EMOJI_DEF.multa.id }),
+            new ButtonBuilder().setCustomId(`invtienda_${miembro.id}`).setLabel('Inventario').setStyle(ButtonStyle.Secondary).setEmoji({ id: EMOJI_DEF.mochila.id })
         );
 
         const mensajePerfil = await interaction.editReply({ embeds: [perfilEmbed], components: [botonera] });
