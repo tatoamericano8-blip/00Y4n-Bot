@@ -17,10 +17,11 @@ import { PRIMARIO } from '../../utils/colores.js';
 
 const MIN_APUESTA = 100;
 const MAX_APUESTA = 35000;
-const COOLDOWN_MS = 90 * 1000; // 1 minuto y medio
+const COOLDOWN_MS = 15 * 1000; // 15 segundos
 const PARTIDA_TIMEOUT_MS = 90 * 1000;
 
 const cooldowns = new Map();
+const activeGames = new Set(); // evita partidas simultáneas del mismo user
 
 const PALOS = ['♠', '♥', '♦', '♣'];
 const VALORES = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
@@ -254,11 +255,21 @@ export default {
       });
     }
 
+    if (activeGames.has(userId)) {
+      return interaction.reply({
+        content: `${E.warn || '⚠️'} Ya tenés una partida de blackjack en curso. Terminála antes de empezar otra.`,
+        flags: MessageFlags.Ephemeral
+      });
+    }
+
+    activeGames.add(userId);
+
     const cobro = await restarSaldoExacto(userId, apuesta, {
       tipo: 'EGRESO',
       motivo: `Blackjack apuesta $${apuesta}`
     });
     if (!cobro.ok) {
+      activeGames.delete(userId);
       return interaction.reply({
         content: `${E.cruz || '❌'} No se pudo descontar la apuesta. Saldo: **$${cobro.saldo.toLocaleString('es-AR')}**.`,
         flags: MessageFlags.Ephemeral
@@ -279,12 +290,14 @@ export default {
       jugador,
       dealer,
       naturalJugador,
-      terminada: false
+      terminada: false,
+      procesando: false
     };
 
     // Blackjack natural inmediato
     if (naturalJugador || naturalDealer) {
       cooldowns.set(userId, Date.now() + COOLDOWN_MS);
+      activeGames.delete(userId);
       const res = await resolverDealerYPago(estado);
       const color =
         res.resultado === 'win' || res.resultado === 'blackjack'
@@ -338,6 +351,13 @@ export default {
       if (estado.terminada) {
         return i.deferUpdate().catch(() => null);
       }
+      if (estado.procesando) {
+        return i.reply({
+          content: `${E.tiempo || '⏳'} Esperá, procesando tu jugada…`,
+          flags: MessageFlags.Ephemeral
+        }).catch(() => null);
+      }
+      estado.procesando = true;
 
       const accion = i.customId.split(':')[2];
 
@@ -348,6 +368,7 @@ export default {
             estado.terminada = true;
             collector.stop('bust');
             cooldowns.set(userId, Date.now() + COOLDOWN_MS);
+            activeGames.delete(userId);
             const res = await resolverDealerYPago(estado);
             await i.update({
               embeds: [
@@ -381,12 +402,14 @@ export default {
             ],
             components: [botonesJuego(partidaId, { puedeDoblar: false })]
           });
+          estado.procesando = false;
           return;
         }
 
         if (accion === 'double') {
           // Solo si aún tiene 2 cartas y saldo alcanza
           if (estado.jugador.length !== 2) {
+            estado.procesando = false;
             return i.reply({
               content: `${E.cruz || '❌'} Solo podés doblar con las dos cartas iniciales.`,
               flags: MessageFlags.Ephemeral
@@ -397,6 +420,7 @@ export default {
             motivo: `Blackjack double down +$${estado.apuesta}`
           });
           if (!extra.ok) {
+            estado.procesando = false;
             return i.reply({
               content: `${E.cruz || '❌'} No tenés saldo para doblar. Saldo: **$${extra.saldo.toLocaleString('es-AR')}**.`,
               flags: MessageFlags.Ephemeral
@@ -407,6 +431,7 @@ export default {
           estado.terminada = true;
           collector.stop('double');
           cooldowns.set(userId, Date.now() + COOLDOWN_MS);
+          activeGames.delete(userId);
           const res = await resolverDealerYPago(estado);
           const color =
             res.resultado === 'win' || res.resultado === 'blackjack'
@@ -436,6 +461,7 @@ export default {
           estado.terminada = true;
           collector.stop('stand');
           cooldowns.set(userId, Date.now() + COOLDOWN_MS);
+          activeGames.delete(userId);
           const res = await resolverDealerYPago(estado);
           const color =
             res.resultado === 'win' || res.resultado === 'blackjack'
@@ -461,6 +487,8 @@ export default {
         }
       } catch (e) {
         console.error('[blackjack]', e);
+        estado.procesando = false;
+        if (estado.terminada) activeGames.delete(userId);
         await i.reply({
           content: `${E.cruz || '❌'} Error en la partida. Si se descontó saldo, contactá staff.`,
           flags: MessageFlags.Ephemeral
@@ -473,6 +501,7 @@ export default {
       if (reason === 'time') {
         estado.terminada = true;
         cooldowns.set(userId, Date.now() + COOLDOWN_MS);
+        activeGames.delete(userId);
         try {
           const res = await resolverDealerYPago(estado);
           await msg.edit({
