@@ -46,7 +46,7 @@ function lineasLogros(actual, umbrales, formatear) {
     const siguiente = umbrales.find((u) => actual < u);
     const lineas = umbrales.map((u) => {
         const ok = actual >= u;
-        return `${ok ? '✅' : '🔒'} ${formatear(u)}`;
+        return `${ok ? (E.tilde || '✅') : (E.lock || '🔒')} ${formatear(u)}`;
     });
     let progreso = '';
     if (siguiente != null) {

@@ -1,3 +1,5 @@
+import { EMOJI_DEF } from './emojis.js';
+
 /**
  * Tienda del servidor 00Y4n — catálogo en español
  * Misma economía que /work (gestorEconomia)
@@ -182,25 +184,25 @@ export const TIENDA_CATEGORIAS = [
   {
     id: 'permisos',
     label: 'Permisos y Seguros',
-    emoji: '📋',
+    emoji: { id: EMOJI_DEF.lista.id, name: EMOJI_DEF.lista.name },
     description: 'Seguros semanales, FastPass y permisos oficiales'
   },
   {
     id: 'regalos',
     label: 'Regalos',
-    emoji: '🎁',
+    emoji: { id: EMOJI_DEF.gift.id, name: EMOJI_DEF.gift.name },
     description: 'Ítems para regalar a otros ciudadanos'
   },
   {
     id: 'comida',
     label: 'Comida',
-    emoji: '🍔',
+    emoji: { id: EMOJI_DEF.comida.id, name: EMOJI_DEF.comida.name },
     description: 'Comida consumible del servidor'
   },
   {
     id: 'fuma',
     label: 'Fuma y Bebe',
-    emoji: '🚬',
+    emoji: { id: EMOJI_DEF.cigarro.id, name: EMOJI_DEF.cigarro.name },
     description: 'Cigarrillos, joint y tragos'
   }
 ];
