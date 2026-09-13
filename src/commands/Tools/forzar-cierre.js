@@ -1,10 +1,13 @@
-import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import Sesion from '../../../models/Session.js';
 import { finalizarYPublicarLogSesion } from '../../utils/logSesionArchivo.js';
 import { E } from '../../config/emojis.js';
 
 const ROL_ALTO_MANDO_ID = '1528870731629465752';
+const CANAL_LOG_ID = '1505015805891579934';
 const HORAS_A_BORRAR = 3;
+const URL_IMAGEN_DEFAULT =
+    'https://cdn.discordapp.com/attachments/1505017301089652898/1548119384529309797/Sesion_Concluida_1.png?ex=6aa5e607&is=6aa49487&hm=41f67f388a23c3391bfdfc371ee920df7d1c39370767d1db41fa65bf11dcd7ee&';
 
 async function borrarMensajesUltimasHoras(channel, horas = HORAS_A_BORRAR) {
     const limiteMs = Date.now() - horas * 60 * 60 * 1000;
@@ -45,6 +48,37 @@ async function borrarMensajesUltimasHoras(channel, horas = HORAS_A_BORRAR) {
     return borrados;
 }
 
+function buildEmbedCierreForzado({ hostId, staffId, motivo, guild }) {
+    const titulo =
+        (E.a2alas || '') +
+        ` Southwest Florida Comunidad 00Y4n — __*Sesión Finalizada (Forzada)*__ ` +
+        (E.a2alas || '');
+
+    return new EmbedBuilder()
+        .setTitle(titulo)
+        .setDescription(
+            (E.dot || '•') +
+                ` La sesión organizada por <@${hostId}> **fue cerrada de forma forzada**.\n\n` +
+                (E.jpuntderecha || '›') +
+                ` **Cerrado por:** <@${staffId}>\n` +
+                (E.jpuntderecha || '›') +
+                ` **Motivo:** ${motivo}\n` +
+                (E.jpuntderecha || '›') +
+                ` **Hora de cierre:** <t:${Math.floor(Date.now() / 1000)}:F>\n\n` +
+                (E.replican || '') +
+                ` *No se sumó cuota ni sesiones al host, co-host ni supervisor.*\n\n` +
+                (E.replican || '') +
+                ` *Los servidores se hostean de forma activa a lo largo del día mientras trabajamos hacia el objetivo de hosting 24/7. No te desanimes si no hay una sesión en curso — otra comenzará pronto*.`
+        )
+        .setColor('#74d4fc')
+        .setImage(URL_IMAGEN_DEFAULT)
+        .setFooter({
+            text: '00Y4n Comunidad SWFL • Cierre forzado por Alto Mando',
+            iconURL: guild?.iconURL?.() || undefined
+        })
+        .setTimestamp();
+}
+
 export default {
     data: new SlashCommandBuilder()
         .setName('forzar-cierre')
@@ -70,16 +104,15 @@ export default {
             return await interaction.reply({
                 content:
                     '❌ **Acceso denegado.** Este comando es exclusivo para los integrantes del **Alto Mando**.',
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
         }
 
-        await interaction.deferReply();
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const hostUsuario = interaction.options.getUser('host');
         const motivoCancelacion = interaction.options.getString('motivo');
 
-        // Cerrar sesión(es) activas SIN sumar cuota
         let sesionesCerradas = 0;
         try {
             const res = await Sesion.updateMany(
@@ -92,10 +125,9 @@ export default {
                         estado: 'cerrada',
                         fechaCierre: new Date(),
                         cierreForzado: true,
-                        cuentaParaCuota: false,
                         motivoCierreForzado: motivoCancelacion,
                         cerradoPor: interaction.user.id,
-                        hostId: hostUsuario.id // referencia al host mencionado
+                        cuentaParaCuota: false
                     }
                 }
             );
@@ -113,15 +145,19 @@ export default {
                         motivoCierre: motivoCancelacion
                     });
                 } else {
-                    await finalizarYPublicarLogSesion(interaction.client, {
-                        guildId: interaction.guildId,
-                        hostId: hostUsuario.id,
-                        estado: 'cerrada',
-                        fechaCierre: new Date(),
-                        cierreForzado: true,
-                        motivoCierreForzado: motivoCancelacion,
-                        cuentaParaCuota: false
-                    }, { notas: motivoCancelacion, motivoCierre: motivoCancelacion });
+                    await finalizarYPublicarLogSesion(
+                        interaction.client,
+                        {
+                            guildId: interaction.guildId,
+                            hostId: hostUsuario.id,
+                            estado: 'cerrada',
+                            fechaCierre: new Date(),
+                            cierreForzado: true,
+                            motivoCierreForzado: motivoCancelacion,
+                            cuentaParaCuota: false
+                        },
+                        { notas: motivoCancelacion, motivoCierre: motivoCancelacion }
+                    );
                 }
             } catch (logErr) {
                 console.error('[forzar-cierre] log sesion:', logErr?.message || logErr);
@@ -130,26 +166,7 @@ export default {
             console.error('[forzar-cierre] Error cerrando sesión en DB:', e.message);
         }
 
-        const embedCierreForzado = new EmbedBuilder()
-            .setColor('#74d4fc')
-            .setTitle(E.aflotacoras + ' Sesión Finalizada Forzosamente')
-            .setDescription(
-                `La sesión organizada por <@${hostUsuario.id}> fue cancelada por un integrante del **Alto Mando** (<@${interaction.user.id}>).\n\n` +
-                    `${E.dot} **Motivo:** ${motivoCancelacion}\n\n` +
-                    `${E.flechareplica} *No se sumó cuota ni sesiones al host, co-host ni supervisor.*\n` +
-                    `🗑️ *Se limpiarán los mensajes de las últimas **${HORAS_A_BORRAR} horas** en este canal.*`
-            )
-            .setFooter({
-                text: '00Y4n Comunidad SWFL • Control de Alto Mando',
-                iconURL: interaction.guild.iconURL()
-            })
-            .setTimestamp();
-
-        await interaction.editReply({
-            embeds: [embedCierreForzado],
-            allowedMentions: { parse: [] }
-        });
-
+        // 1) Limpiar primero para no borrar el anuncio de cierre
         let borrados = 0;
         try {
             borrados = await borrarMensajesUltimasHoras(interaction.channel, HORAS_A_BORRAR);
@@ -157,12 +174,41 @@ export default {
             console.error('[forzar-cierre] Error borrando mensajes:', e.message);
         }
 
+        const embedCierreForzado = buildEmbedCierreForzado({
+            hostId: hostUsuario.id,
+            staffId: interaction.user.id,
+            motivo: motivoCancelacion,
+            guild: interaction.guild
+        });
+
+        // 2) Mensaje público en el canal de la sesión (igual estilo que /cerrar)
         try {
-            await interaction.followUp({
-                content:
-                    `🗑️ Limpieza: **${borrados}** mensaje(s). Sesiones forzadas cerradas: **${sesionesCerradas}**. Cuota: **no sumada**.`,
-                ephemeral: true
+            await interaction.channel.send({
+                embeds: [embedCierreForzado],
+                allowedMentions: { parse: [] }
             });
-        } catch {}
+        } catch (e) {
+            console.error('[forzar-cierre] Error enviando embed al canal:', e.message);
+        }
+
+        // 3) Log en canal de logs
+        try {
+            const logCh = await interaction.guild.channels.fetch(CANAL_LOG_ID).catch(() => null);
+            if (logCh?.isTextBased()) {
+                await logCh.send({
+                    embeds: [embedCierreForzado],
+                    allowedMentions: { parse: [] }
+                });
+            }
+        } catch (e) {
+            console.error('[forzar-cierre] Error enviando log:', e.message);
+        }
+
+        await interaction.editReply({
+            content:
+                `✅ Cierre forzado publicado.\n` +
+                `🗑️ Limpieza: **${borrados}** mensaje(s).\n` +
+                `Sesiones forzadas cerradas: **${sesionesCerradas}**. Cuota: **no sumada**.`
+        });
     }
 };
