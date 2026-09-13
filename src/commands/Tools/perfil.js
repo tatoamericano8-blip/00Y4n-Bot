@@ -6,6 +6,7 @@ import { obtenerTodasLasMultas } from '../../utils/gestorMultas.js';
 import { armarInventarioCompleto } from '../../utils/gestorTienda.js';
 import { TIENDA_COLOR } from '../../config/tiendaServer.js';
 import { E, EMOJI_DEF } from '../../config/emojis.js';
+import { db } from '../../utils/database.js';
 
 const BLOXLINK_API_KEY = 'e47f3929-9be2-4179-82b1-e53b4a9a6538';
 
@@ -18,6 +19,46 @@ async function obtenerVehiculosUsuario(usuarioId) {
         return [];
     }
 }
+
+
+const LOGROS_MENSAJES = [1000, 2500, 5000, 10000, 20000];
+const LOGROS_REACCIONES = [25, 50, 150, 300, 500];
+const LOGROS_ECONOMIA = [100000, 250000, 500000, 750000, 1000000];
+
+async function contarMensajesUsuario(guildId, userId) {
+    const uid = String(userId);
+    const gid = String(guildId);
+    let total = 0;
+    total += Number(await db.get(`mensajes_totales:${gid}:${uid}`, 0)) || 0;
+    // legacy sin guild
+    total += Number(await db.get(`mensajes_totales:${uid}`, 0)) || 0;
+    return total;
+}
+
+async function contarReaccionesUsuario(guildId, userId) {
+    const uid = String(userId);
+    const gid = String(guildId);
+    return Number(await db.get(`reacciones_sesiones:${gid}:${uid}`, 0)) || 0;
+}
+
+function lineasLogros(actual, umbrales, formatear) {
+    const desbloqueados = umbrales.filter((u) => actual >= u);
+    const siguiente = umbrales.find((u) => actual < u);
+    const lineas = umbrales.map((u) => {
+        const ok = actual >= u;
+        return `${ok ? '✅' : '🔒'} ${formatear(u)}`;
+    });
+    let progreso = '';
+    if (siguiente != null) {
+        progreso = `**Progreso:** ${formatear(actual)} / ${formatear(siguiente)}`;
+    } else if (desbloqueados.length === umbrales.length) {
+        progreso = `**Progreso:** ${formatear(actual)} · _Categoría completada_`;
+    } else {
+        progreso = `**Progreso:** ${formatear(actual)}`;
+    }
+    return { lineas, progreso, desbloqueados: desbloqueados.length, total: umbrales.length };
+}
+
 
 export default {
     data: {
@@ -124,13 +165,14 @@ export default {
         const botonera = new ActionRowBuilder().addComponents(
             new ButtonBuilder().setCustomId(`regs_${miembro.id}`).setLabel('Matrículas').setStyle(ButtonStyle.Secondary).setEmoji({ id: EMOJI_DEF.auto.id }),
             new ButtonBuilder().setCustomId(`multas_${miembro.id}`).setLabel('Multas').setStyle(ButtonStyle.Secondary).setEmoji({ id: EMOJI_DEF.multa.id }),
-            new ButtonBuilder().setCustomId(`invtienda_${miembro.id}`).setLabel('Inventario').setStyle(ButtonStyle.Secondary).setEmoji({ id: EMOJI_DEF.mochila.id })
+            new ButtonBuilder().setCustomId(`invtienda_${miembro.id}`).setLabel('Inventario').setStyle(ButtonStyle.Secondary).setEmoji({ id: EMOJI_DEF.mochila.id }),
+            new ButtonBuilder().setCustomId(`logros_${miembro.id}`).setLabel('Logros').setStyle(ButtonStyle.Secondary).setEmoji({ id: EMOJI_DEF.trofeo.id })
         );
 
         const mensajePerfil = await interaction.editReply({ embeds: [perfilEmbed], components: [botonera] });
 
         const recolector = mensajePerfil.createMessageComponentCollector({
-            filter: (i) => i.customId.startsWith('regs_') || i.customId.startsWith('multas_') || i.customId.startsWith('invtienda_'),
+            filter: (i) => i.customId.startsWith('regs_') || i.customId.startsWith('multas_') || i.customId.startsWith('invtienda_') || i.customId.startsWith('logros_'),
             time: 86400000
         });
 
