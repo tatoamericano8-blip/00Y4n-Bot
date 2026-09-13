@@ -67,10 +67,10 @@ export default {
                 const IMAGEN_CONFIG_DEFAULT =
                     'https://cdn.discordapp.com/attachments/1505017301089652898/1548119320104534117/Configurando_sesion_1.png';
                 const embedSetup = new EmbedBuilder()
-                    .setTitle(`${E.a2alas} Southwest Florida Comunidad 00Y4n — Configuración del Servidor ${E.a2alas}`)
+                    .setTitle(`${E.a2alas} Southwest Florida Comunidad 00Y4n — __*Configuración del Servidor*__ ${E.a2alas}`)
                     .setDescription(
                         `${E.dot} <@${startup.hostId}> **ha comenzado a configurar su servidor** para la sesión de **${nombreSesion}!** Los miembros con acceso anticipado podrán unirse en breve usando el enlace de early access. ¡Asegurate de boostear el servidor para early access!\n\n` +
-                        `${E.flechareplica} Por favor sé paciente y dale al host un tiempo razonable para configurar.`
+                        `${E.flechareplica} __Por favor sé paciente y dale al host un tiempo razonable para configurar__.`
                     )
                     .setColor('#74d4fc')
                     .setImage(IMAGEN_CONFIG_DEFAULT);
