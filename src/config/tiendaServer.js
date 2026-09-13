@@ -6,7 +6,7 @@ import { EMOJI_DEF } from './emojis.js';
  */
 
 export const TIENDA_BANNER =
-  'https://cdn.discordapp.com/attachments/1505017301089652898/1536043757949161492/Server_Tienda_1.png';
+  'https://cdn.discordapp.com/attachments/1505017301089652898/1548119383874871316/Server_Tienda_1.png';
 
 export const TIENDA_COLOR = 0x8ae6fa;
 
@@ -206,6 +206,15 @@ export const TIENDA_CATEGORIAS = [
     description: 'Cigarrillos, joint y tragos'
   }
 ];
+
+
+/** Emoji de categoría para títulos de embed (string <:name:id>) */
+export function emojiCategoriaTag(cat) {
+  if (!cat?.emoji) return '';
+  if (typeof cat.emoji === 'string') return cat.emoji;
+  if (cat.emoji.id && cat.emoji.name) return `<:${cat.emoji.name}:${cat.emoji.id}>`;
+  return '';
+}
 
 export function getItem(id) {
   return TIENDA_ITEMS[id] || null;

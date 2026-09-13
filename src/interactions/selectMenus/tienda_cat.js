@@ -10,7 +10,8 @@ import {
   TIENDA_COLOR,
   TIENDA_CATEGORIAS,
   getItemsByCategory,
-  formatMoney
+  formatMoney,
+  emojiCategoriaTag
 } from '../../config/tiendaServer.js';
 import { obtenerSaldo } from '../../utils/gestorEconomia.js';
 
@@ -39,7 +40,7 @@ export default {
       .join('\n');
 
     const embed = new EmbedBuilder()
-      .setTitle(`${cat?.emoji || '🛒'} Tienda — ${cat?.label || categoryId}`)
+      .setTitle(`${emojiCategoriaTag(cat) || ''} Tienda — ${cat?.label || categoryId}`)
       .setDescription(
         `${lista}\n\nTu saldo: **${formatMoney(saldo)}**\nElegí un ítem en el menú para comprarlo.`
       )

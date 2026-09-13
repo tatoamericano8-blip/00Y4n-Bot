@@ -13,6 +13,7 @@ import {
 } from '../../config/tiendaServer.js';
 import { obtenerSaldo } from '../../utils/gestorEconomia.js';
 import { comprarItem } from '../../utils/gestorTienda.js';
+import { E } from '../../config/emojis.js';
 
 function menuCategorias() {
   return new ActionRowBuilder().addComponents(
@@ -57,7 +58,7 @@ export default {
 
     const saldo = await obtenerSaldo(interaction.user.id);
     const embedShop = new EmbedBuilder()
-      .setTitle('🛒 Tienda del servidor — 00Y4n')
+      .setTitle(`${E.money || ''} Tienda del servidor — 00Y4n`)
       .setDescription(
         'Elegí una **categoría** abajo y después el ítem que quieras comprar.\n\n' +
           `Tu saldo: **${formatMoney(saldo)}**`
