@@ -177,6 +177,41 @@ export default {
         });
 
         recolector.on('collect', async (botonInteraction) => {
+            if (botonInteraction.customId.startsWith('logros_')) {
+                const targetId = botonInteraction.customId.replace('logros_', '');
+                const guildId = botonInteraction.guildId;
+
+                const [msgs, reacts, saldo] = await Promise.all([
+                    contarMensajesUsuario(guildId, targetId),
+                    contarReaccionesUsuario(guildId, targetId),
+                    obtenerSaldo(targetId)
+                ]);
+
+                const catMsg = lineasLogros(msgs, LOGROS_MENSAJES, (n) => `${Number(n).toLocaleString('es-AR')} mensajes`);
+                const catReact = lineasLogros(reacts, LOGROS_REACCIONES, (n) => `${Number(n).toLocaleString('es-AR')} reacciones`);
+                const catEco = lineasLogros(saldo, LOGROS_ECONOMIA, (n) => `$${Number(n).toLocaleString('es-AR')}`);
+
+                const embedLogros = new EmbedBuilder()
+                    .setTitle(`${E.trofeo || ''} Logros`)
+                    .setDescription(
+                        `Ciudadano: <@${targetId}>\n\n` +
+                        `${E.msj || '💬'} **Mensajes** (${catMsg.desbloqueados}/${catMsg.total})\n` +
+                        `${catMsg.progreso}\n` +
+                        catMsg.lineas.join('\n') +
+                        `\n\n${E.tilde || '✅'} **Reacciones en sesiones** (${catReact.desbloqueados}/${catReact.total})\n` +
+                        `${catReact.progreso}\n` +
+                        catReact.lineas.join('\n') +
+                        `\n\n${E.dinero || '💰'} **Economía** (${catEco.desbloqueados}/${catEco.total})\n` +
+                        `${catEco.progreso}\n` +
+                        catEco.lineas.join('\n')
+                    )
+                    .setColor('#74d4fc')
+                    .setFooter({ text: 'Southwest Florida Comunidad 00Y4n ™ · Logros' })
+                    .setTimestamp();
+
+                return await botonInteraction.reply({ embeds: [embedLogros], flags: MessageFlags.Ephemeral });
+            }
+
             if (botonInteraction.customId.startsWith('invtienda_')) {
                 const targetId = botonInteraction.customId.replace('invtienda_', '');
                 let member = null;
