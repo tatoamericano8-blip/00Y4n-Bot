@@ -65,12 +65,12 @@ function menuCategorias() {
 }
 
 const MENSAJES_COMER = {
-  bolsa_bodega: 'Abriste la bolsa de bodega y comiste todo en el auto. Clásico SWFL.',
-  bandeja_cookout: 'Te comiste la bandeja Cookout entera. Quedaste pesado para el roleplay.',
-  popeyes: 'Popeyes en mano. El pollo estaba en su punto.',
-  ramen: 'Ramen caliente. Perfecto después de una sesión larga.',
-  sushi: 'Sushi de la tienda. Un poco de clase en Southwest Florida.',
-  langosta: 'Langosta de $500. Hoy cenás como alto comando.'
+  bolsa_bodega: '<:cielo_comida:1548121968744730654> Abriste la bolsa de bodega y comiste todo en el auto. Clásico SWFL.',
+  bandeja_cookout: '<:cielo_comida:1548121968744730654> Te comiste la bandeja Cookout entera. Quedaste pesado para el roleplay.',
+  popeyes: '<:cielo_comida:1548121968744730654> Popeyes en mano. El pollo estaba en su punto.',
+  ramen: '<:cielo_comida:1548121968744730654> Ramen caliente. Perfecto después de una sesión larga.',
+  sushi: '<:cielo_comida:1548121968744730654> Sushi de la tienda. Un poco de clase en Southwest Florida.',
+  langosta: '<:cielo_comida:1548121968744730654> Langosta de $500. Hoy cenás como el supervisor ejecutivo.'
 };
 
 const MENSAJES_FUMAR = {
