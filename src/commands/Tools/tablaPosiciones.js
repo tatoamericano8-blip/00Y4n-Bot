@@ -120,6 +120,26 @@ const CATEGORIAS = {
     }
 };
 
+
+/**
+ * Deja solo usuarios que siguen en el servidor.
+ * Así el top 10 no incluye gente que se fue.
+ */
+async function filtrarMiembrosActivos(guild, datos) {
+    if (!guild || !Array.isArray(datos) || datos.length === 0) return [];
+
+    try {
+        // Cache incompleto → traer todos los miembros (una vez por comando)
+        if (guild.members.cache.size < Math.max(1, (guild.memberCount || 0) * 0.85)) {
+            await guild.members.fetch();
+        }
+    } catch (e) {
+        console.warn('[tabla-posiciones] No se pudo cargar la lista de miembros:', e?.message || e);
+    }
+
+    return datos.filter((d) => d?.userId && guild.members.cache.has(String(d.userId)));
+}
+
 function construirEmbed(categoriaKey, datos, guildName) {
     const cat = CATEGORIAS[categoriaKey];
     const embed = new EmbedBuilder()
@@ -181,7 +201,8 @@ export default {
                 return interaction.editReply({ content: 'Categoría inválida.' });
             }
 
-            const datos = await cat.fetch(guildId);
+            const datosRaw = await cat.fetch(guildId);
+            const datos = await filtrarMiembrosActivos(interaction.guild, datosRaw);
             const embed = construirEmbed(categoria, datos, interaction.guild.name);
             const row = construirSelect(categoria);
 
@@ -197,7 +218,8 @@ export default {
                 try {
                     const nueva = i.values[0];
                     const catN = CATEGORIAS[nueva];
-                    const datosN = await catN.fetch(guildId);
+                    const datosNRaw = await catN.fetch(guildId);
+                    const datosN = await filtrarMiembrosActivos(interaction.guild, datosNRaw);
                     await i.update({
                         embeds: [construirEmbed(nueva, datosN, interaction.guild.name)],
                         components: [construirSelect(nueva)]
