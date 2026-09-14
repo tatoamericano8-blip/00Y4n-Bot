@@ -241,8 +241,8 @@ export default {
             .setDescription(
                 E.dot + ` <@${hostMencion}> **ha finalizado su servidor.** Agradecemos a todos los que participaron y los invitamos a volver pronto para la próxima sesión.\n\n` +
                     lineasTiempo.join('\n') +
-                    `\n\n` + E.menos + ` **Notas del host:** ${notasHost}` +
                     pagosTxt +
+                    `\n\n` + E.menos + ` **Notas del host:** ${notasHost}` +
                     `\n\n` + E.replican + ` *Los servidores se hostean de forma activa a lo largo del día mientras trabajamos hacia el objetivo de hosting 24/7. No te desanimes si no hay una sesión en curso — otra comenzará pronto*.`
             )
             .setColor('#74d4fc');
