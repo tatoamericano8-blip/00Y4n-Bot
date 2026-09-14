@@ -158,12 +158,12 @@ export default {
                     .setStyle(ButtonStyle.Secondary)
             );
 
-            const msg = await interaction.reply({
+            await interaction.reply({
                 embeds: [embedAviso],
                 components: [row],
-                ephemeral: true,
-                fetchReply: true
+                ephemeral: true
             });
+            const msg = await interaction.fetchReply();
 
             const collector = msg.createMessageComponentCollector({
                 componentType: ComponentType.Button,

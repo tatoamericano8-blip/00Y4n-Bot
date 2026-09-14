@@ -347,11 +347,11 @@ export default {
       color: PRIMARIO
     });
 
-    const msg = await interaction.reply({
+    await interaction.reply({
       embeds: [embed],
-      components: [botonesJuego(partidaId, { puedeDoblar: true })],
-      fetchReply: true
+      components: [botonesJuego(partidaId, { puedeDoblar: true })]
     });
+    const msg = await interaction.fetchReply();
 
     const collector = msg.createMessageComponentCollector({
       componentType: ComponentType.Button,

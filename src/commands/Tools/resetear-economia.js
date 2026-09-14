@@ -43,11 +43,11 @@ export default {
                 .setStyle(ButtonStyle.Secondary)
         );
 
-        const respuesta = await interaction.reply({
+        await interaction.reply({
             embeds: [embedConfirmacion],
-            components: [filaBotones],
-            fetchReply: true
+            components: [filaBotones]
         });
+        const respuesta = await interaction.fetchReply();
 
         const collector = respuesta.createMessageComponentCollector({
             filter: (i) => i.user.id === interaction.user.id,
