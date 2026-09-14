@@ -30,7 +30,7 @@ export const COLORES = {
   secundario: PRIMARIO,
 
   exito: '#57f287',
-  error: '#E60404',
+  error: '#ff6363',
   advertencia: '#faa61a',
   info: PRIMARIO,
 
@@ -39,7 +39,7 @@ export const COLORES = {
   loa: '#fee75c',
 
   economia: PRIMARIO,
-  dinero: '#57f287',
+  dinero: '#8ae6fa',
 
   sesion: PRIMARIO,
 
