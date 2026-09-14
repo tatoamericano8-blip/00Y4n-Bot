@@ -123,8 +123,8 @@ export async function lanzarOportunidadEconomica(client, canalId) {
                 if (collected.size === 0) {
                     const embedExpirado = EmbedBuilder.from(embedInicial)
                         .setDescription(
-                            `~~💵 **$${monto.toLocaleString('es-AR')}** ${historia}~~\n\n` +
-                            `⏰ *Esta oportunidad ha expirado.*`
+                            `~~${E.money} **$${monto.toLocaleString('es-AR')}** ${historia}~~\n\n` +
+                            `${E.tiempo} *Esta oportunidad ha expirado.*`
                         );
 
                     const botonExpirado = new ActionRowBuilder().addComponents(
