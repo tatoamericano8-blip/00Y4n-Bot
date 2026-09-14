@@ -1,5 +1,5 @@
 import { logger } from '../utils/logger.js';
-import { PRIMARIO } from '../utils/colores.js';
+import { PRIMARIO, COLORES } from '../utils/colores.js';
 
 
 export const botConfig = {
@@ -39,34 +39,34 @@ export const botConfig = {
 
   embeds: {
     colors: {
-      primary: PRIMARIO,
-      secondary: PRIMARIO,
-      success: PRIMARIO,
-      error: "#ED4245",
-      warning: PRIMARIO,
-      info: PRIMARIO,
+      primary: COLORES.primario,
+      secondary: COLORES.secundario,
+      success: COLORES.exito,
+      error: COLORES.error,
+      warning: COLORES.advertencia,
+      info: COLORES.info,
       light: "#FFFFFF",
       dark: "#202225",
       gray: "#99AAB5",
       blurple: "#5865F2",
-      green: "#57F287",
-      yellow: "#FEE75C",
+      green: COLORES.exito,
+      yellow: COLORES.loa,
       fuchsia: "#EB459E",
-      red: "#ED4245",
+      red: COLORES.error,
       black: "#000000",
       giveaway: {
-        active: PRIMARIO,
-        ended: PRIMARIO,
+        active: COLORES.primario,
+        ended: COLORES.primario,
       },
       ticket: {
-        open: PRIMARIO,
-        claimed: PRIMARIO,
-        closed: PRIMARIO,
-        pending: PRIMARIO,
+        open: COLORES.primario,
+        claimed: COLORES.primario,
+        closed: COLORES.primario,
+        pending: COLORES.advertencia,
       },
-      economy: PRIMARIO,
-      birthday: PRIMARIO,
-      moderation: PRIMARIO,
+      economy: COLORES.economia,
+      birthday: COLORES.primario,
+      moderation: COLORES.moderacion,
       priority: {
         none: "#95A5A6",
         low: "#3498db",
