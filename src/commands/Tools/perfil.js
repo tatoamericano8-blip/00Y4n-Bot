@@ -165,7 +165,7 @@ export default {
 
         const botonera = new ActionRowBuilder().addComponents(
             new ButtonBuilder().setCustomId(`regs_${miembro.id}`).setLabel('Matrículas').setStyle(ButtonStyle.Secondary).setEmoji({ id: EMOJI_DEF.auto.id }),
-            new ButtonBuilder().setCustomId(`multas_${miembro.id}`).setLabel('Multas').setStyle(ButtonStyle.Secondary).setEmoji({ id: EMOJI_DEF.multa.id }),
+            new ButtonBuilder().setCustomId(`multas_${miembro.id}`).setLabel('Historial').setStyle(ButtonStyle.Secondary).setEmoji({ id: EMOJI_DEF.multa.id }),
             new ButtonBuilder().setCustomId(`invtienda_${miembro.id}`).setLabel('Inventario').setStyle(ButtonStyle.Secondary).setEmoji({ id: EMOJI_DEF.mochila.id }),
             new ButtonBuilder().setCustomId(`logros_${miembro.id}`).setLabel('Logros').setStyle(ButtonStyle.Secondary).setEmoji({ id: EMOJI_DEF.trofeo.id })
         );
