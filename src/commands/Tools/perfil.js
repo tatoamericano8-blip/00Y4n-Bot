@@ -3,6 +3,7 @@ import Vehiculo from '../../../models/Vehiculo.js';
 import Licencia from '../../../models/Licencia.js';
 import { obtenerSaldo } from '../../utils/gestorEconomia.js';
 import { obtenerTodasLasMultas } from '../../utils/gestorMultas.js';
+import { obtenerArrestosPorUsuario } from '../../utils/gestorArrestos.js';
 import { armarInventarioCompleto } from '../../utils/gestorTienda.js';
 import { TIENDA_COLOR } from '../../config/tiendaServer.js';
 import { E, EMOJI_DEF } from '../../config/emojis.js';
@@ -254,45 +255,84 @@ export default {
                 const multasNuevas = await obtenerTodasLasMultas();
                 const arrayMultasActuales = Array.isArray(multasNuevas) ? multasNuevas : Object.values(multasNuevas || {});
                 const multasUsuarioActuales = arrayMultasActuales.filter(multa => String(multa.usuarioId || multa.usuario_id) === String(targetId));
+
+                const fmt = (iso) => {
+                    if (!iso) return null;
+                    try {
+                        return new Date(iso).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+                    } catch {
+                        return String(iso);
+                    }
+                };
+
+                let seccionMultas = '';
                 if (multasUsuarioActuales.length === 0) {
-                    const embedSinMultas = new EmbedBuilder()
-                        .setTitle(E.carpeta + ' Historial de Multas')
-                        .setDescription(`${E.tilde} El usuario <@${targetId}> **no tiene ningún tipo de multa.**`)
-                        .setColor('#74d4fc')
-                        .setFooter({ text: 'Departamento de Policía' })
-                        .setTimestamp();
-                    return await botonInteraction.reply({ embeds: [embedSinMultas], flags: MessageFlags.Ephemeral });
+                    seccionMultas = `${E.tilde} El usuario <@${targetId}> **no tiene ningún tipo de multa.**`;
+                } else {
+                    const stringMultas = multasUsuarioActuales
+                        .slice()
+                        .sort((a, b) => Number(a.id) - Number(b.id))
+                        .map((multa) => {
+                            const estadoTexto = multa.estado === 'PAGADA' ? '🟢 **PAGADA**' : '🔴 **PENDIENTE**';
+                            const oficial = multa.emisorId || multa.oficialId || multa.oficial_id || multa.emisor_id;
+                            const oficialTxt = oficial ? `<@${oficial}>` : 'Sin registrar';
+                            const emitida = fmt(multa.fecha);
+                            const pagada = multa.estado === 'PAGADA' ? fmt(multa.fechaPago || multa.pagadaEn) : null;
+                            let line =
+                                `**Multa #${multa.id}** — Estado: ${estadoTexto}\n` +
+                                `> • **Razón:** ${multa.razon}\n` +
+                                `> • **Monto:** $${Number(multa.monto).toLocaleString()}\n` +
+                                `> • **Oficial Emisor:** ${oficialTxt}`;
+                            if (emitida) line += `\n> • **Emitida:** ${emitida}`;
+                            if (pagada) line += `\n> • **Pagada:** ${pagada}`;
+                            return line;
+                        })
+                        .join('\n\n');
+                    seccionMultas = `${E.dot} Multas de tránsito aplicadas a <@${targetId}>:\n\n${stringMultas}`;
                 }
-                const stringMultas = multasUsuarioActuales
-                    .slice()
-                    .sort((a, b) => Number(a.id) - Number(b.id))
-                    .map((multa) => {
-                    const estadoTexto = multa.estado === 'PAGADA' ? '🟢 **PAGADA**' : '🔴 **PENDIENTE**';
-                    const oficial = multa.emisorId || multa.oficialId || multa.oficial_id || multa.emisor_id;
-                    const oficialTxt = oficial ? `<@${oficial}>` : 'Sin registrar';
-                    const fmt = (iso) => {
-                        if (!iso) return null;
-                        try {
-                            return new Date(iso).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
-                        } catch { return String(iso); }
-                    };
-                    const emitida = fmt(multa.fecha);
-                    const pagada = multa.estado === 'PAGADA' ? fmt(multa.fechaPago || multa.pagadaEn) : null;
-                    let line = `**Multa #${multa.id}** — Estado: ${estadoTexto}\n` +
-                           `> • **Razón:** ${multa.razon}\n` +
-                           `> • **Monto:** $${Number(multa.monto).toLocaleString()}\n` +
-                           `> • **Oficial Emisor:** ${oficialTxt}`;
-                    if (emitida) line += `\n> • **Emitida:** ${emitida}`;
-                    if (pagada) line += `\n> • **Pagada:** ${pagada}`;
-                    return line;
-                }).join('\n\n');
-                const embedConMultas = new EmbedBuilder()
+
+                // Arrestos recientes (últimos 3, activos y anulados)
+                let seccionArrestos = '';
+                try {
+                    const arrestos = await obtenerArrestosPorUsuario(targetId);
+                    const recientes = (arrestos || []).slice(0, 3);
+                    if (recientes.length > 0) {
+                        const listaArrestos = recientes
+                            .map((a) => {
+                                const estadoTexto =
+                                    a.estado === 'ANULADO' ? '🟢 **ANULADO**' : '🔴 **ACTIVO**';
+                                const oficial = a.oficialId || a.oficial_id || a.emisorId;
+                                const oficialTxt = oficial ? `<@${oficial}>` : 'Sin registrar';
+                                const fecha = fmt(a.fecha);
+                                let line =
+                                    `**Arresto #${a.id}** — Estado: ${estadoTexto}\n` +
+                                    `> • **Motivo:** ${a.motivo || 'Sin motivo'}\n` +
+                                    `> • **Oficial:** ${oficialTxt}`;
+                                if (fecha) line += `\n> • **Fecha:** ${fecha}`;
+                                if (a.estado === 'ANULADO') {
+                                    if (a.anuladoPor) line += `\n> • **Anulado por:** <@${a.anuladoPor}>`;
+                                    if (a.motivoAnulacion) line += `\n> • **Motivo anulación:** ${a.motivoAnulacion}`;
+                                }
+                                return line;
+                            })
+                            .join('\n\n');
+                        seccionArrestos =
+                            `\n\n────────────────────────\n\n` +
+                            `${E.dot} **Arrestos recientes** (últimos ${recientes.length}):\n\n${listaArrestos}`;
+                    }
+                } catch (e) {
+                    console.error('[perfil] arrestos:', e?.message || e);
+                }
+
+                const sinNada =
+                    multasUsuarioActuales.length === 0 && !seccionArrestos.includes('Arresto #');
+                const embedMultas = new EmbedBuilder()
                     .setTitle(E.carpeta + ' Historial de Multas')
-                    .setDescription(`${E.dot} Multas de tránsito aplicadas a <@${targetId}>:\n\n${stringMultas}`)
-                    .setColor('#ff3333')
+                    .setDescription(seccionMultas + seccionArrestos)
+                    .setColor(sinNada ? '#74d4fc' : '#ff3333')
                     .setFooter({ text: 'Departamento de Policía' })
                     .setTimestamp();
-                return await botonInteraction.reply({ embeds: [embedConMultas], flags: MessageFlags.Ephemeral });
+                return await botonInteraction.reply({ embeds: [embedMultas], flags: MessageFlags.Ephemeral });
             }
         });
     }
