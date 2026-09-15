@@ -19,6 +19,30 @@ const MAX_PERSONAS = 3;
 const RECOMPENSA_MIN = 10000;
 const RECOMPENSA_MAX = 25000;
 const CHANCE_EXITO = 60;
+const NARRATIVA_INTERVAL_MS = 15 * 1000;
+
+/** Frases de ambiente durante el robo (estilo heist, en español) */
+const NARRATIVA_ROBO = [
+    'La policía patrulla el estacionamiento. Ustedes en el techo. Alguien estornudó. Todos miraron. Los patrulleros se fueron. No saben por qué.',
+    'Alguien trajo papas fritas. Están comiendo en la bóveda. El mejor o el peor robo. No hay término medio.',
+    'El guardia mira el partido en el celular. Está metido. Podrían hasta dormirse. No se va a dar cuenta.',
+    'Uno pisó un chicle. Pegado al piso. Al despegarse hizo un ruido enorme. El guardia se da vuelta. No ve nada. De milagro.',
+    'Todos adentro. Todos afuera. Muy rápido. Se olvidaron la plata. Vuelven. No vuelven. Deciden volver.',
+    'Conseguieron el dinero. Corren al auto. Pinchadura. Claro. Cómo no iba a haber una pinchadura.',
+    'La puerta de la bóveda está trabada. El primo de alguien dijo que sabía abrirla. No sabe. Está intentando. Todos esperando.',
+    'Encontraron la caja fuerte. Es de piso. Bajo una alfombra. Bajo un escritorio. Bajo un montón de trastos.',
+    'La banda entra por atrás. El guardia en el celular viendo el partido. Ni levantó la vista. Bendecidos.',
+    'El chofer del escape se durmió. En el auto. Están golpeando el vidrio. Ronca. Clásico.',
+    'La caja tenía un post-it con la combinación. Debajo decía “contraseña”. Alguien fue despedido. Ustedes comiendo tranquilos.',
+    'Sirenas a lo lejos. Todavía no son para ustedes. O sí. Nadie quiere mirar por la ventana.',
+    'Un civil grita afuera. El equipo se congela. Era alguien peleando por estacionar. Siguen.',
+    'La alarma silenciosa… ¿se activó? Nadie sabe. El que iba a cortar el cable se distrajo con un meme.',
+    'Escuchan pasos en el pasillo. Contienen la respiración. Era el aire acondicionado. Siguen sacando billetes.',
+    'Alguien dice “¿y si nos rendimos?”. Nadie responde. Siguen cargando bolsos.',
+    'Un patrullero dobla la esquina. Baja la velocidad. Sigue de largo. El equipo no parpadea en 10 segundos.',
+    'Falta poco. Las manos tiemblan. El botín pesa. La salida está a una puerta de distancia.'
+];
+
 
 const heistsActivos = new Map();
 
@@ -59,9 +83,52 @@ async function aplicarCooldownIntervenir(usuarioId) {
 function limpiarTimers(heist) {
     if (heist?.timeoutUnion) clearTimeout(heist.timeoutUnion);
     if (heist?.timeoutRobo) clearTimeout(heist.timeoutRobo);
+    if (heist?.intervaloNarrativa) clearInterval(heist.intervaloNarrativa);
+    if (heist?._narrativaTimeout) clearTimeout(heist._narrativaTimeout);
     heist.timeoutUnion = null;
     heist.timeoutRobo = null;
+    heist.intervaloNarrativa = null;
+    heist._narrativaTimeout = null;
 }
+
+function iniciarNarrativaRobo(channel, heist) {
+    if (!channel || !heist) return;
+    const usadas = new Set();
+
+    const enviarUna = async () => {
+        const actual = heistsActivos.get(heist.guildId);
+        if (!actual || actual.fase !== 'en_curso') {
+            if (heist.intervaloNarrativa) clearInterval(heist.intervaloNarrativa);
+            heist.intervaloNarrativa = null;
+            return;
+        }
+        // Elegir frase sin repetir hasta agotar
+        let disponibles = NARRATIVA_ROBO.map((_, i) => i).filter((i) => !usadas.has(i));
+        if (disponibles.length === 0) {
+            usadas.clear();
+            disponibles = NARRATIVA_ROBO.map((_, i) => i);
+        }
+        const idx = disponibles[Math.floor(Math.random() * disponibles.length)];
+        usadas.add(idx);
+        try {
+            await channel.send({ content: NARRATIVA_ROBO[idx] });
+        } catch (_) {}
+    };
+
+    // Primera narración unos segundos después de “en curso”
+    heist._narrativaTimeout = setTimeout(() => {
+        enviarUna();
+        heist.intervaloNarrativa = setInterval(enviarUna, NARRATIVA_INTERVAL_MS);
+    }, 5000);
+}
+
+function limpiarNarrativaInicio(heist) {
+    if (heist?._narrativaTimeout) {
+        clearTimeout(heist._narrativaTimeout);
+        heist._narrativaTimeout = null;
+    }
+}
+
 
 async function enviarLog(client, guild, embed) {
     try {
@@ -105,6 +172,9 @@ async function iniciarFaseRobo(client, guildId, channel) {
     try {
         await channel.send({ embeds: [embed] });
     } catch (_) {}
+
+    heist.guildId = guildId;
+    iniciarNarrativaRobo(channel, heist);
 
     heist.timeoutRobo = setTimeout(async () => {
         const actual = heistsActivos.get(guildId);
