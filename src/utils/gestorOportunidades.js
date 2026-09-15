@@ -47,8 +47,8 @@ export async function lanzarOportunidadEconomica(client, canalId) {
             return;
         }
 
-        // Ganancia aleatoria: $500 – $3.500
-        const monto = Math.floor(Math.random() * (3500 - 500 + 1)) + 500;
+        // Ganancia aleatoria: $1.000 – $10.000
+        const monto = Math.floor(Math.random() * (10000 - 1000 + 1)) + 1000;
         const historia = historiasOportunidades[Math.floor(Math.random() * historiasOportunidades.length)];
 
         const embedBanner = crearEmbedBanner();
