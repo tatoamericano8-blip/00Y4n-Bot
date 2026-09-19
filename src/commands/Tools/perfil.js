@@ -273,11 +273,17 @@ export default {
                         .slice()
                         .sort((a, b) => Number(a.id) - Number(b.id))
                         .map((multa) => {
-                            const estadoTexto = multa.estado === 'PAGADA' ? '🟢 **PAGADA**' : '🔴 **PENDIENTE**';
+                            const estadoTexto =
+                                multa.estado === 'PAGADA'
+                                    ? '🟢 **PAGADA**'
+                                    : multa.estado === 'ANULADA'
+                                      ? '⚪ **ANULADA**'
+                                      : '🔴 **PENDIENTE**';
                             const oficial = multa.emisorId || multa.oficialId || multa.oficial_id || multa.emisor_id;
                             const oficialTxt = oficial ? `<@${oficial}>` : 'Sin registrar';
                             const emitida = fmt(multa.fecha);
                             const pagada = multa.estado === 'PAGADA' ? fmt(multa.fechaPago || multa.pagadaEn) : null;
+                            const anulada = multa.estado === 'ANULADA' ? fmt(multa.fechaAnulacion) : null;
                             let line =
                                 `**Multa #${multa.id}** — Estado: ${estadoTexto}\n` +
                                 `> • **Razón:** ${multa.razon}\n` +
@@ -285,6 +291,11 @@ export default {
                                 `> • **Oficial Emisor:** ${oficialTxt}`;
                             if (emitida) line += `\n> • **Emitida:** ${emitida}`;
                             if (pagada) line += `\n> • **Pagada:** ${pagada}`;
+                            if (multa.estado === 'ANULADA') {
+                                if (multa.anuladoPor) line += `\n> • **Anulada por:** <@${multa.anuladoPor}>`;
+                                if (multa.motivoAnulacion) line += `\n> • **Motivo anulación:** ${multa.motivoAnulacion}`;
+                                if (anulada) line += `\n> • **Anulada:** ${anulada}`;
+                            }
                             return line;
                         })
                         .join('\n\n');
