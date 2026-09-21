@@ -27,9 +27,20 @@ export class InteractionHelper {
             const originalReply = interaction.reply?.bind(interaction);
             const originalEditReply = interaction.editReply?.bind(interaction);
             const originalFollowUp = interaction.followUp?.bind(interaction);
+            const originalDefer = interaction.deferReply?.bind(interaction);
 
             if (!originalReply || !originalEditReply || !originalFollowUp) {
                 return;
+            }
+
+            // Si ya se hizo defer global, un segundo deferReply no debe romper el comando
+            if (originalDefer) {
+                interaction.deferReply = async (options) => {
+                    if (interaction.deferred || interaction.replied) {
+                        return null;
+                    }
+                    return await originalDefer(options);
+                };
             }
 
             interaction.reply = async (options) => {

@@ -48,6 +48,17 @@ export default {
               command: interaction.commandName
             });
 
+            // Discord exige respuesta en ~3s. En Render/Mongo a veces no llega.
+            // Diferimos YA (sin ephemeral) para que no salga "La aplicación no ha respondido".
+            // InteractionHelper convierte reply() posteriores en editReply() si ya hay defer.
+            if (!interaction.deferred && !interaction.replied) {
+              try {
+                await interaction.deferReply();
+              } catch (deferErr) {
+                logger.warn(`No se pudo defer /${interaction.commandName}: ${deferErr?.message || deferErr}`);
+              }
+            }
+
             validateChatInputPayloadOrThrow(interaction, withTraceContext({
               type: 'command_input_validation',
               commandName: interaction.commandName
@@ -84,7 +95,15 @@ export default {
 
             let guildConfig = null;
             if (interaction.guild) {
-              guildConfig = await getGuildConfig(client, interaction.guild.id, interactionTraceContext);
+              try {
+                guildConfig = await Promise.race([
+                  getGuildConfig(client, interaction.guild.id, interactionTraceContext),
+                  new Promise((_, rej) => setTimeout(() => rej(new Error('getGuildConfig timeout')), 2500))
+                ]);
+              } catch (cfgErr) {
+                logger.warn(`getGuildConfig lento/falló (/ ${interaction.commandName}): ${cfgErr?.message || cfgErr}`);
+                guildConfig = null;
+              }
               if (guildConfig?.disabledCommands?.[interaction.commandName]) {
                 throw createError(
                   `Command ${interaction.commandName} is disabled in this guild`,
