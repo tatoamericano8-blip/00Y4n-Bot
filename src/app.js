@@ -139,9 +139,20 @@ class TitanBot extends Client {
         }
       }
 
-      startupLog('Registering slash commands...');
-      await this.registerCommands();
-      startupLog('Slash commands registration complete');
+      // Registrar slash en background con timeout: no bloquear ONLINE si Discord REST va lento/429
+      startupLog('Registering slash commands (background, max 25s)...');
+      const regPromise = this.registerCommands()
+        .then(() => startupLog('Slash commands registration complete'))
+        .catch((e) => logger.error('Slash register error: ' + (e?.message || e)));
+      try {
+        await Promise.race([
+          regPromise,
+          new Promise((resolve) => setTimeout(() => {
+            startupLog('Slash register aún en curso / lento — sigo arranque (comandos ya cargados en memoria)');
+            resolve();
+          }, 25000))
+        ]);
+      } catch (_) {}
 
       try {
         const st = this.db?.getStatus?.();
