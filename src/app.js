@@ -126,14 +126,24 @@ class TitanBot extends Client {
               const bodyText = await res.text();
               startupLog('Preflight HTTP ' + res.status + ' (attempt ' + attempt + ')');
               if (res.status === 429) {
-                let waitSec = 600;
+                // Discord manda retry_after en SEGUNDOS. Capamos para no dormir horas
+                // por un header mal leído o un global limit absurdo tras muchos restarts.
+                let waitSec = 30;
                 try {
                   const j = JSON.parse(bodyText);
-                  if (j.retry_after) waitSec = Math.ceil(Number(j.retry_after)) + 10;
+                  if (j.retry_after != null) {
+                    const n = Number(j.retry_after);
+                    if (Number.isFinite(n) && n >= 0) waitSec = Math.ceil(n) + 2;
+                  }
                 } catch (_) {}
                 const ra = res.headers.get('retry-after');
-                if (ra) waitSec = Math.max(waitSec, Math.ceil(Number(ra)) + 10);
-                startupLog('Discord rate-limit 429. Esperando ' + waitSec + 's SIN reiniciar...');
+                if (ra && /^\d+(\.\d+)?$/.test(String(ra).trim())) {
+                  const n = Number(ra);
+                  if (Number.isFinite(n) && n >= 0) waitSec = Math.max(waitSec, Math.ceil(n) + 2);
+                }
+                // Máximo 2 minutos de espera entre intentos (no 16785s)
+                waitSec = Math.min(Math.max(waitSec, 5), 120);
+                startupLog('Discord rate-limit 429. Esperando ' + waitSec + 's e reintentando login...');
                 await new Promise(r => setTimeout(r, waitSec * 1000));
                 continue;
               }
@@ -152,9 +162,9 @@ class TitanBot extends Client {
         } catch (loginErr) {
           const msg = String(loginErr?.message || loginErr);
           logger.error('Login FAILED: ' + msg);
-          let waitSec = 180;
-          if (/429|rate|blocked|timeout/i.test(msg)) waitSec = 600;
-          if (/token|401|invalid/i.test(msg)) waitSec = 900;
+          let waitSec = 60;
+          if (/429|rate|blocked|timeout/i.test(msg)) waitSec = 90;
+          if (/token|401|invalid/i.test(msg)) waitSec = 120;
           startupLog('Reintentando login en ' + waitSec + 's (proceso vivo)...');
           await new Promise(r => setTimeout(r, waitSec * 1000));
         }
