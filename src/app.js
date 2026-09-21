@@ -108,54 +108,13 @@ class TitanBot extends Client {
 
       let loggedIn = false;
       let attempt = 0;
+      // Preflight HTTP a /gateway/bot se SALTEA: en Render con muchos deploys
+      // da 429 y el bot se queda esperando sin llegar nunca a this.login().
+      // discord.js negocia el gateway solo en el WebSocket.
       while (!loggedIn) {
         attempt += 1;
         try {
-          if (attempt === 1 || attempt % 3 === 0) {
-            try {
-              const ctrl = new AbortController();
-              const to = setTimeout(() => ctrl.abort(), 12000);
-              const res = await fetch('https://discord.com/api/v10/gateway/bot', {
-                headers: {
-                  Authorization: 'Bot ' + tok,
-                  'User-Agent': 'DiscordBot (00Y4n, 1.0)'
-                },
-                signal: ctrl.signal
-              });
-              clearTimeout(to);
-              const bodyText = await res.text();
-              startupLog('Preflight HTTP ' + res.status + ' (attempt ' + attempt + ')');
-              if (res.status === 429) {
-                // Discord manda retry_after en SEGUNDOS. Capamos para no dormir horas
-                // por un header mal leído o un global limit absurdo tras muchos restarts.
-                let waitSec = 30;
-                try {
-                  const j = JSON.parse(bodyText);
-                  if (j.retry_after != null) {
-                    const n = Number(j.retry_after);
-                    if (Number.isFinite(n) && n >= 0) waitSec = Math.ceil(n) + 2;
-                  }
-                } catch (_) {}
-                const ra = res.headers.get('retry-after');
-                if (ra && /^\d+(\.\d+)?$/.test(String(ra).trim())) {
-                  const n = Number(ra);
-                  if (Number.isFinite(n) && n >= 0) waitSec = Math.max(waitSec, Math.ceil(n) + 2);
-                }
-                // Máximo 2 minutos de espera entre intentos (no 16785s)
-                waitSec = Math.min(Math.max(waitSec, 5), 120);
-                startupLog('Discord rate-limit 429. Esperando ' + waitSec + 's e reintentando login...');
-                await new Promise(r => setTimeout(r, waitSec * 1000));
-                continue;
-              }
-              if (!res.ok) {
-                startupLog('Preflight no OK: ' + bodyText.slice(0, 150));
-              }
-            } catch (pfErr) {
-              logger.warn('Preflight error: ' + (pfErr?.message || pfErr));
-            }
-          }
-
-          startupLog('Login attempt ' + attempt + '...');
+          startupLog('Login attempt ' + attempt + ' (sin preflight HTTP)...');
           // Si el gateway se cuelga (típico en Render), no esperamos eterno
           await Promise.race([
             this.login(tok),
