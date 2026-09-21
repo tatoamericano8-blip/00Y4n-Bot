@@ -99,7 +99,7 @@ class TitanBot extends Client {
       startupLog('Token presente (len=' + tok.length + ', prefix=' + tok.slice(0, 5) + '…)');
 
       this.on('debug', (msg) => {
-        if (/Identifying|WebSocket|READY|Session|4014|4004|Gateway|Rate|429|blocked/i.test(msg)) {
+        if (/Identifying|WebSocket|READY|Session|4014|4004|Gateway|Rate|429|blocked|Heartbeat|Connected|Destroy|Resume|Invalid/i.test(msg)) {
           logger.info('[discord-ws] ' + msg);
         }
       });
@@ -119,7 +119,7 @@ class TitanBot extends Client {
           await Promise.race([
             this.login(tok),
             new Promise((_, rej) =>
-              setTimeout(() => rej(new Error('LOGIN_TIMEOUT_45s: gateway Discord no completó el login')), 45000)
+              setTimeout(() => rej(new Error('LOGIN_TIMEOUT_90s: gateway Discord no completó el login')), 90000)
             )
           ]);
           loggedIn = true;
@@ -131,10 +131,10 @@ class TitanBot extends Client {
             this.destroy();
           } catch (_) {}
           let waitSec = 30;
-          if (/LOGIN_TIMEOUT|timeout/i.test(msg)) waitSec = 20;
+          if (/LOGIN_TIMEOUT|timeout/i.test(msg)) waitSec = 45;
           else if (/429|rate|blocked/i.test(msg)) waitSec = 90;
           else if (/token|401|invalid/i.test(msg)) waitSec = 120;
-          startupLog('Reintentando login en ' + waitSec + 's (proceso vivo)...');
+          startupLog('Reintentando login en ' + waitSec + 's (proceso vivo, no reinicies Render)...');
           await new Promise(r => setTimeout(r, waitSec * 1000));
         }
       }
