@@ -156,15 +156,25 @@ class TitanBot extends Client {
           }
 
           startupLog('Login attempt ' + attempt + '...');
-          await this.login(tok);
+          // Si el gateway se cuelga (típico en Render), no esperamos eterno
+          await Promise.race([
+            this.login(tok),
+            new Promise((_, rej) =>
+              setTimeout(() => rej(new Error('LOGIN_TIMEOUT_45s: gateway Discord no completó el login')), 45000)
+            )
+          ]);
           loggedIn = true;
           startupLog('Discord login successful');
         } catch (loginErr) {
           const msg = String(loginErr?.message || loginErr);
           logger.error('Login FAILED: ' + msg);
-          let waitSec = 60;
-          if (/429|rate|blocked|timeout/i.test(msg)) waitSec = 90;
-          if (/token|401|invalid/i.test(msg)) waitSec = 120;
+          try {
+            this.destroy();
+          } catch (_) {}
+          let waitSec = 30;
+          if (/LOGIN_TIMEOUT|timeout/i.test(msg)) waitSec = 20;
+          else if (/429|rate|blocked/i.test(msg)) waitSec = 90;
+          else if (/token|401|invalid/i.test(msg)) waitSec = 120;
           startupLog('Reintentando login en ' + waitSec + 's (proceso vivo)...');
           await new Promise(r => setTimeout(r, waitSec * 1000));
         }
