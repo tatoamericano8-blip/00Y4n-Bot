@@ -1,31 +1,30 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { lanzarOportunidadEconomica } from '../../utils/gestorOportunidades.js';
 
 export default {
     data: new SlashCommandBuilder()
         .setName('testoportunidad')
         .setDescription('Fuerza el envío de una Oportunidad Económica para probar el sistema.')
-        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator), // Solo Administradores
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
     async execute(interaction) {
-        // ID de tu canal general
         const CANAL_GENERAL_ID = '1451939726230683753';
 
-        try {
-            // Lanzar la oportunidad en el canal general usando el cliente del bot
-            await lanzarOportunidadEconomica(interaction.client, CANAL_GENERAL_ID);
+        // Responder a Discord YA (evita "La aplicación no ha respondido" a los 3s)
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-            // Responder solo a quien ejecutó el comando
-            await interaction.reply({
-                content: '✅ **¡Oportunidad Económica enviada con éxito al chat general!**',
-                ephemeral: true
+        try {
+            await lanzarOportunidadEconomica(interaction.client, CANAL_GENERAL_ID);
+            await interaction.editReply({
+                content: '✅ **¡Oportunidad Económica enviada con éxito al chat general!**'
             });
         } catch (error) {
             console.error('Error al probar la Oportunidad Económica:', error);
-            await interaction.reply({
-                content: '❌ Ocurrió un error al intentar enviar la Oportunidad Económica.',
-                ephemeral: true
-            });
+            try {
+                await interaction.editReply({
+                    content: '❌ Ocurrió un error al intentar enviar la Oportunidad Económica.'
+                });
+            } catch (_) {}
         }
     },
 };
