@@ -33,27 +33,50 @@ export class InteractionHelper {
                 return;
             }
 
-            // Si ya se hizo defer global, un segundo deferReply no debe romper el comando
-            if (originalDefer) {
-                interaction.deferReply = async (options) => {
-                    if (interaction.deferred || interaction.replied) {
-                        return null;
-                    }
-                    return await originalDefer(options);
-                };
-            }
-
             interaction.reply = async (options) => {
+                const opts = options && typeof options === 'object' ? options : { content: options };
+                const wantsEphemeral =
+                    opts.ephemeral === true ||
+                    opts.flags === MessageFlags.Ephemeral ||
+                    (typeof opts.flags === 'number' && (opts.flags & MessageFlags.Ephemeral) === MessageFlags.Ephemeral);
+
                 if (!interaction.deferred && !interaction.replied) {
                     return await originalReply(options);
                 }
 
+                // Defer fue público (p.ej. residual) pero el comando quiere efímero:
+                // borrar el placeholder público y mandar followUp solo visible al ejecutor.
+                if (interaction.deferred && !interaction.replied && wantsEphemeral && !interaction.__deferredEphemeral) {
+                    try {
+                        await interaction.deleteReply().catch(() => null);
+                    } catch (_) {}
+                    const { ephemeral: _e, ...rest } = opts;
+                    return await originalFollowUp({ ...rest, flags: MessageFlags.Ephemeral });
+                }
+
                 if (interaction.deferred && !interaction.replied) {
-                    return await originalEditReply(sanitizeEditReplyOptions(options));
+                    return await originalEditReply(sanitizeEditReplyOptions(opts));
                 }
 
                 return await originalFollowUp(options);
             };
+
+            // Marcar si el defer fue ephemeral para no romper flujos públicos
+            if (originalDefer) {
+                const prevDefer = interaction.deferReply;
+                interaction.deferReply = async (options) => {
+                    if (interaction.deferred || interaction.replied) {
+                        return null;
+                    }
+                    const o = options && typeof options === 'object' ? options : {};
+                    const isEph =
+                        o.ephemeral === true ||
+                        o.flags === MessageFlags.Ephemeral ||
+                        (typeof o.flags === 'number' && (o.flags & MessageFlags.Ephemeral) === MessageFlags.Ephemeral);
+                    interaction.__deferredEphemeral = Boolean(isEph);
+                    return await originalDefer(options);
+                };
+            }
 
             interaction.__titanResponsePatched = true;
         }

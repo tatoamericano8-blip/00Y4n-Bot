@@ -48,16 +48,10 @@ export default {
               command: interaction.commandName
             });
 
-            // Discord exige respuesta en ~3s. En Render/Mongo a veces no llega.
-            // Diferimos YA (sin ephemeral) para que no salga "La aplicación no ha respondido".
-            // InteractionHelper convierte reply() posteriores en editReply() si ya hay defer.
-            if (!interaction.deferred && !interaction.replied) {
-              try {
-                await interaction.deferReply();
-              } catch (deferErr) {
-                logger.warn(`No se pudo defer /${interaction.commandName}: ${deferErr?.message || deferErr}`);
-              }
-            }
+            // NO diferir globalmente sin ephemeral: si se hace defer público,
+            // los reply({ ephemeral: true }) del comando se convierten en editReply
+            // público y todo el mundo ve mensajes que debían ser solo del ejecutor.
+            // Cada comando gestiona su propio deferReply({ flags: Ephemeral }) o reply.
 
             validateChatInputPayloadOrThrow(interaction, withTraceContext({
               type: 'command_input_validation',
