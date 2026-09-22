@@ -100,6 +100,9 @@ export default {
                 minutosCalculados = Math.max(0, Math.round(ms / 60000));
                 duracionMostrar = formatearDuracionMs(ms);
                 sesionActiva.duracionMinutos = minutosCalculados;
+                sesionActiva.reaccionesPico = Array.isArray(sesionActiva.reacciones)
+                    ? sesionActiva.reacciones.length
+                    : 0;
                 await sesionActiva.save().catch(() => null);
             } else {
                 horasCalculadas = 0;
@@ -250,9 +253,10 @@ export default {
         if (fotoAdjunta) embedCierre.setImage(fotoAdjunta.url);
         else embedCierre.setImage(URL_IMAGEN_DEFAULT);
 
+        const idSesionFeedback = sesionActiva?.idInicio || interaction.id;
         const filaComponentes = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-                .setCustomId('abrir_feedback_swfl')
+                .setCustomId(`abrir_feedback_swfl:${idSesionFeedback}`)
                 .setLabel('Opinion de la Sesion')
                 .setEmoji(EMOJI_DEF.lista.id)
                 .setStyle(ButtonStyle.Secondary)

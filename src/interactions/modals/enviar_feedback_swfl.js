@@ -11,28 +11,38 @@ function parseNota(raw) {
   return Math.max(1, Math.min(10, Math.round(n)));
 }
 
-function parseHostId(raw, fallbackUserId) {
-  const m = String(raw || '').match(/\d{15,20}/);
-  return m ? m[0] : fallbackUserId;
-}
-
 export default {
   name: 'enviar_feedback_swfl',
 
-  async execute(interaction) {
-    const hostEnviado = interaction.fields.getTextInputValue('feedback_host');
+  async execute(interaction, client, args = []) {
+    const hostId = args[0] && args[0] !== 'none' ? args[0] : null;
+    const sesionId = args[1] && args[1] !== 'none' ? args[1] : null;
+
     const notaEnviada = interaction.fields.getTextInputValue('feedback_nota');
     const comentariosEnviados = interaction.fields.getTextInputValue('feedback_comentarios');
-
     const notaNum = parseNota(notaEnviada);
-    const hostId = parseHostId(hostEnviado, null);
 
-    if (interaction.guildId && hostId && notaNum) {
+    if (!hostId) {
+      return interaction.reply({
+        content: '❌ No se pudo vincular la opinión al host de la sesión.',
+        ephemeral: true
+      });
+    }
+
+    if (!notaNum) {
+      return interaction.reply({
+        content: '❌ La calificación debe ser un número del **1 al 10**.',
+        ephemeral: true
+      });
+    }
+
+    if (interaction.guildId) {
       try {
         await registrarNotaHost(interaction.guildId, hostId, {
           nota: notaNum,
           deUserId: interaction.user.id,
-          comentario: comentariosEnviados
+          comentario: comentariosEnviados,
+          sesionId
         });
       } catch (e) {
         console.error('[feedback] score:', e?.message || e);
@@ -44,24 +54,19 @@ export default {
       .setDescription('¡Un miembro ha dejado su reseña sobre la última sesión jugada!')
       .addFields(
         { name: '👤 Enviado por:', value: `<@${interaction.user.id}>`, inline: true },
-        { name: '🚗 Anfitrión mencionado:', value: `${hostEnviado}`, inline: true },
-        {
-          name: '⭐ Calificación:',
-          value: `**${notaNum != null ? notaNum : notaEnviada} / 10**`,
-          inline: true
-        },
+        { name: '🚗 Anfitrión:', value: `<@${hostId}>`, inline: true },
+        { name: '⭐ Calificación:', value: `**${notaNum} / 10**`, inline: true },
         {
           name: '💬 Comentarios y sugerencias:',
           value: `\`\`\`text\n${comentariosEnviados}\n\`\`\``,
           inline: false
         }
       )
-      .setColor('#74d4fc')
+      .setColor('#8ae6fa')
       .setTimestamp();
 
     await interaction.reply({
-      content: '✅ **¡Muchas gracias!** Tu opinión fue registrada' +
-        (notaNum && hostId ? ' y suma al **host score**.' : '.'),
+      content: '✅ **¡Muchas gracias!** Tu opinión fue registrada y suma al **rating civil** del host.',
       ephemeral: true
     });
 

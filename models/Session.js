@@ -53,6 +53,7 @@ const sesionSchema = new mongoose.Schema({
     fechaLanzamiento: { type: Date, default: null },
     fechaCierre: { type: Date, default: null },
     duracionMinutos: { type: Number, default: 0 },
+    reaccionesPico: { type: Number, default: 0 },
 
     cierreForzado: { type: Boolean, default: false },
     motivoCierreForzado: { type: String, default: null },

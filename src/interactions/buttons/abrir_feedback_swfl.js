@@ -1,46 +1,63 @@
 import { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } from 'discord.js';
+import Sesion from '../../../models/Session.js';
 
 export default {
     name: 'abrir_feedback_swfl',
 
-    async execute(interaction) {
-        // Creamos el diseño del cuadro emergente (Modal)
+    /**
+     * customId: abrir_feedback_swfl  OR  abrir_feedback_swfl:<idInicio>
+     */
+    async execute(interaction, client, args = []) {
+        const idInicio = args[0] || null;
+
+        let hostId = null;
+        if (idInicio) {
+            const sesion = await Sesion.findOne({ idInicio }).lean().catch(() => null);
+            if (sesion?.hostId) hostId = String(sesion.hostId);
+        }
+        if (!hostId && interaction.guildId) {
+            const ult = await Sesion.findOne({
+                guildId: interaction.guildId,
+                estado: 'cerrada'
+            })
+                .sort({ fechaCierre: -1 })
+                .lean()
+                .catch(() => null);
+            if (ult?.hostId) hostId = String(ult.hostId);
+        }
+
+        if (!hostId) {
+            return interaction.reply({
+                content: '❌ No se pudo identificar al host de la sesión. Intentá de nuevo más tarde.',
+                ephemeral: true
+            });
+        }
+
         const modal = new ModalBuilder()
-            .setCustomId('enviar_feedback_swfl')
+            .setCustomId(`enviar_feedback_swfl:${hostId}:${idInicio || 'none'}`)
             .setTitle('Opinión de la Sesión');
 
-        // Campo 1: Anfitrión (Corto)
-        const inputHost = new TextInputBuilder()
-            .setCustomId('feedback_host')
-            .setLabel('¿Quién fue el anfitrión? *')
-            .setPlaceholder('Ej: 00Y4nSub')
-            .setStyle(TextInputStyle.Short)
-            .setRequired(true);
-
-        // Campo 2: Calificación (Corto)
         const inputNota = new TextInputBuilder()
             .setCustomId('feedback_nota')
-            .setLabel('Calificá la sesión del 1 al 10. *')
+            .setLabel('Calificá la sesión del 1 al 10')
             .setPlaceholder('Ej: 9')
             .setStyle(TextInputStyle.Short)
-            .setRequired(true);
+            .setRequired(true)
+            .setMaxLength(2);
 
-        // Campo 3: Reseña (Largo/Párrafo)
         const inputComentarios = new TextInputBuilder()
             .setCustomId('feedback_comentarios')
-            .setLabel('¿Qué fue lo bueno o malo de esta sesión? *')
-            .setPlaceholder('Ej: Excelente organización, se podrían hacer las sesiones un poco más largas.')
+            .setLabel('¿Qué fue lo bueno o malo de esta sesión?')
+            .setPlaceholder('Ej: Excelente organización y ambiente.')
             .setStyle(TextInputStyle.Paragraph)
-            .setRequired(true);
+            .setRequired(true)
+            .setMaxLength(1000);
 
-        // Metemos cada campo en su propia fila obligatoria de Discord
-        const fila1 = new ActionRowBuilder().addComponents(inputHost);
-        const fila2 = new ActionRowBuilder().addComponents(inputNota);
-        const fila3 = new ActionRowBuilder().addComponents(inputComentarios);
+        modal.addComponents(
+            new ActionRowBuilder().addComponents(inputNota),
+            new ActionRowBuilder().addComponents(inputComentarios)
+        );
 
-        modal.addComponents(fila1, fila2, fila3);
-
-        // Le mostramos la ventana emergente al usuario en su pantalla
         await interaction.showModal(modal);
     }
 };
