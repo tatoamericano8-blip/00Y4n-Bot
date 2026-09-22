@@ -281,12 +281,12 @@ export default {
           `${E.triostar} **Clasificación**\n` +
           `${E.flecha} ${rankSem}\n` +
           `${E.flecha} ${rankAll}\n\n` +
-          `${E.nivel} **Estadísticas de hosting**\n` +
+          `${E.perfil} **Estadísticas de hosting**\n` +
           `${E.dot} Sesiones hosteadas: **${hosteadasHist}**\n` +
           `${E.dot} Horas hosteadas: **${formatearHoras(horasHist)}**\n` +
           `${E.dot} Sesión más larga: **${longestMin > 0 ? fmtDuracionMin(longestMin) : '—'}**\n` +
           `${E.dot} Pico de reacciones: **${peakReac > 0 ? peakReac : '—'}**\n\n` +
-          `${E.tilde} **Rating del staff**\n` +
+          `${E.form} **Rating del staff**\n` +
           ratingLines.join('\n') +
           `\n\n` +
           `${E.dot} **Estado:** ${textoEstado(staffData)} · **Strikes:** \`${strikesActivos}/3\`\n` +
