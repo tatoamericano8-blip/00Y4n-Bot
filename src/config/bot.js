@@ -7,7 +7,7 @@ export const botConfig = {
     status: "online",
     activities: [
       {
-        name: "💎 #1 Roleplay hispano 00Y4n",
+        name: "Nuestra Comunidad. /00Y4n",
         type: 0,
       },
     ],
