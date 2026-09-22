@@ -1,8 +1,7 @@
 import {
   SlashCommandBuilder,
   EmbedBuilder,
-  MessageFlags,
-  PermissionFlagsBits
+  MessageFlags
 } from 'discord.js';
 import Sesion from '../../../models/Session.js';
 import { registrarNotaSupervision } from '../../utils/gestorSupervisionScore.js';
@@ -48,7 +47,6 @@ export default {
     const supervisorId = interaction.user.id;
     const ahora = Date.now();
 
-    // Sesión donde este usuario fue supervisor, cerrada hace ≤ 2 h
     const sesion = await Sesion.findOne({
       guildId,
       supervisorId,
@@ -91,7 +89,7 @@ export default {
 
     const embed = new EmbedBuilder()
       .setColor('#8ae6fa')
-      .setTitle(E.carpeta + ' Supervisión registrada')
+      .setTitle(`${E.carpeta} Supervisión registrada`)
       .setDescription(
         `• **Host:** <@${sesion.hostId}>\n` +
           `• **Supervisor:** <@${supervisorId}>\n` +
@@ -102,8 +100,38 @@ export default {
       .setFooter({ text: 'SWFL • Log de supervisión' })
       .setTimestamp();
 
+    // DM al host evaluado
+    let dmOk = false;
+    try {
+      const hostUser =
+        interaction.client.users.cache.get(sesion.hostId) ||
+        (await interaction.client.users.fetch(sesion.hostId).catch(() => null));
+      if (hostUser) {
+        const embedDm = new EmbedBuilder()
+          .setColor('#8ae6fa')
+          .setTitle(`${E.carpeta} Evaluación de supervisión recibida`)
+          .setDescription(
+            `Un supervisor registró la evaluación de tu sesión.\n\n` +
+              `${E.dot} **Supervisor:** <@${supervisorId}> (\`${interaction.user.tag}\`)\n` +
+              `${E.dot} **Calificación:** **${rating} / 5**\n` +
+              `${E.dot} **Notas:**\n>>> ${notas}\n\n` +
+              `${E.dot} **Sesión:** \`${sesion.idInicio}\`\n` +
+              `${E.dot} **Servidor:** ${interaction.guild?.name || 'SWFL'}`
+          )
+          .setFooter({ text: 'Southwest Florida Comunidad 00Y4n™' })
+          .setTimestamp();
+        await hostUser.send({ embeds: [embedDm] });
+        dmOk = true;
+      }
+    } catch (e) {
+      console.error('[log-supervision] DM host:', e?.message || e);
+    }
+
     return interaction.reply({
       embeds: [embed],
+      content: dmOk
+        ? `${E.tilde} Se envió un **MD** al host con la evaluación.`
+        : `${E.warn} Evaluación guardada, pero **no se pudo enviar el MD** al host (DMs cerrados o error).`,
       flags: MessageFlags.Ephemeral
     });
   }
