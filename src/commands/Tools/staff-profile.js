@@ -131,7 +131,7 @@ export default {
       });
     }
 
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    await interaction.deferReply(); // público: el perfil se ve en el canal
 
     const targetUser = interaction.options.getUser('usuario') || interaction.user;
     const guild = interaction.guild;

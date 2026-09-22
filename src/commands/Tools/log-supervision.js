@@ -8,6 +8,7 @@ import { registrarNotaSupervision } from '../../utils/gestorSupervisionScore.js'
 import { E } from '../../config/emojis.js';
 
 const ROL_STAFF = '1512120103771050005';
+const CHANNEL_LOGS = '1505015805891579934';
 const VENTANA_MS = 2 * 60 * 60 * 1000; // 2 horas
 
 export default {
@@ -125,6 +126,18 @@ export default {
       }
     } catch (e) {
       console.error('[log-supervision] DM host:', e?.message || e);
+    }
+
+    // Log público en canal de staff logs
+    try {
+      const logCh =
+        interaction.guild?.channels?.cache?.get(CHANNEL_LOGS) ||
+        (await interaction.client.channels.fetch(CHANNEL_LOGS).catch(() => null));
+      if (logCh?.isTextBased?.()) {
+        await logCh.send({ embeds: [embed] });
+      }
+    } catch (e) {
+      console.error('[log-supervision] log channel:', e?.message || e);
     }
 
     return interaction.reply({
