@@ -105,14 +105,22 @@ async function listarSesiones(interaction, userId, soloSemana) {
     );
   });
 
+  let nombreSes = userId;
+  try {
+    const u = await interaction.client.users.fetch(userId).catch(() => null);
+    const m = interaction.guild?.members?.cache?.get(userId)
+      || (await interaction.guild?.members?.fetch(userId).catch(() => null));
+    nombreSes = m?.displayName || u?.username || userId;
+  } catch (_) {}
+
   const embed = new EmbedBuilder()
     .setColor(COLOR)
     .setTitle(
       soloSemana
-        ? `${E.lista || '📋'} Sesiones semanales — <@${userId}>`
-        : `${E.carpeta || '📁'} Sesiones históricas — <@${userId}>`
+        ? `${E.lista} Sesiones semanales`
+        : `${E.carpeta} Sesiones históricas`
     )
-    .setDescription(lineas.join('\n'))
+    .setDescription(`${E.perfil} **${nombreSes}** · <@${userId}>\n\n` + lineas.join('\n'))
     .setFooter({
       text: `Mostrando ${Math.min(sesiones.length, 15)} de ${sesiones.length} · Solo host`
     })
@@ -153,19 +161,19 @@ const logros = {
     const rachaMax = Number(staff.rachaMaxima) || 0;
 
     const hitos = [];
-    if (host >= 5) hitos.push('✅ 5 sesiones hosteadas');
-    else hitos.push('🔒 5 sesiones hosteadas');
-    if (host >= 25) hitos.push('✅ 25 sesiones hosteadas');
-    else hitos.push('🔒 25 sesiones hosteadas');
-    if (host >= 50) hitos.push('✅ 50 sesiones hosteadas');
-    else hitos.push('🔒 50 sesiones hosteadas');
-    if (horas >= 25) hitos.push('✅ 25 horas de servicio');
-    else hitos.push('🔒 25 horas de servicio');
-    if (horas >= 100) hitos.push('✅ 100 horas de servicio');
-    else hitos.push('🔒 100 horas de servicio');
-    if (rachaMax >= 3) hitos.push(`✅ Racha de cuota ×3 (máx. ${rachaMax})`);
-    else hitos.push('🔒 Racha de cuota ×3');
-    if (racha >= 1) hitos.push(`✅ Racha activa: ${racha} semana(s)`);
+    if (host >= 5) hitos.push(`${E.tilde} 5 sesiones hosteadas`);
+    else hitos.push(`${E.lock} 5 sesiones hosteadas`);
+    if (host >= 25) hitos.push(`${E.tilde} 25 sesiones hosteadas`);
+    else hitos.push(`${E.lock} 25 sesiones hosteadas`);
+    if (host >= 50) hitos.push(`${E.tilde} 50 sesiones hosteadas`);
+    else hitos.push(`${E.lock} 50 sesiones hosteadas`);
+    if (horas >= 25) hitos.push(`${E.tilde} 25 horas de servicio`);
+    else hitos.push(`${E.lock} 25 horas de servicio`);
+    if (horas >= 100) hitos.push(`${E.tilde} 100 horas de servicio`);
+    else hitos.push(`${E.lock} 100 horas de servicio`);
+    if (rachaMax >= 3) hitos.push(`${E.tilde} Racha de cuota ×3 (máx. ${rachaMax})`);
+    else hitos.push(`${E.lock} Racha de cuota ×3`);
+    if (racha >= 1) hitos.push(`${E.tilde} Racha activa: ${racha} semana(s)`);
 
     let premiosTxt = '_Sin reconocimientos registrados._';
     if (premios.length) {
@@ -184,12 +192,21 @@ const logros = {
         .join('\n\n');
     }
 
+    let nombre = userId;
+    try {
+      const u = await interaction.client.users.fetch(userId).catch(() => null);
+      const m = interaction.guild?.members?.cache?.get(userId)
+        || (await interaction.guild?.members?.fetch(userId).catch(() => null));
+      nombre = m?.displayName || u?.username || userId;
+    } catch (_) {}
+
     const embed = new EmbedBuilder()
       .setColor(COLOR)
-      .setTitle(`${E.trofeo || '🏆'} Logros — <@${userId}>`)
+      .setTitle(`${E.trofeo} Logros`)
+      .setDescription(`${E.perfil} **${nombre}** · <@${userId}>`)
       .addFields(
-        { name: 'Reconocimientos', value: premiosTxt.slice(0, 1024) },
-        { name: 'Hitos', value: hitos.join('\n').slice(0, 1024) }
+        { name: `${E.premio} Reconocimientos`, value: premiosTxt.slice(0, 1024) },
+        { name: `${E.checkpoint} Hitos`, value: hitos.join('\n').slice(0, 1024) }
       )
       .setTimestamp();
 

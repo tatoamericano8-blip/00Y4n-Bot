@@ -11,7 +11,7 @@ import Sesion from '../../../models/Session.js';
 import { obtenerRangoDeUsuario } from '../../utils/rangoStaff.js';
 import { formatearHoras } from '../../utils/formatearTiempo.js';
 import { obtenerMetasPorRango, sesionesSemana } from '../../utils/metasCuota.js';
-import { calcularScore, evaluarCumplimiento, textoScore } from '../../utils/scoreCuota.js';
+import { calcularScore, evaluarCumplimiento } from '../../utils/scoreCuota.js';
 import { obtenerScoreHost } from '../../utils/gestorHostScore.js';
 import { obtenerScoreSupervision } from '../../utils/gestorSupervisionScore.js';
 import { discordToRoblox, obtenerUsuarioRoblox } from '../../utils/gestorBloxlink.js';
@@ -23,10 +23,10 @@ const COLOR = '#8ae6fa';
 function textoEstado(staffData) {
   const est = staffData.estado || 'ACTIVO';
   const enLoa = est === 'LOA' || staffData.loa?.activo === true;
-  if (est === 'DESPEDIDO') return '🔴 DESPEDIDO';
-  if (est === 'RENUNCIADO') return '⚪ RENUNCIADO';
-  if (enLoa) return '🟡 LOA';
-  return '🟢 ACTIVO';
+  if (est === 'DESPEDIDO') return `${E.cruz} DESPEDIDO`;
+  if (est === 'RENUNCIADO') return `${E.menos} RENUNCIADO`;
+  if (enLoa) return `${E.warn} LOA`;
+  return `${E.tilde} ACTIVO`;
 }
 
 function esAltoComando(rango) {
@@ -181,9 +181,9 @@ export default {
     const racha = Number(staffData.rachaActual) || 0;
     const rachaMax = Number(staffData.rachaMaxima) || 0;
 
-    let estadoCuota = '⏳ En curso';
-    if (evalC?.enLoa) estadoCuota = '🟡 Exento (LOA)';
-    else if (evalC?.cumplio) estadoCuota = '✅ Meta cumplida';
+    let estadoCuota = `${E.tiempo} En curso`;
+    if (evalC?.enLoa) estadoCuota = `${E.warn} Exento (LOA)`;
+    else if (evalC?.cumplio) estadoCuota = `${E.tilde} Meta cumplida`;
 
     // Sesiones del host (cerradas)
     const sesionesHost = await Sesion.find({
@@ -267,31 +267,31 @@ export default {
 
     const ratingLines = [];
     ratingLines.push(
-      `• **Civil:** ${civil5 != null ? `**${civil5}** / 5 (${civil.cantidad} opiniones)` : 'Sin datos'}`
+      `${E.dot} **Civil:** ${civil5 != null ? `**${civil5}** / 5 (${civil.cantidad} opiniones)` : 'Sin datos'}`
     );
     ratingLines.push(
-      `• **Supervisión:** ${sup5 != null ? `**${sup5}** / 5 (${sup.cantidad} logs)` : 'Sin datos'}`
+      `${E.dot} **Supervisión:** ${sup5 != null ? `**${sup5}** / 5 (${sup.cantidad} logs)` : 'Sin datos'}`
     );
-    if (overall != null) ratingLines.push(`• **General:** **${overall}** / 5`);
+    if (overall != null) ratingLines.push(`${E.dot} **General:** **${overall}** / 5`);
 
     const embed = new EmbedBuilder()
       .setTitle(`${rango} | ${nombreTitulo}`)
       .setDescription(
         badgeHC +
-          `${E.estrella || '⭐'} **Clasificación**\n` +
-          `→ ${rankSem}\n` +
-          `→ ${rankAll}\n\n` +
-          `${E.estadisticas || '📊'} **Estadísticas de hosting**\n` +
-          `• Sesiones hosteadas: **${hosteadasHist}**\n` +
-          `• Horas hosteadas: **${formatearHoras(horasHist)}**\n` +
-          `• Sesión más larga: **${longestMin > 0 ? fmtDuracionMin(longestMin) : '—'}**\n` +
-          `• Pico de reacciones: **${peakReac > 0 ? peakReac : '—'}**\n\n` +
-          `${E.tilde || '✅'} **Rating del staff**\n` +
+          `${E.triostar} **Clasificación**\n` +
+          `${E.flecha} ${rankSem}\n` +
+          `${E.flecha} ${rankAll}\n\n` +
+          `${E.nivel} **Estadísticas de hosting**\n` +
+          `${E.dot} Sesiones hosteadas: **${hosteadasHist}**\n` +
+          `${E.dot} Horas hosteadas: **${formatearHoras(horasHist)}**\n` +
+          `${E.dot} Sesión más larga: **${longestMin > 0 ? fmtDuracionMin(longestMin) : '—'}**\n` +
+          `${E.dot} Pico de reacciones: **${peakReac > 0 ? peakReac : '—'}**\n\n` +
+          `${E.tilde} **Rating del staff**\n` +
           ratingLines.join('\n') +
           `\n\n` +
           `${E.dot} **Estado:** ${textoEstado(staffData)} · **Strikes:** \`${strikesActivos}/3\`\n` +
           `${E.dot} **Cuota semanal:** ${estadoCuota} · Sesiones \`${metaSesTxt}\` · Tickets \`${metaTktTxt}\`\n` +
-          `${E.dot} **Score semanal:** ${textoScore(score)}/100 · Racha 🔥 \`${racha}\` (máx. \`${rachaMax}\`)`
+          `${E.dot} **Score semanal:** **${score}**/100 · Racha ${E.aestrellitas} \`${racha}\` (máx. \`${rachaMax}\`)`
       )
       .setColor(COLOR)
       .setThumbnail(targetUser.displayAvatarURL({ size: 256 }))
