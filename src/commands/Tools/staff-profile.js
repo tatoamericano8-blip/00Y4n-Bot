@@ -246,7 +246,7 @@ export default {
     const posiciones = await calcularPosiciones(guildId, guild, targetUser.id);
 
     const badgeHC = esAltoComando(rango)
-      ? `${E.carpeta} **Alto Comando**\n\n`
+      ? `${E.carpeta} __**Alto Comando**__\n\n`
       : '';
 
     const rankSem =
