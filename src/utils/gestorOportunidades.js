@@ -56,7 +56,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
         const embedInicial = new EmbedBuilder()
             .setColor(PRIMARIO)
             .setTitle(E.a2alas + ' ¡Oportunidad Economica!')
-            .setDescription(`${E.dinero} **$${monto.toLocaleString('es-AR')}** ${historia}`)
+            .setDescription(`${E.money} **$${monto.toLocaleString('es-AR')}** ${historia}`)
             .setTimestamp();
 
         const botonActivo = new ActionRowBuilder().addComponents(
@@ -121,7 +121,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
                 });
                 await interaction.followUp({
                     content:
-                        `${E.tilde} Reclamaste **$${montoFmt}**. Ya fue sumado a tu balance.`,
+                        `${E.money} Reclamaste **$${montoFmt}**. Ya fue sumado a tu balance.`,
                     ephemeral: true
                 }).catch(() => null);
             } catch (error) {
