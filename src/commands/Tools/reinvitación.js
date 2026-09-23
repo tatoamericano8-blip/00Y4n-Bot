@@ -161,7 +161,7 @@ export default {
 
         const embedReinvitacion = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle(E.a2alas + ' Southwest Florida Comunidad 00Y4n — __*Reinvitaciones de Sesión*__')
+            .setTitle(E.a2alas + ' Southwest Florida Comunidad 00Y4n — __*Reinvitaciones de Sesión*__' + E.a2alas)
             .setDescription(
                 E.dot + ` <@${interaction.user.id}> **está hosteando las reinvitaciones de su sesión!** Para que se libere el link, necesitamos recibir **${reaccionesRequeridas}** reacciones.` +
                 resumenSesion
