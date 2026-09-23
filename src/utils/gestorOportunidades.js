@@ -113,6 +113,17 @@ export async function lanzarOportunidadEconomica(client, canalId) {
                 } else if (!interaction.replied) {
                     await interaction.update(payload);
                 }
+
+                // Confirmación solo para quien reclamó (efímero)
+                const montoFmt = monto.toLocaleString('es-AR', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                });
+                await interaction.followUp({
+                    content:
+                        `${E.tilde} Reclamaste **$${montoFmt}**. Ya fue sumado a tu balance.`,
+                    ephemeral: true
+                }).catch(() => null);
             } catch (error) {
                 console.error('Error al procesar el reclamo en el collector:', error);
             }

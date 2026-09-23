@@ -63,8 +63,8 @@ export default {
         // Registrar el nuevo cooldown en MongoDB
         await setInDb(claveCooldown, ahora + TIEMPO_ESPERA);
 
-        // 4. Determinar Probabilidad (30% Éxito / 70% Atrapado)
-        const exito = Math.random() < 0.30;
+        // 4. Determinar Probabilidad (50% Éxito / 50% Atrapado)
+        const exito = Math.random() < 0.50;
 
         if (exito) {
             // Ganancia entre $500 y $1,800
