@@ -38,9 +38,10 @@ export default {
     },
 
     async execute(interaction) {
-        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
+        const ROL_STAFF = '1512120103771050005';
+        if (!interaction.member.roles.cache.has(ROL_STAFF)) {
             return await interaction.reply({
-                content: '❌ **No tienes permisos:** Solo el Staff puede habilitar el FastPass.',
+                content: '❌ **No tienes permisos:** Solo el **Staff 00Y4n** puede habilitar el FastPass.',
                 ephemeral: true
             });
         }

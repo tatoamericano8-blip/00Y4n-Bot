@@ -12,7 +12,7 @@ import {
 } from '../../utils/gestorRestricciones.js';
 import { E } from '../../config/emojis.js';
 
-const ROL_ALTO_COMANDO = '1528870731629465752';
+const ROL_EQUIPO_PROPIETARIOS = '1528877296977711256';
 const CANAL_LOG = '1505015805891579934';
 
 async function limpiarUna(guild, doc, client) {
@@ -68,11 +68,11 @@ export default {
 
   async execute(interaction) {
     if (
-      !interaction.member.roles.cache.has(ROL_ALTO_COMANDO) &&
+      !interaction.member.roles.cache.has(ROL_EQUIPO_PROPIETARIOS) &&
       !interaction.member.permissions.has(PermissionFlagsBits.Administrator)
     ) {
       return interaction.reply({
-        content: E.cruz + ' Solo **Alto Comando** puede usar `/restricciones`.',
+        content: E.cruz + ' Solo el **Equipo de Propietarios** puede usar `/restricciones`.',
         flags: MessageFlags.Ephemeral
       });
     }

@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { E } from '../../config/emojis.js';
 
-const ROLE_HIGH_COMMAND = '1528870731629465752';
+const ROLE_EQUIPO_PROPIETARIOS = '1528877296977711256';
 const ROLE_STAFF = '1512120103771050005';
 
 export default {
@@ -11,9 +11,9 @@ export default {
         .addStringOption(opt => opt.setName('mensaje').setDescription('Contenido del aviso.').setRequired(true)),
 
     async execute(interaction) {
-        if (!interaction.member.roles.cache.has(ROLE_HIGH_COMMAND) && !interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+        if (!interaction.member.roles.cache.has(ROLE_EQUIPO_PROPIETARIOS) && !interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
             return await interaction.reply({
-                content: E.cruz + ' **Acceso Restringido:** Solo Alto Comando puede enviar comunicados globales por MD.',
+                content: E.cruz + ' **Acceso Restringido:** Solo el **Equipo de Propietarios** puede enviar comunicados globales por MD.',
                 flags: MessageFlags.Ephemeral
             });
         }

@@ -71,11 +71,11 @@ export default {
     },
 
     async execute(interaction) {
-        const ROL_ALTO_COMANDO = '1528870731629465752';
-        if (!interaction.member.roles.cache.has(ROL_ALTO_COMANDO)) {
+        const ROL_GERENTE_STAFF = '1452684893850177587';
+        if (!interaction.member.roles.cache.has(ROL_GERENTE_STAFF)) {
             return interaction.reply({
                 content:
-                    E.cruz + ' Solo **Alto Comando** puede usar `/promover`.',
+                    E.cruz + ' Solo **Gerente de Staff** puede usar `/promover`.',
                 flags: MessageFlags.Ephemeral
             });
         }

@@ -41,9 +41,10 @@ export default {
 
     async execute(interaction) {
         // 🔒 SEGURIDAD: Solo los moderadores/Staff pueden usar la lista negra
-        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
+        const ROL_STAFF = '1512120103771050005';
+        if (!interaction.member.roles.cache.has(ROL_STAFF)) {
             return await interaction.reply({ 
-                content: '❌ **No tienes permisos:** Solo el Staff autorizado puede gestionar la blacklist.', 
+                content: '❌ **No tienes permisos:** Solo el **Staff 00Y4n** puede gestionar la blacklist.', 
                 ephemeral: true 
             });
         }

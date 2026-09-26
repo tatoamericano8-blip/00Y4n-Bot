@@ -21,12 +21,13 @@ export default {
                 .setName('categoria')
                 .setDescription('Categoría donde se crearán los tickets (opcional).')
                 .setRequired(false))
-        .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
+        .setDefaultMemberPermissions(null),
 
     async execute(interaction) {
-        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
+        const ROL_EQUIPO_PROPIETARIOS = '1528877296977711256';
+        if (!interaction.member.roles.cache.has(ROL_EQUIPO_PROPIETARIOS)) {
             return interaction.reply({
-                content: E.cruz + ' Solo staff con **Gestionar Servidor** puede publicar el panel.',
+                content: E.cruz + ' Solo el **Equipo de Propietarios** puede publicar el panel.',
                 flags: MessageFlags.Ephemeral
             });
         }

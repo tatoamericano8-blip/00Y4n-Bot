@@ -3,7 +3,7 @@ import Staff from '../../../models/Staff.js';
 import { estaEnBlacklistStaff } from '../../utils/gestorBlacklistStaff.js';
 import { E } from '../../config/emojis.js';
 
-const ROLE_HIGH_COMMAND = '1528870731629465752';
+const ROLE_GERENTE_STAFF = '1452684893850177587';
 const ROLE_STAFF = '1512120103771050005';
 const ROLE_STAFF_APRENDIZ = '1525910197934100510';
 const RANGO_DB = 'Staff Aprendiz';
@@ -20,12 +20,12 @@ export default {
 
     async execute(interaction) {
         if (
-            !interaction.member.roles.cache.has(ROLE_HIGH_COMMAND) &&
+            !interaction.member.roles.cache.has(ROLE_GERENTE_STAFF) &&
             !interaction.member.permissions.has(PermissionFlagsBits.Administrator)
         ) {
             return interaction.reply({
                 content:
-                    E.cruz + ' **Permisos insuficientes:** Solo Alto Comando puede contratar personal.',
+                    E.cruz + ' **Permisos insuficientes:** Solo **Gerente de Staff** puede contratar personal.',
                 flags: MessageFlags.Ephemeral
             });
         }

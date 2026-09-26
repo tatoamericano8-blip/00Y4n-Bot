@@ -19,10 +19,10 @@ export default {
     ),
 
   async execute(interaction) {
-    const ROL_GERENTE_STAFF = '1452684893850177587';
-    if (!interaction.member.roles.cache.has(ROL_GERENTE_STAFF)) {
+    const ROL_EQUIPO_PROPIETARIOS = '1528877296977711256';
+    if (!interaction.member.roles.cache.has(ROL_EQUIPO_PROPIETARIOS)) {
       return interaction.reply({
-        content: E.cruz + ' **Acceso denegado.** Solo **Gerente de Staff** puede usar este comando.',
+        content: E.cruz + ' **Acceso denegado.** Solo el **Equipo de Propietarios** puede usar este comando.',
         flags: MessageFlags.Ephemeral
       });
     }

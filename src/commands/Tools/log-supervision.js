@@ -7,7 +7,7 @@ import Sesion from '../../../models/Session.js';
 import { registrarNotaSupervision } from '../../utils/gestorSupervisionScore.js';
 import { E } from '../../config/emojis.js';
 
-const ROL_STAFF = '1512120103771050005';
+const ROL_ALTO_COMANDO = '1528870731629465752';
 const CHANNEL_LOGS = '1505015805891579934';
 const VENTANA_MS = 2 * 60 * 60 * 1000; // 2 horas
 
@@ -35,9 +35,9 @@ export default {
     ),
 
   async execute(interaction) {
-    if (!interaction.member.roles.cache.has(ROL_STAFF)) {
+    if (!interaction.member.roles.cache.has(ROL_ALTO_COMANDO)) {
       return interaction.reply({
-        content: E.cruz + ' Solo el **Staff** puede usar este comando.',
+        content: E.cruz + ' Solo **Alto Comando** puede usar este comando.',
         flags: MessageFlags.Ephemeral
       });
     }

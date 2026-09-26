@@ -2,7 +2,7 @@ import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, MessageFlags } 
 import Staff from '../../../models/Staff.js';
 import { E } from '../../config/emojis.js';
 
-const ROLE_HIGH_COMMAND = '1528870731629465752';
+const ROLE_EQUIPO_PROPIETARIOS = '1528877296977711256';
 
 export default {
     data: new SlashCommandBuilder()
@@ -13,9 +13,9 @@ export default {
         .addStringOption(opt => opt.setName('descripcion').setDescription('Motivo o detalle del reconocimiento.').setRequired(false)),
 
     async execute(interaction) {
-        if (!interaction.member.roles.cache.has(ROLE_HIGH_COMMAND) && !interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+        if (!interaction.member.roles.cache.has(ROLE_EQUIPO_PROPIETARIOS) && !interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
             return await interaction.reply({
-                content: E.cruz + ' Solo Alto Comando puede otorgar reconocimientos.',
+                content: E.cruz + ' Solo el **Equipo de Propietarios** puede otorgar reconocimientos.',
                 flags: MessageFlags.Ephemeral
             });
         }

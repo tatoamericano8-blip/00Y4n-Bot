@@ -1,12 +1,12 @@
 import { PermissionFlagsBits, MessageFlags, SlashCommandBuilder } from 'discord.js';
 import { E } from '../../config/emojis.js';
 
-const ROLE_ALTO_COMANDO = '1528870731629465752';
+const ROLE_EQUIPO_PROPIETARIOS = '1528877296977711256';
 
 export default {
     data: new SlashCommandBuilder()
         .setName('decir')
-        .setDescription('Haz que el bot envíe un mensaje normal en el canal actual. (Solo Alto Comando)')
+        .setDescription('Haz que el bot envíe un mensaje normal en el canal actual. (Solo Equipo de Propietarios)')
         .addStringOption(opt =>
             opt.setName('mensaje')
                 .setDescription('El texto que quieres que el bot diga.')
@@ -19,12 +19,12 @@ export default {
 
     async execute(interaction) {
         const esAltoComando =
-            interaction.member.roles.cache.has(ROLE_ALTO_COMANDO) ||
+            interaction.member.roles.cache.has(ROLE_EQUIPO_PROPIETARIOS) ||
             interaction.member.permissions.has(PermissionFlagsBits.Administrator);
 
         if (!esAltoComando) {
             return await interaction.reply({
-                content: E.cruz + ' **Sin acceso:** Solo **Alto Comando** puede usar `/decir`.',
+                content: E.cruz + ' **Sin acceso:** Solo el **Equipo de Propietarios** puede usar `/decir`.',
                 flags: MessageFlags.Ephemeral
             });
         }

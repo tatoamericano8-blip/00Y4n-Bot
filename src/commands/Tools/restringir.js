@@ -13,7 +13,7 @@ import {
 } from '../../utils/gestorRestricciones.js';
 import { E } from '../../config/emojis.js';
 
-const ROL_ALTO_COMANDO = '1528870731629465752';
+const ROL_EQUIPO_PROPIETARIOS = '1528877296977711256';
 const CANAL_LOG = '1505015805891579934';
 
 export default {
@@ -43,11 +43,11 @@ export default {
 
   async execute(interaction) {
     if (
-      !interaction.member.roles.cache.has(ROL_ALTO_COMANDO) &&
+      !interaction.member.roles.cache.has(ROL_EQUIPO_PROPIETARIOS) &&
       !interaction.member.permissions.has(PermissionFlagsBits.Administrator)
     ) {
       return interaction.reply({
-        content: E.cruz + ' Solo **Alto Comando** puede usar `/restringir`.',
+        content: E.cruz + ' Solo el **Equipo de Propietarios** puede usar `/restringir`.',
         flags: MessageFlags.Ephemeral
       });
     }
@@ -72,9 +72,14 @@ export default {
       return interaction.editReply({ content: 'El usuario no está en el servidor.' });
     }
 
-    if (member.roles.cache.has(ROL_ALTO_COMANDO) || member.permissions.has(PermissionFlagsBits.Administrator)) {
+    const ROL_ALTO_COMANDO = '1528870731629465752';
+    if (
+      member.roles.cache.has(ROL_EQUIPO_PROPIETARIOS) ||
+      member.roles.cache.has(ROL_ALTO_COMANDO) ||
+      member.permissions.has(PermissionFlagsBits.Administrator)
+    ) {
       return interaction.editReply({
-        content: 'No podés restringir a Alto Comando / administradores.'
+        content: 'No podés restringir a Propietarios / Alto Comando / administradores.'
       });
     }
 
