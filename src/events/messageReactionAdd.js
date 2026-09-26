@@ -33,15 +33,16 @@ export default {
         await setInDb(claveListaUsuarios, listaUsuarios);
       }
 
-      // Reacciones en sesiones: 1 vez por usuario POR mensaje de /inicio_swfl
-      // Si quita y vuelve a reaccionar en el MISMO mensaje, no suma de nuevo.
+      // Reacciones en sesiones: 1 vez por usuario POR mensaje de /inicio
+      // + actualiza reacciones[] y reaccionesPico en Mongo (para /staff-perfil)
       try {
         const guildId = reaction.message.guild.id;
         const messageId = reaction.message.id;
         const sesion = await Sesion.findOne({
           idInicio: messageId,
-          guildId
-        }).lean();
+          guildId,
+          estado: { $in: ['esperando_reacciones', 'activa'] }
+        });
 
         if (sesion) {
           const dedupeKey = `reaccion_sesion_contada:${guildId}:${messageId}:${user.id}`;
@@ -51,6 +52,40 @@ export default {
             const claveReaccionesSesion = `reacciones_sesiones:${guildId}:${user.id}`;
             await db.increment(claveReaccionesSesion, 1);
           }
+
+          // Lista única de reactors (usuarios)
+          const yaEnLista = (sesion.reacciones || []).some(
+            (r) => String(r.userId) === String(user.id)
+          );
+          if (!yaEnLista) {
+            sesion.reacciones = sesion.reacciones || [];
+            sesion.reacciones.push({ userId: user.id, fecha: new Date() });
+          }
+
+          // Pico = máximo de reacciones humanas en el emoji (count - bots)
+          let countHumano = 0;
+          try {
+            const c = reaction.count || 0;
+            const users = reaction.users?.cache;
+            const bots = users
+              ? [...users.values()].filter((u) => u.bot).length
+              : 1; // el bot suele reaccionar al inicio
+            countHumano = Math.max(0, c - bots);
+          } catch {
+            countHumano = Math.max(0, (reaction.count || 1) - 1);
+          }
+          const unicos = (sesion.reacciones || []).length;
+          const pico = Math.max(
+            Number(sesion.reaccionesPico) || 0,
+            countHumano,
+            unicos
+          );
+          if (pico > (Number(sesion.reaccionesPico) || 0)) {
+            sesion.reaccionesPico = pico;
+          }
+          await sesion.save().catch((e) =>
+            logger.error('Error guardando reaccionesPico:', e)
+          );
         }
       } catch (error) {
         logger.error('Error al trackear reacción en mensaje de sesión:', error);

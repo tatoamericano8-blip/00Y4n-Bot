@@ -100,9 +100,32 @@ export default {
                 minutosCalculados = Math.max(0, Math.round(ms / 60000));
                 duracionMostrar = formatearDuracionMs(ms);
                 sesionActiva.duracionMinutos = minutosCalculados;
-                sesionActiva.reaccionesPico = Array.isArray(sesionActiva.reacciones)
-                    ? sesionActiva.reacciones.length
-                    : 0;
+                // Pico: max entre lo guardado, lista única y conteo vivo del mensaje de inicio
+                let pico = Math.max(
+                    Number(sesionActiva.reaccionesPico) || 0,
+                    Array.isArray(sesionActiva.reacciones) ? sesionActiva.reacciones.length : 0
+                );
+                try {
+                    const chId = interaction.channelId;
+                    const msgId = sesionActiva.idInicio;
+                    if (msgId && interaction.channel) {
+                        const msg = await interaction.channel.messages.fetch(msgId).catch(() => null);
+                        if (msg) {
+                            for (const [, reac] of msg.reactions.cache) {
+                                const c = reac.count || 0;
+                                let bots = 0;
+                                try {
+                                    const us = await reac.users.fetch();
+                                    bots = us.filter((u) => u.bot).size;
+                                } catch {
+                                    bots = 1;
+                                }
+                                pico = Math.max(pico, Math.max(0, c - bots));
+                            }
+                        }
+                    }
+                } catch (_) {}
+                sesionActiva.reaccionesPico = pico;
                 await sesionActiva.save().catch(() => null);
             } else {
                 horasCalculadas = 0;
