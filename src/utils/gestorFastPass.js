@@ -1,5 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { getFromDb, setInDb } from './database.js';
+import { EMOJI_DEF } from '../config/emojis.js';
 
 const KEY = 'fastpass:links:globales';
 
@@ -38,13 +39,15 @@ export async function eliminarFastPass(messageId) {
 }
 
 function filaBotonCerrado() {
-    return new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-            .setCustomId('verificar_fastpass_swfl')
-            .setLabel('FastPass Cerrado')
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(true)
-    );
+    const btn = new ButtonBuilder()
+        .setCustomId('verificar_fastpass_swfl')
+        .setLabel('FastPass Cerrado')
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(true);
+    try {
+        if (EMOJI_DEF?.lock?.id) btn.setEmoji(EMOJI_DEF.lock.id);
+    } catch (_) {}
+    return new ActionRowBuilder().addComponents(btn);
 }
 
 function mensajeTieneFastPassActivo(msg) {
@@ -128,7 +131,7 @@ export async function cerrarFastPassesDeGuild(client, guildId, channelId = null)
         }
     }
 
-    // 2) Fallback: escanear canales (por si no estaba en DB o falló el fetch)
+    // 2) Fallback: escanear canales
     try {
         const guild = client.guilds.cache.get(gid) || (await client.guilds.fetch(gid).catch(() => null));
         if (guild) {
