@@ -127,7 +127,7 @@ export default {
       });
     }
 
-    await interaction.deferReply(); // público: el perfil se ve en el canal
+    await interaction.deferReply();
 
     const targetUser = interaction.options.getUser('usuario') || interaction.user;
     const guild = interaction.guild;
@@ -146,7 +146,6 @@ export default {
       staffData.rango || 'Sin rango'
     );
 
-    // Nombre tipo servidor (Bloxlink display)
     let nombreTitulo = targetUser.username;
     try {
       const member =
@@ -175,7 +174,13 @@ export default {
     const score = calcularScore(c, rango);
     const evalC = evaluarCumplimiento(staffData, rango);
 
-    // Sesiones hosteadas (para stats)
+    let estadoCuota = `${E.tiempo} En curso`;
+    if (evalC?.enLoa) estadoCuota = `${E.warn} Exento (LOA)`;
+    else if (evalC?.cumplio) estadoCuota = `${E.tilde} Meta cumplida`;
+
+    const racha = c.racha || 0;
+    const rachaMax = c.rachaMaxima || 0;
+
     let sesionesHost = [];
     let sesionesSup = [];
     try {
@@ -275,8 +280,8 @@ export default {
           ratingLines.join('\n') +
           `\n\n` +
           `${E.dot} **Estado:** ${textoEstado(staffData)} · **Strikes:** ${strikesActivos}/3\n` +
-          `${E.dot} **Cuota semanal:** ${evalC.cumplida ? E.tilde + ' Meta cumplida' : E.cruz + ' Meta pendiente'} · Sesiones **${metaSesTxt}** · Tickets **${metaTktTxt}**\n` +
-          `${E.dot} **Score semanal:** **${score.score || 0}/100** · Racha ${E.estrella} **${c.racha || 0}** (máx. **${c.rachaMaxima || 0}**)`
+          `${E.dot} **Cuota semanal:** ${estadoCuota} · Sesiones \`${metaSesTxt}\` · Tickets \`${metaTktTxt}\`\n` +
+          `${E.dot} **Score semanal:** **${score}**/100 · Racha ${E.aestrellitas} \`${racha}\` (máx. \`${rachaMax}\`)`
       )
       .setColor(COLOR)
       .setThumbnail(targetUser.displayAvatarURL({ size: 256 }))
