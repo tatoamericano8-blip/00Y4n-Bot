@@ -180,10 +180,29 @@ export async function comprarItem(member, itemId) {
   if (item.type === 'role' && item.roleId && member.roles.cache.has(String(item.roleId))) {
     return { ok: false, mensaje: `Ya tenés el rol de **${item.name}**.` };
   }
+
+  // Solo un seguro a la vez. Cambiar de plan cobra el plan actual + el nuevo.
+  let feeCambioSeguro = 0;
+  let prevSeguroNombre = null;
   if (item.type === 'role_weekly') {
     const actual = await obtenerSeguro(userId);
     if (actual && actual.itemId === item.id) {
       return { ok: false, mensaje: `Ya tenés **${item.name}** activo.` };
+    }
+    if (actual?.itemId && actual.itemId !== item.id) {
+      const prevItem = getItem(actual.itemId);
+      feeCambioSeguro = Number(actual.weekly || prevItem?.weekly || prevItem?.price || 0);
+      prevSeguroNombre = prevItem?.name || actual.itemId;
+      const totalNecesario = feeCambioSeguro + item.price;
+      if (saldo < totalNecesario) {
+        return {
+          ok: false,
+          mensaje:
+            `Solo podés tener **un seguro**. Para pasar de **${prevSeguroNombre}** a **${item.name}** necesitás **${formatMoney(totalNecesario)}** ` +
+            `(cobro del plan actual **${formatMoney(feeCambioSeguro)}** + nuevo plan **${formatMoney(item.price)}**). ` +
+            `Tenés **${formatMoney(saldo)}**.`
+        };
+      }
     }
   }
 
@@ -209,9 +228,14 @@ export async function comprarItem(member, itemId) {
     }
   }
 
-  const nuevoSaldo = await restarSaldo(userId, item.price, { tipo: 'EGRESO', motivo: `Tienda: compra de ${item.name}` });
+  const montoCobrado = item.price + feeCambioSeguro;
+  const motivoCobro =
+    feeCambioSeguro > 0
+      ? `Tienda: cambio de seguro (${prevSeguroNombre} → ${item.name})`
+      : `Tienda: compra de ${item.name}`;
+  const nuevoSaldo = await restarSaldo(userId, montoCobrado, { tipo: 'EGRESO', motivo: motivoCobro });
   const reembolsar = async (motivo) => {
-    try { await agregarSaldo(userId, item.price, { tipo: 'INGRESO', motivo: `Tienda: reembolso — ${motivo}` }); }
+    try { await agregarSaldo(userId, montoCobrado, { tipo: 'INGRESO', motivo: `Tienda: reembolso — ${motivo}` }); }
     catch (e) { logger.error(`[tienda] reembolso: ${e.message}`); }
   };
 
@@ -247,7 +271,7 @@ export async function comprarItem(member, itemId) {
         await guardarInventario(userId, inv);
       } catch (_) {}
 
-      await enviarDmCompraPermiso(guildMember, item, item.price);
+      await enviarDmCompraPermiso(guildMember, item, montoCobrado);
 
       if (item.id === 'licencia_conducir') {
         try {
@@ -258,10 +282,17 @@ export async function comprarItem(member, itemId) {
       }
 
       const extra = item.type === 'role_weekly' ? `\nCobro semanal **${formatMoney(item.weekly)}** automático.` : '';
+      const detalleCambio =
+        feeCambioSeguro > 0
+          ? `\nCambio de plan: se debitó **${formatMoney(feeCambioSeguro)}** del **${prevSeguroNombre}** + **${formatMoney(item.price)}** del nuevo.`
+          : ` por **${formatMoney(item.price)}**`;
       return {
         ok: true,
         saldoNuevo: nuevoSaldo,
-        mensaje: `Compraste **${item.name}** por **${formatMoney(item.price)}** y se te asignó el rol **${roleObj?.name || item.name}**.${extra}\nQuedó en tu inventario.\nTe enviamos un MD con los detalles.\nSaldo: **${formatMoney(nuevoSaldo)}**.`
+        mensaje:
+          feeCambioSeguro > 0
+            ? `Cambiaste a **${item.name}** y se te asignó el rol **${roleObj?.name || item.name}**.${detalleCambio}${extra}\nQuedó en tu inventario.\nTe enviamos un MD con los detalles.\nSaldo: **${formatMoney(nuevoSaldo)}**.`
+            : `Compraste **${item.name}**${detalleCambio} y se te asignó el rol **${roleObj?.name || item.name}**.${extra}\nQuedó en tu inventario.\nTe enviamos un MD con los detalles.\nSaldo: **${formatMoney(nuevoSaldo)}**.`
       };
     }
     await agregarAlInventario(userId, item.id, 1);
