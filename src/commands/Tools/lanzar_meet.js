@@ -7,19 +7,49 @@ import { E, EMOJI_DEF } from '../../config/emojis.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
-const IMAGEN_MEET_DEFECTO = 'https://cdn.discordapp.com/attachments/1505017301089652898/1548119380938723348/Lanzamiento_Carmeet_1.png?ex=6aa5e607&is=6aa49487&hm=a39c31aec52948a1e1fd4b5f7dde8ae37718d77c7bf83dd82f3ac0e73ea6af84&';
+const IMAGEN_MEET_DEFECTO = 'https://cdn.discordapp.com/attachments/1505017301089652898/1548119380980932689/Lanzamiento_Meet_Greet_1.png';
 
 export default {
     data: {
         name: 'lanzar_meet',
-        description: 'Libera los accesos para un Car Meet oficial.',
+        description: 'Liberas los accesos para una sesion oficial de Meet & Greet.',
         options: [
-            { name: 'mensaje_id', description: 'Pega aca la ID del mensaje de Startup/Inicio de esta sesion.', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'acceso', description: 'Pega aca el enlace del servidor privado de Roblox.', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'tematica', description: 'Ejemplo: JDM, Exoticos, Camionetas', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'ubicacion', description: 'Lugar de concentracion (Ej: Puerto, Aeropuerto)', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'spots_duracion', description: 'Ejemplo: 3 Spots / 45 Minutos', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'imagen', description: 'Link de la foto/banner para la apertura (opcional).', type: ApplicationCommandOptionType.String, required: false }
+            {
+                name: 'mensaje_id',
+                description: 'Pega aca la ID del mensaje de Startup/Inicio de esta sesion.',
+                type: ApplicationCommandOptionType.String,
+                required: true
+            },
+            {
+                name: 'acceso',
+                description: 'Pega aca el enlace del servidor privado de Roblox.',
+                type: ApplicationCommandOptionType.String,
+                required: true
+            },
+            {
+                name: 'tematica',
+                description: 'Tematica de la sesion Meet & Greet.',
+                type: ApplicationCommandOptionType.String,
+                required: true
+            },
+            {
+                name: 'ubicacion',
+                description: 'Ubicacion del Meet & Greet.',
+                type: ApplicationCommandOptionType.String,
+                required: true
+            },
+            {
+                name: 'spots',
+                description: 'Cantidad de spots disponibles.',
+                type: ApplicationCommandOptionType.String,
+                required: true
+            },
+            {
+                name: 'imagen',
+                description: 'Link de la foto/banner para la apertura (opcional).',
+                type: ApplicationCommandOptionType.String,
+                required: false
+            }
         ]
     },
 
@@ -38,7 +68,7 @@ export default {
         const linkSesion = interaction.options.getString('acceso');
         const tematica = interaction.options.getString('tematica');
         const ubicacion = interaction.options.getString('ubicacion');
-        const spots = interaction.options.getString('spots_duracion');
+        const spots = interaction.options.getString('spots');
         const urlImagen = interaction.options.getString('imagen');
 
         let hostIdSesion = interaction.user.id;
@@ -51,23 +81,28 @@ export default {
             }
         } catch (_) {}
 
+        const coHostLine = coHostId
+            ? E.jpuntderecha + ` Co-Host(s) de la sesión: <@${coHostId}>`
+            : E.jpuntderecha + ` Co-Host(s) de la sesión: *Sin asignar*`;
+
         const infoDescripcion =
-            E.dot + ` <@${interaction.user.id}> **ha liberado su sesión de Car Meet!** Asegurate de seguir todas las instrucciones del host y co-hosts antes de salir del spawn. Además, se deben respetar todas las regulaciones de **Southwest Florida Comunidad 00Y4n** durante toda la sesión.\n\n` +
-            E.replican + ` Los links del servidor se regenerarán a los **tres minutos** de la liberación, así que únete rápido. Las reinvitaciones ocurrirán **cada quince minutos** (según las reacciones), así que no le pidas el link al host.\n\n` +
-            E.manual + ` **__Información de la sesión:__**\n` +
+            E.dot + ` <@${hostIdSesion}> **ha liberado su sesión de Meet & Greet!** Asegurate de seguir todas las instrucciones del host y co-hosts antes de salir del spawn. Además, se deben respetar todas las regulaciones de **Southwest Florida Comunidad 00Y4n** durante toda la sesión.\n\n` +
+            E.replican + ` Los links del servidor se regenerarán a los **tres minutos** de la liberación, así que unite rápido. Las reinvitaciones ocurrirán **cada quince minutos** (según las reacciones), así que no le pidas el link al host.\n\n` +
+            E.manual + ` __**Información de la sesión:**__\n` +
             E.jpuntderecha + ` Temática: **${tematica}**\n` +
             E.jpuntderecha + ` Ubicación: **${ubicacion}**\n` +
-            E.jpuntderecha + ` Spots / Duración: **${spots}**\n\n` +
+            E.jpuntderecha + ` Spots: **${spots}**\n` +
+            `${coHostLine}\n\n` +
             E.warn + ` __Cualquier compartición no autorizada del link resultará en un **ban inmediato** del servidor__.`;
 
         const embedRelease = new EmbedBuilder()
-            .setTitle(E.a2alas + ' Southwest Florida Comunidad 00Y4n — *__Sesión de Car Meet Liberada__* ' + E.a2alas)
+            .setTitle(E.a2alas + ' Southwest Florida Comunidad 00Y4n — __*Sesión de Meet & Greet Liberada*__ ' + E.a2alas)
             .setDescription(infoDescripcion)
             .setColor('#74d4fc');
 
         if (urlImagen) {
             embedRelease.setImage(urlImagen);
-        } else if (IMAGEN_MEET_DEFECTO !== '') {
+        } else {
             embedRelease.setImage(IMAGEN_MEET_DEFECTO);
         }
 
@@ -79,10 +114,10 @@ export default {
                 .setEmoji(EMOJI_DEF.hyperlink.id)
         );
 
-        await interaction.reply({ content: 'Liberando accesos del Car Meet...', ephemeral: true });
+        await interaction.reply({ content: 'Liberando accesos de Meet & Greet...', ephemeral: true });
 
         const msgRelease = await interaction.channel.send({
-            content: '@everyone <@&1491458302993891358>',
+            content: '@everyone <@&1503763201274413056>',
             embeds: [embedRelease],
             components: [fila]
         });
@@ -99,7 +134,7 @@ export default {
         });
 
         try {
-            const n = await cerrarFastPassesDeGuild(interaction.client, interaction.guildId, interaction.channelId);
+            const n = await cerrarFastPassesDeGuild(interaction.client, interaction.guildId, null);
             if (n > 0) console.log(`[lanzar] FastPass cerrado: ${n} mensaje(s)`);
         } catch (e) {
             console.error('[lanzar] Error cerrando FastPass:', e?.message || e);
@@ -136,7 +171,7 @@ export default {
                 guildId: interaction.guildId
             });
         } catch (error) {
-            console.error('Error al guardar lanzamiento de Car Meet en MongoDB:', error);
+            console.error('Error al guardar lanzamiento de Meet en MongoDB:', error);
         }
     }
 };

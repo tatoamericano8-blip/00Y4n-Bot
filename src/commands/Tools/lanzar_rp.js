@@ -151,7 +151,7 @@ export default {
         });
 
         try {
-            const n = await cerrarFastPassesDeGuild(interaction.client, interaction.guildId, interaction.channelId);
+            const n = await cerrarFastPassesDeGuild(interaction.client, interaction.guildId, null);
             if (n > 0) console.log(`[lanzar] FastPass cerrado: ${n} mensaje(s)`);
         } catch (e) {
             console.error('[lanzar] Error cerrando FastPass:', e?.message || e);
