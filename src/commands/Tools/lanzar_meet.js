@@ -14,12 +14,12 @@ export default {
         name: 'lanzar_meet',
         description: 'Liberas los accesos para una sesion oficial de Meet & Greet.',
         options: [
-            { name: 'mensaje_id', description: 'ID del mensaje de /inicio (opcional: si no lo ponés, se detecta solo la sesión abierta).', type: ApplicationCommandOptionType.String, required: false },
             { name: 'acceso', description: 'Pega aca el enlace del servidor privado de Roblox.', type: ApplicationCommandOptionType.String, required: true },
             { name: 'tematica', description: 'Ejemplo: JDM, Exoticos, Camionetas', type: ApplicationCommandOptionType.String, required: true },
             { name: 'ubicacion', description: 'Lugar de concentracion (Ej: Puerto, Aeropuerto)', type: ApplicationCommandOptionType.String, required: true },
             { name: 'spots_duracion', description: 'Ejemplo: 3 Spots / 45 Minutos', type: ApplicationCommandOptionType.String, required: true },
-            { name: 'imagen', description: 'Link de la foto/banner para la apertura (opcional).', type: ApplicationCommandOptionType.String, required: false }
+            { name: 'imagen', description: 'Link de la foto/banner para la apertura (opcional).', type: ApplicationCommandOptionType.String, required: false },
+            { name: 'mensaje_id', description: 'ID del mensaje de /inicio (opcional: si no lo ponés, se detecta solo la sesión abierta).', type: ApplicationCommandOptionType.String, required: false }
         ]
     },
 

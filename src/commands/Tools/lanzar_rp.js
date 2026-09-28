@@ -15,12 +15,6 @@ export default {
         description: 'Liberas los accesos para una sesion oficial de Roleplay.',
         options: [
             {
-                name: 'mensaje_id',
-                description: 'ID del mensaje de /inicio (opcional: si no lo ponés, se detecta solo la sesión abierta).',
-                type: ApplicationCommandOptionType.String,
-                required: false
-            },
-            {
                 name: 'acceso',
                 description: 'Pega aca el enlace del servidor privado de Roblox.',
                 type: ApplicationCommandOptionType.String,
@@ -64,6 +58,12 @@ export default {
             {
                 name: 'imagen',
                 description: 'Link de la foto/banner para la apertura (opcional).',
+                type: ApplicationCommandOptionType.String,
+                required: false
+            },
+            {
+                name: 'mensaje_id',
+                description: 'ID del mensaje de /inicio (opcional: si no lo ponés, se detecta solo la sesión abierta).',
                 type: ApplicationCommandOptionType.String,
                 required: false
             }
