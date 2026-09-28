@@ -8,6 +8,7 @@ import {
 } from '../config/tiendaServer.js';
 import { logger } from './logger.js';
 import { registrarLicenciaPorCompra } from './gestorLicencias.js';
+import { E } from '../config/emojis.js';
 
 const INV_KEY = (userId) => `tienda:inv:${userId}`;
 const SEGURO_KEY = (userId) => `tienda:seguro:${userId}`;
@@ -323,6 +324,23 @@ export async function regalarItem(fromId, toId, itemId) {
   return { ok: true, item };
 }
 
+async function enviarDmSeguro(client, userId, embedData) {
+  try {
+    const user = await client.users.fetch(userId).catch(() => null);
+    if (!user) return;
+    await user.send({
+      embeds: [{
+        title: embedData.title,
+        description: embedData.description,
+        color: embedData.color ?? 0x8ae6fa,
+        footer: { text: 'Southwest Florida Comunidad 00Y4n ™' }
+      }]
+    }).catch(() => null);
+  } catch (e) {
+    logger.warn(`[tienda] DM seguro ${userId}: ${e.message}`);
+  }
+}
+
 export async function procesarCobrosSeguros(client) {
   const index = (await getFromDb(SEGURO_INDEX_KEY, [])) || [];
   const userIds = Array.isArray(index) ? index.map(String) : [];
@@ -340,11 +358,21 @@ export async function procesarCobrosSeguros(client) {
         member = await g.members.fetch(userId).catch(() => null);
         if (member) break;
       }
+      const nombrePlan = item?.name || data.itemId;
       if (saldo >= monto) {
-        await restarSaldo(userId, monto, { tipo: 'EGRESO', motivo: `Tienda: renovación ${item?.name || data.itemId}` });
+        const nuevoSaldo = await restarSaldo(userId, monto, { tipo: 'EGRESO', motivo: `Tienda: renovación ${nombrePlan}` });
         data.nextCharge = Date.now() + WEEK_MS;
         await setInDb(SEGURO_KEY(userId), data);
         cobrados++;
+        await enviarDmSeguro(client, userId, {
+          title: `${E.tilde || '✅'} Seguro renovado`,
+          description:
+            `${E.flecha || '›'} Se debitó **${formatMoney(monto)}** por la renovación de **${nombrePlan}**.\n\n` +
+            `${E.money || '💰'} **Saldo actual:** ${formatMoney(nuevoSaldo)}\n` +
+            `${E.flecha || '›'} **Próximo cobro:** <t:${Math.floor(data.nextCharge / 1000)}:f> (<t:${Math.floor(data.nextCharge / 1000)}:R>)\n\n` +
+            `_Si no hay saldo en el próximo cobro, el seguro se cancela y se quita el rol._`,
+          color: 0x8ae6fa
+        });
       } else {
         if (member && data.roleId) {
           try { await member.roles.remove(data.roleId, 'Seguro cancelado'); } catch (_) {}
@@ -353,6 +381,16 @@ export async function procesarCobrosSeguros(client) {
         await quitarDelIndiceSeguros(userId);
         try { await quitarDelInventario(userId, data.itemId, 999); } catch (_) {}
         cancelados++;
+        await enviarDmSeguro(client, userId, {
+          title: `${E.lock || '🔒'} Seguro cancelado`,
+          description:
+            `${E.flecha || '›'} No había saldo suficiente para renovar **${nombrePlan}**.\n\n` +
+            `${E.money || '💰'} **Monto requerido:** ${formatMoney(monto)}\n` +
+            `${E.money || '💰'} **Tu saldo:** ${formatMoney(saldo)}\n\n` +
+            `El seguro fue **cancelado** y se quitó el rol asociado.\n` +
+            `Podés volver a comprarlo en \`/tienda abrir\` → Permisos y Seguros.`,
+          color: 0xff5555
+        });
       }
     } catch (err) {
       logger.error(`[tienda] cobro seguro ${userId}:`, err.message);
