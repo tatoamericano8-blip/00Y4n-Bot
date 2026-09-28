@@ -5,7 +5,6 @@ import { E } from '../../config/emojis.js';
 
 const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Planeamiento / suspenso
 const pensamientosCrimen = [
     'Das dos vueltas al estacionamiento de un motel de la I-75 antes de decidir si vale la pena...',
     'Le das una patada a una máquina expendedora. Caen monedas. La tentación se multiplica...',
@@ -19,7 +18,6 @@ const pensamientosCrimen = [
     'Revisás el callejón detrás del food truck. Solo el generador hace ruido...'
 ];
 
-// Segunda escena (durante el intento)
 const historiasDurante = [
     'Avanzás en silencio. El corazón te late más fuerte que los pasos sobre el asfalto.',
     'La alarma no suena… todavía. Cada segundo se siente eterno.',
@@ -31,7 +29,6 @@ const historiasDurante = [
     'El bolsillo se te llena más de lo que pensabas. La salida queda a metros.'
 ];
 
-// Éxito
 const historiasExito = [
     'Lograste abrir la caja antes de que sonara la alarma y escapaste sin dejar rastro.',
     'El empleado se distrajo con un cliente y te llevaste la recaudación del día.',
@@ -45,7 +42,6 @@ const historiasExito = [
     'La cámara falló justo esa noche. La suerte estuvo de tu lado.'
 ];
 
-// Fallo
 const historiasFallo = [
     'El recepcionista del motel llamó a la policía antes de que terminaras de pensarlo.',
     'Un patrullero dobló justo en la esquina y te agarró con las manos en la masa.',
@@ -83,13 +79,14 @@ export default {
         const pensamiento = pensamientosCrimen[Math.floor(Math.random() * pensamientosCrimen.length)];
         const durante = historiasDurante[Math.floor(Math.random() * historiasDurante.length)];
 
+        // 1) Público — planeando
         await interaction.reply({
-            content: `${E.skirojo || ''} **Planeando el delito...**\n*${pensamiento}*`,
-            flags: MessageFlags.Ephemeral
+            content: `${E.skirojo || ''} **Planeando el delito...**\n*${pensamiento}*`
         });
 
         await delay(2200);
 
+        // 2) Solo efímero — contexto/pensamiento del intento
         await interaction.followUp({
             content: `*${durante}*`,
             flags: MessageFlags.Ephemeral
@@ -119,7 +116,8 @@ export default {
                 })
                 .setTimestamp();
 
-            await interaction.followUp({ embeds: [embedExito], flags: MessageFlags.Ephemeral });
+            // 3) Público — resultado
+            await interaction.followUp({ embeds: [embedExito] });
         } else {
             const multa = Math.floor(Math.random() * (750 - 250 + 1)) + 250;
             const nuevoSaldo = await agregarSaldo(usuarioId, -multa);
@@ -138,7 +136,7 @@ export default {
                 })
                 .setTimestamp();
 
-            await interaction.followUp({ embeds: [embedFallo], flags: MessageFlags.Ephemeral });
+            await interaction.followUp({ embeds: [embedFallo] });
         }
     }
 };

@@ -5,7 +5,6 @@ import { E } from '../../config/emojis.js';
 
 const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Entrada al turno (contexto)
 const historiasEntrada = [
     'Marcás la entrada en un depósito de remolques de Sarasota. El letrero de “abierto” parpadea como una advertencia.',
     'Llegás al diner de la ruta 41. El olor a grasa y café quemado te recibe antes que el gerente.',
@@ -19,7 +18,6 @@ const historiasEntrada = [
     'Empezás el turno de limpieza en el concesionario. Un auto deportivo dejó un rastro de aceite hasta la salida.'
 ];
 
-// Durante el turno (contexto)
 const historiasDurante = [
     'Un cliente discute si el hot dog del local “cuenta como comida de verdad”. Terminás mediando la pelea.',
     'El gerente se va “cinco minutos” y no vuelve hasta que cerrás la caja.',
@@ -33,7 +31,6 @@ const historiasDurante = [
     'El olor a freidora se te pega a la ropa. Ya sabés que va a durar hasta mañana.'
 ];
 
-// Cierre del turno (resultado en embed)
 const historiasCierre = [
     'Terminás el turno oliendo a aceite de freír, estrés y horas extra sin pagar.',
     'Cerrás la caja con el cuaderno lleno de anotaciones y las manos manchadas de grasa.',
@@ -72,13 +69,14 @@ export default {
         const durante = historiasDurante[Math.floor(Math.random() * historiasDurante.length)];
         const cierre = historiasCierre[Math.floor(Math.random() * historiasCierre.length)];
 
+        // 1) Público — marcando entrada
         await interaction.reply({
-            content: `${E.llaves || ''} **Marcando entrada...**\n*${entrada}*`,
-            flags: MessageFlags.Ephemeral
+            content: `${E.llaves || ''} **Marcando entrada...**\n*${entrada}*`
         });
 
         await delay(2200);
 
+        // 2) Solo efímero — contexto del turno
         await interaction.followUp({
             content: `*${durante}*`,
             flags: MessageFlags.Ephemeral
@@ -105,6 +103,7 @@ export default {
             .setFooter({ text: '00Y4n Comunidad SWFL • Sistema de Economía', iconURL: interaction.guild.iconURL() })
             .setTimestamp();
 
+        // 3) Público — resultado
         await interaction.followUp({ embeds: [embedWork] });
     }
 };
