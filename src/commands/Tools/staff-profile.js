@@ -84,8 +84,9 @@ async function calcularPosiciones(guildId, guild, targetId) {
     const score = calcularScore(c, rango);
     const hostSem = Number(c.sesionesHosteadas || 0) + Number(c.sesionesSupervisadas || 0);
     const horasSem = Number(c.horasHosteadas || 0);
-    const hostAll = Number(h.sesionesHosteadasTotales || 0);
-    const horasAll = Number(h.horasTotales || 0);
+    const hostAll =
+      (Number(h.sesionesHosteadasTotales) || 0) + (Number(h.sesionesSupervisadasTotales) || 0);
+    const horasAll = Number(h.horasTotales) || 0;
 
     filasSem.push({
       userId,
@@ -220,6 +221,12 @@ export default {
       }
     }
 
+    const hosteadasHist =
+      (Number(h.sesionesHosteadasTotales) || 0) ||
+      sesionesHost.length ||
+      0;
+    const horasHist = Number(h.horasTotales) || 0;
+
     const civil = await obtenerScoreHost(guildId, targetUser.id);
     const sup = await obtenerScoreSupervision(guildId, targetUser.id);
 
@@ -268,26 +275,32 @@ export default {
       .setTitle(`${rango} | ${nombreTitulo}`)
       .setDescription(
         badgeHC +
-          `${E.estrellaanimada} __**Clasificación**__\n` +
-          `${E.flecha} **${rankSem}**\n` +
-          `${E.flecha} **${rankAll}**\n\n` +
-          `${E.info} __**Estadísticas de hosting**__\n` +
-          `${E.dot} Sesiones hosteadas: **${h.sesionesHosteadasTotales || sesionesHost.length || 0}**\n` +
-          `${E.dot} Horas hosteadas: **${formatearHoras(h.horasTotales || 0)}**\n` +
-          `${E.dot} Sesión más larga: **${fmtDuracionMin(longestMin)}**\n` +
-          `${E.dot} Pico de reacciones: **${peakReac}**\n\n` +
-          `${E.manual} __**Rating del staff**__\n` +
+          `${E.triostar} **Clasificación**\n` +
+          `${E.flecha} ${rankSem}\n` +
+          `${E.flecha} ${rankAll}\n\n` +
+          `${E.perfil} **Estadísticas de hosting**\n` +
+          `${E.dot} Sesiones hosteadas: **${hosteadasHist}**\n` +
+          `${E.dot} Horas hosteadas: **${formatearHoras(horasHist)}**\n` +
+          `${E.dot} Sesión más larga: **${longestMin > 0 ? fmtDuracionMin(longestMin) : '—'}**\n` +
+          `${E.dot} Pico de reacciones: **${peakReac > 0 ? peakReac : '—'}**\n\n` +
+          `${E.form} **Rating del staff**\n` +
           ratingLines.join('\n') +
           `\n\n` +
-          `${E.dot} **Estado:** ${textoEstado(staffData)} · **Strikes:** ${strikesActivos}/3\n` +
+          `${E.dot} **Estado:** ${textoEstado(staffData)} · **Strikes:** \`${strikesActivos}/3\`\n` +
           `${E.dot} **Cuota semanal:** ${estadoCuota} · Sesiones \`${metaSesTxt}\` · Tickets \`${metaTktTxt}\`\n` +
           `${E.dot} **Score semanal:** **${score}**/100 · Racha ${E.aestrellitas} \`${racha}\` (máx. \`${rachaMax}\`)`
       )
       .setColor(COLOR)
       .setThumbnail(targetUser.displayAvatarURL({ size: 256 }))
       .setFooter({
-        text: `${guild.name}`,
-        iconURL: guild.iconURL({ size: 64 }) || undefined
+        text:
+          `Ingreso: ${
+            staffData.ingreso
+              ? new Date(staffData.ingreso).toLocaleString('es-AR', {
+                  timeZone: 'America/Argentina/Buenos_Aires'
+                })
+              : 'Sin fecha'
+          } · Última sesión: ${fmtRelativo(lastSession)} · ID: ${targetUser.id}`
       })
       .setTimestamp();
 
@@ -301,7 +314,7 @@ export default {
         .setCustomId(`staff_perfil_ses_sem:${targetUser.id}`)
         .setLabel('Sesiones semanales')
         .setStyle(ButtonStyle.Secondary)
-        .setEmoji(EMOJI_DEF.calendario?.id || '📅'),
+        .setEmoji(EMOJI_DEF.lista?.id || '📋'),
       new ButtonBuilder()
         .setCustomId(`staff_perfil_ses_all:${targetUser.id}`)
         .setLabel('Sesiones históricas')
