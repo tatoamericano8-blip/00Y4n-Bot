@@ -61,6 +61,29 @@ export async function procesarCiudadanoDelDia(client) {
         // Guardar nuevo ganador
         await setInDb('ultimo_ciudadano_del_dia', idGanador);
 
+        // MD al ganador (sin mencionar usuario en el texto)
+        try {
+            const userGanador = await client.users.fetch(idGanador).catch(() => null);
+            if (userGanador) {
+                const embedDm = new EmbedBuilder()
+                    .setColor('#8ae6fa')
+                    .setTitle(`${E.premio || ''} ¡Ciudadano del Día!`)
+                    .setDescription(
+                        `${E.flecha || '›'} Felicitaciones: fuiste elegido **Ciudadano del Día** por tu actividad en el servidor.\n\n` +
+                        `${E.tilde || '✅'} **Ventajas durante 24 h:**\n` +
+                        `${E.flecha || '›'} Exención de vehículos restringidos\n` +
+                        `${E.flecha || '›'} Acceso anticipado a sesiones\n` +
+                        `${E.flecha || '›'} Permiso para enviar imágenes\n` +
+                        `${E.flecha || '›'} Bonus extra al usar \`/collect\` con el rol\n\n` +
+                        `_Disfrutá el reconocimiento. Mañana puede ser otro._`
+                    )
+                    .setFooter({ text: 'Southwest Florida Comunidad 00Y4n ™' });
+                await userGanador.send({ embeds: [embedDm] }).catch(() => null);
+            }
+        } catch (e) {
+            logger.warn(`[Ciudadano del Día] DM ganador: ${e.message}`);
+        }
+
         // Banner superior (solo imagen)
         const BANNER_CIUDADANO =
             'https://cdn.discordapp.com/attachments/1505017301089652898/1548164327004053585/Ciudadano_del_Dia_1.png';
