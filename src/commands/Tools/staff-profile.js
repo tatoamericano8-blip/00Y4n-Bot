@@ -18,6 +18,7 @@ import { discordToRoblox, obtenerUsuarioRoblox } from '../../utils/gestorBloxlin
 import { E, EMOJI_DEF } from '../../config/emojis.js';
 
 const ROL_STAFF = '1512120103771050005';
+const ROL_ALTO_COMANDO = '1528870731629465752';
 const COLOR = '#8ae6fa';
 
 function textoEstado(staffData) {
@@ -29,14 +30,17 @@ function textoEstado(staffData) {
   return `${E.tilde} ACTIVO`;
 }
 
-function esAltoComando(rango) {
+function esAltoComando(rango, member = null) {
+  // Prioridad: rol real de Discord Alto Comando
+  if (member?.roles?.cache?.has(ROL_ALTO_COMANDO)) return true;
   const n = String(rango || '').toLowerCase();
   return (
     n.includes('alto comando') ||
     n.includes('alto mando') ||
     n.includes('gerente') ||
     n.includes('fundador') ||
-    n.includes('propietario')
+    n.includes('propietario') ||
+    n.includes('equipo de propietarios')
   );
 }
 
@@ -68,35 +72,27 @@ function puntajeRanking({ host, horas, score }) {
 }
 
 async function calcularPosiciones(guildId, guild, targetId) {
-  const lista = await Staff.find({
-    guildId,
-    estado: { $nin: ['DESPEDIDO', 'RENUNCIADO'] }
-  }).lean();
-
+  const lista = await Staff.find({ guildId, estado: { $nin: ['DESPEDIDO', 'RENUNCIADO'] } }).lean();
   const filasSem = [];
   const filasAll = [];
 
-  for (const s of lista) {
-    if (guild) {
-      const m = guild.members.cache.get(s.userId);
-      if (m && !m.roles.cache.has(ROL_STAFF)) continue;
-    }
-    const c = s.cuotas || {};
-    const h = s.estadisticasHistoricas || {};
-    const { rango } = await obtenerRangoDeUsuario(guild, s.userId, s.rango || 'Sin rango');
+  for (const st of lista) {
+    const userId = st.userId;
+    const c = st.cuotas || {};
+    const h = st.estadisticasHistoricas || {};
+    const { rango } = await obtenerRangoDeUsuario(guild, userId, st.rango || 'Sin rango');
     const score = calcularScore(c, rango);
-    const hostSem = Number(c.sesionesOrganizadas) || 0;
-    const horasSem = Number(c.horasServicio) || 0;
-    const hostAll =
-      (Number(h.sesionesHosteadasTotales) || 0) + (Number(h.sesionesSupervisadasTotales) || 0);
-    const horasAll = Number(h.horasTotales) || 0;
+    const hostSem = Number(c.sesionesHosteadas || 0) + Number(c.sesionesSupervisadas || 0);
+    const horasSem = Number(c.horasHosteadas || 0);
+    const hostAll = Number(h.sesionesHosteadasTotales || 0);
+    const horasAll = Number(h.horasTotales || 0);
 
     filasSem.push({
-      userId: s.userId,
+      userId,
       pts: puntajeRanking({ host: hostSem, horas: horasSem, score })
     });
     filasAll.push({
-      userId: s.userId,
+      userId,
       pts: puntajeRanking({ host: hostAll, horas: horasAll, score: 0 })
     });
   }
@@ -144,7 +140,7 @@ export default {
       });
     }
 
-    const { rango } = await obtenerRangoDeUsuario(
+    const { rango, member: memberRango } = await obtenerRangoDeUsuario(
       guild,
       targetUser.id,
       staffData.rango || 'Sin rango'
@@ -178,35 +174,26 @@ export default {
     const h = staffData.estadisticasHistoricas || {};
     const score = calcularScore(c, rango);
     const evalC = evaluarCumplimiento(staffData, rango);
-    const racha = Number(staffData.rachaActual) || 0;
-    const rachaMax = Number(staffData.rachaMaxima) || 0;
 
-    let estadoCuota = `${E.tiempo} En curso`;
-    if (evalC?.enLoa) estadoCuota = `${E.warn} Exento (LOA)`;
-    else if (evalC?.cumplio) estadoCuota = `${E.tilde} Meta cumplida`;
-
-    // Sesiones del host (cerradas)
-    const sesionesHost = await Sesion.find({
-      guildId,
-      hostId: targetUser.id,
-      estado: 'cerrada'
-    })
-      .sort({ fechaCierre: -1 })
-      .lean()
-      .catch(() => []);
-
-    const sesionesSup = await Sesion.find({
-      guildId,
-      supervisorId: targetUser.id,
-      estado: 'cerrada'
-    })
-      .lean()
-      .catch(() => []);
-
-    const hosteadasHist =
-      (Number(h.sesionesHosteadasTotales) || 0) ||
-      sesionesHost.length;
-    const horasHist = Number(h.horasTotales) || 0;
+    // Sesiones hosteadas (para stats)
+    let sesionesHost = [];
+    let sesionesSup = [];
+    try {
+      sesionesHost = await Sesion.find({
+        guildId,
+        hostId: targetUser.id,
+        estado: { $in: ['cerrada', 'activa', 'esperando_reacciones'] }
+      })
+        .sort({ fechaCierre: -1, fechaInicio: -1 })
+        .lean();
+      sesionesSup = await Sesion.find({
+        guildId,
+        coHostId: targetUser.id,
+        estado: { $in: ['cerrada', 'activa', 'esperando_reacciones'] }
+      })
+        .sort({ fechaCierre: -1, fechaInicio: -1 })
+        .lean();
+    } catch (_) {}
 
     let longestMin = 0;
     let peakReac = 0;
@@ -222,7 +209,6 @@ export default {
         lastSession = s.fechaCierre;
       }
     }
-    // También considerar última actividad como supervisor
     for (const s of sesionesSup) {
       if (s.fechaCierre && (!lastSession || new Date(s.fechaCierre) > new Date(lastSession))) {
         lastSession = s.fechaCierre;
@@ -232,7 +218,6 @@ export default {
     const civil = await obtenerScoreHost(guildId, targetUser.id);
     const sup = await obtenerScoreSupervision(guildId, targetUser.id);
 
-    // Civil 1-10 → escala 1-5 para mostrar tipo GRU
     const civil5 =
       civil.cantidad > 0
         ? Math.round((Number(civil.promedio) / 2) * 10) / 10
@@ -245,7 +230,7 @@ export default {
 
     const posiciones = await calcularPosiciones(guildId, guild, targetUser.id);
 
-    const badgeHC = esAltoComando(rango)
+    const badgeHC = esAltoComando(rango, memberRango)
       ? `${E.carpeta} __**Alto Comando**__\n\n`
       : '';
 
@@ -278,32 +263,26 @@ export default {
       .setTitle(`${rango} | ${nombreTitulo}`)
       .setDescription(
         badgeHC +
-          `${E.triostar} **Clasificación**\n` +
-          `${E.flecha} ${rankSem}\n` +
-          `${E.flecha} ${rankAll}\n\n` +
-          `${E.perfil} **Estadísticas de hosting**\n` +
-          `${E.dot} Sesiones hosteadas: **${hosteadasHist}**\n` +
-          `${E.dot} Horas hosteadas: **${formatearHoras(horasHist)}**\n` +
-          `${E.dot} Sesión más larga: **${longestMin > 0 ? fmtDuracionMin(longestMin) : '—'}**\n` +
-          `${E.dot} Pico de reacciones: **${peakReac > 0 ? peakReac : '—'}**\n\n` +
-          `${E.form} **Rating del staff**\n` +
+          `${E.estrellaanimada} __**Clasificación**__\n` +
+          `${E.flecha} **${rankSem}**\n` +
+          `${E.flecha} **${rankAll}**\n\n` +
+          `${E.info} __**Estadísticas de hosting**__\n` +
+          `${E.dot} Sesiones hosteadas: **${h.sesionesHosteadasTotales || sesionesHost.length || 0}**\n` +
+          `${E.dot} Horas hosteadas: **${formatearHoras(h.horasTotales || 0)}**\n` +
+          `${E.dot} Sesión más larga: **${fmtDuracionMin(longestMin)}**\n` +
+          `${E.dot} Pico de reacciones: **${peakReac}**\n\n` +
+          `${E.manual} __**Rating del staff**__\n` +
           ratingLines.join('\n') +
           `\n\n` +
-          `${E.dot} **Estado:** ${textoEstado(staffData)} · **Strikes:** \`${strikesActivos}/3\`\n` +
-          `${E.dot} **Cuota semanal:** ${estadoCuota} · Sesiones \`${metaSesTxt}\` · Tickets \`${metaTktTxt}\`\n` +
-          `${E.dot} **Score semanal:** **${score}**/100 · Racha ${E.aestrellitas} \`${racha}\` (máx. \`${rachaMax}\`)`
+          `${E.dot} **Estado:** ${textoEstado(staffData)} · **Strikes:** ${strikesActivos}/3\n` +
+          `${E.dot} **Cuota semanal:** ${evalC.cumplida ? E.tilde + ' Meta cumplida' : E.cruz + ' Meta pendiente'} · Sesiones **${metaSesTxt}** · Tickets **${metaTktTxt}**\n` +
+          `${E.dot} **Score semanal:** **${score.score || 0}/100** · Racha ${E.estrella} **${c.racha || 0}** (máx. **${c.rachaMaxima || 0}**)`
       )
       .setColor(COLOR)
       .setThumbnail(targetUser.displayAvatarURL({ size: 256 }))
       .setFooter({
-        text:
-          `Ingreso: ${
-            staffData.ingreso
-              ? new Date(staffData.ingreso).toLocaleString('es-AR', {
-                  timeZone: 'America/Argentina/Buenos_Aires'
-                })
-              : 'Sin fecha'
-          } · Última sesión: ${fmtRelativo(lastSession)} · ID: ${targetUser.id}`
+        text: `${guild.name}`,
+        iconURL: guild.iconURL({ size: 64 }) || undefined
       })
       .setTimestamp();
 
@@ -312,12 +291,12 @@ export default {
         .setCustomId(`staff_perfil_logros:${targetUser.id}`)
         .setLabel('Logros')
         .setStyle(ButtonStyle.Secondary)
-        .setEmoji(EMOJI_DEF.trofeo?.id || EMOJI_DEF.estrella?.id || '🏆'),
+        .setEmoji(EMOJI_DEF.trofeo?.id || '🏆'),
       new ButtonBuilder()
         .setCustomId(`staff_perfil_ses_sem:${targetUser.id}`)
         .setLabel('Sesiones semanales')
         .setStyle(ButtonStyle.Secondary)
-        .setEmoji(EMOJI_DEF.lista?.id || '📋'),
+        .setEmoji(EMOJI_DEF.calendario?.id || '📅'),
       new ButtonBuilder()
         .setCustomId(`staff_perfil_ses_all:${targetUser.id}`)
         .setLabel('Sesiones históricas')
