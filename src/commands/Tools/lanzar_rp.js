@@ -16,9 +16,9 @@ export default {
         options: [
             {
                 name: 'mensaje_id',
-                description: 'Pega aca la ID del mensaje de Startup/Inicio de esta sesion.',
+                description: 'ID del mensaje de /inicio (opcional: si no lo ponés, se detecta solo la sesión abierta).',
                 type: ApplicationCommandOptionType.String,
-                required: true
+                required: false
             },
             {
                 name: 'acceso',
@@ -81,8 +81,30 @@ export default {
         if (await bloquearSiCooldown(interaction, 'lanzar_rp')) return;
         setCooldownSesion(interaction.guildId, 'lanzar_rp', interaction.member);
 
-        const idInicio = interaction.options.getString('mensaje_id');
+        let idInicio = interaction.options.getString('mensaje_id');
         const linkSesion = interaction.options.getString('acceso');
+
+        if (!idInicio) {
+            try {
+                const sesionAbierta = await Sesion.findOne({
+                    guildId: interaction.guildId,
+                    estado: { $in: ['esperando_reacciones', 'activa'] }
+                }).sort({ fechaInicio: -1 }).lean();
+                if (sesionAbierta?.idInicio) {
+                    idInicio = sesionAbierta.idInicio;
+                }
+            } catch (e) {
+                console.error('[lanzar] Error auto-detectando idInicio:', e?.message || e);
+            }
+        }
+
+        if (!idInicio) {
+            return await interaction.reply({
+                content: E.cruz + ' **No hay una sesión de /inicio abierta** para vincular. Usá `/inicio` primero o pasá `mensaje_id` manualmente.',
+                ephemeral: true
+            });
+        }
+
         const limite = interaction.options.getString('limite_velocidad');
         const peacetime = interaction.options.getString('peacetime');
         const serviciosEmergencia = interaction.options.getString('servicios_emergencia');

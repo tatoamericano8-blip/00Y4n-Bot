@@ -14,42 +14,12 @@ export default {
         name: 'lanzar_meet',
         description: 'Liberas los accesos para una sesion oficial de Meet & Greet.',
         options: [
-            {
-                name: 'mensaje_id',
-                description: 'Pega aca la ID del mensaje de Startup/Inicio de esta sesion.',
-                type: ApplicationCommandOptionType.String,
-                required: true
-            },
-            {
-                name: 'acceso',
-                description: 'Pega aca el enlace del servidor privado de Roblox.',
-                type: ApplicationCommandOptionType.String,
-                required: true
-            },
-            {
-                name: 'tematica',
-                description: 'Tematica de la sesion Meet & Greet.',
-                type: ApplicationCommandOptionType.String,
-                required: true
-            },
-            {
-                name: 'ubicacion',
-                description: 'Ubicacion del Meet & Greet.',
-                type: ApplicationCommandOptionType.String,
-                required: true
-            },
-            {
-                name: 'spots',
-                description: 'Cantidad de spots disponibles.',
-                type: ApplicationCommandOptionType.String,
-                required: true
-            },
-            {
-                name: 'imagen',
-                description: 'Link de la foto/banner para la apertura (opcional).',
-                type: ApplicationCommandOptionType.String,
-                required: false
-            }
+            { name: 'mensaje_id', description: 'ID del mensaje de /inicio (opcional: si no lo ponés, se detecta solo la sesión abierta).', type: ApplicationCommandOptionType.String, required: false },
+            { name: 'acceso', description: 'Pega aca el enlace del servidor privado de Roblox.', type: ApplicationCommandOptionType.String, required: true },
+            { name: 'tematica', description: 'Ejemplo: JDM, Exoticos, Camionetas', type: ApplicationCommandOptionType.String, required: true },
+            { name: 'ubicacion', description: 'Lugar de concentracion (Ej: Puerto, Aeropuerto)', type: ApplicationCommandOptionType.String, required: true },
+            { name: 'spots_duracion', description: 'Ejemplo: 3 Spots / 45 Minutos', type: ApplicationCommandOptionType.String, required: true },
+            { name: 'imagen', description: 'Link de la foto/banner para la apertura (opcional).', type: ApplicationCommandOptionType.String, required: false }
         ]
     },
 
@@ -64,11 +34,33 @@ export default {
         if (await bloquearSiCooldown(interaction, 'lanzar_meet_swfl')) return;
         setCooldownSesion(interaction.guildId, 'lanzar_meet_swfl', interaction.member);
 
-        const idInicio = interaction.options.getString('mensaje_id');
+        let idInicio = interaction.options.getString('mensaje_id');
         const linkSesion = interaction.options.getString('acceso');
+
+        if (!idInicio) {
+            try {
+                const sesionAbierta = await Sesion.findOne({
+                    guildId: interaction.guildId,
+                    estado: { $in: ['esperando_reacciones', 'activa'] }
+                }).sort({ fechaInicio: -1 }).lean();
+                if (sesionAbierta?.idInicio) {
+                    idInicio = sesionAbierta.idInicio;
+                }
+            } catch (e) {
+                console.error('[lanzar] Error auto-detectando idInicio:', e?.message || e);
+            }
+        }
+
+        if (!idInicio) {
+            return await interaction.reply({
+                content: E.cruz + ' **No hay una sesión de /inicio abierta** para vincular. Usá `/inicio` primero o pasá `mensaje_id` manualmente.',
+                ephemeral: true
+            });
+        }
+
         const tematica = interaction.options.getString('tematica');
         const ubicacion = interaction.options.getString('ubicacion');
-        const spots = interaction.options.getString('spots');
+        const spots = interaction.options.getString('spots_duracion');
         const urlImagen = interaction.options.getString('imagen');
 
         let hostIdSesion = interaction.user.id;
