@@ -74,7 +74,7 @@ export async function procesarCiudadanoDelDia(client) {
                         `${E.flecha || '›'} Exención de vehículos restringidos\n` +
                         `${E.flecha || '›'} Acceso anticipado a sesiones\n` +
                         `${E.flecha || '›'} Permiso para enviar imágenes\n` +
-                        `${E.flecha || '›'} Bonus extra al usar \`/collect\` con el rol\n\n` +
+                        `${E.flecha || '›'} Bonus extra al usar \`/recolectar\` con el rol\n\n` +
                         `_Disfrutá el reconocimiento. Mañana puede ser otro._`
                     )
                     .setFooter({ text: 'Southwest Florida Comunidad 00Y4n ™' });
