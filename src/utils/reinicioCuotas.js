@@ -80,6 +80,7 @@ export async function reiniciarCuotasGuild(client, guildId, {
     staff.cuotas = staff.cuotas || {};
     staff.cuotas.horasServicio = 0;
     staff.cuotas.sesionesOrganizadas = 0;
+    staff.cuotas.sesionesCohost = 0;
     staff.cuotas.sesionesSupervisadas = 0;
     staff.cuotas.ticketsCerrados = 0;
 
