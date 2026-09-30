@@ -100,13 +100,11 @@ export default {
                 minutosCalculados = Math.max(0, Math.round(ms / 60000));
                 duracionMostrar = formatearDuracionMs(ms);
                 sesionActiva.duracionMinutos = minutosCalculados;
-                // Pico: max entre lo guardado, lista única y conteo vivo del mensaje de inicio
                 let pico = Math.max(
                     Number(sesionActiva.reaccionesPico) || 0,
                     Array.isArray(sesionActiva.reacciones) ? sesionActiva.reacciones.length : 0
                 );
                 try {
-                    const chId = interaction.channelId;
                     const msgId = sesionActiva.idInicio;
                     if (msgId && interaction.channel) {
                         const msg = await interaction.channel.messages.fetch(msgId).catch(() => null);
@@ -160,7 +158,7 @@ export default {
                 if (coHostId && coHostId !== hostId) {
                     await sumarCuotaStaff(guildId, coHostId, {
                         horas: horasCohost || 0.25,
-                        sesionesOrganizadas: 1,
+                        sesionesCohost: 1,
                         motivo: `Cierre de sesion ${tipo} (co-host hasta el final) — ${duracionMostrar}`,
                         executorId: interaction.user.id
                     });
