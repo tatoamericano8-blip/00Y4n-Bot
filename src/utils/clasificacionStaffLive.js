@@ -84,6 +84,7 @@ export async function construirRankingSemanal(guild) {
       );
       const cuotas = staff.cuotas || {};
       const host = Number(cuotas.sesionesOrganizadas) || 0;
+      const cohost = Number(cuotas.sesionesCohost) || 0;
       const sup = Number(cuotas.sesionesSupervisadas) || 0;
       const tickets = Number(cuotas.ticketsCerrados) || 0;
       const horas = Number(cuotas.horasServicio) || 0;
@@ -96,6 +97,7 @@ export async function construirRankingSemanal(guild) {
         userId: staff.userId,
         rango,
         host,
+        cohost,
         sup,
         tickets,
         horas,
@@ -119,9 +121,10 @@ export async function construirRankingSemanal(guild) {
     const pos = String(i + 1).padStart(2, ' ');
     const loa = s.enLoa ? ' · LOA' : '';
     const rachaTxt = s.racha > 0 ? ` · Racha ${s.racha}` : '';
+    const cohostTxt = s.cohost > 0 ? ` · Co-H **${s.cohost}**` : '';
     return (
       `**${pos}.** <@${s.userId}>\n` +
-      `Score **${s.score}** · Host **${s.host}** · Sup **${s.sup}** · Tickets **${s.tickets}** · Tiempo **${formatearHoras(s.horas)}**\n` +
+      `Score **${s.score}** · Host **${s.host}**${cohostTxt} · Sup **${s.sup}** · Tickets **${s.tickets}** · Tiempo **${formatearHoras(s.horas)}**\n` +
       `${s.rango}${loa}${rachaTxt}`
     );
   });
