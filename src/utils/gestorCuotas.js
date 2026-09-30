@@ -8,13 +8,20 @@ import { programarRefreshClasificacion } from './clasificacionStaffLive.js';
 export async function sumarCuotaStaff(guildId, userId, {
   horas = 0,
   sesionesOrganizadas = 0,
+  sesionesCohost = 0,
   sesionesSupervisadas = 0,
   ticketsCerrados = 0,
   motivo = 'Actualización automática',
   executorId = null
 } = {}) {
   if (!guildId || !userId) return null;
-  if (horas === 0 && sesionesOrganizadas === 0 && sesionesSupervisadas === 0 && ticketsCerrados === 0) {
+  if (
+    horas === 0 &&
+    sesionesOrganizadas === 0 &&
+    sesionesCohost === 0 &&
+    sesionesSupervisadas === 0 &&
+    ticketsCerrados === 0
+  ) {
     return null;
   }
 
@@ -22,10 +29,12 @@ export async function sumarCuotaStaff(guildId, userId, {
     $inc: {
       'cuotas.horasServicio': horas,
       'cuotas.sesionesOrganizadas': sesionesOrganizadas,
+      'cuotas.sesionesCohost': sesionesCohost,
       'cuotas.sesionesSupervisadas': sesionesSupervisadas,
       'cuotas.ticketsCerrados': ticketsCerrados,
       'estadisticasHistoricas.horasTotales': horas,
       'estadisticasHistoricas.sesionesHosteadasTotales': sesionesOrganizadas,
+      'estadisticasHistoricas.sesionesCohostTotales': sesionesCohost,
       'estadisticasHistoricas.sesionesSupervisadasTotales': sesionesSupervisadas,
       'estadisticasHistoricas.ticketsCerradosTotales': ticketsCerrados
     },
@@ -52,6 +61,7 @@ export async function sumarCuotaStaff(guildId, userId, {
       detalles: {
         horas,
         sesionesOrganizadas,
+        sesionesCohost,
         sesionesSupervisadas,
         ticketsCerrados,
         motivo
