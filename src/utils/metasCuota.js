@@ -42,7 +42,11 @@ export function obtenerMetasPorRango(rangoNombre) {
   return { ...DEFAULT, etiqueta: rangoNombre || DEFAULT.etiqueta };
 }
 
-/** Sesiones de la semana = hosteadas + supervisadas */
+/** Sesiones de la semana = host + co-host + supervisadas (para meta de cuota) */
 export function sesionesSemana(cuotas = {}) {
-  return (Number(cuotas.sesionesOrganizadas) || 0) + (Number(cuotas.sesionesSupervisadas) || 0);
+  return (
+    (Number(cuotas.sesionesOrganizadas) || 0) +
+    (Number(cuotas.sesionesCohost) || 0) +
+    (Number(cuotas.sesionesSupervisadas) || 0)
+  );
 }
