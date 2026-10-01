@@ -294,6 +294,49 @@ export default {
         }
       }
 
+      // Auto-respuesta: kickeado / removido de sesión
+      const disparadoresKick = [
+        'me kickeo',
+        'me kickearon',
+        'me kickean',
+        'me echaron',
+        'me sacaron de la sesion',
+        'me sacaron de la sesión',
+        'me expulsaron',
+        'me removieron',
+        'por que me kick',
+        'porque me kick',
+        'por que me echaron',
+        'porque me echaron',
+        'why was i kicked',
+        'why was i removed',
+        'me banearon de la sesion',
+        'me banearon de la sesión',
+        'me sacaron del server',
+        'me echaron de la sesion',
+        'me echaron de la sesión'
+      ];
+      const activarKick = disparadoresKick.some(frase => textoNormalizado.includes(frase));
+
+      if (activarKick) {
+        const embedKick = new EmbedBuilder()
+          .setColor('#8ae6fa')
+          .setTitle(`${E.warn || E.flecha} ¿Te removieron de una sesión?`)
+          .setDescription(
+            `${E.flecha} Los miembros del staff de **Southwest Florida 00Y4n** tienen **plena discreción** para remover a quien consideren necesario, en el momento que lo consideren necesario, de una sesión.\n\n` +
+            `Si te removieron **fuera de una acción formal de moderación** (warn, strike, ban, etc.), podés **volver a unirte** durante las **reinvitaciones**.`
+          )
+          .setFooter({
+            text: message.guild.name,
+            iconURL: message.guild.iconURL({ dynamic: true })
+          });
+
+        try {
+          return await message.reply({ embeds: [embedKick] });
+        } catch (error) {
+          logger.error('Error enviando auto-responder de kick/sesión:', error);
+        }
+      }
 
     } catch (error) {
       logger.error('Error in messageCreate event:', error);
