@@ -1,4 +1,5 @@
 import instructivo from './instructivo.js';
+import reglasDiscord from './reglasDiscord.js';
 import serverTienda from './serverTienda.js';
 import faq from './faq.js';
 import roleplayNormas from './roleplayNormas.js';
@@ -10,6 +11,7 @@ import chatRoleplay from './chatRoleplay.js';
 /** @type {Array<{ id: string, label: string, description?: string, build: Function }>} */
 export const EMBED_PRESETS = [
   instructivo,
+  reglasDiscord,
   serverTienda,
   faq,
   roleplayNormas,

@@ -4,15 +4,21 @@ import { E } from '../../config/emojis.js';
 import { PRIMARIO } from '../../utils/colores.js';
 
 async function buildBoostVentajas() {
+  const star = E.mitadestrella || E.corona;
   return {
     embeds: [
       new EmbedBuilder()
         .setColor(PRIMARIO)
-        .setTitle(`${E.corona} Ventajas de Boostear`)
+        .setTitle(`${E.mitadestrella || E.corona} __**Beneficios de Boostear**__`)
         .setDescription(
-          `**Contenido pendiente.**\n\n` +
-            `// TODO: pegar aquí las ventajas de Server Booster (roles, perks, etc.).\n` +
-            `Por ahora abrí un ticket en **#asistencia** si tenés dudas sobre boost.`
+          `> __**Southwest Florida 00Y4n, Beneficios de boostear el servidor**__ ${E.aflotacoras || E.dot}\n\n` +
+            `${E.dot} *Southwest Florida 00Y4n* ofrece a nuestros miembros VIP del servidor una variedad de **increíbles ventajas**, que son las siguientes **(pero no se limitan a):**\n\n` +
+            `${star}: *Exención de vehículos baneados*\n` +
+            `${star}: *Acceso anticipado (FastPass)*\n` +
+            `${star}: *Extra pagos económicos*\n` +
+            `${star}: *Permiso de Imagen*\n` +
+            `${star}: *Permiso de emojis y stickers externos*\n\n` +
+            `-# *¡Chequeá <#1496991456102055956> para más info!*`
         )
         .setFooter({ text: 'Southwest Florida Comunidad 00Y4n ™' })
     ]
@@ -26,9 +32,7 @@ async function buildRobloxComunidad() {
         .setColor(PRIMARIO)
         .setTitle(`${E.roblox} Roblox Comunidad`)
         .setDescription(
-          `**Contenido pendiente.**\n\n` +
-            `// TODO: pegar link del grupo Roblox 00Y4n y requisitos de unión.\n` +
-            `Buscá el grupo **Southwest Florida 00Y4n** en Roblox o pedí el link en **#asistencia**.`
+          `${E.dot} Debés hacer clic [aquí](https://www.roblox.com/es/communities/292739785/Clan-00Y4n#!/about) para acceder a la comunidad de Roblox de **Southwest Florida 00Y4n.**`
         )
         .setFooter({ text: 'Southwest Florida Comunidad 00Y4n ™' })
     ]
