@@ -210,7 +210,7 @@ async function resolverRobo(client, guildId) {
                 embeds: [
                     new EmbedBuilder()
                         .setColor(PRIMARIO)
-                        .setTitle(E.manual + ' Log — Robo al banco EXITOSO')
+                        .setTitle(E.form + ' Log — Robo al banco EXITOSO')
                         .setDescription(
                             `${E.dot} **Participantes:** ${menciones}\n` +
                                 `${E.dot} **Botín total:** $${total.toLocaleString('es-AR')}\n` +
@@ -341,7 +341,7 @@ export default {
                     embeds: [
                         new EmbedBuilder()
                             .setColor(PRIMARIO)
-                            .setTitle(E.manual + ' Log — Intervención policial (robo al banco)')
+                            .setTitle(E.form + ' Log — Intervención policial (robo al banco)')
                             .setDescription(
                                 `${E.dot} **Oficial:** <@${interaction.user.id}>\n` +
                                     `${E.dot} **Sospechosos:** ${menciones}`
@@ -388,7 +388,7 @@ export default {
             const finUnion = Math.floor((Date.now() + TIEMPO_UNION_MS) / 1000);
             const embed = new EmbedBuilder()
                 .setColor(PRIMARIO)
-                .setTitle(E.skirojo + ' Robo al banco iniciado')
+                .setTitle(E.ski + ' Robo al banco iniciado')
                 .setDescription(
                     `<@${usuarioId}> armó un equipo para el banco.\n\n` +
                         `${E.dot} **Participantes:** 1/${MAX_PERSONAS}\n` +
@@ -463,7 +463,7 @@ export default {
 
             const embed = new EmbedBuilder()
                 .setColor(PRIMARIO)
-                .setTitle(E.dot + ' Alguien se unió al robo')
+                .setTitle(E.perfil + ' Alguien se unió al robo')
                 .setDescription(
                     `<@${usuarioId}> se sumó al robo.\n\n` +
                         `${E.dot} **Participantes (${cantidad}/${MAX_PERSONAS}):** ${menciones}`
