@@ -42,6 +42,21 @@ export default {
 
         await guardarArresto(arrestoID, datosArresto);
 
+        // Si tenía Orden de Arresto activa, se cumple al registrar el arresto → quitar rol
+        const ROL_WARRANT_ID = '1529152491545952316';
+        let ordenCumplida = false;
+        try {
+            const miembro =
+                interaction.guild.members.cache.get(ciudadano.id) ||
+                (await interaction.guild.members.fetch(ciudadano.id).catch(() => null));
+            if (miembro?.roles?.cache?.has(ROL_WARRANT_ID)) {
+                await miembro.roles.remove(ROL_WARRANT_ID);
+                ordenCumplida = true;
+            }
+        } catch (e) {
+            console.error('[arrestar] No se pudo quitar Orden de Arresto:', e?.message || e);
+        }
+
         const embedArresto = new EmbedBuilder()
             .setColor('#74d4fc')
             .setTitle(E.carpeta + ' Arresto Registrado')
@@ -77,7 +92,8 @@ export default {
                     `> **Ciudadano:** <@${ciudadano.id}>\n` +
                     `> **Oficial:** <@${interaction.user.id}>\n` +
                     `> **Motivo:** ${motivo}\n` +
-                    `> **ID:** \`${arrestoID}\``
+                    `> **ID:** \`${arrestoID}\`` +
+                    (ordenCumplida ? `\n> **Orden de Arresto:** cumplida (rol removido)` : '')
                 )
                 .setTimestamp();
 
