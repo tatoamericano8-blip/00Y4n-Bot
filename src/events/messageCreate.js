@@ -350,7 +350,7 @@ export default {
       if (activarKick) {
         const embedKick = new EmbedBuilder()
           .setColor('#8ae6fa')
-          .setTitle(`${E.warn || E.flecha} ¿Te removieron de una sesión?`)
+          .setTitle(`${E.logo || E.logo} ¿Te removieron de una sesión?`)
           .setDescription(
             `${E.flecha} Los miembros del staff de **Southwest Florida 00Y4n** tienen **plena discreción** para remover a quien consideren necesario, en el momento que lo consideren necesario, de una sesión.\n\n` +
             `Si te removieron **fuera de una acción formal de moderación** (warn, strike, ban, etc.), podés **volver a unirte** durante las **reinvitaciones**.`
