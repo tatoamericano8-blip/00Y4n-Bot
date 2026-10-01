@@ -189,7 +189,7 @@ async function resolverRobo(client, guildId) {
         const total = generarRecompensa();
         const porPersona = Math.floor(total / participantes.length);
         for (const id of participantes) {
-            await agregarSaldo(guildId, id, porPersona, 'Robo al banco exitoso');
+            await agregarSaldo(id, porPersona, { tipo: 'INGRESO', motivo: 'Robo al banco exitoso' });
         }
 
         const embed = new EmbedBuilder()
@@ -461,16 +461,9 @@ export default {
             const cantidad = heist.participantes.size;
             const menciones = [...heist.participantes].map((id) => `<@${id}>`).join(', ');
 
-            const embed = new EmbedBuilder()
-                .setColor(PRIMARIO)
-                .setTitle(E.perfil + ' Alguien se unió al robo')
-                .setDescription(
-                    `<@${usuarioId}> se sumó al robo.\n\n` +
-                        `${E.dot} **Participantes (${cantidad}/${MAX_PERSONAS}):** ${menciones}`
-                )
-                .setTimestamp();
-
-            await interaction.reply({ embeds: [embed] });
+            await interaction.reply({
+                content: `${E.tilde} Te uniste al robo. **Participantes (${cantidad}/${MAX_PERSONAS}):** ${menciones}`
+            });
 
             if (cantidad >= MAX_PERSONAS) {
                 setTimeout(async () => {
