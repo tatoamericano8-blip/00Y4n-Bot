@@ -6,23 +6,13 @@ import { E } from '../../config/emojis.js';
 
 const ROLE_STAFF = '1512120103771050005';
 const ROLE_ALTO_COMANDO = '1528870731629465752';
+/** Solo aplica en Servicios Públicos — no afecta 00Y4n principal */
+const GUILD_SP = '1497012276329451581';
 
 export default {
   name: 'ticket_unclaim',
 
   async execute(interaction) {
-    const esStaff =
-      interaction.member.roles.cache.has(ROLE_STAFF) ||
-      interaction.member.roles.cache.has(ROLE_ALTO_COMANDO) ||
-      interaction.member.permissions.has(PermissionFlagsBits.Administrator);
-
-    if (!esStaff) {
-      return interaction.reply({
-        content: E.cruz + ' Solo el staff puede dejar de reclamar.',
-        flags: MessageFlags.Ephemeral
-      });
-    }
-
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     let ticketData = null;
@@ -36,6 +26,9 @@ export default {
       });
     }
 
+    const esTicketSP =
+      interaction.guildId === GUILD_SP || ticketData?.origen === 'servicios_publicos';
+
     const claimedBy = ticketData.claimedBy || null;
     if (!claimedBy) {
       return interaction.editReply({
@@ -44,6 +37,39 @@ export default {
     }
 
     const esClaimer = String(claimedBy) === String(interaction.user.id);
+
+    // ——— Servicios Públicos: SOLO quien reclamó puede dejar de reclamar ———
+    if (esTicketSP) {
+      if (!esClaimer) {
+        return interaction.editReply({
+          content:
+            '❌ Solo quien **reclamó** este ticket puede dejar de reclamarlo.\n' +
+            `> Reclamado por: <@${claimedBy}>`
+        });
+      }
+      const result = await unclaimTicket(interaction.channel, interaction.user);
+      if (!result.success) {
+        return interaction.editReply({
+          content: `${E.cruz} ${result.error || 'No se pudo quitar el reclamo.'}`
+        });
+      }
+      return interaction.editReply({
+        content: E.tilde + ' Ya no reclamás este ticket.'
+      });
+    }
+
+    // ——— Servidor principal (sin cambios de reglas) ———
+    const esStaff =
+      interaction.member.roles.cache.has(ROLE_STAFF) ||
+      interaction.member.roles.cache.has(ROLE_ALTO_COMANDO) ||
+      interaction.member.permissions.has(PermissionFlagsBits.Administrator);
+
+    if (!esStaff) {
+      return interaction.editReply({
+        content: E.cruz + ' Solo el staff puede dejar de reclamar.'
+      });
+    }
+
     const esAltoComando =
       interaction.member.roles.cache.has(ROLE_ALTO_COMANDO) ||
       interaction.member.permissions.has(PermissionFlagsBits.Administrator);
@@ -56,7 +82,6 @@ export default {
       });
     }
 
-    // Claimer: flujo normal del servicio
     if (esClaimer) {
       const result = await unclaimTicket(interaction.channel, interaction.user);
       if (!result.success) {
@@ -69,7 +94,7 @@ export default {
       });
     }
 
-    // Alto Comando force-unclaim (sin ser el claimer)
+    // Alto Comando force-unclaim (solo server principal)
     try {
       const previousClaimer = ticketData.claimedBy;
       ticketData.claimedBy = null;
@@ -120,4 +145,3 @@ export default {
     }
   }
 };
-
