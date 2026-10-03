@@ -4,6 +4,15 @@ import { E } from '../../config/emojis.js';
 
 const ROL_EQUIPO_PROPIETARIOS = '1528877296977711256';
 
+function puedeUsarEmbedSend(member) {
+  if (!member) return false;
+  // 00Y4n: Equipo de Propietarios
+  if (member.roles?.cache?.has(ROL_EQUIPO_PROPIETARIOS)) return true;
+  // Otros servidores (ej. Servicios Públicos): Administrador
+  if (member.permissions?.has(PermissionFlagsBits.Administrator)) return true;
+  return false;
+}
+
 export default {
   data: new SlashCommandBuilder()
     .setName('embed-send')
@@ -17,9 +26,13 @@ export default {
     ),
 
   async execute(interaction) {
-    if (!interaction.member.roles.cache.has(ROL_EQUIPO_PROPIETARIOS)) {
+    if (!puedeUsarEmbedSend(interaction.member)) {
       return interaction.reply({
-        content: E.cruz + ' Solo el **Equipo de Propietarios** puede usar `/embed-send`.',
+        content:
+          E.cruz +
+          ' No tenés permiso para usar `/embed-send`.\n' +
+          '• En **00Y4n**: rol Equipo de Propietarios\n' +
+          '• En otros servidores: permiso de **Administrador**',
         flags: MessageFlags.Ephemeral
       });
     }
@@ -55,6 +68,7 @@ export default {
       });
     }
 
+    // Discord: máx 10 embeds por mensaje
     const channel = interaction.channel;
     try {
       for (let i = 0; i < embeds.length; i += 10) {
