@@ -18,7 +18,7 @@ export default {
 
     async execute(interaction) {
         const ROL_POLICIA_ID = '1529146302783422706';
-        const CHANNEL_LOGS = '1529175493029531738';
+        const CHANNEL_LOGS = '1505015805891579934';
 
         if (!interaction.member.roles.cache.has(ROL_POLICIA_ID)) {
             return await interaction.reply({
