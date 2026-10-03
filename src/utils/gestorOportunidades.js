@@ -2,7 +2,7 @@ import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'disc
 import { agregarSaldo } from './gestorEconomia.js';
 import { PRIMARIO } from './colores.js';
 import { logger } from './logger.js';
-import { setInDb } from './database.js';
+import { getFromDb, setInDb } from './database.js';
 import { E, EMOJI_DEF } from '../config/emojis.js';
 
 /** Banner de oportunidad (solo imagen) — se envía como primer embed */
@@ -54,19 +54,11 @@ const historiasOportunidades = [
     "de un vendedor ambulante que te pagó por cuidarle el puesto mientras iba al baño.",
     "por recuperar un drone que se había enganchado en un árbol del parque.",
     "de un dueño de taller que te dio una propina por ordenar herramientas al cierre del día.",
-    "por ayudar a una pareja a sacar una selfie grupal con el skyline de Sarasota de fondo.",
-    "de un conductor de camión de mudanzas que te pagó por guiarlo en reversa en un callejón estrecho.",
-    "por encontrar y devolver un collar de perro con placa cerca del dog park.",
-    "de un barista que te dio una propina por ayudarlo a limpiar una mesa rota antes de la hora pico.",
-    "por prestar tu linterna a un conductor que buscaba algo debajo del asiento de noche.",
-    "de un dueño de tienda de souvenirs que te pagó por acomodar estantes después de una visita escolar.",
-    "por ayudar a bajar una bicicleta de la baca de un SUV en el estacionamiento de la playa."
+    "por ayudar a una pareja a sacar una selfie grupal con el skyline de Sarasota de fondo."
 ];
 
 function crearEmbedBanner() {
-    return new EmbedBuilder()
-        .setColor(PRIMARIO)
-        .setImage(BANNER_OPORTUNIDAD_URL);
+    return new EmbedBuilder().setColor(PRIMARIO).setImage(BANNER_OPORTUNIDAD_URL);
 }
 
 /**
@@ -118,88 +110,62 @@ export async function lanzarOportunidadEconomica(client, canalId) {
         try {
             await setInDb(LAST_OPORTUNIDAD_KEY, Date.now());
         } catch (_) {}
-        logger.info(`[oportunidad] Enviada en #${canal.name || canalId} — $${monto}`);
 
-        const collector = mensaje.createMessageComponentCollector({
-            filter: (i) => i.customId === 'reclamar_oportunidad',
-            time: 120000,
-            max: 1
-        });
+        // Persistente hasta que alguien reclame (sin expiración por tiempo)
+        try {
+            await setInDb(oportunidadKey(mensaje.id), {
+                monto,
+                historia,
+                channelId: canal.id,
+                messageId: mensaje.id,
+                claimed: false,
+                createdAt: Date.now()
+            });
+        } catch (e) {
+            logger.warn('[oportunidad] No se pudo guardar estado:', e?.message || e);
+        }
 
-        collector.on('collect', async (interaction) => {
-            try {
-                const usuarioId = interaction.user.id;
-                await agregarSaldo(usuarioId, monto);
-
-                const embedGanador = EmbedBuilder.from(embedInicial)
-                    .setColor('#57F287')
-                    .setDescription(
-                        `${E.gift} **$${monto.toLocaleString('es-AR')}** ${historia}\n\n` +
-                        `${E.flecha} **Reclamado por:** <@${usuarioId}>`
-                    );
-
-                const botonDesactivado = new ActionRowBuilder().addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('reclamado_done')
-                        .setLabel('Reclamado')
-                        .setEmoji(EMOJI_DEF.lock.id)
-                        .setStyle(ButtonStyle.Secondary)
-                        .setDisabled(true)
-                );
-
-                const payload = {
-                    embeds: [embedBanner, embedGanador],
-                    components: [botonDesactivado]
-                };
-
-                if (interaction.deferred) {
-                    await interaction.editReply(payload);
-                } else if (!interaction.replied) {
-                    await interaction.update(payload);
-                }
-
-                // Confirmación solo para quien reclamó (efímero)
-                const montoFmt = monto.toLocaleString('es-AR', {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0
-                });
-                await interaction.followUp({
-                    content:
-                        `${E.tilde} Reclamaste **$${montoFmt}**. Ya fue sumado a tu balance.`,
-                    ephemeral: true
-                }).catch(() => null);
-            } catch (error) {
-                console.error('Error al procesar el reclamo en el collector:', error);
-            }
-        });
-
-        collector.on('end', async (collected) => {
-            try {
-                if (collected.size === 0) {
-                    const embedExpirado = EmbedBuilder.from(embedInicial)
-                        .setDescription(
-                            `~~${E.money} **$${monto.toLocaleString('es-AR')}** ${historia}~~\n\n` +
-                            `${E.tiempo} *Esta oportunidad ha expirado.*`
-                        );
-
-                    const botonExpirado = new ActionRowBuilder().addComponents(
-                        new ButtonBuilder()
-                            .setCustomId('expirado_done')
-                            .setLabel('Expirado')
-                            .setStyle(ButtonStyle.Secondary)
-                            .setDisabled(true)
-                    );
-
-                    await mensaje.edit({
-                        embeds: [embedBanner, embedExpirado],
-                        components: [botonExpirado]
-                    }).catch(() => {});
-                }
-            } catch (error) {
-                console.error('Error al finalizar el collector de oportunidades:', error);
-            }
-        });
+        logger.info(`[oportunidad] Enviada en #${canal.name || canalId} — $${monto} (sin expiración)`);
     } catch (error) {
         logger.error('Error al lanzar Oportunidad Económica:', error);
     }
+}
+
+export function oportunidadKey(messageId) {
+    return `oportunidad:msg:${String(messageId)}`;
+}
+
+/**
+ * Reclama una oportunidad económica por messageId (sin expiración).
+ * @returns {{ ok: boolean, reason?: string, monto?: number }}
+ */
+export async function reclamarOportunidadPorMensaje(messageId, usuarioId) {
+    const key = oportunidadKey(messageId);
+    const data = await getFromDb(key, null);
+    if (!data || typeof data !== 'object') {
+        return { ok: false, reason: 'no_encontrada' };
+    }
+    if (data.claimed) {
+        return { ok: false, reason: 'ya_reclamada' };
+    }
+
+    // Marcar primero para reducir race conditions
+    data.claimed = true;
+    data.claimedBy = String(usuarioId);
+    data.claimedAt = Date.now();
+    await setInDb(key, data);
+
+    const monto = Number(data.monto) || 0;
+    if (monto > 0) {
+        await agregarSaldo(usuarioId, monto, {
+            tipo: 'INGRESO',
+            motivo: 'Oportunidad económica'
+        });
+    }
+
+    return {
+        ok: true,
+        monto,
+        historia: data.historia || ''
+    };
 }
