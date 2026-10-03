@@ -35,7 +35,7 @@ export default {
       .setTitle(`${ES.egpd} Bienvenido a Servicios Públicos 00Y4n`)
       .setDescription(
         `${ES.flecha} **00Y4n** te da la bienvenida a su servidor de **Servicios Públicos**, ` +
-          `gestionado y operado por el Alto Comando y los líderes de cada departamento.\n\n` +
+          `gestionado y operado por <@1340793386776531037>, el Alto Comando y los líderes de cada departamento desde **Julio 2026**.\n\n` +
           `**Leé y reconocé la información** tocando el botón **Reglamento** para evitar infracciones o moderaciones.\n\n` +
           `${ES.dot} **Servicios Públicos 00Y4n** ${ES.lock}`
       );
