@@ -9,12 +9,17 @@ import { setBirthday as dbSetBirthday } from '../utils/database.js';
 import { logger } from '../utils/logger.js';
 import { PRIMARIO } from '../utils/colores.js';
 import { E } from '../config/emojis.js';
+import { buildBienvenidaSPEmbeds } from '../config/embedPresets/serviciosPublicosBienvenida.js';
 
 /** Bienvenida personalizada 00Y4n (Southwest Florida) */
 const GUILD_00Y4N = '1451939725308067842';
 const CHANNEL_BIENVENIDA = '1451942119827570830';
 const IMAGEN_BIENVENIDA =
     'https://cdn.discordapp.com/attachments/1505017301089652898/1548158765772185680/Bienvenida_1.png?ex=6aa60ab5&is=6aa4b935&hm=73878f66d6e1e892fe44900b5e2cf4edf423233b2ac245da584f45730951d1ec';
+
+/** Bienvenida Servicios Públicos (solo ese guild — no afecta 00Y4n principal) */
+const GUILD_SP = '1497012276329451581';
+const CHANNEL_BIENVENIDA_SP = '1524150749876064406';
 
 export default {
   name: Events.GuildMemberAdd,
@@ -27,11 +32,13 @@ export default {
         const config = await getGuildConfig(member.client, guild.id);
         const welcomeConfig = await getWelcomeConfig(member.client, guild.id);
 
-        // 00Y4n: siempre canal fijo. Otros guilds: config del bot.
+        // 00Y4n / SP: canal fijo. Otros guilds: config del bot.
         const welcomeChannelId =
             guild.id === GUILD_00Y4N
                 ? CHANNEL_BIENVENIDA
-                : (welcomeConfig?.enabled ? welcomeConfig?.channelId : null);
+                : guild.id === GUILD_SP
+                  ? CHANNEL_BIENVENIDA_SP
+                  : (welcomeConfig?.enabled ? welcomeConfig?.channelId : null);
 
         if (welcomeChannelId) {
             const channel =
@@ -66,6 +73,17 @@ export default {
                             content:
                                 messageContent +
                                 '\nBienvenido/a a **Southwest Florida Comunidad 00Y4n ™**. Verifica tu cuenta y lee las reglas del servidor.'
+                        });
+                    } else if (guild.id === GUILD_SP && canEmbed) {
+                        await channel.send({
+                            content: messageContent,
+                            embeds: buildBienvenidaSPEmbeds()
+                        });
+                    } else if (guild.id === GUILD_SP && !canEmbed) {
+                        await channel.send({
+                            content:
+                                messageContent +
+                                '\n¡Bienvenido/a a **Servicios Públicos 00Y4n**! Leé el canal informativo antes de abrir tickets.'
                         });
                     } else if (welcomeConfig?.enabled && canEmbed) {
                         const formatData = { user, guild, member };
