@@ -12,6 +12,7 @@ import altoComandoInfo from './altoComandoInfo.js';
 import serviciosPublicosInfo from './serviciosPublicosInfo.js';
 import serviciosPublicosSoporte from './serviciosPublicosSoporte.js';
 import serviciosPublicosBienvenida from './serviciosPublicosBienvenida.js';
+import serviciosPublicosFaq from './serviciosPublicosFaq.js';
 
 /** @type {Array<{ id: string, label: string, description?: string, build: Function }>} */
 export const EMBED_PRESETS = [
@@ -28,7 +29,8 @@ export const EMBED_PRESETS = [
   altoComandoInfo,
   serviciosPublicosInfo,
   serviciosPublicosSoporte,
-  serviciosPublicosBienvenida
+  serviciosPublicosBienvenida,
+  serviciosPublicosFaq
 ];
 
 export function getPreset(id) {
