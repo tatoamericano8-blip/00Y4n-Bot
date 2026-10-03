@@ -8,6 +8,9 @@ import { E } from '../../config/emojis.js';
 const ROLE_STAFF = '1512120103771050005';
 const ROLE_ALTO_COMANDO = '1528870731629465752';
 const LOG_CUOTA_TICKETS = '1505015805891579934';
+/** Solo detecta SP; no cambia reglas del server principal */
+const GUILD_SP = '1497012276329451581';
+const ROLE_STAFF_SP = '1524139038251159602';
 
 export default {
   name: 'ticket_close',
@@ -15,12 +18,25 @@ export default {
   async execute(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-    // Leer datos ANTES de cerrar (claimedBy, etc.)
     let ticketBefore = null;
     try {
       ticketBefore = await getTicketData(interaction.guildId, interaction.channelId);
     } catch (e) {
       logger.warn(`[ticket_close] getTicketData: ${e.message}`);
+    }
+
+    const esTicketSP =
+      interaction.guildId === GUILD_SP || ticketBefore?.origen === 'servicios_publicos';
+
+    if (esTicketSP) {
+      const esCreadorSP =
+        ticketBefore?.userId && String(ticketBefore.userId) === String(interaction.user.id);
+      const esStaffSP = interaction.member.roles.cache.has(ROLE_STAFF_SP);
+      if (!esStaffSP && !esCreadorSP) {
+        return interaction.editReply({
+          content: '❌ Solo el **Staff de Servicios Públicos** o quien abrió el ticket puede cerrarlo.'
+        });
+      }
     }
 
     const reason = 'Cerrado por el staff';
@@ -33,7 +49,6 @@ export default {
     }
 
     const ticketData = result.ticketData || ticketBefore || {};
-    // Preferir claimedBy de antes del cierre
     const claimedBy = String(
       ticketBefore?.claimedBy || ticketData?.claimedBy || ''
     ) || null;
@@ -42,18 +57,16 @@ export default {
       ticketData?.userId && String(ticketData.userId) === closerId;
 
     const esStaffRol = interaction.member.roles.cache.has(ROLE_STAFF);
-    const esAltoComando =
-      interaction.member.roles.cache.has(ROLE_ALTO_COMANDO) ||
-      interaction.member.permissions.has(PermissionFlagsBits.Administrator);
-    // Cuota solo con rol Staff (como pediste). Alto Comando también puede si tiene el rol Staff.
-    const puedeCuota = esStaffRol;
+    const puedeCuota = esTicketSP ? false : esStaffRol;
 
     let cuotaOk = false;
     let motivoNoCuota = null;
 
     try {
       if (!puedeCuota) {
-        motivoNoCuota = 'Quien cerró no tiene el rol de Staff (cuota).';
+        motivoNoCuota = esTicketSP
+          ? 'Ticket de Servicios Públicos (sin cuota 00Y4n).'
+          : 'Quien cerró no tiene el rol de Staff (cuota).';
       } else if (esCreador) {
         motivoNoCuota = 'No suma cuota cerrar tu propio ticket.';
       } else if (!claimedBy) {
@@ -73,33 +86,36 @@ export default {
       motivoNoCuota = err.message;
     }
 
-    // SIEMPRE loguear el cierre en el canal (sume o no)
     try {
-      const logCh = await interaction.client.channels.fetch(LOG_CUOTA_TICKETS).catch((e) => {
-        logger.warn(`[ticket_close] fetch log channel: ${e.message}`);
-        return null;
-      });
-      if (logCh?.isTextBased?.()) {
-        const embed = new EmbedBuilder()
-          .setColor(cuotaOk ? '#74d4fc' : '#f1c40f')
-          .setTitle(cuotaOk ? '🎫 Ticket contabilizado en cuota' : '🎫 Ticket cerrado (sin cuota)')
-          .setDescription(
-            `• **Staff:** <@${interaction.user.id}>\n` +
-              `• **Canal:** \`${interaction.channel.name}\`\n` +
-              `• **Ticket ID:** \`${ticketData?.id || interaction.channelId}\`\n` +
-              `• **Reclamado por:** ${claimedBy ? `<@${claimedBy}>` : '*Sin reclamar*'}\n` +
-              `• **Cuota:** ${cuotaOk ? '**+1** ticket sumado' : `No sumó — ${motivoNoCuota || '—'}`}`
-          )
-          .setFooter({ text: '00Y4n • Cuotas de Staff' })
-          .setTimestamp();
-        await logCh.send({ embeds: [embed] });
-      } else {
-        logger.warn(
-          `[ticket_close] Canal de log ${LOG_CUOTA_TICKETS} no disponible o sin permiso de envío.`
-        );
+      if (!esTicketSP) {
+        const logCh = await interaction.client.channels.fetch(LOG_CUOTA_TICKETS).catch((e) => {
+          logger.warn(`[ticket_close] fetch log channel: ${e.message}`);
+          return null;
+        });
+        if (logCh?.isTextBased?.()) {
+          const embed = new EmbedBuilder()
+            .setColor(cuotaOk ? '#74d4fc' : '#f1c40f')
+            .setTitle(cuotaOk ? '🎫 Ticket contabilizado en cuota' : '🎫 Ticket cerrado (sin cuota)')
+            .setDescription(
+              `• **Staff:** <@${interaction.user.id}>\n` +
+                `• **Canal:** \`${interaction.channel.name}\`\n` +
+                `• **Ticket ID:** \`${ticketData?.id || interaction.channelId}\`\n` +
+                `• **Reclamado por:** ${claimedBy ? `<@${claimedBy}>` : '*Sin reclamar*'}\n` +
+                `• **Cuota:** ${cuotaOk ? '**+1** ticket sumado' : `No sumó — ${motivoNoCuota || '—'}`}`
+            )
+            .setFooter({ text: '00Y4n • Cuotas de Staff' })
+            .setTimestamp();
+          await logCh.send({ embeds: [embed] });
+        }
       }
     } catch (logErr) {
       logger.warn(`No se pudo enviar log de cuota ticket: ${logErr.message}`);
+    }
+
+    if (esTicketSP) {
+      return interaction.editReply({
+        content: '✅ Ticket cerrado correctamente.'
+      });
     }
 
     if (cuotaOk) {

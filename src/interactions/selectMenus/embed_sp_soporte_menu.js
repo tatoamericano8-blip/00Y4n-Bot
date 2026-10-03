@@ -11,10 +11,12 @@ import { saveTicketData, incrementTicketCounter, getOpenTicketCountForUser } fro
 import { logger } from '../../utils/logger.js';
 import { ES } from '../../config/emojisServicios.js';
 
-/** Categoría fija de tickets — Servicios Públicos */
 const CATEGORY_TICKETS_SP = '1524139843729231932';
 const COLOR_SP = 0x1a1a1a;
 const MAX_TICKETS_ABIERTOS = 3;
+/** Solo Staff de Servicios Públicos ve los tickets */
+const ROLE_STAFF_SP = '1524139038251159602';
+const GUILD_SP = '1497012276329451581';
 
 const TIPOS = {
   asistencia_general: {
@@ -70,38 +72,20 @@ function sanitizeUserSlug(user) {
   return base || String(user?.id || 'user').slice(-6);
 }
 
-function staffRoleOverwrites(guild) {
-  const out = [];
-  for (const role of guild.roles.cache.values()) {
-    if (role.managed || role.id === guild.id) continue;
-    try {
-      if (
-        role.permissions.has(PermissionFlagsBits.Administrator) ||
-        role.permissions.has(PermissionFlagsBits.ManageGuild)
-      ) {
-        out.push({
-          id: role.id,
-          allow: [
-            PermissionFlagsBits.ViewChannel,
-            PermissionFlagsBits.SendMessages,
-            PermissionFlagsBits.AttachFiles,
-            PermissionFlagsBits.ReadMessageHistory,
-            PermissionFlagsBits.ManageMessages,
-            PermissionFlagsBits.EmbedLinks
-          ]
-        });
-      }
-    } catch {
-      /* ignore */
-    }
-  }
-  return out;
+function staffRoleOverwrites() {
+  return [{
+    id: ROLE_STAFF_SP,
+    allow: [
+      PermissionFlagsBits.ViewChannel,
+      PermissionFlagsBits.SendMessages,
+      PermissionFlagsBits.AttachFiles,
+      PermissionFlagsBits.ReadMessageHistory,
+      PermissionFlagsBits.ManageMessages,
+      PermissionFlagsBits.EmbedLinks
+    ]
+  }];
 }
 
-/**
- * Menú SP · Soporte — crea ticket completo profesional.
- * customId: embed_sp_soporte_menu (sin tocar ticket_tipo ni botones claim/close).
- */
 export default {
   id: 'embed_sp_soporte_menu',
   customId: 'embed_sp_soporte_menu',
@@ -126,9 +110,7 @@ export default {
     try {
       await guild.channels.fetch().catch(() => null);
       await guild.roles.fetch().catch(() => null);
-    } catch {
-      /* ignore */
-    }
+    } catch {}
 
     try {
       const abiertos = await getOpenTicketCountForUser(guild.id, member.id).catch(() => 0);
@@ -168,7 +150,7 @@ export default {
             PermissionFlagsBits.EmbedLinks
           ]
         },
-        ...staffRoleOverwrites(guild)
+        ...staffRoleOverwrites()
       ];
 
       if (guild.members.me) {
@@ -250,7 +232,6 @@ export default {
             `\n\n-# ${ES.egpd} El staff fue notificado. Respondé acá; no abras otro ticket por lo mismo.`
         );
 
-      // Mismos customIds del sistema de tickets (claim / close) — no se modifican
       const row = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
           .setCustomId('ticket_close')
