@@ -50,7 +50,9 @@ export const EMOJI_DEF_SERVICIOS = {
   blackcrown: { name: 'blackcrown', id: '1555955570970861649' },
   corona_alt: { name: 'blackcrown', id: '1555955570970861649' },
   egpd: { name: 'EGPD', id: '1555956773385666682' },
-  logo: { name: 'EGPD', id: '1555956773385666682' },
+  logo: { name: '00y4n_SP', id: '1555982909108789408' },
+  logo_sp: { name: '00y4n_SP', id: '1555982909108789408' },
+  sp: { name: '00y4n_SP', id: '1555982909108789408' },
 
   // --- Animados ---
   butterflies: { name: 'black_butterflies', id: '1555956724782076034', animated: true },
