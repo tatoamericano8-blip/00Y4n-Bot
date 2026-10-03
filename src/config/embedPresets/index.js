@@ -10,6 +10,7 @@ import chatRoleplay from './chatRoleplay.js';
 import staffInfo from './staffInfo.js';
 import altoComandoInfo from './altoComandoInfo.js';
 import serviciosPublicosInfo from './serviciosPublicosInfo.js';
+import serviciosPublicosSoporte from './serviciosPublicosSoporte.js';
 
 /** @type {Array<{ id: string, label: string, description?: string, build: Function }>} */
 export const EMBED_PRESETS = [
@@ -24,7 +25,8 @@ export const EMBED_PRESETS = [
   chatRoleplay,
   staffInfo,
   altoComandoInfo,
-  serviciosPublicosInfo
+  serviciosPublicosInfo,
+  serviciosPublicosSoporte
 ];
 
 export function getPreset(id) {
