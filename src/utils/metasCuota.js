@@ -1,36 +1,24 @@
 /**
- * Cuotas semanales unificadas (todos los rangos de staff iguales).
+ * Cuotas semanales unificadas.
  *
- * Meta: 4 sesiones/semana + 2 tickets (opcionales: suman, no son obligatorios para cumplir).
- * Alto Comando / gerencia / fundadores: sin cuota mínima.
+ * Cualquier miembro con el rol 00Y4n Staff (1512120103771050005) — incluyendo
+ * Alto Comando si lo tiene — cumple la misma meta:
+ *   4 sesiones/semana (obligatorio)
+ *   2 tickets (opcionales: suman score, no bloquean cumplimiento)
+ *
+ * Quién entra al sistema de cuotas lo decide el rol Staff en panel / perfil / reinicio.
  */
 const META_STAFF = { sesionesMeta: 4, ticketsMeta: 2, horasMeta: 0 };
 
 const DEFAULT = { ...META_STAFF, etiqueta: 'Staff' };
 
 /**
- * @param {string} rangoNombre Nombre del rol / rango
+ * @param {string} rangoNombre Nombre del rol / rango (solo para etiqueta)
  * @returns {{ sesionesMeta: number, ticketsMeta: number, horasMeta: number, etiqueta: string }}
  */
 export function obtenerMetasPorRango(rangoNombre) {
-  const n = String(rangoNombre || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  const etiqueta = rangoNombre || DEFAULT.etiqueta;
-
-  // Alto Comando / gerencia: sin cuota mínima obligatoria
-  if (
-    n.includes('alto mando') ||
-    n.includes('alto comando') ||
-    n.includes('gerente') ||
-    n.includes('fundador') ||
-    n.includes('administrador') ||
-    n.includes('supervisor ejecutivo') ||
-    n.includes('equipo de propietarios') ||
-    n.includes('propietario')
-  ) {
-    return { sesionesMeta: 0, ticketsMeta: 0, horasMeta: 0, etiqueta };
-  }
-
-  // Todos los rangos de staff: misma meta
+  const etiqueta = String(rangoNombre || '').trim() || DEFAULT.etiqueta;
+  // Misma meta para todos los rangos (Aprendiz → Alto Comando, etc.)
   return { ...META_STAFF, etiqueta };
 }
 
