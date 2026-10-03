@@ -59,8 +59,8 @@ function buildCuotas() {
         .setTitle(`${E.tilde || E.mitadestrella} Cuotas`)
         .setDescription(
           `-# \`/staff-perfil\` — **tu progreso semanal** (cuota, sesiones, tickets)\n\n` +
-            `Suma cuota: hostear y tickets (según rango).\n` +
-            `Cumplí la meta de tu rango. LOA = canal de solicitud de ausencia staff.`
+            `**Meta unificada:** 4 sesiones/semana. Los tickets suman (recomendado 2) pero no son obligatorios.\n` +
+            `Cumplí las 4 sesiones. LOA = canal de solicitud de ausencia staff.`
         )
         .setFooter({ text: 'Manual de Staff 00Y4n' })
     ]
