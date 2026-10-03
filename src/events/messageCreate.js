@@ -4,6 +4,7 @@ import { getFromDb, setInDb, db } from '../utils/database.js';
 import { cachearMensaje } from '../utils/gestorSnipe.js';
 import { anunciarBoostAutomatico } from './guildMemberUpdate.js';
 import { E } from '../config/emojis.js';
+import { procesarAntiMassPing } from '../utils/antiMassPing.js';
 
 const BOOST_MSG_TYPES = new Set([
   MessageType.UserPremiumGuildSubscription,
@@ -30,6 +31,14 @@ export default {
 
       // Contar y procesar solo mensajes de usuarios en servidores (todos los canales)
       if (message.author.bot || !message.guild) return;
+
+      // Anti spam @everyone / @here (ambos servers) — kick si >4 en ventana corta
+      try {
+        const sancionado = await procesarAntiMassPing(message);
+        if (sancionado) return;
+      } catch (e) {
+        logger.error('Error antiMassPing:', e);
+      }
 
       try { cachearMensaje(message); } catch {}
 
