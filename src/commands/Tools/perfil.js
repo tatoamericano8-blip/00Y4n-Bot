@@ -146,6 +146,19 @@ export default {
         const multasPendientes = multasUsuario.filter(m => m.estado === 'PENDIENTE');
         const deudaTotal = multasPendientes.reduce((acc, m) => acc + (Number(m.monto) || 0), 0);
 
+        // Orden de Arresto: solo mostrar si tiene el rol activo en el servidor
+        const ROL_ORDEN_ARRESTO = '1529152491545952316';
+        let tieneOrdenArresto = false;
+        try {
+            const miembroGuild =
+                interaction.guild.members.cache.get(miembro.id) ||
+                (await interaction.guild.members.fetch(miembro.id).catch(() => null));
+            tieneOrdenArresto = Boolean(miembroGuild?.roles?.cache?.has(ROL_ORDEN_ARRESTO));
+        } catch (_) {}
+        const lineaOrdenArresto = tieneOrdenArresto
+            ? `${E.dot} **Orden de Arresto:** ${E.warn || '🚨'} **Activa**\n`
+            : '';
+
         const perfilEmbed = new EmbedBuilder()
             .setTitle(E.perfil + ' Southwest Florida | *Perfil de Ciudadano*')
             .setDescription(
@@ -155,8 +168,9 @@ export default {
                 `${E.dot} **Estado de Licencia:** ${textoLicenciaVisual}\n` +
                 `${E.dot} **Balance Bancario:** **$${saldoActual.toLocaleString()}**\n` +
                 `${E.dot} **Vehículos Registrados:** \`${autosRegistrados.length}\`\n` +
-                `${E.dot} **Multas Pendientes:** \`${multasPendientes.length}\` ${deudaTotal > 0 ? `*(Deuda: $${deudaTotal.toLocaleString()})*` : '*(Al día)*'}\n\n` +
-                `⤷ *Para registrar una nueva unidad en tu garaje utiliza el comando \`/matricula registrar\` de forma pública.*`
+                `${E.dot} **Multas Pendientes:** \`${multasPendientes.length}\` ${deudaTotal > 0 ? `*(Deuda: $${deudaTotal.toLocaleString()})*` : '*(Al día)*'}\n` +
+                lineaOrdenArresto +
+                `\n⤷ *Para registrar una nueva unidad en tu garaje utiliza el comando \`/matricula registrar\` de forma pública.*`
             )
             .setThumbnail(fotoAvatar)
             .setColor('#74d4fc')
