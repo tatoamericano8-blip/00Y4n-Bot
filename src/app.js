@@ -108,14 +108,10 @@ class TitanBot extends Client {
 
       let loggedIn = false;
       let attempt = 0;
-      // Preflight HTTP a /gateway/bot se SALTEA: en Render con muchos deploys
-      // da 429 y el bot se queda esperando sin llegar nunca a this.login().
-      // discord.js negocia el gateway solo en el WebSocket.
       while (!loggedIn) {
         attempt += 1;
         try {
           startupLog('Login attempt ' + attempt + ' (sin preflight HTTP)...');
-          // Si el gateway se cuelga (típico en Render), no esperamos eterno
           await Promise.race([
             this.login(tok),
             new Promise((_, rej) =>
@@ -139,7 +135,6 @@ class TitanBot extends Client {
         }
       }
 
-      // Registrar slash en background con timeout: no bloquear ONLINE si Discord REST va lento/429
       startupLog('Registering slash commands (background, max 25s)...');
       const regPromise = this.registerCommands()
         .then(() => startupLog('Slash commands registration complete'))
@@ -375,7 +370,31 @@ class TitanBot extends Client {
 
   async registerCommands() {
     try {
-      await registerSlashCommands(this, this.config.bot.guildId);
+      const guildIds = new Set();
+      if (this.config?.bot?.guildId) {
+        guildIds.add(String(this.config.bot.guildId));
+      }
+      if (process.env.EXTRA_GUILD_IDS) {
+        for (const id of String(process.env.EXTRA_GUILD_IDS).split(/[,\s]+/)) {
+          if (id && /^\d{17,20}$/.test(id)) guildIds.add(id);
+        }
+      }
+      for (const id of this.guilds.cache.keys()) {
+        guildIds.add(String(id));
+      }
+
+      if (guildIds.size === 0) {
+        logger.warn('No guild IDs para registrar slash commands');
+        return;
+      }
+
+      for (const gid of guildIds) {
+        try {
+          await registerSlashCommands(this, gid);
+        } catch (err) {
+          logger.error(`Error registering commands for guild ${gid}:`, err);
+        }
+      }
     } catch (error) {
       logger.error('Error registering commands:', error);
       try {
