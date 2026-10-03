@@ -1,13 +1,12 @@
 /**
- * Cuotas semanales por rango según #staff-requisitos-de-cuotas
+ * Cuotas semanales unificadas (todos los rangos de staff iguales).
  *
- * Staff Aprendiz  → 3 sesiones moderadas/asistidas
- * Junior Staff    → 5 sesiones + 1 ticket
- * Server Staff    → 5 sesiones + 2 tickets
- * Senior Staff    → 6 sesiones + 3 tickets
+ * Meta: 4 sesiones/semana + 2 tickets (opcionales: suman, no son obligatorios para cumplir).
+ * Alto Comando / gerencia / fundadores: sin cuota mínima.
  */
+const META_STAFF = { sesionesMeta: 4, ticketsMeta: 2, horasMeta: 0 };
 
-const DEFAULT = { sesionesMeta: 3, ticketsMeta: 0, horasMeta: 0, etiqueta: 'Staff' };
+const DEFAULT = { ...META_STAFF, etiqueta: 'Staff' };
 
 /**
  * @param {string} rangoNombre Nombre del rol / rango
@@ -15,31 +14,24 @@ const DEFAULT = { sesionesMeta: 3, ticketsMeta: 0, horasMeta: 0, etiqueta: 'Staf
  */
 export function obtenerMetasPorRango(rangoNombre) {
   const n = String(rangoNombre || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const etiqueta = rangoNombre || DEFAULT.etiqueta;
 
-  if (n.includes('senior')) {
-    return { sesionesMeta: 6, ticketsMeta: 3, horasMeta: 0, etiqueta: 'Senior Staff' };
-  }
-  if (n.includes('server staff') || (n.includes('server') && n.includes('staff'))) {
-    return { sesionesMeta: 5, ticketsMeta: 2, horasMeta: 0, etiqueta: 'Server Staff' };
-  }
-  if (n.includes('junior')) {
-    return { sesionesMeta: 5, ticketsMeta: 1, horasMeta: 0, etiqueta: 'Junior Staff' };
-  }
-  if (n.includes('aprendiz') || n.includes('trainee')) {
-    return { sesionesMeta: 3, ticketsMeta: 0, horasMeta: 0, etiqueta: 'Staff Aprendiz' };
-  }
-  // Alto Comando / gerencia: sin cuota mínima obligatoria de rank básico
+  // Alto Comando / gerencia: sin cuota mínima obligatoria
   if (
     n.includes('alto mando') ||
     n.includes('alto comando') ||
     n.includes('gerente') ||
     n.includes('fundador') ||
-    n.includes('administrador')
+    n.includes('administrador') ||
+    n.includes('supervisor ejecutivo') ||
+    n.includes('equipo de propietarios') ||
+    n.includes('propietario')
   ) {
-    return { sesionesMeta: 0, ticketsMeta: 0, horasMeta: 0, etiqueta: rangoNombre || 'Alto Comando' };
+    return { sesionesMeta: 0, ticketsMeta: 0, horasMeta: 0, etiqueta };
   }
 
-  return { ...DEFAULT, etiqueta: rangoNombre || DEFAULT.etiqueta };
+  // Todos los rangos de staff: misma meta
+  return { ...META_STAFF, etiqueta };
 }
 
 /** Sesiones de la semana = host + co-host + supervisadas (para meta de cuota) */

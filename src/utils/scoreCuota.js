@@ -65,17 +65,18 @@ export function evaluarCumplimiento(staffData, rangoNombre = '') {
     return { cumplio: true, enLoa: false, motivo: 'Sin cuota mínima de rango' };
   }
 
+  // Sesiones obligatorias; tickets opcionales (suman score / se muestran, no bloquean cumplimiento)
   const okSes = metas.sesionesMeta <= 0 || ses >= metas.sesionesMeta;
-  const okTkt = metas.ticketsMeta <= 0 || tkt >= metas.ticketsMeta;
 
-  if (okSes && okTkt) {
+  if (okSes) {
     return { cumplio: true, enLoa: false, motivo: 'Meta cumplida' };
   }
 
-  const faltas = [];
-  if (!okSes) faltas.push(`sesiones ${ses}/${metas.sesionesMeta}`);
-  if (!okTkt) faltas.push(`tickets ${tkt}/${metas.ticketsMeta}`);
-  return { cumplio: false, enLoa: false, motivo: `Falta: ${faltas.join(', ')}` };
+  return {
+    cumplio: false,
+    enLoa: false,
+    motivo: `Falta: sesiones ${ses}/${metas.sesionesMeta}`
+  };
 }
 
 /** ID de semana ISO simple YYYY-Www */
