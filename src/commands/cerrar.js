@@ -279,7 +279,7 @@ export default {
             new ButtonBuilder()
                 .setCustomId(`abrir_feedback_swfl:${idSesionFeedback}`)
                 .setLabel('Opinion de la Sesion')
-                .setEmoji(EMOJI_DEF.lista.id)
+                .setEmoji(EMOJI_DEF.form.id)
                 .setStyle(ButtonStyle.Secondary)
         );
 
