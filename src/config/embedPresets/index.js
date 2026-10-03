@@ -9,6 +9,7 @@ import guiaCarmeet from './guiaCarmeet.js';
 import chatRoleplay from './chatRoleplay.js';
 import staffInfo from './staffInfo.js';
 import altoComandoInfo from './altoComandoInfo.js';
+import serviciosPublicosInfo from './serviciosPublicosInfo.js';
 
 /** @type {Array<{ id: string, label: string, description?: string, build: Function }>} */
 export const EMBED_PRESETS = [
@@ -22,7 +23,8 @@ export const EMBED_PRESETS = [
   guiaCarmeet,
   chatRoleplay,
   staffInfo,
-  altoComandoInfo
+  altoComandoInfo,
+  serviciosPublicosInfo
 ];
 
 export function getPreset(id) {
