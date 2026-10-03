@@ -134,10 +134,19 @@ export default {
             content: E.tilde + ' Multa emitida.',
             flags: MessageFlags.Ephemeral
         });
-        await interaction.channel.send({
+        const msgCanal = await interaction.channel.send({
             content: `${E.anuncio} **Atención <@${infractor.id}>, has sido multado oficialmente:**`,
             embeds: [embedMulta],
             allowedMentions: { users: [infractor.id] }
         });
+
+        // Guardar referencia del mensaje público para editarlo al pagar
+        try {
+            datosMulta.channelId = msgCanal.channelId;
+            datosMulta.messageId = msgCanal.id;
+            await guardarMulta(ticketID, datosMulta);
+        } catch (e) {
+            console.error('[multar] No se pudo guardar messageId de la multa:', e?.message || e);
+        }
     }
 };
