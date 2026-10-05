@@ -9,8 +9,9 @@ const COLOR_SP = 0x1a1a1a;
 
 function optEmoji(key) {
   const d = EMOJI_DEF_SERVICIOS[key];
-  if (!d?.id) return undefined;
-  return { id: d.id, name: d.name, animated: !!d.animated };
+  // Discord rechaza el mensaje entero si el emoji.id no existe / no es usable
+  if (!d?.id || !/^\d{17,20}$/.test(String(d.id))) return undefined;
+  return { id: String(d.id), name: d.name, animated: !!d.animated };
 }
 
 /**
@@ -57,7 +58,7 @@ export default {
             label: 'Departamentos',
             description: 'Policía, bomberos, EMS y más',
             value: 'sp_faq_deptos',
-            emoji: optEmoji('egpd') || optEmoji('corona')
+            emoji: optEmoji('egpd') || optEmoji('check')
           },
           {
             label: 'Servicio y radio',
@@ -69,7 +70,7 @@ export default {
             label: 'Cuotas y liderazgo',
             description: 'Cuotas, sanciones y roles de liderazgo',
             value: 'sp_faq_cuotas',
-            emoji: optEmoji('corona') || optEmoji('star')
+            emoji: optEmoji('check') || optEmoji('dot')
           },
           {
             label: 'Tickets y soporte',
