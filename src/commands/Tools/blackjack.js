@@ -18,7 +18,10 @@ import { PRIMARIO } from '../../utils/colores.js';
 const MIN_APUESTA = 100;
 const MAX_APUESTA = 35000;
 const COOLDOWN_MS = 15 * 1000; // 15 segundos
-const PARTIDA_TIMEOUT_MS = 90 * 1000;
+/** Sin tocar botones → cancela y reembolsa (evita partidas colgadas / bugs) */
+const PARTIDA_IDLE_MS = 60 * 1000;
+/** Tope absoluto de vida del collector */
+const PARTIDA_MAX_MS = 3 * 60 * 1000;
 
 const cooldowns = new Map();
 const activeGames = new Set(); // evita partidas simultáneas del mismo user
@@ -171,8 +174,7 @@ async function resolverDealerYPago(estado) {
     mensaje = `${E.cruz || '❌'} **Te pasaste.** Perdiste **$${apuesta.toLocaleString('es-AR')}**.`;
     gananciaNeta = -apuesta;
   } else if (naturalJugador && !esBlackjack(dealer)) {
-    // Blackjack natural paga 3:2 → neto +1.5x (se devuelve apuesta + 1.5)
-    const premio = Math.floor(apuesta * 2.5); // total acreditado
+    const premio = Math.floor(apuesta * 2.5);
     await agregarSaldo(userId, premio, {
       tipo: 'INGRESO',
       motivo: `Blackjack natural (+3:2) apuesta $${apuesta}`
@@ -312,7 +314,6 @@ export default {
       procesando: false
     };
 
-    // Blackjack natural inmediato
     if (naturalJugador || naturalDealer) {
       cooldowns.set(userId, Date.now() + COOLDOWN_MS);
       activeGames.delete(userId);
@@ -355,7 +356,8 @@ export default {
 
     const collector = msg.createMessageComponentCollector({
       componentType: ComponentType.Button,
-      time: PARTIDA_TIMEOUT_MS,
+      time: PARTIDA_MAX_MS,
+      idle: PARTIDA_IDLE_MS,
       filter: (i) => i.customId.startsWith(`bj:${partidaId}:`)
     });
 
@@ -425,7 +427,6 @@ export default {
         }
 
         if (accion === 'double') {
-          // Solo si aún tiene 2 cartas y saldo alcanza
           if (estado.jugador.length !== 2) {
             estado.procesando = false;
             return i.reply({
@@ -519,12 +520,21 @@ export default {
         activeGames.delete(userId);
         return;
       }
-      if (reason === 'time') {
+      // idle = no tocó botones · time = tope máximo · messageDelete, etc.
+      if (reason === 'idle' || reason === 'time' || reason === 'messageDelete') {
         estado.terminada = true;
         cooldowns.set(userId, Date.now() + COOLDOWN_MS);
         activeGames.delete(userId);
         try {
-          const res = await resolverDealerYPago(estado);
+          if (!estado.pagado && estado.apuesta > 0) {
+            await agregarSaldo(userId, estado.apuesta, {
+              tipo: 'INGRESO',
+              motivo: `Blackjack cancelado por inactividad (reembolso $${estado.apuesta})`
+            });
+            estado.pagado = true;
+          }
+          const saldo = await obtenerSaldo(userId);
+          if (reason === 'messageDelete') return;
           await msg.edit({
             embeds: [
               embedPartida({
@@ -532,18 +542,23 @@ export default {
                 apuesta: estado.apuesta,
                 jugador: estado.jugador,
                 dealer: estado.dealer,
-                ocultarDealer: false,
-                estadoTxt: `${E.tiempo || '⏳'} Tiempo agotado — te plantaste automático.\n${res.mensaje}`,
-                saldo: res.saldo,
+                ocultarDealer: true,
+                estadoTxt:
+                  `${E.tiempo || '⏳'} **Partida cancelada por inactividad.**\n` +
+                  `Se devolvió la apuesta. Podés empezar otra cuando quieras.`,
+                saldo,
                 color: PRIMARIO
               })
             ],
             components: [botonesDeshabilitados(partidaId)]
-          });
+          }).catch(() => null);
         } catch (e) {
-          console.error('[blackjack] timeout:', e);
+          console.error('[blackjack] cancel idle/timeout:', e);
+          activeGames.delete(userId);
         }
+        return;
       }
+      activeGames.delete(userId);
     });
   }
 };
