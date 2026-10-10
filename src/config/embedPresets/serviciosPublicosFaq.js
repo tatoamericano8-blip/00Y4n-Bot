@@ -94,136 +94,185 @@ export default {
 /** Contenido por opción del menú (embeds efímeros). */
 export function buildSpFaqEmbeds(value) {
   const map = {
-    sp_faq_general: new EmbedBuilder()
-      .setColor(COLOR_SP)
-      .setTitle(`${ES.info} FAQ · General`)
-      .setDescription(
-        `${ES.dot} **¿Qué es este servidor?**\n` +
-          `Es la **División de Servicios Públicos de 00Y4n**: departamentos de emergencia (policía, etc.) vinculados al roleplay de Southwest Florida.\n\n` +
-          `${ES.dot} **¿Cómo empiezo?**\n` +
-          `1. Leé el canal **informativo / reglamento**.\n` +
-          `2. Unite al server principal de 00Y4n si aún no estás.\n` +
-          `3. Postulá con \`/solicitud-departamento\` (server principal) o el formulario que indiquen.\n` +
-          `4. Esperá revisión del staff; no insistás en público.\n\n` +
-          `${ES.dot} **¿Debo tener el pase de Servicios Públicos en el juego?**\n` +
-          `Sí, cuando el juego lo exija para roles de emergencia. Sin el pase podés quedar fuera de ciertas operaciones.\n\n` +
-          `${ES.dot} **Edad mínima**\n` +
-          `Más de **13 años**. Micrófono y PC/laptop recomendados para servicio serio.`
-      ),
+    sp_faq_general: [
+      new EmbedBuilder()
+        .setColor(COLOR_SP)
+        .setTitle(`${ES.info} FAQ · General`)
+        .setDescription(
+          `${ES.dot} **¿Qué es este servidor?**\n` +
+            `Es la **División de Servicios Públicos de 00Y4n**: departamentos de emergencia (policía, etc.) vinculados al roleplay de Southwest Florida.\n\n` +
+            `${ES.dot} **¿Cómo empiezo?**\n` +
+            `1. Leé el canal **informativo / reglamento**.\n` +
+            `2. Unite al server principal de 00Y4n si aún no estás.\n` +
+            `3. Postulá con \`/solicitud-departamento\` (server principal) o el formulario que indiquen.\n` +
+            `4. Esperá revisión del staff; no insistás en público.\n\n` +
+            `${ES.dot} **¿Debo tener el pase de Servicios Públicos en el juego?**\n` +
+            `Sí, cuando el juego lo exija para roles de emergencia. Sin el pase podés quedar fuera de ciertas operaciones.\n\n` +
+            `${ES.dot} **Edad mínima**\n` +
+            `Más de **13 años**. Micrófono y PC/laptop recomendados para servicio serio.`
+        )
+    ],
 
-    sp_faq_postulacion: new EmbedBuilder()
-      .setColor(COLOR_SP)
-      .setTitle(`${ES.form || ES.perfil} FAQ · Postulaciones y Manager`)
-      .setDescription(
-        `${ES.dot} **¿Cómo me postulo a un departamento?**\n` +
-          `En el servidor **principal** de 00Y4n usá \`/solicitud-departamento\` o el formulario oficial que publique el staff.\n\n` +
-          `${ES.dot} **¿Puedo postularme a Manager / liderazgo?**\n` +
-          `Solo si **ya estás en un departamento** de Servicios Públicos. Si no estás en ninguno, la postulación se rechaza.\n\n` +
-          `${ES.dot} **Requisitos típicos**\n` +
-          `Historial limpio · micrófono · buena comunicación en español · cumplir reglamento · respuestas propias (sin IA).\n\n` +
-          `${ES.dot} **¿Cuánto tardan en revisar?**\n` +
-          `Aprox. **una semana**. Si no hay respuesta, abrí un **ticket de soporte** (no spamees en chat).\n\n` +
-          `${ES.dot} **Pedir que lean tu form antes de tiempo**\n` +
-          `Puede hacer que te **rechacen** la postulación.`
-      ),
+    sp_faq_postulacion: [
+      new EmbedBuilder()
+        .setColor(COLOR_SP)
+        .setTitle(`${ES.form || ES.perfil} FAQ · Postulaciones y Manager`)
+        .setDescription(
+          `${ES.dot} **¿Cómo me postulo a un departamento?**\n` +
+            `En el servidor **principal** de 00Y4n usá \`/solicitud-departamento\` o el formulario oficial que publique el staff.\n\n` +
+            `${ES.dot} **¿Puedo postularme a Manager / liderazgo?**\n` +
+            `Solo si **ya estás en un departamento** de Servicios Públicos. Si no estás en ninguno, la postulación se rechaza.\n\n` +
+            `${ES.dot} **Requisitos típicos**\n` +
+            `Historial limpio · micrófono · buena comunicación en español · cumplir reglamento · respuestas propias (sin IA).\n\n` +
+            `${ES.dot} **¿Cuánto tardan en revisar?**\n` +
+            `Aprox. **una semana**. Si no hay respuesta, abrí un **ticket de soporte** (no spamees en chat).\n\n` +
+            `${ES.dot} **Pedir que lean tu form antes de tiempo**\n` +
+            `Puede hacer que te **rechacen** la postulación.`
+        )
+    ],
 
-    sp_faq_deptos: new EmbedBuilder()
-      .setColor(COLOR_SP)
-      .setTitle(`${ES.egpd || ES.corona} FAQ · Departamentos`)
-      .setDescription(
-        `${ES.dot} **¿Qué departamentos hay?**\n` +
-          `Policía del Condado / unidades de emergencia según lo publicado por Alto Comando. Solo **un departamento** a la vez en la mayoría de los casos.\n\n` +
-          `${ES.dot} **¿El form me da el rol solo?**\n` +
-          `No. El staff revisa, aprueba y asigna roles tras entrenamiento o inducción.\n\n` +
-          `${ES.dot} **¿Dónde opero en Roblox?**\n` +
-          `En las sesiones de Southwest Florida organizadas por 00Y4n, siguiendo al host y a tu superior de departamento.\n\n` +
-          `${ES.dot} **Call-signs / identificaciones**\n` +
-          `Las asigna el liderazgo del depto. No te inventes un rango ni un código que no te dieron. Ver también **Sign Calls** en este menú.`
-      ),
+    sp_faq_deptos: [
+      new EmbedBuilder()
+        .setColor(COLOR_SP)
+        .setTitle(`${ES.egpd || ES.corona} FAQ · Departamentos`)
+        .setDescription(
+          `${ES.dot} **¿Qué departamentos hay?**\n` +
+            `Policía del Condado / unidades de emergencia según lo publicado por Alto Comando. Solo **un departamento** a la vez en la mayoría de los casos.\n\n` +
+            `${ES.dot} **¿El form me da el rol solo?**\n` +
+            `No. El staff revisa, aprueba y asigna roles tras entrenamiento o inducción.\n\n` +
+            `${ES.dot} **¿Dónde opero en Roblox?**\n` +
+            `En las sesiones de Southwest Florida organizadas por 00Y4n, siguiendo al host y a tu superior de departamento.\n\n` +
+            `${ES.dot} **Call-signs / identificaciones**\n` +
+            `Las asigna el liderazgo del depto. No te inventes un rango ni un código que no te dieron. Ver también **Sign Calls** en este menú.`
+        )
+    ],
 
-    sp_faq_radio: new EmbedBuilder()
-      .setColor(COLOR_SP)
-      .setTitle(`${ES.alarm || ES.warn} FAQ · Servicio y radio`)
-      .setDescription(
-        `${ES.dot} **¿Qué es la “radio” o el canal de operaciones?**\n` +
-          `Es la **comunicación en servicio** (voz/texto del departamento) mientras operás: códigos, priorización, respeto y claridad. No es el chat general del server.\n\n` +
-          `${ES.dot} **¿Cómo debo comportarme en servicio?**\n` +
-          `Profesional · sin FRP · sin faltarle el respeto a civiles ni a compañeros · seguir códigos y órdenes del superior.\n\n` +
-          `${ES.dot} **Si un superior maltrata a un subordinado en radio/voz**\n` +
-          `Documentá (hora, canal, testigos) y reportá por **ticket** o a Alto Comando. No escales pelea en público.\n\n` +
-          `${ES.dot} **Si varios no usan códigos / procedimientos**\n` +
-          `Primero **corregí y enseñá**; strikes o anuncios solo si el liderazgo lo autoriza y es reiterado.\n\n` +
-          `${ES.dot} **Conducción imprudente o abuso de poder**\n` +
-          `Puede terminar en warn, strike, suspensión o baja, según gravedad y historial.`
-      ),
+    sp_faq_radio: [
+      new EmbedBuilder()
+        .setColor(COLOR_SP)
+        .setTitle(`${ES.alarm || ES.warn} FAQ · Servicio y radio`)
+        .setDescription(
+          `${ES.dot} **¿Qué es la “radio” o el canal de operaciones?**\n` +
+            `Es la **comunicación en servicio** (voz/texto del departamento) mientras operás: códigos, priorización, respeto y claridad. No es el chat general del server.\n\n` +
+            `${ES.dot} **¿Cómo debo comportarme en servicio?**\n` +
+            `Profesional · sin FRP · sin faltarle el respeto a civiles ni a compañeros · seguir códigos y órdenes del superior.\n\n` +
+            `${ES.dot} **Si un superior maltrata a un subordinado en radio/voz**\n` +
+            `Documentá (hora, canal, testigos) y reportá por **ticket** o a Alto Comando. No escales pelea en público.\n\n` +
+            `${ES.dot} **Si varios no usan códigos / procedimientos**\n` +
+            `Primero **corregí y enseñá**; strikes o anuncios solo si el liderazgo lo autoriza y es reiterado.\n\n` +
+            `${ES.dot} **Conducción imprudente o abuso de poder**\n` +
+            `Puede terminar en warn, strike, suspensión o baja, según gravedad y historial.`
+        )
+    ],
 
-    sp_faq_sign_calls: new EmbedBuilder()
-      .setColor(COLOR_SP)
-      .setTitle(`${ES.alarm} FAQ · Sign Calls`)
-      .setDescription(
-        [
-          'Las **sign calls** (unit signs / identificadores de radio) son el **código de unidad** de cada oficial en sesión.',
-          '',
-          `${ES.flecha} **Para qué sirven**`,
-          `${ES.dot} Identificarte en radio/chat sin usar solo el nombre de Discord`,
-          `${ES.dot} Saber quién está disponible, quién va a un llamado y quién está en escena`,
-          `${ES.dot} Ordenar el RP policial cuando hay varios oficiales online`,
-          '',
-          `${ES.flecha} **Cómo se asignan**`,
-          `${ES.dot} Las da el **liderazgo del departamento** (o quien gestione turnos)`,
-          `${ES.dot} Suelen verse en nick de Discord, canal de turnos o lista del depto`,
-          `${ES.dot} Ejemplos: \`2-Adam-7\`, \`Lincoln-3\`, \`1-Boy-4\` (el formato lo define el depto)`,
-          `${ES.warn} **No te inventes una sign.** Si no te la dieron, pedila a un superior o por ticket.`,
-          '',
-          `${ES.flecha} **Cómo se usan**`,
-          `${ES.dot} Entrar en servicio: *2-Adam-7, 10-8 / en servicio*`,
-          `${ES.dot} Responder llamado: *2-Adam-7 en camino* · *2-Adam-7 10-97 / en escena*`,
-          `${ES.dot} Salir de servicio: *2-Adam-7, 10-7*`,
-          '',
-          `${ES.flecha} **Códigos frecuentes** (si el depto tiene lista propia, esa manda)`,
-          `${ES.dot} **10-8** — En servicio / disponible`,
-          `${ES.dot} **10-7** — Fuera de servicio`,
-          `${ES.dot} **10-97** — En escena`,
-          `${ES.dot} **10-6** — Ocupado`,
-          `${ES.dot} **Prioridad** — Respuesta urgente (sin abusar)`,
-          '',
-          `${ES.warn} No uses la sign de otro oficial. Si alguien la usa mal, avisá a un superior.`,
-          '',
-          `-# ${ES.egpd} DPS / Servicios Públicos 00Y4n`
-        ].join('\n')
-      ),
+    sp_faq_sign_calls: [
+      new EmbedBuilder()
+        .setColor(COLOR_SP)
+        .setTitle(`${ES.alarm} FAQ · Sign Calls (guía oficial)`)
+        .setDescription(
+          [
+            'Las **sign calls** (unit signs / identificadores de radio) son el **código de unidad** de cada oficial en sesión.',
+            '',
+            'Sirven para que despacho y el resto del departamento sepan **quién habla**, **si está disponible** y **quién responde un llamado**, sin usar solo el nombre de Discord.',
+            '',
+            `${ES.flecha} **Para qué sirven**`,
+            `${ES.dot} Identificarte en radio / chat de sesión`,
+            `${ES.dot} Saber quién está libre, en camino o en escena`,
+            `${ES.dot} Ordenar el RP policial con varios oficiales online`,
+            `${ES.dot} Evitar confusiones y solapamientos en radio`,
+            '',
+            `${ES.flecha} **Cómo se asignan**`,
+            `${ES.dot} Las da el **liderazgo del departamento** (o quien gestione turnos)`,
+            `${ES.dot} Suelen verse en nick de Discord, canal de turnos o lista del depto`,
+            `${ES.dot} Ejemplos de formato: \`2-Adam-7\`, \`Lincoln-3\`, \`1-Boy-4\` *(el formato exacto lo define el depto)*`,
+            `${ES.warn} **No te inventes una sign.** Si no te la dieron, pedila a un superior o por ticket de soporte.`,
+            `${ES.dot} Si cambiás de rango o de unidad, la sign puede actualizarse.`,
+            '',
+            `${ES.flecha} **Cómo se usan en sesión**`,
+            `${ES.dot} **Entrar en servicio:** *2-Adam-7, 10-8 / en servicio*`,
+            `${ES.dot} **Responder llamado:** *2-Adam-7 en camino* · *2-Adam-7 10-97 / en escena*`,
+            `${ES.dot} **Pedir respaldo:** *2-Adam-7, 10-78, necesito unidades*`,
+            `${ES.dot} **Situación controlada:** *2-Adam-7, Code 4*`,
+            `${ES.dot} **Salir de servicio:** *2-Adam-7, 10-7*`,
+            `${ES.dot} En chat de sesión, firmá o anteponé tu sign si el protocolo del depto lo pide.`
+          ].join('\n')
+        ),
+      new EmbedBuilder()
+        .setColor(COLOR_SP)
+        .setTitle(`${ES.check} Códigos frecuentes (oficial DPS / SP 00Y4n)`)
+        .setDescription(
+          [
+            'Si el departamento publica una lista propia en **#dp-información** o **#dp-ajustes**, esa lista manda. Mientras tanto, usá estos:',
+            '',
+            `${ES.flecha} **Estado / disponibilidad**`,
+            `${ES.dot} **10-8** — En servicio / disponible`,
+            `${ES.dot} **10-7** — Fuera de servicio`,
+            `${ES.dot} **10-6** — Ocupado (no disponible para otro llamado)`,
+            `${ES.dot} **10-97** — En escena / llegado al lugar`,
+            `${ES.dot} **10-76** — En camino / en ruta al llamado`,
+            '',
+            `${ES.flecha} **Comunicación**`,
+            `${ES.dot} **10-4** — Afirmativo / recibido`,
+            `${ES.dot} **10-9** — Repetí / no escuché bien`,
+            `${ES.dot} **10-20** — Ubicación (¿dónde estás?)`,
+            '',
+            `${ES.flecha} **Operativos**`,
+            `${ES.dot} **10-15** — Sujeto en custodia / detenido`,
+            `${ES.dot} **10-19** — Regreso a estación / base`,
+            `${ES.dot} **10-78** — Necesito asistencia / respaldo`,
+            `${ES.dot} **10-33** — Emergencia (usar solo si corresponde)`,
+            '',
+            `${ES.flecha} **Prioridad de respuesta**`,
+            `${ES.dot} **Code 1** — Respuesta normal / sin urgencia`,
+            `${ES.dot} **Code 2** — Urgente, sin luces/sirena excesiva (según RP del depto)`,
+            `${ES.dot} **Code 3 / Prioridad** — Respuesta de emergencia (sin abusar)`,
+            `${ES.dot} **Code 4** — Situación bajo control · no se necesita más unidades`,
+            '',
+            `${ES.dot} Si no recordás un código, usá lenguaje claro: *en camino*, *en escena*, *disponible*, *ocupado*, *necesito respaldo*.`,
+            '',
+            `${ES.warn} **No uses la sign de otro oficial.** Si alguien la usa mal, avisá a un superior.`,
+            '',
+            `-# ${ES.egpd} Guía oficial · DPS / Servicios Públicos 00Y4n`
+          ].join('\n')
+        )
+        .setFooter({ text: 'División de Servicios Públicos | 00Y4n' })
+    ],
 
-    sp_faq_cuotas: new EmbedBuilder()
-      .setColor(COLOR_SP)
-      .setTitle(`${ES.corona || ES.star} FAQ · Cuotas y liderazgo`)
-      .setDescription(
-        `${ES.dot} **¿Qué son las cuotas?**\n` +
-          `Metas mínimas de actividad (sesiones, servicio, etc.) que define el liderazgo. **No** las bajas por tu cuenta sin aprobación.\n\n` +
-          `${ES.dot} **¿Cada cuánto se revisan?**\n` +
-          `Según política interna (suele ser semanal o quincenal). Lo anuncia Alto Comando / Manager.\n\n` +
-          `${ES.dot} **Roles de liderazgo (resumen)**\n` +
-          `Manager / Alto Comando: supervisión, cuotas, casos serios.\n` +
-          `Líderes de depto: operación diaria y mentoría.\n` +
-          `Staff de depto: servicio en sesión y disciplina básica.\n\n` +
-          `${ES.dot} **Sanciones posibles**\n` +
-          `Strike de departamento · licencia administrativa · suspensión · terminación del equipo.`
-      ),
+    sp_faq_cuotas: [
+      new EmbedBuilder()
+        .setColor(COLOR_SP)
+        .setTitle(`${ES.corona || ES.star} FAQ · Cuotas y liderazgo`)
+        .setDescription(
+          `${ES.dot} **¿Qué son las cuotas?**\n` +
+            `Metas mínimas de actividad (sesiones, servicio, etc.) que define el liderazgo. **No** las bajas por tu cuenta sin aprobación.\n\n` +
+            `${ES.dot} **¿Cada cuánto se revisan?**\n` +
+            `Según política interna (suele ser semanal o quincenal). Lo anuncia Alto Comando / Manager.\n\n` +
+            `${ES.dot} **Roles de liderazgo (resumen)**\n` +
+            `Manager / Alto Comando: supervisión, cuotas, casos serios.\n` +
+            `Líderes de depto: operación diaria y mentoría.\n` +
+            `Staff de depto: servicio en sesión y disciplina básica.\n\n` +
+            `${ES.dot} **Sanciones posibles**\n` +
+            `Strike de departamento · licencia administrativa · suspensión · terminación del equipo.`
+        )
+    ],
 
-    sp_faq_tickets: new EmbedBuilder()
-      .setColor(COLOR_SP)
-      .setTitle(`${ES.faq || ES.reply} FAQ · Tickets y soporte`)
-      .setDescription(
-        `${ES.dot} **¿Cuándo abro ticket?**\n` +
-          `Dudas serias · reportes · postulaciones sin respuesta · conflictos de depto · bugs del panel SP.\n\n` +
-          `${ES.dot} **¿Dónde?**\n` +
-          `Canal de **asistencia / soporte** de este server (menú de tickets). No abras tickets falsos o de broma.\n\n` +
-          `${ES.dot} **¿Quién atiende?**\n` +
-          `Staff de Servicios Públicos. Solo ellos reclaman y cierran tickets de SP.\n\n` +
-          `${ES.dot} **Tips al abrir**\n` +
-          `Explicá qué, cuándo y adjuntá capturas. Sé respetuoso: el tono cuenta.`
-      )
+    sp_faq_tickets: [
+      new EmbedBuilder()
+        .setColor(COLOR_SP)
+        .setTitle(`${ES.faq || ES.reply} FAQ · Tickets y soporte`)
+        .setDescription(
+          `${ES.dot} **¿Cuándo abro ticket?**\n` +
+            `Dudas serias · reportes · postulaciones sin respuesta · conflictos de depto · bugs del panel SP.\n\n` +
+            `${ES.dot} **¿Dónde?**\n` +
+            `Canal de **asistencia / soporte** de este server (menú de tickets). No abras tickets falsos o de broma.\n\n` +
+            `${ES.dot} **¿Quién atiende?**\n` +
+            `Staff de Servicios Públicos. Solo ellos reclaman y cierran tickets de SP.\n\n` +
+            `${ES.dot} **Tips al abrir**\n` +
+            `Explicá qué, cuándo y adjuntá capturas. Sé respetuoso: el tono cuenta.`
+        )
+    ]
   };
 
   const emb = map[value];
-  return emb ? [emb] : [];
+  return Array.isArray(emb) ? emb : emb ? [emb] : [];
 }
