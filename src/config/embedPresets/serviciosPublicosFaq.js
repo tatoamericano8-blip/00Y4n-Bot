@@ -202,7 +202,7 @@ export function buildSpFaqEmbeds(value) {
         .setTitle(`${ES.check} Códigos frecuentes (oficial DPS / SP 00Y4n)`)
         .setDescription(
           [
-            'Si el departamento publica una lista propia en **#dp-información** o **#dp-ajustes**, esa lista manda. Mientras tanto, usá estos:',
+            'Lista de códigos que se deben usar durante las sesiones:',
             '',
             `${ES.flecha} **Estado / disponibilidad**`,
             `${ES.dot} **10-8** — En servicio / disponible`,
