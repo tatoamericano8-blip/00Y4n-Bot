@@ -53,16 +53,34 @@ const TIPOS = {
   fastpass_departamento: {
     label: 'Fastpass de departamento',
     slug: 'fastpass',
-    reason: 'Fastpass de departamento o solicitud de rol / handpick',
+    reason: 'Fastpass de departamento',
     formato:
       '```\n' +
       '1) Departamento al que aplicás:\n' +
-      '2) ¿Fastpass o solicitud de rol / handpick?:\n' +
+      '2) Motivo del fastpass:\n' +
       '3) Experiencia previa (si hay):\n' +
-      '4) Motivo de la solicitud:\n' +
-      '5) Pruebas / capturas (si aplica):\n' +
+      '4) Pruebas / capturas (si aplica):\n' +
       '```\n' +
-      'Completá el formato para que el liderazgo pueda evaluar.'
+      'Completá el formato para que el liderazgo pueda evaluar.\n' +
+      `-# Si ya completaste \`/solicitud-departamento\` y pedís el **rol**, usá el ticket **Solicitud de rol**.`
+  },
+  solicitud_rol: {
+    label: 'Solicitud de rol',
+    slug: 'solicitud-rol',
+    reason: 'Solicitud de rol — post /solicitud-departamento',
+    formato:
+      '**Formato de solicitud de rol:**\n' +
+      '```\n' +
+      'Ping:\n' +
+      'Discord:\n' +
+      'Roblox:\n' +
+      'Zona horaria:\n' +
+      'Fecha:\n' +
+      'Departamento:\n' +
+      'Pruebas:\n' +
+      '```\n' +
+      'Usá este ticket **después** de haber completado el formulario de \`/solicitud-departamento\`.\n' +
+      'Completá el formato en tu próximo mensaje.'
   },
   entrenamiento_policial: {
     label: 'Solicitud de Entrenamiento Policial',
@@ -357,7 +375,6 @@ export default {
 
       if (tipoKey === 'entrenamiento_policial') {
         const { grupoA, grupoB } = buildEntrenamientoEmbeds();
-        // Dos mensajes para no pasar el límite de ~6000 chars (Invalid Form Body)
         const msg1 = await channel.send({
           content: `${member}`,
           embeds: [embedMain, ...grupoA],
