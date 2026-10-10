@@ -78,7 +78,7 @@ export default {
           label: 'Servidor de Servicios Públicos',
           description: 'Unite al servidor de departamentos SP',
           value: 'servicios_publicos',
-          emoji: optEmoji('estrella') || optEmoji('star') || optEmoji('corona')
+          emoji: optEmoji('multa') || optEmoji('multa') || optEmoji('multa')
         }
       );
 
