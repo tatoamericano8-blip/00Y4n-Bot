@@ -44,6 +44,9 @@ export default {
           `${ES.flecha} **Fastpasses de departamento:**\n` +
           `${ES.dot} Usalo para enviar un **fastpass** de departamento, o para pedir un rol de handpick / roles ` +
           `que todavía no hayas obtenido en el servidor del departamento.\n\n` +
+          `${ES.flecha} **Solicitud de entrenamiento policial:**\n` +
+          `${ES.dot} Solo para miembros con rol de **Policía**. Academia básica del Departamento Policial ` +
+          `(checklist, comandos y escenarios). Sin aprobación no se sanciona solo.\n\n` +
           `${ES.egpd} **Servicios Públicos 00Y4n** ${ES.lock}`
       );
 
@@ -68,6 +71,12 @@ export default {
           description: 'Fastpass o solicitud de rol / handpick',
           value: 'fastpass_departamento',
           emoji: optEmoji('singlekey') || optEmoji('star')
+        },
+        {
+          label: 'Solicitud de Entrenamiento Policial',
+          description: 'Academia básica DPS (solo rol Policía)',
+          value: 'entrenamiento_policial',
+          emoji: optEmoji('egpd') || optEmoji('form')
         }
       );
 
