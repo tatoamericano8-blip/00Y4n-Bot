@@ -89,10 +89,10 @@ function buildEntrenamientoEmbeds() {
         `${ES.flecha} **Objetivo**`,
         'Prioridades en patrulla, comandos del bot y actuación en situaciones comunes.',
         '',
-        `${ES.warn} **Sin aprobación:** patrulla **acompañada** · **no** sancionás solo.`,
+        `${ES.warn} **Sin aprobación:** patrulla **acompañada** · **no** emitis antecedentes policiales solo.`,
         `${ES.tilde} **Con aprobación:** más autonomía según tu rango y normas del depto.`,
         '',
-        `${ES.info} Las **sign calls** se explican en el canal / mensaje **SP · Sign Calls** (preset del bot). Leelas antes de responder el escenario 6.`
+        `${ES.info} Las **sign calls** se explican en el canal <#1524118786817392670>. Leelas antes de responder el escenario 6.`
       ].join('\n')
     );
 
@@ -103,7 +103,7 @@ function buildEntrenamientoEmbeds() {
       [
         'Si no sabés el canal, preguntá en **dp salón** o a un superior.',
         '',
-        '• `/mdt` — Antecedentes / ficha',
+        '• `/perfil` — Información más completa del ciudadano (debes tener autorización del ciudadano para revisarla dentro de sesión)',
         '• `/multar` — Emitir multa',
         '• `/pagar-multa` — El civil paga',
         '• `/arrestar` — Arresto',
@@ -122,13 +122,13 @@ function buildEntrenamientoEmbeds() {
     .setDescription(
       [
         '□ Leí `#dp-información`',
-        '□ Leí `#dp-ajustes`',
+        '□ Leí `#preguntas-frecuentes`',
         '□ Prioridades: RP general > situaciones activas > tráfico > operativos > trámites',
-        '□ Comandos: MDT, multa, arresto, orden, licencia',
-        '□ Leí la guía de **Sign Calls** (preset SP · Sign Calls)',
+        '□ Comandos: Perfil, multa, arresto, orden, licencia',
+        '□ Leí la guía de **Sign Calls**',
         '□ Sé dónde pedir ayuda (este ticket / superior / soporte)',
         '',
-        'Escribí **listo** cuando completes el checklist + los 6 escenarios de abajo.'
+        'Escribí **listo** cuando completes el chequeo y los 6 escenarios de abajo.'
       ].join('\n')
     );
 
@@ -140,7 +140,7 @@ function buildEntrenamientoEmbeds() {
         'Respuestas cortas y en orden. Pasos claros.',
         '',
         '**1) Tráfico**',
-        'Civil a alta velocidad cerca de zona escolar; no se detiene a la primera señal. ¿Qué hacés, en orden?',
+        'Civil a alta velocidad cerca de zona escolar o de zona turística ; no se detiene a la primera señal. ¿Qué hacés, en orden?',
         '',
         '**2) MDT + multa**',
         'Detención por infracción menor. ¿Qué revisás antes de multar y cómo emitís la multa?',
@@ -158,7 +158,7 @@ function buildEntrenamientoEmbeds() {
         'Estás en servicio con tu sign. Sale un llamado prioritario cerca. ¿Qué avisás por radio y qué hacés después?',
         '',
         `${ES.flecha} **Aprobar:** checklist + 6 escenarios → (recomendado) 1 turno acompañado → supervisor confirma acá.`,
-        `${ES.lock} Hasta aprobación: patrulla acompañado · no sancionar solo.`,
+        `${ES.lock} Hasta aprobación: patrulla acompañado · no emitir antecedentes solo.`,
         '',
         `-# ${ES.egpd} DPS / SP 00Y4n`
       ].join('\n')
