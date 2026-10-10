@@ -1,88 +1,61 @@
-import { EmbedBuilder } from 'discord.js';
+import {
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  MessageFlags
+} from 'discord.js';
+import {
+  DEPARTAMENTOS,
+  setSolicitudPending
+} from '../../commands/Tools/solicitud-departamento.js';
 
-const CANAL_FORMULARIOS = '1532865290529145043';
-
-const DEPARTAMENTOS = {
-    bomberos: {
-        nombre: 'Servicio de Bomberos y Rescate de Bonita Springs',
-        emoji: '🚒',
-        color: '#e74c3c'
-    },
-    sem: {
-        nombre: 'Servicios de Emergencias Médicas',
-        emoji: '🚑',
-        color: '#3498db'
-    },
-    policia: {
-        nombre: 'Departamento Policial del Condado de Sarasota',
-        emoji: '👮',
-        color: '#2c3e50'
-    },
-    sheriff: {
-        nombre: 'Oficina del Sheriff del Condado de Sarasota',
-        emoji: '⭐',
-        color: '#f1c40f'
-    }
-};
-
+/**
+ * Modal parte 1 — customId: solicitud_depto:KEY
+ * Guarda respuestas y ofrece botón para abrir parte 2.
+ */
 export default {
-    name: 'solicitud_depto',
-    async execute(interaction, client, args = []) {
-        const departamentoKey = args[0] || interaction.customId.split(':')[1];
-        const dep = DEPARTAMENTOS[departamentoKey];
+  name: 'solicitud_depto',
+  async execute(interaction, client, args = []) {
+    const departamentoKey = args[0] || interaction.customId.split(':')[1];
+    const dep = DEPARTAMENTOS[departamentoKey];
 
-        if (!dep) {
-            return interaction.reply({
-                content: '❌ Departamento no reconocido.',
-                ephemeral: true
-            });
-        }
-
-        const fortalezas = interaction.fields.getTextInputValue('fortalezas');
-        const elegirte = interaction.fields.getTextInputValue('elegirte');
-        const ofrecer = interaction.fields.getTextInputValue('ofrecer');
-        const presion = interaction.fields.getTextInputValue('presion');
-        const escenario = interaction.fields.getTextInputValue('escenario');
-
-        const embed = new EmbedBuilder()
-            .setColor(dep.color)
-            .setTitle(`${dep.emoji} Nueva solicitud – ${dep.nombre}`)
-            .setDescription(
-                `**Postulante:** <@${interaction.user.id}>\n` +
-                `**Usuario:** \`${interaction.user.tag}\`\n` +
-                `**ID:** \`${interaction.user.id}\`\n` +
-                `**Departamento:** ${dep.nombre}`
-            )
-            .addFields(
-                { name: '💪 Fortalezas y debilidades', value: fortalezas.slice(0, 1024) },
-                { name: '🎯 ¿Por qué deberías ser elegido?', value: elegirte.slice(0, 1024) },
-                { name: '🤝 ¿Qué podés aportar?', value: ofrecer.slice(0, 1024) },
-                { name: '😌 Calma bajo presión', value: presion.slice(0, 1024) },
-                { name: '🚨 Escenario de emergencia', value: escenario.slice(0, 1024) }
-            )
-            .setThumbnail(interaction.user.displayAvatarURL({ dynamic: true }))
-            .setFooter({
-                text: '00Y4n Comunidad SWFL • Solicitudes de Departamentos',
-                iconURL: interaction.guild?.iconURL()
-            })
-            .setTimestamp();
-
-        const canal = interaction.guild.channels.cache.get(CANAL_FORMULARIOS);
-
-        if (!canal) {
-            return interaction.reply({
-                content: '❌ No se encontró el canal de formularios. Avisá a un administrador.',
-                ephemeral: true
-            });
-        }
-
-        await canal.send({ embeds: [embed] });
-
-        await interaction.reply({
-            content:
-                `✅ Tu solicitud para **${dep.nombre}** fue enviada correctamente.\n` +
-                `El equipo la revisará pronto. ¡Éxitos!`,
-            ephemeral: true
-        });
+    if (!dep) {
+      return interaction.reply({
+        content: '❌ Departamento no reconocido.',
+        flags: MessageFlags.Ephemeral
+      });
     }
+
+    const edad = interaction.fields.getTextInputValue('edad')?.trim() || '';
+    const mic = interaction.fields.getTextInputValue('mic')?.trim() || '';
+    const experiencia = interaction.fields.getTextInputValue('experiencia')?.trim() || '';
+    const motivacion = interaction.fields.getTextInputValue('motivacion')?.trim() || '';
+    const cadena = interaction.fields.getTextInputValue('cadena')?.trim() || '';
+
+    setSolicitudPending(interaction.user.id, {
+      departamentoKey,
+      edad,
+      mic,
+      experiencia,
+      motivacion,
+      cadena
+    });
+
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId(`solicitud_depto_p2:${departamentoKey}:${interaction.user.id}`)
+        .setLabel('Continuar parte 2')
+        .setStyle(ButtonStyle.Secondary)
+    );
+
+    return interaction.reply({
+      content:
+        `✅ **Parte 1/2 guardada** para **${dep.nombre}**.\n` +
+        `Tocá el botón para completar la **parte 2** (preguntas del departamento).\n` +
+        `-# Tenés **15 minutos**. Si expira, volvé a usar \`/solicitud-departamento\`.`,
+      components: [row],
+      flags: MessageFlags.Ephemeral
+    });
+  }
 };
