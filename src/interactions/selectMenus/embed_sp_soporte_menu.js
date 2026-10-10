@@ -79,8 +79,8 @@ const TIPOS = {
       'Departamento:\n' +
       'Pruebas:\n' +
       '```\n' +
-      'Usá este ticket **después** de haber completado el formulario de \`/solicitud-departamento\`.\n' +
-      'Completá el formato en tu próximo mensaje.'
+      'Usá este ticket **después** de haber completado el formulario de \`/solicitud-departamento\` y de haber sido aceptado.\n' +
+      'Completá el formato en tu próximo mensaje para tu roleo.'
   },
   entrenamiento_policial: {
     label: 'Solicitud de Entrenamiento Policial',
