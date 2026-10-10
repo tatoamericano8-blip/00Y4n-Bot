@@ -18,7 +18,6 @@ function optEmoji(key) {
 
 /**
  * Preset: Soporte / Tickets — División de Servicios Públicos | 00Y4n
- * Referencia GVRU Public Services Support (traducido + ES.*)
  */
 export default {
   id: 'servicios_publicos_soporte',
@@ -41,9 +40,11 @@ export default {
           `${ES.flecha} **Reporte de departamento:**\n` +
           `${ES.dot} Usalo para reportar a un **miembro de departamento** que pueda estar incumpliendo las normas. ` +
           `Reuní pruebas si hace falta para que el liderazgo del departamento actúe según la gravedad.\n\n` +
-          `${ES.flecha} **Fastpasses de departamento:**\n` +
-          `${ES.dot} Usalo para enviar un **fastpass** de departamento, o para pedir un rol de handpick / roles ` +
-          `que todavía no hayas obtenido en el servidor del departamento.\n\n` +
+          `${ES.flecha} **Fastpass de departamento:**\n` +
+          `${ES.dot} Usalo para enviar un **fastpass** de departamento.\n\n` +
+          `${ES.flecha} **Solicitud de rol:**\n` +
+          `${ES.dot} Usalo **después** de completar el formulario de \`/solicitud-departamento\` para pedir el rol ` +
+          `correspondiente en el servidor del departamento.\n\n` +
           `${ES.flecha} **Solicitud de entrenamiento policial:**\n` +
           `${ES.dot} Solo para miembros con rol de **Policía**. Academia básica del Departamento Policial ` +
           `(checklist, comandos y escenarios). Sin aprobación no se sanciona solo.\n\n` +
@@ -68,9 +69,15 @@ export default {
         },
         {
           label: 'Fastpass de departamento',
-          description: 'Fastpass o solicitud de rol / handpick',
+          description: 'Enviar un fastpass de departamento',
           value: 'fastpass_departamento',
           emoji: optEmoji('singlekey') || optEmoji('star')
+        },
+        {
+          label: 'Solicitud de rol',
+          description: 'Tras /solicitud-departamento — pedir el rol',
+          value: 'solicitud_rol',
+          emoji: optEmoji('form') || optEmoji('check')
         },
         {
           label: 'Solicitud de Entrenamiento Policial',
