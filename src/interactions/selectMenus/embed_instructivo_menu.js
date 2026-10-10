@@ -3,6 +3,8 @@ import { getPreset } from '../../config/embedPresets/index.js';
 import { E } from '../../config/emojis.js';
 import { PRIMARIO } from '../../utils/colores.js';
 
+const LINK_SERVICIOS_PUBLICOS = 'https://discord.gg/xSvp5y6Fy';
+
 async function buildBoostVentajas() {
   const star = E.mitadestrella || E.corona;
   return {
@@ -39,6 +41,23 @@ async function buildRobloxComunidad() {
   };
 }
 
+async function buildServiciosPublicos() {
+  return {
+    embeds: [
+      new EmbedBuilder()
+        .setColor(PRIMARIO)
+        .setTitle(`${E.estrella || E.corona || E.dot} Servidor de Servicios Públicos`)
+        .setDescription(
+          `${E.flecha} **División de Servicios Públicos 00Y4n** — departamentos de emergencia (policía, SEM, bomberos y más) vinculados al roleplay de Southwest Florida.\n\n` +
+            `${E.dot} Para unirte al servidor de **Servicios Públicos**, hacé clic [**aquí**](${LINK_SERVICIOS_PUBLICOS}).\n\n` +
+            `${E.dot} Una vez adentro vas a encontrar información, postulaciones y el soporte de departamentos.\n\n` +
+            `-# Invitación: ${LINK_SERVICIOS_PUBLICOS}`
+        )
+        .setFooter({ text: 'Southwest Florida Comunidad 00Y4n ™' })
+    ]
+  };
+}
+
 export default {
   name: 'embed_instructivo_menu',
 
@@ -59,6 +78,8 @@ export default {
         payload = await buildBoostVentajas();
       } else if (value === 'roblox_comunidad') {
         payload = await buildRobloxComunidad();
+      } else if (value === 'servicios_publicos') {
+        payload = await buildServiciosPublicos();
       } else {
         const preset = getPreset(value);
         if (!preset) {
