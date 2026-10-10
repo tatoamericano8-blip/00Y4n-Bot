@@ -76,24 +76,23 @@ const TIPOS = {
   }
 };
 
+/** Guía de entrenamiento (sin sign calls: van en preset /embed-send SP · Sign Calls). */
 function buildEntrenamientoEmbeds() {
   const guia1 = new EmbedBuilder()
     .setColor(COLOR_SP)
-    .setTitle(`${ES.egpd} Entrenamiento básico — Departamento Policial Sarasota`)
+    .setTitle(`${ES.egpd} Entrenamiento básico — DPS Sarasota`)
     .setDescription(
       [
-        `${ES.dot} **Duración estimada:** 20–30 min (lectura + respuestas)`,
-        `${ES.dot} **Obligatorio** para cadetes / oficiales nuevos antes de sancionar solos.`,
+        `${ES.dot} **Duración:** ~20–30 min (lectura + respuestas)`,
+        `${ES.dot} **Obligatorio** antes de sancionar solos.`,
         '',
         `${ES.flecha} **Objetivo**`,
-        'Salir a sesión sabiendo prioridades en patrulla, comandos del bot, **sign calls** y cómo actuar en situaciones comunes.',
+        'Prioridades en patrulla, comandos del bot y actuación en situaciones comunes.',
         '',
-        `${ES.warn} **Sin aprobación de este entrenamiento:**`,
-        '• Podés patrullar **acompañado** de un oficial de mayor rango',
-        '• **No** sancionás solo (multa, arresto, orden, etc.)',
+        `${ES.warn} **Sin aprobación:** patrulla **acompañada** · **no** sancionás solo.`,
+        `${ES.tilde} **Con aprobación:** más autonomía según tu rango y normas del depto.`,
         '',
-        `${ES.tilde} **Con aprobación:**`,
-        '• Podés actuar con más autonomía según tu rango y las normas del departamento'
+        `${ES.info} Las **sign calls** se explican en el canal / mensaje **SP · Sign Calls** (preset del bot). Leelas antes de responder el escenario 6.`
       ].join('\n')
     );
 
@@ -102,106 +101,74 @@ function buildEntrenamientoEmbeds() {
     .setTitle(`${ES.info} Guía corta de comandos`)
     .setDescription(
       [
-        'Usá estos en sesión / canales correspondientes. Si no sabés el canal, preguntá en **dp salón** o a un superior.',
+        'Si no sabés el canal, preguntá en **dp salón** o a un superior.',
         '',
-        '• `/mdt` — Consultar antecedentes / ficha del civil',
-        '• `/multar` — Emitir multa (motivo + monto según normativa)',
-        '• `/pagar-multa` — El civil paga su multa',
-        '• `/arrestar` — Arresto (si aplica rol Orden de Arresto, se resuelve al cumplirla)',
-        '• `/orden` — Orden de arresto / restricción según protocolo',
-        '• `/licencia` — Revisar / gestionar licencia',
-        '• `/historialArrestos` — Historial reciente de arrestos (si aplica)',
+        '• `/mdt` — Antecedentes / ficha',
+        '• `/multar` — Emitir multa',
+        '• `/pagar-multa` — El civil paga',
+        '• `/arrestar` — Arresto',
+        '• `/orden` — Orden de arresto / restricción',
+        '• `/licencia` — Licencia',
+        '• `/historialArrestos` — Historial de arrestos',
         '',
-        `${ES.flecha} **Regla rápida:** Identificá → consultá MDT si hace falta → aplicá la sanción correcta → registrá / reportá si el protocolo lo pide.`,
-        '',
-        `${ES.warn} No inventes sanciones. Si dudás → rango superior o este ticket.`
-      ].join('\n')
-    );
-
-  const guiaSign = new EmbedBuilder()
-    .setColor(COLOR_SP)
-    .setTitle(`${ES.alarm} Sign calls — qué son y cómo se usan`)
-    .setDescription(
-      [
-        'Las **sign calls** (o *unit / radio signs*) son el **identificador de radio** de cada oficial en sesión. Sirven para que despacho y el resto del departamento sepan **quién habla**, **dónde está** y **si está disponible**, sin usar el nombre de Discord todo el tiempo.',
-        '',
-        `${ES.flecha} **Para qué sirven**`,
-        '• Identificarte en radio / chat de sesión ("Adam-12 en camino", "2-L-5 en escena")',
-        '• Organizar unidades (quién responde un llamado, quién está libre)',
-        '• Evitar confusión cuando hay varios oficiales online',
-        '• Mantener RP de policía más realista y ordenado',
-        '',
-        `${ES.flecha} **Cómo se te asigna**`,
-        '• El liderazgo del departamento (o quien gestione turnos) te da una **sign** al entrar o al primer turno',
-        '• Suele verse en nick de Discord, canal de turnos o lista del departamento (ej. `2-Adam-7`, `Lincoln-3`)',
-        '• **No te inventes una sign** si todavía no te la dieron: pedila a un superior o en este ticket',
-        '• Si cambiás de rango o de unidad, la sign puede actualizarse',
-        '',
-        `${ES.flecha} **Cómo se usa en sesión**`,
-        '• Al entrar en servicio: avisá por radio/salón con tu sign + estado (ej. "2-Adam-7, 10-8 / en servicio")',
-        '• Al responder un llamado: sign + que vas / que llegaste',
-        '• Al salir de servicio: sign + fuera de servicio',
-        '• En chat de sesión, anteponé o firmá con tu sign si el protocolo del depto lo pide',
-        '',
-        `${ES.flecha} **Códigos / estados frecuentes** (orientativos; el depto puede tener lista propia en \`#dp-información\` / \`#dp-ajustes\`)`,
-        '• **10-8** — En servicio / disponible',
-        '• **10-7** — Fuera de servicio',
-        '• **10-97** — En escena',
-        '• **10-6** — Ocupado (no disponible para otro llamado)',
-        '• **Code 3 / prioridad** — Respuesta urgente (según normas del servidor; no abuses)',
-        '',
-        `${ES.dot} Si no hay lista publicada de códigos, usá lenguaje claro: "en camino", "en escena", "disponible", "ocupado".`,
-        `${ES.warn} No uses la sign de otro oficial. Si alguien la está usando mal, avisá a un superior.`
+        `${ES.flecha} Identificá → MDT si hace falta → sanción correcta → registrá si el protocolo lo pide.`,
+        `${ES.warn} No inventes sanciones. Si dudás → superior o este ticket.`
       ].join('\n')
     );
 
   const guia3 = new EmbedBuilder()
     .setColor(COLOR_SP)
-    .setTitle(`${ES.check} Checklist + escenarios`)
+    .setTitle(`${ES.check} Checklist`)
     .setDescription(
       [
-        `${ES.flecha} **Checklist** (marcalo mentalmente o escribí "listo" al final)`,
         '□ Leí `#dp-información`',
         '□ Leí `#dp-ajustes`',
-        '□ Entendí prioridades en sesión (RP general > situaciones activas > tráfico > operativos > trámites)',
-        '□ Repasé: MDT, multa, arresto, orden, licencia',
-        '□ Entendí **sign calls** (qué son, cómo se asignan y cómo se usan)',
+        '□ Prioridades: RP general > situaciones activas > tráfico > operativos > trámites',
+        '□ Comandos: MDT, multa, arresto, orden, licencia',
+        '□ Leí la guía de **Sign Calls** (preset SP · Sign Calls)',
         '□ Sé dónde pedir ayuda (este ticket / superior / soporte)',
         '',
-        `${ES.flecha} **Escenarios — respondé los 6 en este ticket (numerados 1 a 6)**`,
-        'No hace falta ensayo largo: pasos claros.',
+        'Escribí **listo** cuando completes el checklist + los 6 escenarios de abajo.'
+      ].join('\n')
+    );
+
+  const guia4 = new EmbedBuilder()
+    .setColor(COLOR_SP)
+    .setTitle(`${ES.form} Escenarios (respondé 1 al 6)`)
+    .setDescription(
+      [
+        'Respuestas cortas y en orden. Pasos claros.',
         '',
         '**1) Tráfico**',
-        'Un civil va a alta velocidad cerca de zona escolar y no se detiene a la primera señal. ¿Qué hacés, en orden?',
+        'Civil a alta velocidad cerca de zona escolar; no se detiene a la primera señal. ¿Qué hacés, en orden?',
         '',
         '**2) MDT + multa**',
-        'Detenés a alguien por una infracción menor. Antes de multar, ¿qué revisás y cómo emitís la multa?',
+        'Detención por infracción menor. ¿Qué revisás antes de multar y cómo emitís la multa?',
         '',
         '**3) Arresto**',
-        'El civil se pone agresivo, no cumple órdenes legales y corresponde arresto. ¿Pasos? ¿Cuándo pedís respaldo?',
+        'Civil agresivo, no cumple órdenes legales, corresponde arresto. ¿Pasos? ¿Cuándo pedís respaldo?',
         '',
-        '**4) Duda en sesión**',
-        'No estás seguro si corresponde multa u orden. ¿Qué hacés en el momento?',
+        '**4) Duda**',
+        'No sabés si corresponde multa u orden. ¿Qué hacés en el momento?',
         '',
         '**5) Llamado dudoso**',
-        'Despacho reporta un robo en una tienda. Al llegar, el civil cambia la historia y no hay testigos ni daño visible. ¿Cómo procedés (RP + comandos)?',
+        'Despacho reporta robo en tienda. Al llegar el civil cambia la historia; no hay testigos ni daño visible. ¿Cómo procedés?',
         '',
-        '**6) Sign call / radio**',
-        'Estás 10-8 con tu sign. Sale un llamado prioritario cerca. ¿Qué decís por radio (con tu sign) y qué hacés después?',
+        '**6) Radio / sign**',
+        'Estás en servicio con tu sign. Sale un llamado prioritario cerca. ¿Qué avisás por radio y qué hacés después?',
         '',
-        `${ES.flecha} **Cómo aprobar**`,
-        '1) Completá checklist + los **6** escenarios en este ticket',
-        '2) (Recomendado) 1 turno acompañado con oficial de mayor rango',
-        '3) Un supervisor / oficial senior confirma la aprobación acá',
+        `${ES.flecha} **Aprobar:** checklist + 6 escenarios → (recomendado) 1 turno acompañado → supervisor confirma acá.`,
+        `${ES.lock} Hasta aprobación: patrulla acompañado · no sancionar solo.`,
         '',
-        `${ES.lock} Hasta que te confirmen la aprobación: patrulla acompañado · no sancionar solo.`,
-        '',
-        `-# ${ES.egpd} DPS / Servicios Públicos 00Y4n · octubre 2026`
+        `-# ${ES.egpd} DPS / SP 00Y4n`
       ].join('\n')
     )
-    .setFooter({ text: 'Respondé los escenarios en este canal. El staff revisará cuando pueda.' });
+    .setFooter({ text: 'Respondé en este canal. El staff revisará cuando pueda.' });
 
-  return [guia1, guia2, guiaSign, guia3];
+  return {
+    grupoA: [guia1, guia2],
+    grupoB: [guia3, guia4]
+  };
 }
 
 function sanitizeUserSlug(user) {
@@ -388,10 +355,18 @@ export default {
           .setEmoji('🙋')
       );
 
-      let embedsToSend = [embedMain];
-
       if (tipoKey === 'entrenamiento_policial') {
-        embedsToSend = embedsToSend.concat(buildEntrenamientoEmbeds());
+        const { grupoA, grupoB } = buildEntrenamientoEmbeds();
+        // Dos mensajes para no pasar el límite de ~6000 chars (Invalid Form Body)
+        const msg1 = await channel.send({
+          content: `${member}`,
+          embeds: [embedMain, ...grupoA],
+          components: [row]
+        });
+        await msg1.pin().catch(() => null);
+        await channel.send({ embeds: grupoB }).catch((e) => {
+          logger.warn(`[embed_sp_soporte_menu] 2º mensaje entrenamiento: ${e.message}`);
+        });
       } else {
         const embedInstrucciones = new EmbedBuilder()
           .setColor(COLOR_SP)
@@ -400,15 +375,13 @@ export default {
             tipo.formato +
               `\n\n-# ${ES.egpd} El staff fue notificado. Respondé acá; no abras otro ticket por lo mismo.`
           );
-        embedsToSend.push(embedInstrucciones);
+        const msg = await channel.send({
+          content: `${member}`,
+          embeds: [embedMain, embedInstrucciones],
+          components: [row]
+        });
+        await msg.pin().catch(() => null);
       }
-
-      const msg = await channel.send({
-        content: `${member}`,
-        embeds: embedsToSend.slice(0, 10),
-        components: [row]
-      });
-      await msg.pin().catch(() => null);
 
       return interaction.editReply({
         content: `${ES.tilde} Ticket creado: ${channel}`
