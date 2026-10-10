@@ -73,6 +73,12 @@ export default {
           description: 'Grupo oficial de Roblox 00Y4n',
           value: 'roblox_comunidad',
           emoji: optEmoji('roblox')
+        },
+        {
+          label: 'Servidor de Servicios Públicos',
+          description: 'Unite al servidor de departamentos SP',
+          value: 'servicios_publicos',
+          emoji: optEmoji('estrella') || optEmoji('star') || optEmoji('corona')
         }
       );
 
