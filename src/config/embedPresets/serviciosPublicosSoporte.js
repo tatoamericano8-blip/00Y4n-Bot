@@ -43,7 +43,7 @@ export default {
           `${ES.flecha} **Fastpass de departamento:**\n` +
           `${ES.dot} Usalo para enviar un **fastpass** de departamento.\n\n` +
           `${ES.flecha} **Solicitud de rol:**\n` +
-          `${ES.dot} Usalo **después** de completar el formulario de \`/solicitud-departamento\` para pedir el rol ` +
+          `${ES.dot} Usalo **después** de completar el formulario de \`/solicitud-departamento\` y de haber sido aceptado para pedir el rol ` +
           `correspondiente en el servidor del departamento.\n\n` +
           `${ES.flecha} **Solicitud de entrenamiento policial:**\n` +
           `${ES.dot} Solo para miembros con rol de **Policía**. Academia básica del Departamento Policial ` +
