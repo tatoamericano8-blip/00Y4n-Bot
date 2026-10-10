@@ -17,6 +17,8 @@ const MAX_TICKETS_ABIERTOS = 3;
 /** Solo Staff de Servicios Públicos ve los tickets */
 const ROLE_STAFF_SP = '1524139038251159602';
 const GUILD_SP = '1497012276329451581';
+/** Rol Policía — único que puede abrir entrenamiento policial */
+const ROLE_POLICIA_SP = '1524129890721333499';
 
 const TIPOS = {
   asistencia_general: {
@@ -61,8 +63,102 @@ const TIPOS = {
       '5) Pruebas / capturas (si aplica):\n' +
       '```\n' +
       'Completá el formato para que el liderazgo pueda evaluar.'
+  },
+  entrenamiento_policial: {
+    label: 'Solicitud de Entrenamiento Policial',
+    slug: 'entrenamiento',
+    reason: 'Academia básica — Departamento Policial de Sarasota',
+    requiresRole: ROLE_POLICIA_SP,
+    denyMsg:
+      `${ES.cruz} Este tipo de ticket solo lo pueden abrir miembros con el rol de **Policía**.\n` +
+      `-# Si creés que es un error, contactá al liderazgo del departamento.`,
+    formato: null // embeds de guía se arman aparte
   }
 };
+
+function buildEntrenamientoEmbeds() {
+  const guia1 = new EmbedBuilder()
+    .setColor(COLOR_SP)
+    .setTitle(`${ES.egpd} Entrenamiento básico — Departamento Policial Sarasota`)
+    .setDescription(
+      [
+        `${ES.dot} **Duración estimada:** 15–25 min (lectura + respuestas)`,
+        `${ES.dot} **Obligatorio** para cadetes / oficiales nuevos antes de sancionar solos.`,
+        '',
+        `${ES.flecha} **Objetivo**`,
+        'Salir a sesión sabiendo prioridades en patrulla, comandos básicos del bot y cómo actuar en situaciones comunes.',
+        '',
+        `${ES.warn} **Sin aprobación de este entrenamiento:**`,
+        '• Podés patrullar **acompañado** de un oficial de mayor rango',
+        '• **No** sancionás solo (multa, arresto, orden, etc.)',
+        '',
+        `${ES.tilde} **Con aprobación:**`,
+        '• Podés actuar con más autonomía según tu rango y las normas del departamento'
+      ].join('\n')
+    );
+
+  const guia2 = new EmbedBuilder()
+    .setColor(COLOR_SP)
+    .setTitle(`${ES.info} Guía corta de comandos`)
+    .setDescription(
+      [
+        'Usá estos en sesión / canales correspondientes. Si no sabés el canal, preguntá en **dp salón** o a un superior.',
+        '',
+        '• `/mdt` — Consultar antecedentes / ficha del civil',
+        '• `/multar` — Emitir multa (motivo + monto según normativa)',
+        '• `/pagar-multa` — El civil paga su multa',
+        '• `/arrestar` — Arresto (si aplica rol Orden de Arresto, se resuelve al cumplirla)',
+        '• `/orden` — Orden de arresto / restricción según protocolo',
+        '• `/licencia` — Revisar / gestionar licencia',
+        '• `/historialArrestos` — Historial reciente de arrestos (si aplica)',
+        '',
+        `${ES.flecha} **Regla rápida:** Identificá → consultá MDT si hace falta → aplicá la sanción correcta → registrá / reportá si el protocolo lo pide.`,
+        '',
+        `${ES.warn} No inventes sanciones. Si dudás → rango superior o este ticket.`
+      ].join('\n')
+    );
+
+  const guia3 = new EmbedBuilder()
+    .setColor(COLOR_SP)
+    .setTitle(`${ES.check} Checklist + escenarios`)
+    .setDescription(
+      [
+        `${ES.flecha} **Checklist** (marcalo mentalmente o escribí "listo" al final)`,
+        '□ Leí `#dp-información`',
+        '□ Leí `#dp-ajustes`',
+        '□ Entendí prioridades en sesión (RP general > situaciones activas > tráfico > operativos > trámites)',
+        '□ Repasé: MDT, multa, arresto, orden, licencia',
+        '□ Sé dónde pedir ayuda (este ticket / superior / soporte)',
+        '',
+        `${ES.flecha} **Escenarios — respondé los 4 en este ticket (numerados 1 a 4)**`,
+        'No hace falta ensayo largo: pasos claros.',
+        '',
+        '**1) Tráfico**',
+        'Un civil va a alta velocidad cerca de zona escolar y no se detiene a la primera señal. ¿Qué hacés, en orden?',
+        '',
+        '**2) MDT + multa**',
+        'Detenés a alguien por una infracción menor. Antes de multar, ¿qué revisás y cómo emitís la multa?',
+        '',
+        '**3) Arresto**',
+        'El civil se pone agresivo, no cumple órdenes legales y corresponde arresto. ¿Pasos? ¿Cuándo pedís respaldo?',
+        '',
+        '**4) Duda en sesión**',
+        'No estás seguro si corresponde multa u orden. ¿Qué hacés en el momento?',
+        '',
+        `${ES.flecha} **Cómo aprobar**`,
+        '1) Completá checklist + los 4 escenarios en este ticket',
+        '2) (Recomendado) 1 turno acompañado con oficial de mayor rango',
+        '3) Un supervisor / oficial senior confirma la aprobación acá',
+        '',
+        `${ES.lock} Hasta que te confirmen la aprobación: patrulla acompañado · no sancionar solo.`,
+        '',
+        `-# ${ES.egpd} DPS / Servicios Públicos 00Y4n · octubre 2026`
+      ].join('\n')
+    )
+    .setFooter({ text: 'Respondé los escenarios en este canal. El staff revisará cuando pueda.' });
+
+  return [guia1, guia2, guia3];
+}
 
 function sanitizeUserSlug(user) {
   const base = (user?.username || user?.tag || String(user?.id || 'user'))
@@ -100,6 +196,18 @@ export default {
         content: `${ES.cruz} Tipo de ticket inválido.`,
         flags: MessageFlags.Ephemeral
       });
+    }
+
+    // Restricción por rol (entrenamiento policial)
+    if (tipo.requiresRole) {
+      const hasRole =
+        interaction.member?.roles?.cache?.has(tipo.requiresRole) === true;
+      if (!hasRole) {
+        return interaction.reply({
+          content: tipo.denyMsg || `${ES.cruz} No tenés permiso para este tipo de ticket.`,
+          flags: MessageFlags.Ephemeral
+        });
+      }
     }
 
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -224,14 +332,6 @@ export default {
         .setFooter({ text: 'División de Servicios Públicos | 00Y4n' })
         .setTimestamp();
 
-      const embedInstrucciones = new EmbedBuilder()
-        .setColor(COLOR_SP)
-        .setTitle(`${ES.info} Formato a completar — ${tipo.label}`)
-        .setDescription(
-          tipo.formato +
-            `\n\n-# ${ES.egpd} El staff fue notificado. Respondé acá; no abras otro ticket por lo mismo.`
-        );
-
       const row = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
           .setCustomId('ticket_close')
@@ -245,9 +345,25 @@ export default {
           .setEmoji('🙋')
       );
 
+      let embedsToSend = [embedMain];
+
+      if (tipoKey === 'entrenamiento_policial') {
+        embedsToSend = embedsToSend.concat(buildEntrenamientoEmbeds());
+      } else {
+        const embedInstrucciones = new EmbedBuilder()
+          .setColor(COLOR_SP)
+          .setTitle(`${ES.info} Formato a completar — ${tipo.label}`)
+          .setDescription(
+            tipo.formato +
+              `\n\n-# ${ES.egpd} El staff fue notificado. Respondé acá; no abras otro ticket por lo mismo.`
+          );
+        embedsToSend.push(embedInstrucciones);
+      }
+
+      // Discord: máx 10 embeds por mensaje
       const msg = await channel.send({
         content: `${member}`,
-        embeds: [embedMain, embedInstrucciones],
+        embeds: embedsToSend.slice(0, 10),
         components: [row]
       });
       await msg.pin().catch(() => null);
