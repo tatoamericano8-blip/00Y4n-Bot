@@ -67,6 +67,12 @@ export default {
             emoji: optEmoji('alarm') || optEmoji('warn')
           },
           {
+            label: 'Sign Calls',
+            description: 'Identificadores de radio: qué son y cómo se usan',
+            value: 'sp_faq_sign_calls',
+            emoji: optEmoji('alarm') || optEmoji('star')
+          },
+          {
             label: 'Cuotas y liderazgo',
             description: 'Cuotas, sanciones y roles de liderazgo',
             value: 'sp_faq_cuotas',
@@ -132,7 +138,7 @@ export function buildSpFaqEmbeds(value) {
           `${ES.dot} **¿Dónde opero en Roblox?**\n` +
           `En las sesiones de Southwest Florida organizadas por 00Y4n, siguiendo al host y a tu superior de departamento.\n\n` +
           `${ES.dot} **Call-signs / identificaciones**\n` +
-          `Las asigna el liderazgo del depto. No te inventes un rango ni un código que no te dieron.`
+          `Las asigna el liderazgo del depto. No te inventes un rango ni un código que no te dieron. Ver también **Sign Calls** en este menú.`
       ),
 
     sp_faq_radio: new EmbedBuilder()
@@ -149,6 +155,42 @@ export function buildSpFaqEmbeds(value) {
           `Primero **corregí y enseñá**; strikes o anuncios solo si el liderazgo lo autoriza y es reiterado.\n\n` +
           `${ES.dot} **Conducción imprudente o abuso de poder**\n` +
           `Puede terminar en warn, strike, suspensión o baja, según gravedad y historial.`
+      ),
+
+    sp_faq_sign_calls: new EmbedBuilder()
+      .setColor(COLOR_SP)
+      .setTitle(`${ES.alarm} FAQ · Sign Calls`)
+      .setDescription(
+        [
+          'Las **sign calls** (unit signs / identificadores de radio) son el **código de unidad** de cada oficial en sesión.',
+          '',
+          `${ES.flecha} **Para qué sirven**`,
+          `${ES.dot} Identificarte en radio/chat sin usar solo el nombre de Discord`,
+          `${ES.dot} Saber quién está disponible, quién va a un llamado y quién está en escena`,
+          `${ES.dot} Ordenar el RP policial cuando hay varios oficiales online`,
+          '',
+          `${ES.flecha} **Cómo se asignan**`,
+          `${ES.dot} Las da el **liderazgo del departamento** (o quien gestione turnos)`,
+          `${ES.dot} Suelen verse en nick de Discord, canal de turnos o lista del depto`,
+          `${ES.dot} Ejemplos: \`2-Adam-7\`, \`Lincoln-3\`, \`1-Boy-4\` (el formato lo define el depto)`,
+          `${ES.warn} **No te inventes una sign.** Si no te la dieron, pedila a un superior o por ticket.`,
+          '',
+          `${ES.flecha} **Cómo se usan**`,
+          `${ES.dot} Entrar en servicio: *2-Adam-7, 10-8 / en servicio*`,
+          `${ES.dot} Responder llamado: *2-Adam-7 en camino* · *2-Adam-7 10-97 / en escena*`,
+          `${ES.dot} Salir de servicio: *2-Adam-7, 10-7*`,
+          '',
+          `${ES.flecha} **Códigos frecuentes** (si el depto tiene lista propia, esa manda)`,
+          `${ES.dot} **10-8** — En servicio / disponible`,
+          `${ES.dot} **10-7** — Fuera de servicio`,
+          `${ES.dot} **10-97** — En escena`,
+          `${ES.dot} **10-6** — Ocupado`,
+          `${ES.dot} **Prioridad** — Respuesta urgente (sin abusar)`,
+          '',
+          `${ES.warn} No uses la sign de otro oficial. Si alguien la usa mal, avisá a un superior.`,
+          '',
+          `-# ${ES.egpd} DPS / Servicios Públicos 00Y4n`
+        ].join('\n')
       ),
 
     sp_faq_cuotas: new EmbedBuilder()
