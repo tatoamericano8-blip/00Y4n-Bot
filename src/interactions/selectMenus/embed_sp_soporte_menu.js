@@ -72,7 +72,7 @@ const TIPOS = {
     denyMsg:
       `${ES.cruz} Este tipo de ticket solo lo pueden abrir miembros con el rol de **Policía**.\n` +
       `-# Si creés que es un error, contactá al liderazgo del departamento.`,
-    formato: null // embeds de guía se arman aparte
+    formato: null
   }
 };
 
@@ -82,11 +82,11 @@ function buildEntrenamientoEmbeds() {
     .setTitle(`${ES.egpd} Entrenamiento básico — Departamento Policial Sarasota`)
     .setDescription(
       [
-        `${ES.dot} **Duración estimada:** 15–25 min (lectura + respuestas)`,
+        `${ES.dot} **Duración estimada:** 20–30 min (lectura + respuestas)`,
         `${ES.dot} **Obligatorio** para cadetes / oficiales nuevos antes de sancionar solos.`,
         '',
         `${ES.flecha} **Objetivo**`,
-        'Salir a sesión sabiendo prioridades en patrulla, comandos básicos del bot y cómo actuar en situaciones comunes.',
+        'Salir a sesión sabiendo prioridades en patrulla, comandos del bot, **sign calls** y cómo actuar en situaciones comunes.',
         '',
         `${ES.warn} **Sin aprobación de este entrenamiento:**`,
         '• Podés patrullar **acompañado** de un oficial de mayor rango',
@@ -118,6 +118,43 @@ function buildEntrenamientoEmbeds() {
       ].join('\n')
     );
 
+  const guiaSign = new EmbedBuilder()
+    .setColor(COLOR_SP)
+    .setTitle(`${ES.alarm} Sign calls — qué son y cómo se usan`)
+    .setDescription(
+      [
+        'Las **sign calls** (o *unit / radio signs*) son el **identificador de radio** de cada oficial en sesión. Sirven para que despacho y el resto del departamento sepan **quién habla**, **dónde está** y **si está disponible**, sin usar el nombre de Discord todo el tiempo.',
+        '',
+        `${ES.flecha} **Para qué sirven**`,
+        '• Identificarte en radio / chat de sesión ("Adam-12 en camino", "2-L-5 en escena")',
+        '• Organizar unidades (quién responde un llamado, quién está libre)',
+        '• Evitar confusión cuando hay varios oficiales online',
+        '• Mantener RP de policía más realista y ordenado',
+        '',
+        `${ES.flecha} **Cómo se te asigna**`,
+        '• El liderazgo del departamento (o quien gestione turnos) te da una **sign** al entrar o al primer turno',
+        '• Suele verse en nick de Discord, canal de turnos o lista del departamento (ej. `2-Adam-7`, `Lincoln-3`)',
+        '• **No te inventes una sign** si todavía no te la dieron: pedila a un superior o en este ticket',
+        '• Si cambiás de rango o de unidad, la sign puede actualizarse',
+        '',
+        `${ES.flecha} **Cómo se usa en sesión**`,
+        '• Al entrar en servicio: avisá por radio/salón con tu sign + estado (ej. "2-Adam-7, 10-8 / en servicio")',
+        '• Al responder un llamado: sign + que vas / que llegaste',
+        '• Al salir de servicio: sign + fuera de servicio',
+        '• En chat de sesión, anteponé o firmá con tu sign si el protocolo del depto lo pide',
+        '',
+        `${ES.flecha} **Códigos / estados frecuentes** (orientativos; el depto puede tener lista propia en \`#dp-información\` / \`#dp-ajustes\`)`,
+        '• **10-8** — En servicio / disponible',
+        '• **10-7** — Fuera de servicio',
+        '• **10-97** — En escena',
+        '• **10-6** — Ocupado (no disponible para otro llamado)',
+        '• **Code 3 / prioridad** — Respuesta urgente (según normas del servidor; no abuses)',
+        '',
+        `${ES.dot} Si no hay lista publicada de códigos, usá lenguaje claro: "en camino", "en escena", "disponible", "ocupado".`,
+        `${ES.warn} No uses la sign de otro oficial. Si alguien la está usando mal, avisá a un superior.`
+      ].join('\n')
+    );
+
   const guia3 = new EmbedBuilder()
     .setColor(COLOR_SP)
     .setTitle(`${ES.check} Checklist + escenarios`)
@@ -128,9 +165,10 @@ function buildEntrenamientoEmbeds() {
         '□ Leí `#dp-ajustes`',
         '□ Entendí prioridades en sesión (RP general > situaciones activas > tráfico > operativos > trámites)',
         '□ Repasé: MDT, multa, arresto, orden, licencia',
+        '□ Entendí **sign calls** (qué son, cómo se asignan y cómo se usan)',
         '□ Sé dónde pedir ayuda (este ticket / superior / soporte)',
         '',
-        `${ES.flecha} **Escenarios — respondé los 4 en este ticket (numerados 1 a 4)**`,
+        `${ES.flecha} **Escenarios — respondé los 6 en este ticket (numerados 1 a 6)**`,
         'No hace falta ensayo largo: pasos claros.',
         '',
         '**1) Tráfico**',
@@ -145,8 +183,14 @@ function buildEntrenamientoEmbeds() {
         '**4) Duda en sesión**',
         'No estás seguro si corresponde multa u orden. ¿Qué hacés en el momento?',
         '',
+        '**5) Llamado dudoso**',
+        'Despacho reporta un robo en una tienda. Al llegar, el civil cambia la historia y no hay testigos ni daño visible. ¿Cómo procedés (RP + comandos)?',
+        '',
+        '**6) Sign call / radio**',
+        'Estás 10-8 con tu sign. Sale un llamado prioritario cerca. ¿Qué decís por radio (con tu sign) y qué hacés después?',
+        '',
         `${ES.flecha} **Cómo aprobar**`,
-        '1) Completá checklist + los 4 escenarios en este ticket',
+        '1) Completá checklist + los **6** escenarios en este ticket',
         '2) (Recomendado) 1 turno acompañado con oficial de mayor rango',
         '3) Un supervisor / oficial senior confirma la aprobación acá',
         '',
@@ -157,7 +201,7 @@ function buildEntrenamientoEmbeds() {
     )
     .setFooter({ text: 'Respondé los escenarios en este canal. El staff revisará cuando pueda.' });
 
-  return [guia1, guia2, guia3];
+  return [guia1, guia2, guiaSign, guia3];
 }
 
 function sanitizeUserSlug(user) {
@@ -198,7 +242,6 @@ export default {
       });
     }
 
-    // Restricción por rol (entrenamiento policial)
     if (tipo.requiresRole) {
       const hasRole =
         interaction.member?.roles?.cache?.has(tipo.requiresRole) === true;
@@ -360,7 +403,6 @@ export default {
         embedsToSend.push(embedInstrucciones);
       }
 
-      // Discord: máx 10 embeds por mensaje
       const msg = await channel.send({
         content: `${member}`,
         embeds: embedsToSend.slice(0, 10),
