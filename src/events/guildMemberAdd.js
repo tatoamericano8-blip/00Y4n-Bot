@@ -58,7 +58,7 @@ export default {
                             .setTitle(`${E.saludo} __Bienvenido/a a Southwest Florida Comunidad 00Y4n ™__`)
                             .setDescription(
                                 `${E.dot} Bienvenido/a a **Southwest Florida Comunidad 00Y4n ™**.\n\n` +
-                                `Para convertirte en ciudadano y obtener acceso al servidor, verifica tu cuenta en <#1512614400413139045> y lee las **Reglas** y las **Directrices** del servidor.\n\n` +
+                                `Para convertirte en ciudadano y obtener acceso al servidor, verifica tu cuenta en <#1512614400413139045> (si te aparece #sin-acceso ya estas verificado) y lee las **Reglas** y las **Directrices** del servidor.\n\n` +
                                 `-# ${E.flechareplica} **¿Necesitas ayuda?** Contacta a un miembro de __Alto Comando__ y te asistirán.`
                             )
                             .setImage(IMAGEN_BIENVENIDA)
