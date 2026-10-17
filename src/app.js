@@ -20,6 +20,7 @@ import { lanzarOportunidadEconomica } from './utils/gestorOportunidades.js';
 import { procesarMensajeRecordatorio } from './utils/gestorRecordatorios.js';
 import { procesarCiudadanoDelDia } from './utils/ciudadanoDelDia.js';
 import { avisarAltoComando } from './utils/alertaHC.js';
+import { startBolsaTicker } from './utils/gestorBolsa.js';
 
 class TitanBot extends Client {
   constructor() {
@@ -179,6 +180,12 @@ class TitanBot extends Client {
       this.setupOportunidades();
       this.setupRecordatorioEstado();
       this.setupCiudadanoDelDia();
+      try {
+        startBolsaTicker(this);
+        startupLog('✅ 00Y4n Bolsa de Valores iniciada (precios cada 5 min).');
+      } catch (e) {
+        logger.error('[bolsa] No se pudo iniciar ticker:', e);
+      }
     } catch (error) {
       logger.error('Failed to start bot:', error);
       startupLog('Proceso en modo espera (web server activo). Discord offline temporalmente.');
