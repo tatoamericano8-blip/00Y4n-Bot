@@ -1,4 +1,4 @@
-import { buildMarketPayload } from '../../commands/Tools/stock-market.js';
+import { buildMarketPayload } from '../../utils/bolsaPanel.js';
 
 /**
  * customId: stock_mkt:prev:PAGE | stock_mkt:next:PAGE
