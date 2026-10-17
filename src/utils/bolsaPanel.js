@@ -33,7 +33,7 @@ export async function buildMarketPayload(page) {
       `*Precios en vivo · se actualizan cada **5 minutos***\nPágina **${p + 1}/${totalPages}**`
     )
     .setImage(`attachment://bolsa_p${p + 1}.png`)
-    .setFooter({ text: 'Usá /bolsa comprar · /bolsa vender · /bolsa cartera · Fee 1.2%' })
+    .setFooter({ text: 'Usá /bolsa comprar · /bolsa vender · /bolsa cartera · Tarifa 1.2%' })
     .setTimestamp();
 
   const row = new ActionRowBuilder().addComponents(
