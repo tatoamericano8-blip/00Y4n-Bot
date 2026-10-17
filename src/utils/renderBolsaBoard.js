@@ -31,12 +31,6 @@ function deltaBg(delta) {
   return '#eef2f5';
 }
 
-/**
- * @param {number} page 0-based
- * @param {Record<string, number>} prices
- * @param {Record<string, number>} prev
- * @returns {Promise<Buffer>} PNG
- */
 export async function renderBolsaPage(page, prices, prev) {
   const totalPages = Math.max(1, Math.ceil(STOCKS.length / PAGE_SIZE));
   const p = Math.min(Math.max(0, page), totalPages - 1);
@@ -79,7 +73,7 @@ export async function renderBolsaPage(page, prices, prev) {
   <text x="${W / 2}" y="76" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#2a5566" text-anchor="middle">Southwest Florida Exchange · Página ${p + 1}/${totalPages}</text>
   <text x="${W / 2}" y="98" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#3d6a7a" text-anchor="middle">Actualización cada 5 minutos · Fee 1.2%</text>
   ${rows}
-  <text x="${W / 2}" y="${H - 22}" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#3d6a7a" text-anchor="middle">/stock-buy  ·  /stock-sell  ·  /stock-portfolio</text>
+  <text x="${W / 2}" y="${H - 22}" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#3d6a7a" text-anchor="middle">/bolsa comprar  ·  /bolsa vender  ·  /bolsa cartera</text>
 </svg>`;
 
   return sharp(Buffer.from(svg)).png().toBuffer();
