@@ -19,7 +19,7 @@ import {
   OWNER_ROLE_ID,
   STOCKS
 } from '../../utils/gestorBolsa.js';
-import { buildMarketPayload } from './stock-market.js';
+import { buildMarketPayload } from '../../utils/bolsaPanel.js';
 
 export default {
   data: new SlashCommandBuilder()
