@@ -70,8 +70,8 @@ export async function renderBolsaPage(page, prices, prev) {
   </defs>
   <rect width="${W}" height="${H}" fill="url(#bg)"/>
   <text x="${W / 2}" y="48" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="28" font-weight="800" fill="#0d2a36" text-anchor="middle">00Y4n BOLSA DE VALORES</text>
-  <text x="${W / 2}" y="76" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#2a5566" text-anchor="middle">Southwest Florida Exchange · Página ${p + 1}/${totalPages}</text>
-  <text x="${W / 2}" y="98" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#3d6a7a" text-anchor="middle">Actualización cada 5 minutos · Fee 1.2%</text>
+  <text x="${W / 2}" y="76" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#2a5566" text-anchor="middle">Southwest Florida Mercado · Página ${p + 1}/${totalPages}</text>
+  <text x="${W / 2}" y="98" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#3d6a7a" text-anchor="middle">Actualización cada 5 minutos · Tarifa 1.2%</text>
   ${rows}
   <text x="${W / 2}" y="${H - 22}" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#3d6a7a" text-anchor="middle">/bolsa comprar  ·  /bolsa vender  ·  /bolsa cartera</text>
 </svg>`;
