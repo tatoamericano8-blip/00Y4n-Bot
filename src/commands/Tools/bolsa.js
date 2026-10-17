@@ -1,7 +1,8 @@
 import {
   SlashCommandBuilder,
   EmbedBuilder,
-  MessageFlags
+  MessageFlags,
+  AttachmentBuilder
 } from 'discord.js';
 import { PRIMARIO } from '../../utils/colores.js';
 import { E } from '../../config/emojis.js';
@@ -20,6 +21,7 @@ import {
   STOCKS
 } from '../../utils/gestorBolsa.js';
 import { buildMarketPayload } from '../../utils/bolsaPanel.js';
+import { renderBolsaNoticias } from '../../utils/renderBolsaNoticias.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -145,7 +147,7 @@ export default {
           `Compraste **${res.qty}** acción(es) de **${res.stock.symbol}** (${res.stock.name}).\n\n` +
             `**Precio:** ${formatMoney(res.price)}\n` +
             `**Subtotal:** ${formatMoney(res.bruto)}\n` +
-            `**Fee (1.2%):** ${formatMoney(res.fee)}\n` +
+            `**Tarifa (1.2%):** ${formatMoney(res.fee)}\n` +
             `**Total debitado:** ${formatMoney(res.total)}\n` +
             `**Saldo:** ${formatMoney(res.saldo)}`
         )
@@ -168,7 +170,7 @@ export default {
           `Vendiste **${res.qty}** acción(es) de **${res.stock.symbol}** (${res.stock.name}).\n\n` +
             `**Precio:** ${formatMoney(res.price)}\n` +
             `**Bruto:** ${formatMoney(res.bruto)}\n` +
-            `**Fee (1.2%):** ${formatMoney(res.fee)}\n` +
+            `**Tarifa (1.2%):** ${formatMoney(res.fee)}\n` +
             `**Neto acreditado:** ${formatMoney(res.neto)}\n` +
             `**Saldo:** ${formatMoney(res.saldo)}`
         )
@@ -224,29 +226,20 @@ export default {
     }
 
     if (sub === 'noticias') {
+      await interaction.deferReply();
       const prices = await getPrices();
       const prev = await getPrevPrices();
-      const { gainers, losers } = getMovers(prices, prev, 5);
-      const fmt = (arr, empty) =>
-        arr.length
-          ? arr
-              .map(
-                (x) =>
-                  `**${x.symbol}** ${x.name}: ${formatMoney(x.now)} (${formatDelta(x.delta)} / ${x.pct >= 0 ? '+' : ''}${x.pct.toFixed(2)}%)`
-              )
-              .join('\n')
-          : empty;
+      const { gainers, losers } = getMovers(prices, prev, 3);
+      const png = await renderBolsaNoticias({ gainers, losers });
+      const file = new AttachmentBuilder(png, { name: '00y4n_times.png' });
       const embed = new EmbedBuilder()
         .setColor(PRIMARIO)
-        .setTitle(`${E.dinero || '📰'} 00Y4n Bolsa — Movimientos`)
-        .setDescription('Variación desde la última actualización de precios (cada 5 min).')
-        .addFields(
-          { name: '▲ Mayores subidas', value: fmt(gainers, 'Sin subidas relevantes.') },
-          { name: '▼ Mayores bajadas', value: fmt(losers, 'Sin bajadas relevantes.') }
-        )
+        .setTitle(`${E.dinero || '📰'} 00Y4n Times`)
+        .setDescription('*Edición en vivo según la última rueda de precios (cada 5 min).*')
+        .setImage('attachment://00y4n_times.png')
         .setFooter({ text: '00Y4n Bolsa de Valores' })
         .setTimestamp();
-      return interaction.reply({ embeds: [embed] });
+      return interaction.editReply({ embeds: [embed], files: [file] });
     }
 
     if (sub === 'editar') {
