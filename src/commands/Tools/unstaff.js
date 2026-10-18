@@ -90,11 +90,18 @@ export default {
                     const horasParciales = horasDesde(desde, new Date());
 
                     if (horasParciales > 0) {
-                        await sumarCuotaStaff(interaction.guildId, uid, {
+                        // Crédito proporcional: 2 h = 1.0 (sin tope). Así co-host/host/sup suman puntos aunque salgan antes.
+                        const minutosParciales = Math.max(0, Math.round(horasParciales * 60));
+                        const credito = Math.round((minutosParciales / 120) * 100) / 100;
+                        const payload = {
                             horas: horasParciales,
-                            motivo: `Finalizó ${rolSeleccionado} antes del cierre — ${textoTiempo(horasParciales)}`,
+                            motivo: `Finalizó ${rolSeleccionado} antes del cierre — ${textoTiempo(horasParciales)} · crédito ${credito}`,
                             executorId: uid
-                        });
+                        };
+                        if (esHost) payload.sesionesOrganizadas = credito;
+                        else if (esCohost) payload.sesionesCohost = credito;
+                        else if (esSup) payload.sesionesSupervisadas = credito;
+                        await sumarCuotaStaff(interaction.guildId, uid, payload);
                     }
 
                     if (!Array.isArray(sesion.cuotaParcialPagada)) sesion.cuotaParcialPagada = [];
@@ -121,7 +128,7 @@ export default {
         if (tiempoTxt) {
             descExtra =
                 `\n\n${E.flecha} **Tiempo acreditado (parcial):** ${tiempoTxt}\n` +
-                `_Solo horas/minutos — no cuenta como sesión completa._`;
+                `_Horas + puntos proporcionales al tiempo (2 h = unidad completa)._`;
         }
 
         const embedUnstaff = new EmbedBuilder()
