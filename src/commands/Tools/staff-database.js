@@ -130,7 +130,7 @@ export default {
 
         const puntos = calcularPuntosSemana(cuotas);
         const desg = desglosePuntos(cuotas);
-        const metaPtsTxt = `${puntos}/${metas.puntosMeta || 100}`;
+        const metaPtsTxt = `${puntos}/${metas.puntosMeta || 50}`;
 
         const embed = new EmbedBuilder()
             .setTitle(`🗄️ Expediente Auditable – ${targetUser.username}`)
@@ -150,10 +150,10 @@ export default {
                 {
                     name: '📊 Cuota semanal',
                     value:
-                        `• Puntos: `${metaPtsTxt}`\n` +
+                        `• Puntos: ${metaPtsTxt}\n` +
                         `• Host ${desg.host} (${desg.ptsHost}) · Co-host ${desg.cohost} (${desg.ptsCohost})\n` +
                         `• Sup ${desg.sup} (${desg.ptsSup}) · Tickets ${desg.tkt} (${desg.ptsTkt})\n` +
-                        `• Tiempo: `${formatearHoras(cuotas.horasServicio || 0)}` · Meta: **${metas.puntosMeta || 100} pts**`,
+                        `• Tiempo: ${formatearHoras(cuotas.horasServicio || 0)} · Meta: **${metas.puntosMeta || 50} pts**`,
                     inline: true
                 },
                 {
