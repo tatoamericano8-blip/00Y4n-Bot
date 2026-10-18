@@ -257,7 +257,7 @@ export default {
 
     const puntos = calcularPuntosSemana(c);
     const desg = desglosePuntos(c);
-    const metaPts = metas.puntosMeta || 100;
+    const metaPts = metas.puntosMeta || 50;
     const metaPtsTxt = `${puntos} / ${metaPts}`;
 
     const ratingLines = [];
@@ -286,7 +286,7 @@ export default {
           `\n\n` +
           `${E.dot} **Estado:** ${textoEstado(staffData)} · **Strikes:** \`${strikesActivos}/3\`\n` +
           `${E.dot} **Cuota semanal:** ${estadoCuota} · **${metaPtsTxt} pts**\n` +
-          `${E.dot} **Desglose:** Host `${desg.host}` (${desg.ptsHost}) · Co-host `${desg.cohost}` (${desg.ptsCohost}) · Sup `${desg.sup}` (${desg.ptsSup}) · Tickets `${desg.tkt}` (${desg.ptsTkt})\n` +
+          `${E.dot} **Desglose:** Host ${desg.host} (${desg.ptsHost}) · Co-host ${desg.cohost} (${desg.ptsCohost}) · Sup ${desg.sup} (${desg.ptsSup}) · Tickets ${desg.tkt} (${desg.ptsTkt})\n` +
           `${E.dot} **Score:** **${score}** pts · Racha ${E.aestrellitas} \`${racha}\` (máx. \`${rachaMax}\`)`
       )
       .setColor(COLOR)
