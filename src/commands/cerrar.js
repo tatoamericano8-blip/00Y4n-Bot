@@ -146,9 +146,16 @@ export default {
                 sesionActiva.cierreForzado === true ||
                 sesionActiva.cuentaParaCuota === false;
 
-            // Puntos de sesión (host/co-host/sup) solo si dura ≥ 60 min. Tickets no aplican aquí.
-            const MIN_MIN_CUOTA_SESION = 60;
-            const sesionCuentaPuntos = minutosCalculados >= MIN_MIN_CUOTA_SESION;
+            // Crédito de sesión proporcional al tiempo (máx. 1.0 a los 60 min).
+            // 30 min host → 0.5 crédito → 12.5 pts | 60+ min → 1.0 → 25 pts.
+            // Tickets no usan esto (siguen +10 fijos al cerrar ticket).
+            const MIN_MIN_CUOTA_PLENA = 60;
+            const creditoSesion = Math.min(
+                1,
+                Math.max(0, Number(minutosCalculados) || 0) / MIN_MIN_CUOTA_PLENA
+            );
+            // 2 decimales para no acumular basura flotante
+            const credito = Math.round(creditoSesion * 100) / 100;
 
             if (noSumarCuota) {
                 console.log(`[cerrar] Sin cuota. host=${hostId}`);
@@ -156,38 +163,30 @@ export default {
                 if (hostSigue && hostId) {
                     await sumarCuotaStaff(guildId, hostId, {
                         horas: horasHost,
-                        sesionesOrganizadas: sesionCuentaPuntos ? 1 : 0,
-                        motivo: sesionCuentaPuntos
-                            ? `Cierre de sesion ${tipo} (host hasta el final) — ${duracionMostrar}`
-                            : `Cierre de sesion ${tipo} (host) — ${duracionMostrar} (<${MIN_MIN_CUOTA_SESION} min: sin puntos de sesión)`,
+                        sesionesOrganizadas: credito,
+                        motivo: `Cierre de sesion ${tipo} (host) — ${duracionMostrar} · crédito ${credito}/${1} (${minutosCalculados}m)`,
                         executorId: interaction.user.id
                     });
                 }
                 if (coHostId && coHostId !== hostId) {
                     await sumarCuotaStaff(guildId, coHostId, {
                         horas: horasCohost || 0.25,
-                        sesionesCohost: sesionCuentaPuntos ? 1 : 0,
-                        motivo: sesionCuentaPuntos
-                            ? `Cierre de sesion ${tipo} (co-host hasta el final) — ${duracionMostrar}`
-                            : `Cierre de sesion ${tipo} (co-host) — ${duracionMostrar} (<${MIN_MIN_CUOTA_SESION} min: sin puntos de sesión)`,
+                        sesionesCohost: credito,
+                        motivo: `Cierre de sesion ${tipo} (co-host) — ${duracionMostrar} · crédito ${credito}/${1} (${minutosCalculados}m)`,
                         executorId: interaction.user.id
                     });
                 }
                 if (supervisorId && supervisorId !== hostId && supervisorId !== coHostId) {
                     await sumarCuotaStaff(guildId, supervisorId, {
                         horas: horasSup,
-                        sesionesSupervisadas: sesionCuentaPuntos ? 1 : 0,
-                        motivo: sesionCuentaPuntos
-                            ? `Cierre de sesion ${tipo} (supervisor hasta el final) — ${duracionMostrar}`
-                            : `Cierre de sesion ${tipo} (supervisor) — ${duracionMostrar} (<${MIN_MIN_CUOTA_SESION} min: sin puntos de sesión)`,
+                        sesionesSupervisadas: credito,
+                        motivo: `Cierre de sesion ${tipo} (supervisor) — ${duracionMostrar} · crédito ${credito}/${1} (${minutosCalculados}m)`,
                         executorId: interaction.user.id
                     });
                 }
-                if (!sesionCuentaPuntos) {
-                    console.log(
-                        `[cerrar] Sesión <${MIN_MIN_CUOTA_SESION} min (${minutosCalculados}m): horas sí, puntos de sesión no.`
-                    );
-                }
+                console.log(
+                    `[cerrar] Crédito sesión=${credito} (${minutosCalculados}m / ${MIN_MIN_CUOTA_PLENA}m plena)`
+                );
             }
 
             if (!noSumarCuota) {
