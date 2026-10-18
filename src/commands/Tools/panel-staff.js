@@ -73,7 +73,7 @@ export default {
       } else if (evalC.cumplio === false) {
         const puntos = calcularPuntosSemana(cuotas);
         const metas = obtenerMetasPorRango(rango);
-        const metaPts = metas.puntosMeta || 100;
+        const metaPts = metas.puntosMeta || 40;
         incumplidores.push(
           `> <@${s.userId}> \u00b7 ${puntos}/${metaPts} pts \u00b7 score ${textoScore(score)}`
         );
