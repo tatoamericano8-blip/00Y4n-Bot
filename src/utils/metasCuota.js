@@ -2,26 +2,25 @@
  * Cuota semanal por PUNTOS (unificada para todo staff con rol 00Y4n Staff).
  *
  * Cómo se ganan puntos:
- *   Host        → 25 pts por cada 2 h de sesión (proporcional, sin tope)
- *   Co-host     → 15 pts por cada 2 h (proporcional, sin tope)
- *   Supervisión → 20 pts por cada 2 h (proporcional, sin tope)
- *   Ticket      → 10 pts fijos (sin mínimo de tiempo)
+ *   Host        → 25 pts por cada 2 h de sesión (proporcional, sin tope de sesión)
+ *   Co-host     → 15 pts por cada 2 h (proporcional)
+ *   Supervisión → 20 pts por cada 2 h (proporcional)
+ *   Ticket      → 10 pts fijos
+ *   Ajuste manual (/cargar-cuota puntos) → suma o resta directa
  *
- * Crédito = minutos / 120 (2 h = 1.0). Más tiempo = más puntos.
- *   1 h host  → 12.5 pts
- *   2 h host  → 25 pts
- *   2 h host  → 25 pts
- *   ~3h 12m host → 40 pts (= meta semanal)
- *
- * Meta semanal: **40 puntos** (host / co-host / sup / tickets).
+ * Meta para APROBAR: 40 puntos (mínimo).
+ * Tope semanal: 50 puntos (máximo que cuenta el score/cuota).
  */
 
 export const PTS_HOST = 25;
 export const PTS_COHOST = 15;
 export const PTS_SUPERVISION = 20;
 export const PTS_TICKET = 10;
-/** Meta semanal mínima para aprobar cuota */
+/** Mínimo para aprobar la cuota semanal */
 export const PUNTOS_META = 40;
+/** Máximo de puntos que cuentan en la semana */
+export const PUNTOS_MAX = 50;
+
 
 const DEFAULT_ETIQUETA = 'Staff';
 
@@ -57,13 +56,14 @@ export function calcularPuntosSemana(cuotas = {}) {
   const sup = Number(cuotas.sesionesSupervisadas) || 0;
   const tkt = Number(cuotas.ticketsCerrados) || 0;
   const ajuste = Number(cuotas.puntosAjuste) || 0;
-  return (
+  const bruto =
     host * PTS_HOST +
     cohost * PTS_COHOST +
     sup * PTS_SUPERVISION +
     tkt * PTS_TICKET +
-    ajuste
-  );
+    ajuste;
+  // Tope semanal 50; el mínimo de aprobación es PUNTOS_META (40)
+  return Math.min(bruto, PUNTOS_MAX);
 }
 
 /** Desglose legible para embeds */
