@@ -130,7 +130,7 @@ export default {
 
         const puntos = calcularPuntosSemana(cuotas);
         const desg = desglosePuntos(cuotas);
-        const metaPtsTxt = `${puntos}/${metas.puntosMeta || 50}`;
+        const metaPtsTxt = `${puntos}/${metas.puntosMeta || 40}`;
 
         const embed = new EmbedBuilder()
             .setTitle(`🗄️ Expediente Auditable – ${targetUser.username}`)
@@ -153,7 +153,7 @@ export default {
                         `• Puntos: ${metaPtsTxt}\n` +
                         `• Host ${desg.host} (${desg.ptsHost}) · Co-host ${desg.cohost} (${desg.ptsCohost})\n` +
                         `• Sup ${desg.sup} (${desg.ptsSup}) · Tickets ${desg.tkt} (${desg.ptsTkt})\n` +
-                        `• Tiempo: ${formatearHoras(cuotas.horasServicio || 0)} · Meta: **${metas.puntosMeta || 50} pts**`,
+                        `• Tiempo: ${formatearHoras(cuotas.horasServicio || 0)} · Meta: **${metas.puntosMeta || 40} pts**`,
                     inline: true
                 },
                 {
