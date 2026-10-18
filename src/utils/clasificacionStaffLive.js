@@ -127,10 +127,10 @@ export async function construirRankingSemanal(guild) {
     const pos = String(i + 1).padStart(2, ' ');
     const loa = s.enLoa ? ' · LOA' : '';
     const rachaTxt = s.racha > 0 ? ` · Racha ${s.racha}` : '';
-    const cohostTxt = s.cohost > 0 ? ` · Co-H **${s.cohost}**` : '';
+    const cohostTxt = s.cohost > 0 ? ` · Co-H **${fmtNum(s.cohost)}**` : '';
     return (
       `**${pos}.** <@${s.userId}>\n` +
-      `Score **${s.score}** · Host **${s.host}**${cohostTxt} · Sup **${s.sup}** · Tickets **${s.tickets}** · Tiempo **${formatearHoras(s.horas)}**\n` +
+      `Score **${fmtNum(s.score)}** · Host **${fmtNum(s.host)}**${cohostTxt} · Sup **${fmtNum(s.sup)}** · Tickets **${fmtNum(s.tickets)}** · Tiempo **${formatearHoras(s.horas)}**\n` +
       `${s.rango}${loa}${rachaTxt}`
     );
   });
