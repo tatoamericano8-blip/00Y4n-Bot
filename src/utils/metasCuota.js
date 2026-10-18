@@ -10,17 +10,18 @@
  * Crédito = minutos / 120 (2 h = 1.0). Más tiempo = más puntos.
  *   1 h host  → 12.5 pts
  *   2 h host  → 25 pts
- *   4 h host  → 50 pts  (= meta semanal si solo hosteas)
+ *   2 h host  → 25 pts
+ *   ~3h 12m host → 40 pts (= meta semanal)
  *
- * Meta semanal: 50 puntos ≈ 4 h de host (o mix co-host / sup / tickets).
+ * Meta semanal: **40 puntos** (host / co-host / sup / tickets).
  */
 
 export const PTS_HOST = 25;
 export const PTS_COHOST = 15;
 export const PTS_SUPERVISION = 20;
 export const PTS_TICKET = 10;
-/** Meta semanal: ~4 h de host a ritmo de 25 pts / 2 h */
-export const PUNTOS_META = 50;
+/** Meta semanal mínima para aprobar cuota */
+export const PUNTOS_META = 40;
 
 const DEFAULT_ETIQUETA = 'Staff';
 
