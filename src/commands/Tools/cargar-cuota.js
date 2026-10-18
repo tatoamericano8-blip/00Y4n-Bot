@@ -15,7 +15,9 @@ async function aplicarCambioCuota(interaction, signo) {
     const minutosOpt = interaction.options.getInteger('minutos');
     const sesionesOrgOpt = interaction.options.getInteger('sesiones_organizadas');
     const sesionesSupOpt = interaction.options.getInteger('sesiones_supervisadas');
+    const sesionesCohostOpt = interaction.options.getInteger('sesiones_cohost');
     const ticketsOpt = interaction.options.getInteger('tickets');
+    const puntosOpt = interaction.options.getInteger('puntos');
     const motivo =
       interaction.options.getString('motivo') ||
       (signo > 0
@@ -26,34 +28,51 @@ async function aplicarCambioCuota(interaction, signo) {
     const m = minutosOpt == null ? 0 : Number(minutosOpt);
     const horasDecimal = h + m / 60;
 
-    const sesionesOrgRaw = sesionesOrgOpt == null ? 0 : Number(sesionesOrgOpt);
+        const sesionesOrgRaw = sesionesOrgOpt == null ? 0 : Number(sesionesOrgOpt);
     const sesionesSupRaw = sesionesSupOpt == null ? 0 : Number(sesionesSupOpt);
+    const sesionesCohostRaw = sesionesCohostOpt == null ? 0 : Number(sesionesCohostOpt);
     const ticketsRaw = ticketsOpt == null ? 0 : Number(ticketsOpt);
+    const puntosRaw = puntosOpt == null ? 0 : Number(puntosOpt);
 
     const sinTiempo = horasEnterasOpt == null && minutosOpt == null;
     const sinSesiones =
-      sesionesOrgOpt == null && sesionesSupOpt == null && ticketsOpt == null;
+      sesionesOrgOpt == null &&
+      sesionesSupOpt == null &&
+      sesionesCohostOpt == null &&
+      ticketsOpt == null &&
+      puntosOpt == null;
 
     if (sinTiempo && sinSesiones) {
       return interaction.editReply({
         content:
-          E.cruz + ' Debes especificar al menos un valor.\n' +
-          'Ejemplo tiempo: `horas: 2` + `minutos: 41`  ·  sesiones: `1`' 
+          E.cruz + ' Debes especificar al menos un valor.
+' +
+          'Ejemplo: `puntos: 7` · `sesiones_organizadas: 1` · tiempo `horas: 2` + `minutos: 41`'
       });
     }
 
-    if (horasDecimal === 0 && sesionesOrgRaw === 0 && sesionesSupRaw === 0 && ticketsRaw === 0) {
+    if (
+      horasDecimal === 0 &&
+      sesionesOrgRaw === 0 &&
+      sesionesSupRaw === 0 &&
+      sesionesCohostRaw === 0 &&
+      ticketsRaw === 0 &&
+      puntosRaw === 0
+    ) {
       return interaction.editReply({
         content:
-          E.cruz + ' El valor debe ser mayor a **0**.\n' +
-          'Ejemplo: `horas: 3` y `minutos: 56` para restar **3h 56 min**.'
+          E.cruz + ' El valor debe ser mayor a **0**.
+' +
+          'Ejemplo: `puntos: 7` o `horas: 3` y `minutos: 56`.'
       });
     }
 
     const horasToAdd = signo * Math.abs(horasDecimal);
     const sesionesOrgToAdd = signo * Math.abs(sesionesOrgRaw);
     const sesionesSupToAdd = signo * Math.abs(sesionesSupRaw);
+    const sesionesCohostToAdd = signo * Math.abs(sesionesCohostRaw);
     const ticketsToAdd = signo * Math.abs(ticketsRaw);
+    const puntosToAdd = signo * Math.abs(puntosRaw);
 
     const textoTiempoIngresado =
       h > 0 || m > 0
@@ -98,6 +117,10 @@ async function aplicarCambioCuota(interaction, signo) {
       0,
       (Number(staffData.cuotas.sesionesOrganizadas) || 0) + sesionesOrgToAdd
     );
+    staffData.cuotas.sesionesCohost = Math.max(
+      0,
+      (Number(staffData.cuotas.sesionesCohost) || 0) + sesionesCohostToAdd
+    );
     staffData.cuotas.sesionesSupervisadas = Math.max(
       0,
       (Number(staffData.cuotas.sesionesSupervisadas) || 0) + sesionesSupToAdd
@@ -106,6 +129,9 @@ async function aplicarCambioCuota(interaction, signo) {
       0,
       (Number(staffData.cuotas.ticketsCerrados) || 0) + ticketsToAdd
     );
+    // Puntos directos: pueden quedar negativos
+    staffData.cuotas.puntosAjuste =
+      (Number(staffData.cuotas.puntosAjuste) || 0) + puntosToAdd;
 
     staffData.estadisticasHistoricas.horasTotales = Math.max(
       0,
@@ -142,8 +168,10 @@ async function aplicarCambioCuota(interaction, signo) {
           minutos: m,
           horasDecimal: horasToAdd,
           sesionesOrganizadas: sesionesOrgToAdd,
+          sesionesCohost: sesionesCohostToAdd,
           sesionesSupervisadas: sesionesSupToAdd,
           tickets: ticketsToAdd,
+          puntos: puntosToAdd,
           motivo
         }
       });
@@ -183,6 +211,16 @@ async function aplicarCambioCuota(interaction, signo) {
         {
           name: '🎫 Tickets',
           value: `> **${signo > 0 ? '+' : '−'}${Math.abs(ticketsToAdd)}** → Semana: **${staffData.cuotas.ticketsCerrados}**`,
+          inline: true
+        },
+        {
+          name: '⭐ Puntos directos',
+          value: `> **${signo > 0 ? '+' : '−'}${Math.abs(puntosToAdd)}** → Ajuste: **${staffData.cuotas.puntosAjuste || 0}**`,
+          inline: true
+        },
+        {
+          name: '🤝 Co-host',
+          value: `> **${signo > 0 ? '+' : '−'}${Math.abs(sesionesCohostToAdd)}** → Semana: **${staffData.cuotas.sesionesCohost || 0}**`,
           inline: true
         },
         {
@@ -392,21 +430,35 @@ function opcionesCuota(sub) {
     .addIntegerOption(o =>
       o
         .setName('sesiones_organizadas')
-        .setDescription('Sesiones organizadas (host)')
+        .setDescription('Sesiones host (+25 pts c/u a ritmo completo)')
         .setRequired(false)
         .setMinValue(1)
     )
     .addIntegerOption(o =>
       o
         .setName('sesiones_supervisadas')
-        .setDescription('Sesiones supervisadas')
+        .setDescription('Sesiones supervisadas (+20 pts c/u a ritmo completo)')
         .setRequired(false)
         .setMinValue(1)
     )
     .addIntegerOption(o =>
       o
         .setName('tickets')
-        .setDescription('Tickets cerrados/atendidos')
+        .setDescription('Tickets cerrados/atendidos (+10 pts c/u)')
+        .setRequired(false)
+        .setMinValue(1)
+    )
+    .addIntegerOption(o =>
+      o
+        .setName('puntos')
+        .setDescription('Puntos directos (pueden quedar negativos al remover)')
+        .setRequired(false)
+        .setMinValue(1)
+    )
+    .addIntegerOption(o =>
+      o
+        .setName('sesiones_cohost')
+        .setDescription('Sesiones de co-host (+15 pts c/u a ritmo completo)')
         .setRequired(false)
         .setMinValue(1)
     )
