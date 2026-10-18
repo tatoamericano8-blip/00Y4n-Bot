@@ -8,6 +8,12 @@ import { calcularScore } from './scoreCuota.js';
 
 const KEY = (guildId) => `staff:clasificacion:live:${guildId}`;
 const TOP_MAX = 25;
+/** Muestra créditos decimales sin basura flotante */
+function fmtNum(n) {
+  const x = Number(n) || 0;
+  if (Number.isInteger(x)) return String(x);
+  return (Math.round(x * 100) / 100).toString();
+}
 const pendingTimers = new Map();
 const ROL_STAFF = '1512120103771050005';
 
