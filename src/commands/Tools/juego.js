@@ -189,54 +189,38 @@ function resultadoSlots(simbolos) {
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('juego')
-    .setDescription('Minijuegos con apuestas de la economía 00Y4n.')
-    .addSubcommand((s) =>
-      s
-        .setName('adivina-auto')
-        .setDescription('Adiviná el auto con pistas y apostá tu saldo.')
-        .addStringOption((o) =>
-          o
-            .setName('cantidad')
-            .setDescription(`Apuesta (mín ${MIN_APUESTA}, máx ${MAX_APUESTA}) o "all"`)
-            .setRequired(true)
+    .setName('juegos')
+    .setDescription('Minijuegos con apuestas — elegí el juego en el menú.')
+    .addStringOption((o) =>
+      o
+        .setName('juego')
+        .setDescription('Qué juego querés jugar')
+        .setRequired(true)
+        .addChoices(
+          { name: 'Adivina el auto', value: 'adivina-auto' },
+          { name: 'Slots (tragamonedas)', value: 'slots' },
+          { name: 'Cara o cruz', value: 'moneda' }
         )
     )
-    .addSubcommand((s) =>
-      s
-        .setName('slots')
-        .setDescription('Tragamonedas — 3 iguales pagan x3.')
-        .addStringOption((o) =>
-          o
-            .setName('cantidad')
-            .setDescription(`Apuesta (mín ${MIN_APUESTA}, máx ${MAX_APUESTA}) o "all"`)
-            .setRequired(true)
-        )
+    .addStringOption((o) =>
+      o
+        .setName('cantidad')
+        .setDescription(`Apuesta (mín ${MIN_APUESTA}, máx ${MAX_APUESTA}) o "all"`)
+        .setRequired(true)
     )
-    .addSubcommand((s) =>
-      s
-        .setName('moneda')
-        .setDescription('Cara o cruz apostando tu saldo.')
-        .addStringOption((o) =>
-          o
-            .setName('cantidad')
-            .setDescription(`Apuesta (mín ${MIN_APUESTA}, máx ${MAX_APUESTA}) o "all"`)
-            .setRequired(true)
-        )
-        .addStringOption((o) =>
-          o
-            .setName('eleccion')
-            .setDescription('¿Cara o cruz?')
-            .setRequired(true)
-            .addChoices(
-              { name: 'Cara', value: 'cara' },
-              { name: 'Cruz', value: 'cruz' }
-            )
+    .addStringOption((o) =>
+      o
+        .setName('eleccion')
+        .setDescription('Solo para Cara o cruz: cara o cruz')
+        .setRequired(false)
+        .addChoices(
+          { name: 'Cara', value: 'cara' },
+          { name: 'Cruz', value: 'cruz' }
         )
     ),
 
   async execute(interaction) {
-    const sub = interaction.options.getSubcommand();
+    const sub = interaction.options.getString('juego');
     const userId = interaction.user.id;
 
     const segCd = checkCooldown(userId);
@@ -488,6 +472,13 @@ export default {
     }
 
     if (sub === 'moneda') {
+      const eleccionPre = interaction.options.getString('eleccion');
+      if (eleccionPre !== 'cara' && eleccionPre !== 'cruz') {
+        return interaction.reply({
+          content: `${E.cruz || '❌'} Para **Cara o cruz** debés elegir la opción **eleccion** (Cara o Cruz).`,
+          flags: MessageFlags.Ephemeral
+        });
+      }
       const saldo = await obtenerSaldo(userId);
       const apuesta = parseApuesta(interaction.options.getString('cantidad'), saldo);
       const eleccion = interaction.options.getString('eleccion');
