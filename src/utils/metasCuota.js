@@ -55,11 +55,13 @@ export function calcularPuntosSemana(cuotas = {}) {
   const cohost = Number(cuotas.sesionesCohost) || 0;
   const sup = Number(cuotas.sesionesSupervisadas) || 0;
   const tkt = Number(cuotas.ticketsCerrados) || 0;
+  const ajuste = Number(cuotas.puntosAjuste) || 0;
   return (
     host * PTS_HOST +
     cohost * PTS_COHOST +
     sup * PTS_SUPERVISION +
-    tkt * PTS_TICKET
+    tkt * PTS_TICKET +
+    ajuste
   );
 }
 
@@ -69,15 +71,18 @@ export function desglosePuntos(cuotas = {}) {
   const cohost = Number(cuotas.sesionesCohost) || 0;
   const sup = Number(cuotas.sesionesSupervisadas) || 0;
   const tkt = Number(cuotas.ticketsCerrados) || 0;
+  const ajuste = Number(cuotas.puntosAjuste) || 0;
   return {
     host,
     cohost,
     sup,
     tkt,
+    ajuste,
     ptsHost: host * PTS_HOST,
     ptsCohost: cohost * PTS_COHOST,
     ptsSup: sup * PTS_SUPERVISION,
     ptsTkt: tkt * PTS_TICKET,
+    ptsAjuste: ajuste,
     total: calcularPuntosSemana(cuotas)
   };
 }
