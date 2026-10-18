@@ -146,15 +146,12 @@ export default {
                 sesionActiva.cierreForzado === true ||
                 sesionActiva.cuentaParaCuota === false;
 
-            // Crédito de sesión proporcional al tiempo (máx. 1.0 a los 60 min).
-            // 30 min host → 0.5 crédito → 12.5 pts | 60+ min → 1.0 → 25 pts.
-            // Tickets no usan esto (siguen +10 fijos al cerrar ticket).
-            const MIN_MIN_CUOTA_PLENA = 60;
-            const creditoSesion = Math.min(
-                1,
-                Math.max(0, Number(minutosCalculados) || 0) / MIN_MIN_CUOTA_PLENA
-            );
-            // 2 decimales para no acumular basura flotante
+            // Crédito proporcional al tiempo. Referencia: 120 min (2 h) = 1.0 crédito.
+            // Sin tope: más minutos = más puntos (motiva sesiones largas).
+            // 1 h host → 0.5 → 12.5 pts | 2 h → 1.0 → 25 pts | 4 h → 2.0 → 50 pts.
+            // Tickets no usan esto (siguen +10 fijos).
+            const MIN_REF_CUOTA = 120; // 2 horas
+            const creditoSesion = Math.max(0, Number(minutosCalculados) || 0) / MIN_REF_CUOTA;
             const credito = Math.round(creditoSesion * 100) / 100;
 
             if (noSumarCuota) {
@@ -164,7 +161,7 @@ export default {
                     await sumarCuotaStaff(guildId, hostId, {
                         horas: horasHost,
                         sesionesOrganizadas: credito,
-                        motivo: `Cierre de sesion ${tipo} (host) — ${duracionMostrar} · crédito ${credito}/${1} (${minutosCalculados}m)`,
+                        motivo: `Cierre de sesion ${tipo} (host) — ${duracionMostrar} · crédito ${credito} (${minutosCalculados}m, ref ${MIN_REF_CUOTA}m)`,
                         executorId: interaction.user.id
                     });
                 }
@@ -172,7 +169,7 @@ export default {
                     await sumarCuotaStaff(guildId, coHostId, {
                         horas: horasCohost || 0.25,
                         sesionesCohost: credito,
-                        motivo: `Cierre de sesion ${tipo} (co-host) — ${duracionMostrar} · crédito ${credito}/${1} (${minutosCalculados}m)`,
+                        motivo: `Cierre de sesion ${tipo} (co-host) — ${duracionMostrar} · crédito ${credito} (${minutosCalculados}m, ref ${MIN_REF_CUOTA}m)`,
                         executorId: interaction.user.id
                     });
                 }
@@ -180,12 +177,12 @@ export default {
                     await sumarCuotaStaff(guildId, supervisorId, {
                         horas: horasSup,
                         sesionesSupervisadas: credito,
-                        motivo: `Cierre de sesion ${tipo} (supervisor) — ${duracionMostrar} · crédito ${credito}/${1} (${minutosCalculados}m)`,
+                        motivo: `Cierre de sesion ${tipo} (supervisor) — ${duracionMostrar} · crédito ${credito} (${minutosCalculados}m, ref ${MIN_REF_CUOTA}m)`,
                         executorId: interaction.user.id
                     });
                 }
                 console.log(
-                    `[cerrar] Crédito sesión=${credito} (${minutosCalculados}m / ${MIN_MIN_CUOTA_PLENA}m plena)`
+                    `[cerrar] Crédito sesión=${credito} (${minutosCalculados}m, ref ${MIN_REF_CUOTA}m = 2h)`
                 );
             }
 
