@@ -6,7 +6,7 @@ import {
 
 /**
  * Score semanal = puntos de cuota (host, co-host, supervisión, tickets).
- * Se muestra tal cual; la meta de cumplimiento es puntosMeta (100).
+ * Se muestra tal cual; la meta de cumplimiento es puntosMeta (40).
  */
 export function calcularScore(cuotas = {}, rangoNombre = '') {
   void rangoNombre;
