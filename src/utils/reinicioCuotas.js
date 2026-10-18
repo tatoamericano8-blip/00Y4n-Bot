@@ -83,6 +83,7 @@ export async function reiniciarCuotasGuild(client, guildId, {
     staff.cuotas.sesionesCohost = 0;
     staff.cuotas.sesionesSupervisadas = 0;
     staff.cuotas.ticketsCerrados = 0;
+    staff.cuotas.puntosAjuste = 0;
 
     await staff.save().catch(e => logger.warn(`No se pudo guardar staff ${staff.userId}: ${e.message}`));
   }
@@ -246,7 +247,7 @@ export async function recordatorioCuotaMidWeek(client) {
         const { obtenerMetasPorRango } = await import('./metasCuota.js');
         const metas = obtenerMetasPorRango(rango);
 
-        const metaPts = Number(metas.puntosMeta) || 100;
+        const metaPts = Number(metas.puntosMeta) || 40;
         if (metaPts <= 0) continue;
 
         const { calcularPuntosSemana } = await import('./metasCuota.js');
