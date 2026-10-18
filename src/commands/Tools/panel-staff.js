@@ -2,7 +2,7 @@ import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, ActionRowBuilde
 import Staff from '../../../models/Staff.js';
 import Sesion from '../../../models/Session.js';
 import { obtenerRangoDeUsuario } from '../../utils/rangoStaff.js';
-import { obtenerMetasPorRango, sesionesSemana } from '../../utils/metasCuota.js';
+import { obtenerMetasPorRango, sesionesSemana, calcularPuntosSemana } from '../../utils/metasCuota.js';
 import { calcularScore, evaluarCumplimiento, textoScore } from '../../utils/scoreCuota.js';
 import { E } from '../../config/emojis.js';
 
@@ -25,28 +25,26 @@ export default {
       !interaction.member.roles.cache.has(ROL_ALTO_MANDO) &&
       !interaction.member.permissions.has(PermissionFlagsBits.Administrator)
     ) {
-      return interaction.reply({
-        content: E.cruz + ' Solo **Alto Comando** puede usar este panel.',
-        ephemeral: true
-      });
+      return interaction.reply({ content: `${E.cruz || '\u274c'} Solo Alto Comando.`, ephemeral: true });
     }
 
     await interaction.deferReply({ ephemeral: true });
-
-    const guildId = interaction.guild.id;
     const guild = interaction.guild;
+    const guildId = guild.id;
 
     const staffList = await Staff.find({
       guildId,
       estado: { $nin: ['DESPEDIDO', 'RENUNCIADO'] }
-    });
+    }).lean();
 
     const sesionesAbiertas = await Sesion.find({
       guildId,
-      estado: { $in: ['esperando_reacciones', 'activa'] }
+      estado: { $in: ['activa', 'esperando', 'lanzada'] }
     })
       .sort({ fechaInicio: -1 })
-      .limit(10);
+      .limit(15)
+      .lean()
+      .catch(() => []);
 
     const incumplidores = [];
     const enLoa = [];
@@ -70,10 +68,11 @@ export default {
             (s.loa?.motivo ? ` \u00b7 _${String(s.loa.motivo).slice(0, 40)}_` : '')
         );
       } else if (evalC.cumplio === false) {
-        const ses = sesionesSemana(cuotas);
+        const puntos = calcularPuntosSemana(cuotas);
         const metas = obtenerMetasPorRango(rango);
+        const metaPts = metas.puntosMeta || 100;
         incumplidores.push(
-          `> <@${s.userId}> \u00b7 ${ses}/${metas.sesionesMeta} ses \u00b7 ${cuotas.ticketsCerrados || 0}/${metas.ticketsMeta} tkt \u00b7 score ${textoScore(score)}`
+          `> <@${s.userId}> \u00b7 ${puntos}/${metaPts} pts \u00b7 score ${textoScore(score)}`
         );
       }
 
@@ -97,78 +96,28 @@ export default {
             const inicio = ses.fechaInicio
               ? `<t:${Math.floor(new Date(ses.fechaInicio).getTime() / 1000)}:R>`
               : '\u2014';
-            return `> **${tipo}** ${estado} \u00b7 Host: <@${ses.hostId}>${
-              ses.coHostId ? ` \u00b7 Co-Host: <@${ses.coHostId}>` : ''
-            } \u00b7 ${inicio}`;
+            return `> **${tipo}** ${estado} \u00b7 Host: <@${ses.hostId}> \u00b7 ${inicio}`;
           });
 
-    const despedidos = await Staff.countDocuments({ guildId, estado: 'DESPEDIDO' });
-    const renunciados = await Staff.countDocuments({ guildId, estado: 'RENUNCIADO' });
-
-    const embed = new EmbedBuilder()
-      .setTitle('\ud83d\udee1\ufe0f Panel Alto Comando \u2014 Staff')
-      .setColor('#74d4fc')
-      .setDescription(
-        `Resumen operativo de **${guild.name}**.\nSolo visible para Alto Comando (respuesta ef\u00edmera).`
-      )
-      .addFields(
-        {
-          name: '\ud83d\udccc Resumen general',
-          value:
-            `> **Staff activos (DB):** ${staffList.length}\n` +
-            `> **En LOA:** ${enLoa.length}\n` +
-            `> **Incumpliendo cuota:** ${incumplidores.length}\n` +
-            `> **Con strikes activos:** ${conStrikes.length} (total strikes: ${totalStrikesActivos})\n` +
-            `> **Sesiones abiertas:** ${sesionesAbiertas.length}\n` +
-            `> **Despedidos / Renuncias (hist):** ${despedidos} / ${renunciados}`,
-          inline: false
-        },
-        {
-          name: `\u274c Incumplidores de cuota (${incumplidores.length})`,
-          value: cortar(incumplidores, 10),
-          inline: false
-        },
-        {
-          name: `\ud83d\udfe1 LOA activos (${enLoa.length})`,
-          value: cortar(enLoa, 8),
-          inline: false
-        },
-        {
-          name: `\u26a0\ufe0f Strikes activos (${conStrikes.length})`,
-          value: cortar(conStrikes, 8),
-          inline: false
-        },
-        {
-          name: `\ud83d\udce1 Sesiones abiertas (${sesionesAbiertas.length})`,
-          value: cortar(lineasSesiones, 8),
-          inline: false
-        },
-        {
-          name: '\u2b50 Top 5 score semanal',
-          value: cortar(
-            topScore.slice(0, 5).map(
-              (t, i) =>
-                `> **${i + 1}.** <@${t.userId}> \u00b7 ${textoScore(t.score)} \u00b7 ${t.rango}`
-            ),
-            5
-          ),
-          inline: false
-        }
-      )
-      .setFooter({
-        text: `Solicitado por ${interaction.user.tag} \u2022 00Y4n HC Dashboard`,
-        iconURL: interaction.user.displayAvatarURL()
-      })
-      .setTimestamp();
-
-    const row = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId('panel_staff_sesiones').setLabel('Sesiones abiertas').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId('panel_staff_loa').setLabel('LOA activos').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId('panel_staff_incumplidores').setLabel('Incumplidores').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId('panel_staff_forzar').setLabel('C\u00f3mo forzar cierre').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId('panel_staff_hosts').setLabel('Ranking hosts').setStyle(ButtonStyle.Secondary)
+    const topLines = topScore.slice(0, 5).map((x, i) =>
+      `> **#${i + 1}** <@${x.userId}> \u00b7 ${textoScore(x.score)} \u00b7 ${x.rango}`
     );
 
-    return interaction.editReply({ embeds: [embed], components: [row] });
+    const embed = new EmbedBuilder()
+      .setColor('#8ae6fa')
+      .setTitle('Panel Staff \u00b7 Alto Comando')
+      .setDescription(
+        `Staff activos en DB: **${staffList.length}** \u00b7 Strikes activos: **${totalStrikesActivos}**`
+      )
+      .addFields(
+        { name: 'Incumplidores (puntos)', value: cortar(incumplidores), inline: false },
+        { name: 'En LOA', value: cortar(enLoa), inline: false },
+        { name: 'Con strikes', value: cortar(conStrikes), inline: false },
+        { name: 'Top score semanal', value: cortar(topLines, 5), inline: false },
+        { name: 'Sesiones abiertas', value: cortar(lineasSesiones, 10), inline: false }
+      )
+      .setTimestamp();
+
+    return interaction.editReply({ embeds: [embed] });
   }
 };

@@ -66,12 +66,14 @@ export function evaluarCumplimiento(staffData, rangoNombre = '') {
 }
 
 /** ID de semana ISO (UTC) */
-export function semanaIdActual() {
+export function idSemanaActual() {
   const d = new Date();
   const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
   const weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
   return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
 }
+
+export const semanaIdActual = idSemanaActual;
 
 export function textoScore(score) {
   const s = Number(score) || 0;
