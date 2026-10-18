@@ -173,7 +173,12 @@ if (error.code === 10062) {
             await interaction.editReply(sanitizeEditReplyOptions(options));
             return true;
         } catch (error) {
-if (error.code === 10062) {
+if (error.code === 10008) {
+                // Unknown Message: la respuesta original ya no existe
+                logger.debug(`Interaction ${interaction.id} reply message gone (10008), ignoring edit`);
+                return false;
+            }
+            if (error.code === 10062) {
                 logger.warn(`Interaction ${interaction.id} expired during edit:`, error.message);
                 return false;
             }
