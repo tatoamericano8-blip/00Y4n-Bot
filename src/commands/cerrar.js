@@ -100,11 +100,13 @@ export default {
                 minutosCalculados = Math.max(0, Math.round(ms / 60000));
                 duracionMostrar = formatearDuracionMs(ms);
                 sesionActiva.duracionMinutos = minutosCalculados;
+                // Pico: max entre lo guardado, lista única y conteo vivo del mensaje de inicio
                 let pico = Math.max(
                     Number(sesionActiva.reaccionesPico) || 0,
                     Array.isArray(sesionActiva.reacciones) ? sesionActiva.reacciones.length : 0
                 );
                 try {
+                    const chId = interaction.channelId;
                     const msgId = sesionActiva.idInicio;
                     if (msgId && interaction.channel) {
                         const msg = await interaction.channel.messages.fetch(msgId).catch(() => null);
@@ -144,32 +146,47 @@ export default {
                 sesionActiva.cierreForzado === true ||
                 sesionActiva.cuentaParaCuota === false;
 
+            // Puntos de sesión (host/co-host/sup) solo si dura ≥ 60 min. Tickets no aplican aquí.
+            const MIN_MIN_CUOTA_SESION = 60;
+            const sesionCuentaPuntos = minutosCalculados >= MIN_MIN_CUOTA_SESION;
+
             if (noSumarCuota) {
                 console.log(`[cerrar] Sin cuota. host=${hostId}`);
             } else {
                 if (hostSigue && hostId) {
                     await sumarCuotaStaff(guildId, hostId, {
                         horas: horasHost,
-                        sesionesOrganizadas: 1,
-                        motivo: `Cierre de sesion ${tipo} (host hasta el final) — ${duracionMostrar}`,
+                        sesionesOrganizadas: sesionCuentaPuntos ? 1 : 0,
+                        motivo: sesionCuentaPuntos
+                            ? `Cierre de sesion ${tipo} (host hasta el final) — ${duracionMostrar}`
+                            : `Cierre de sesion ${tipo} (host) — ${duracionMostrar} (<${MIN_MIN_CUOTA_SESION} min: sin puntos de sesión)`,
                         executorId: interaction.user.id
                     });
                 }
                 if (coHostId && coHostId !== hostId) {
                     await sumarCuotaStaff(guildId, coHostId, {
                         horas: horasCohost || 0.25,
-                        sesionesCohost: 1,
-                        motivo: `Cierre de sesion ${tipo} (co-host hasta el final) — ${duracionMostrar}`,
+                        sesionesCohost: sesionCuentaPuntos ? 1 : 0,
+                        motivo: sesionCuentaPuntos
+                            ? `Cierre de sesion ${tipo} (co-host hasta el final) — ${duracionMostrar}`
+                            : `Cierre de sesion ${tipo} (co-host) — ${duracionMostrar} (<${MIN_MIN_CUOTA_SESION} min: sin puntos de sesión)`,
                         executorId: interaction.user.id
                     });
                 }
                 if (supervisorId && supervisorId !== hostId && supervisorId !== coHostId) {
                     await sumarCuotaStaff(guildId, supervisorId, {
                         horas: horasSup,
-                        sesionesSupervisadas: 1,
-                        motivo: `Cierre de sesion ${tipo} (supervisor hasta el final) — ${duracionMostrar}`,
+                        sesionesSupervisadas: sesionCuentaPuntos ? 1 : 0,
+                        motivo: sesionCuentaPuntos
+                            ? `Cierre de sesion ${tipo} (supervisor hasta el final) — ${duracionMostrar}`
+                            : `Cierre de sesion ${tipo} (supervisor) — ${duracionMostrar} (<${MIN_MIN_CUOTA_SESION} min: sin puntos de sesión)`,
                         executorId: interaction.user.id
                     });
+                }
+                if (!sesionCuentaPuntos) {
+                    console.log(
+                        `[cerrar] Sesión <${MIN_MIN_CUOTA_SESION} min (${minutosCalculados}m): horas sí, puntos de sesión no.`
+                    );
                 }
             }
 
@@ -279,7 +296,7 @@ export default {
             new ButtonBuilder()
                 .setCustomId(`abrir_feedback_swfl:${idSesionFeedback}`)
                 .setLabel('Opinion de la Sesion')
-                .setEmoji(EMOJI_DEF.form.id)
+                .setEmoji(EMOJI_DEF.lista.id)
                 .setStyle(ButtonStyle.Secondary)
         );
 
