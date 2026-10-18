@@ -2,10 +2,10 @@
  * Cuota semanal por PUNTOS (unificada para todo staff con rol 00Y4n Staff).
  *
  * Cómo se ganan puntos:
- *   Host (sesión organizada)     → 25 pts
- *   Co-host                      → 15 pts
- *   Supervisión (Alto Comando)   → 20 pts
- *   Ticket cerrado/atendido      → 10 pts
+ *   Host (sesión ≥ 1 h)          → 25 pts
+ *   Co-host (sesión ≥ 1 h)       → 15 pts
+ *   Supervisión (≥ 1 h)          → 20 pts
+ *   Ticket cerrado/atendido      → 10 pts (sin mínimo de tiempo)
  *
  * Meta semanal: 100 puntos → cuota cumplida.
  * Ejemplo: 4 hosts = 100 | 2 hosts + 2 co-host + 2 tickets = 100 | mix libre.
