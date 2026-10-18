@@ -257,7 +257,7 @@ export default {
 
     const puntos = calcularPuntosSemana(c);
     const desg = desglosePuntos(c);
-    const metaPts = metas.puntosMeta || 50;
+    const metaPts = metas.puntosMeta || 40;
     const metaPtsTxt = `${puntos} / ${metaPts}`;
 
     const ratingLines = [];
