@@ -136,8 +136,12 @@ export async function construirRankingSemanal(guild) {
   });
 
   const total = enriquecidos.length;
+  const banner = new EmbedBuilder()
+    .setColor('#8ae6fa')
+    .setImage('https://cdn.discordapp.com/attachments/1505017301089652898/1561884671812571196/Copia_de_Staff_Clasificacion_1.png');
+
   const embed = new EmbedBuilder()
-    .setColor('#74d4fc')
+    .setColor('#8ae6fa')
     .setTitle('Clasificación semanal de Staff')
     .setDescription(
       (lineas.join('\n\n') || 'Sin actividad registrada esta semana.') +
@@ -148,7 +152,8 @@ export async function construirRankingSemanal(guild) {
     .setFooter({ text: 'Southwest Florida 00Y4n · Cuotas de la semana en curso' })
     .setTimestamp();
 
-  return { filas: top, embed };
+  // banner arriba + ranking
+  return { filas: top, embed, embeds: [banner, embed] };
 }
 
 export async function refreshClasificacionLive(client, guildId) {
@@ -172,8 +177,8 @@ export async function refreshClasificacionLive(client, guildId) {
       return false;
     }
 
-    const { embed } = await construirRankingSemanal(guild);
-    await message.edit({ embeds: [embed] });
+    const { embeds } = await construirRankingSemanal(guild);
+    await message.edit({ embeds });
     await setInDb(KEY(guildId), {
       ...ref,
       updatedAt: new Date().toISOString()
