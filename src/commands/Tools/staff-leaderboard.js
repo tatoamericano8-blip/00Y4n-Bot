@@ -25,7 +25,7 @@ export default {
     await interaction.deferReply({ ephemeral: true });
 
     const guild = interaction.guild;
-    const { embed } = await construirRankingSemanal(guild);
+    const { embeds } = await construirRankingSemanal(guild);
 
     const refExistente = await obtenerMensajeClasificacion(guild.id);
     if (refExistente) {
@@ -35,7 +35,7 @@ export default {
           ? await ch.messages.fetch(refExistente.messageId).catch(() => null)
           : null;
         if (msg) {
-          await msg.edit({ embeds: [embed] });
+          await msg.edit({ embeds });
           return interaction.editReply({
             content:
               `Clasificación actualizada en el mensaje vivo: ${msg.url}\n` +
@@ -45,7 +45,7 @@ export default {
       } catch (_) {}
     }
 
-    const enviado = await interaction.channel.send({ embeds: [embed] });
+    const enviado = await interaction.channel.send({ embeds });
     await guardarMensajeClasificacion(guild.id, interaction.channel.id, enviado.id);
 
     return interaction.editReply({
