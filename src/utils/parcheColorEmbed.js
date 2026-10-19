@@ -1,11 +1,11 @@
 /**
  * Redirige setColor hardcodeados a las categorías de colores.js.
  *
- * Cambiá PRIMARIO / COLORES.* en utils/colores.js y redeploy:
- *   - primario / info / sesión / etc.  → marca
- *   - exito / dinero                   → verdes
- *   - error / strike / bomberos        → rojos
- *   - advertencia / loa                → amarillos
+ * Cambiá PRIMARIO en utils/colores.js y redeploy:
+ *   - marca / celeste / naranja viejo  → PRIMARIO
+ *   - verdes de éxito                 → COLORES.exito (no cambian con PRIMARIO)
+ *   - rojos de error / strike         → COLORES.error / strike
+ *   - amarillos de aviso / LOA        → COLORES.advertencia
  */
 import { EmbedBuilder } from 'discord.js';
 import { PRIMARIO, COLORES } from './colores.js';
@@ -15,7 +15,6 @@ function normHex(c) {
   let s = c.trim();
   if (!s.startsWith('#')) s = `#${s}`;
   if (s.length === 4) {
-    // #abc → #aabbcc
     s = `#${s[1]}${s[1]}${s[2]}${s[2]}${s[3]}${s[3]}`;
   }
   return s.toLowerCase();
@@ -26,24 +25,30 @@ function intToHex(n) {
   return `#${(n >>> 0).toString(16).padStart(6, '0').slice(-6).toLowerCase()}`;
 }
 
-/** Hexes de marca / celeste / naranja viejo → PRIMARIO */
-const MARCA = new Set([
-  '#74d4fc',
-  '#8ae6fa',
-  '#fb8b66',
-  '#00b0f4',
-  '#3498db',
-  '#5865f2',
-].map((h) => h.toLowerCase()));
+/** Hexes de marca → PRIMARIO (cualquier histórico de marca del bot) */
+const MARCA = new Set(
+  [
+    '#74d4fc',
+    '#8ae6fa',
+    '#fb8b66',
+    '#fec18c',
+    '#fec08a',
+    '#00b0f4',
+    '#3498db',
+    '#5865f2',
+    '#5dade2',
+    '#1abc9c',
+  ].map((h) => h.toLowerCase())
+);
 
-/** Verdes de éxito / dinero */
+/** Verdes de éxito / dinero — NO siguen a PRIMARIO */
 const EXITO = new Set(
-  ['#57f287', '#2ecc71', '#00ff00', '#57f287', '#3ba55d', '#23a559'].map((h) =>
+  ['#57f287', '#2ecc71', '#00ff00', '#3ba55d', '#23a559'].map((h) =>
     h.toLowerCase()
   )
 );
 
-/** Rojos de error / strike / policía */
+/** Rojos de error / strike — críticos */
 const ERROR = new Set(
   [
     '#e60404',
@@ -52,19 +57,22 @@ const ERROR = new Set(
     '#e74c3c',
     '#ff0000',
     '#c0392b',
-    '#f04747'
+    '#f04747',
+    '#ff6363',
+    '#ff5555',
   ].map((h) => h.toLowerCase())
 );
 
-/** Amarillos / naranja aviso / LOA */
+/** Amarillos / aviso / LOA — críticos */
 const ADVERTENCIA = new Set(
-  ['#faa61a', '#f1c40f', '#fee75c', '#ffa500', '#e67e22', '#f39c12'].map((h) =>
-    h.toLowerCase()
+  ['#faa61a', '#f1c40f', '#fee75c', '#ffa500', '#e67e22', '#f39c12', '#ffc107'].map(
+    (h) => h.toLowerCase()
   )
 );
 
 function resolverCategoria(hex) {
   if (!hex) return null;
+  // Orden: marca primero, luego semánticos críticos
   if (MARCA.has(hex)) return COLORES.primario || PRIMARIO;
   if (EXITO.has(hex)) return COLORES.exito;
   if (ERROR.has(hex)) return COLORES.error;
@@ -96,7 +104,7 @@ export function aplicarParcheColorEmbed() {
   };
 }
 
-// Auto-aplicar al importar
+// Auto-aplicar al importar (app.js lo carga al inicio)
 aplicarParcheColorEmbed();
 
 export default aplicarParcheColorEmbed;
