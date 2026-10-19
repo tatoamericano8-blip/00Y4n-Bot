@@ -58,7 +58,7 @@ export default {
         }
 
         const URL_IMAGEN_DEFAULT =
-            'https://cdn.discordapp.com/attachments/1505017301089652898/1548119384529309797/Sesion_Concluida_1.png?ex=6aa5e607&is=6aa49487&hm=41f67f388a23c3391bfdfc371ee920df7d1c39370767d1db41fa65bf11dcd7ee&';
+            'https://media.discordapp.net/attachments/1505017301089652898/1561884471102546082/Copia_de_Sesion_concluida_1_1.png?ex=6ad7f9c4&is=6ad6a844&hm=c5163f954c96a714c5da63598211226ef96607a4177f5ee7e3c45b4f6947b650&=&format=webp&quality=lossless';
 
         const tipo = interaction.options.getString('tipo');
         const notasHost = interaction.options.getString('notas') || 'Sin notas adicionales.';
