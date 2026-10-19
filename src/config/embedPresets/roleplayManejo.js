@@ -6,13 +6,13 @@ import { E } from '../emojis.js';
 const IMG_MANEJO_HEADER = null;
 
 const IMG_CARRILES =
-  'https://cdn.discordapp.com/attachments/1505017301089652898/1548138045692313680/Gemini_Generated_Image_v32iuqv32iuqv32i.jfif';
+  'https://media.discordapp.net/attachments/1505017301089652898/1561884674710704129/xFe3F.jpg?ex=6ad7f9f4&is=6ad6a874&hm=ce4296738b421fdb965c19c45f2eb51eb5ff0921d6cb299f4f3efe13a1900e73&=&format=webp';
 const IMG_SERVICIOS =
-  'https://cdn.discordapp.com/attachments/1505017301089652898/1548138044366921748/Gemini_Generated_Image_g1vsbxg1vsbxg1vs.jfif';
+  'https://media.discordapp.net/attachments/1505017301089652898/1561884673532108902/SGnjt.jpg?ex=6ad7f9f4&is=6ad6a874&hm=cd3957446132f48fc791cc45d627a14b9d07174fd8705dae67655438bfdb236c&=&format=webp';
 const IMG_CAMBIO =
-  'https://cdn.discordapp.com/attachments/1505017301089652898/1548138043217674330/Gemini_Generated_Image_cq2avcq2avcq2avc.jfif';
+  'https://media.discordapp.net/attachments/1505017301089652898/1561884674425356430/Tjpe1.jpg?ex=6ad7f9f4&is=6ad6a874&hm=654855b14dfde81fa20735de9bcdd4b1c21e7dc51833d38aaf0ccca9cce632e9&=&format=webp';
 const IMG_SEGURO =
-  'https://cdn.discordapp.com/attachments/1505017301089652898/1548138045159514162/Gemini_Generated_Image_tld2witld2witld2.jfif';
+  'https://media.discordapp.net/attachments/1505017301089652898/1561884670981832744/3Ss61.jpg?ex=6ad7f9f3&is=6ad6a873&hm=897a464e47609b9a3e328fdb4c6115bc8b7e1c24fff61518d1d04dcbbb5c6df9&=&format=webp';
 
 export default {
   id: 'roleplay_manejo',
