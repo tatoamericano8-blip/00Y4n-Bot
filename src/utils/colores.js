@@ -3,49 +3,69 @@
  *  COLORES CENTRALIZADOS DEL BOT 00Y4n
  * ============================================================
  *
- *  Cómo cambiar el color de MARCA de casi TODO el bot:
- *    1. Editá solo PRIMARIO abajo (ej: '#FB8B66').
- *    2. Redeploy / reiniciá el bot en Render.
+ *  CAMBIAR EL COLOR DE MARCA DE (casi) TODO EL BOT:
+ *    1. Editá SOLO la línea de PRIMARIO (ej: '#FEC18C' o '#8ae6fa').
+ *    2. Redeploy / reiniciá el bot.
  *
- *  Qué se actualiza al cambiar PRIMARIO:
- *    • Embeds con .setColor('#74d4fc')  → parcheColorEmbed.js
- *    • Embeds con .setColor(0x74d4fc)
- *    • getColor('primary'|'info'|…)    → bot.js usa PRIMARIO
- *    • COLORES.primario / .info / etc.  → este archivo
+ *  Qué SÍ se actualiza al cambiar PRIMARIO:
+ *    • Embeds de marca (sesiones, staff, economía UI, menús, etc.)
+ *    • .setColor('#8ae6fa'), '#74d4fc', naranja viejo, blurple de marca
+ *    • getColor('primary'|'info'|'moderation'|…)
+ *    • COLORES.primario / secundario / info / sesion / economia / …
  *
- *  Qué NO cambia (a propósito):
- *    • error / strike / rojo           → siguen en rojo
- *    • éxito / dinero / verde          → siguen en verde
- *    • advertencia / LOA / amarillo    → siguen en amarillo
- *    • Colores dinámicos (hex del comando /emojis-recolor, etc.)
+ *  Qué NO cambia (embeds críticos / semánticos):
+ *    • error / strike / rojo          → COLORES.error
+ *    • éxito / verde                  → COLORES.exito
+ *    • advertencia / LOA / amarillo   → COLORES.advertencia
+ *    • Colores dinámicos (hex libre, recolor, prioridades de ticket, etc.)
+ *
+ *  El parche vive en utils/parcheColorEmbed.js (se carga al arrancar).
  * ============================================================
  */
 
-/** Color principal de marca 00Y4n — CAMBIÁ SOLO ESTA LÍNEA */
+/** ★ Color principal de marca 00Y4n — CAMBIÁ SOLO ESTA LÍNEA ★ */
 export const PRIMARIO = '#8ae6fa';
+
+/** Colores semánticos fijos (no siguen a PRIMARIO) */
+export const CRITICO = {
+  /** Éxito, dinero OK, confirmaciones */
+  exito: '#57f287',
+  /** Error, strike, denegado, peligro */
+  error: '#ff6363',
+  /** Aviso, LOA, pendiente */
+  advertencia: '#faa61a',
+  /** Strike / sanción fuerte */
+  strike: '#E60404',
+  /** LOA / ausencia */
+  loa: '#fee75c',
+  /** Bomberos / emergencia roja */
+  bomberos: '#ed4245',
+  /** EMS */
+  ems: '#57f287',
+};
 
 /** Alias legibles para embeds */
 export const COLORES = {
   primario: PRIMARIO,
   secundario: PRIMARIO,
 
-  exito: '#57f287',
-  error: '#ff6363',
-  advertencia: '#faa61a',
+  exito: CRITICO.exito,
+  error: CRITICO.error,
+  advertencia: CRITICO.advertencia,
   info: PRIMARIO,
 
   moderacion: PRIMARIO,
-  strike: '#E60404',
-  loa: '#fee75c',
+  strike: CRITICO.strike,
+  loa: CRITICO.loa,
 
   economia: PRIMARIO,
-  dinero: '#8ae6fa',
+  dinero: CRITICO.exito,
 
   sesion: PRIMARIO,
 
   policia: PRIMARIO,
-  bomberos: '#ed4245',
-  ems: '#57f287',
+  bomberos: CRITICO.bomberos,
+  ems: CRITICO.ems,
 };
 
 /**
