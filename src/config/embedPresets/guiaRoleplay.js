@@ -7,7 +7,7 @@ import { PRIMARIO } from '../../utils/colores.js';
 import { E, EMOJI_DEF } from '../emojis.js';
 
 const IMG_GUIA =
-  'https://cdn.discordapp.com/attachments/1505017301089652898/1548119321019023400/Guia_Roleplay_1.png';
+  'https://media.discordapp.net/attachments/1505017301089652898/1561884471530360832/Copia_de_Sesion_de_roleplay_1.png?ex=6ad7f9c4&is=6ad6a844&hm=f6d853144ad7da16c03264eb260b8f034eedab2ac0148203673115b6c0ce72b7&=&format=webp&quality=lossless';
 
 const CANAL_COMANDOS = '1505615426305130657';
 const LINK_ROBLOX =
