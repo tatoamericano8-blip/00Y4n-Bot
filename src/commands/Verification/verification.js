@@ -9,6 +9,7 @@ import { logger } from '../../utils/logger.js';
 import { InteractionHelper } from '../../utils/interactionHelper.js';
 import { getWelcomeConfig } from '../../utils/database.js';
 import verificationDashboard from './modules/verification_dashboard.js';
+import { E } from '../../config/emojis.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -183,7 +184,7 @@ async function handleSetup(interaction, guild, client) {
     await InteractionHelper.safeDefer(interaction);
 
     const verifyEmbed = createEmbed({
-        title: "✅ Server Verification",
+        title: `${E.tilde || '✅'} Server Verification`,
         description: message,
         color: getColor('success')
     });

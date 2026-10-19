@@ -3,6 +3,7 @@ import { getGuildConfig } from '../services/guildConfig.js';
 import { logger } from './logger.js';
 import { getFromDb, setInDb } from './database.js';
 import { getColor } from '../config/bot.js';
+import { E } from '../config/emojis.js';
 
 
 
@@ -53,11 +54,11 @@ export async function logEvent({ client, guild, guildId, event }) {
       'Member Banned': { color: getColor('error'), icon: '🔨' },
       'Member Kicked': { color: getColor('warning'), icon: '👢' },
       'Member Timed Out': { color: getColor('warning'), icon: '⏳' },
-      'Member Untimeouted': { color: getColor('success'), icon: '✅' },
+      'Member Untimeouted': { color: getColor('success'), icon: `${E.tilde || '✅'}` },
       'User Warned': { color: getColor('warning'), icon: '⚠️' },
       'Warnings Viewed': { color: getColor('info'), icon: '👁️' },
       'Messages Purged': { color: getColor('moderation'), icon: '🗑️' },
-      'Channel Locked': { color: getColor('moderation'), icon: '🔒' },
+      'Channel Locked': { color: getColor('moderation'), icon: `${E.lock || '🔒'}` },
       'Channel Unlocked': { color: getColor('success'), icon: '🔓' },
       'Case Created': { color: getColor('info'), icon: '📋' },
       'Case Updated': { color: getColor('moderation'), icon: '📝' },

@@ -1,4 +1,5 @@
 import { EMOJI_DEF } from '../config/emojis.js';
+import { E } from '../config/emojis.js';
 export async function execute(interaction) {
     if (!interaction.isButton()) return;
 
@@ -14,7 +15,7 @@ export async function execute(interaction) {
         // Control de seguridad por si el bot se llega a reiniciar en medio de la sesión
         if (!linkReal) {
             return await interaction.editReply({
-                content: `❌ **Error de sincronización:** El bot se reinició o la sesión expiró de la memoria. Por favor, pídele al staff que vuelva a ejecutar el comando \`/lanzar_swfl\` para reactivar este botón.`
+                content: `${E.cruz || '❌'} **Error de sincronización:** El bot se reinició o la sesión expiró de la memoria. Por favor, pídele al staff que vuelva a ejecutar el comando \`/lanzar_swfl\` para reactivar este botón.`
             });
         }
         
@@ -40,14 +41,14 @@ export async function execute(interaction) {
                 });
             } else {
                 await interaction.editReply({
-                    content: `❌ **No puedes obtener el link de la sesión.**\nNo se detectó tu reacción con el tilde (\`✅\`) en el mensaje de inicio correspondiente a esta tanda de juego.`
+                    content: `${E.cruz || '❌'} **No puedes obtener el link de la sesión.**\nNo se detectó tu reacción con el tilde (\`${E.tilde || '✅'}\`) en el mensaje de inicio correspondiente a esta tanda de juego.`
                 });
             }
 
         } catch (error) {
             console.error(error);
             await interaction.editReply({
-                content: `❌ **Error al verificar:** No se pudo encontrar el mensaje de inicio original. Asegúrate de estar ejecutando el comando en el mismo canal donde se creó el Startup.`
+                content: `${E.cruz || '❌'} **Error al verificar:** No se pudo encontrar el mensaje de inicio original. Asegúrate de estar ejecutando el comando en el mismo canal donde se creó el Startup.`
             });
         }
     }

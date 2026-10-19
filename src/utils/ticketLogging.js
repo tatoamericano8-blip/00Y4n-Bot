@@ -2,6 +2,7 @@
 import { getGuildConfig } from '../services/guildConfig.js';
 import { EVENT_TYPES } from '../services/loggingService.js';
 import { logger } from './logger.js';
+import { E } from '../config/emojis.js';
 
 
 
@@ -235,7 +236,7 @@ function getEventDisplayInfo(event) {
       description: `A new ticket has been created: ${ticketRef}`
     },
     close: {
-      title: '🔒 Ticket Closed',
+      title: `${E.lock || '🔒'} Ticket Closed`,
       description: `Ticket ${ticketRef} has been closed`
     },
     delete: {

@@ -16,7 +16,7 @@ export default {
         // ❌ CASO DE ERROR: Si el bot se reinició o expiró
         if (!linkReal) {
             const embedError = new EmbedBuilder()
-                .setTitle('❌ Error de Sincronización')
+                .setTitle(`${E.cruz || '❌'} Error de Sincronización`)
                 .setDescription('Las re-invitaciones para esta tanda han expirado o el bot se reinició.\n\n*Por favor, espera a que el Staff mande un nuevo aviso en este canal.*')
                 .setColor('#ff4a4a'); // Rojo para alertas de error
 

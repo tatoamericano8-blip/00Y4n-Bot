@@ -1,6 +1,7 @@
 import { EmbedBuilder, ChannelType } from 'discord.js';
 import { getGuildConfig } from './guildConfig.js';
 import { logger } from '../utils/logger.js';
+import { E } from '../config/emojis.js';
 
 
 
@@ -101,14 +102,14 @@ const EVENT_ICONS = {
   'moderation.warn': '⚠️',
   'moderation.purge': '🗑️',
   'ticket.create': '🎫',
-  'ticket.close': '🔒',
+  'ticket.close': `${E.lock || '🔒'}`,
   'ticket.claim': '🙋',
   'ticket.priority': '🎯',
   'ticket.transcript': '📜',
   'ticket.delete': '🗑️',
   'leveling.levelup': '📈',
   'leveling.milestone': '🏆',
-  'message.delete': '❌',
+  'message.delete': `${E.cruz || '❌'}`,
   'message.edit': '✏️',
   'message.bulkdelete': '🗑️',
   'role.create': '➕',
@@ -117,8 +118,8 @@ const EVENT_ICONS = {
   'member.join': '👋',
   'member.leave': '👋',
   'member.namechange': '🏷️',
-  'reactionrole.add': '✅',
-  'reactionrole.remove': '❌',
+  'reactionrole.add': `${E.tilde || '✅'}`,
+  'reactionrole.remove': `${E.cruz || '❌'}`,
   'reactionrole.create': '🎭',
   'reactionrole.delete': '🗑️',
   'reactionrole.update': '🔄',

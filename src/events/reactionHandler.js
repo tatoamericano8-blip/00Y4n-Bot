@@ -1,4 +1,5 @@
 import { EMOJI_DEF } from '../config/emojis.js';
+import { E } from '../config/emojis.js';
 export default {
     name: 'messageReactionAdd',
     async execute(reaction, user) {
@@ -7,7 +8,7 @@ export default {
             try { await reaction.fetch(); } catch (error) { return; }
         }
 
-        const esTildeVoto = reaction.emoji.id === EMOJI_DEF.tilde.id || reaction.emoji.name === '✅' || reaction.emoji.name === 'tilde' || reaction.emoji.name === 'nara_tilde' || reaction.emoji.name === 'cielo_tilde';
+        const esTildeVoto = reaction.emoji.id === EMOJI_DEF.tilde.id || reaction.emoji.name === `${E.tilde || '✅'}` || reaction.emoji.name === 'tilde' || reaction.emoji.name === 'nara_tilde' || reaction.emoji.name === 'cielo_tilde';
         if (esTildeVoto && global.mapaVotos && global.mapaVotos.has(reaction.message.id)) {
             global.mapaVotos.get(reaction.message.id).add(user.id);
             console.log(`[00Y4n Votos] Voto registrado para ${user.username}`);

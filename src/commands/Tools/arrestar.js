@@ -22,7 +22,7 @@ export default {
 
         if (!interaction.member.roles.cache.has(ROL_POLICIA_ID)) {
             return await interaction.reply({
-                content: '❌ **Acceso denegado.** Solo los oficiales del **Departamento Policial del Condado de Sarasota** pueden registrar arrestos.',
+                content: `${E.cruz || '❌'} **Acceso denegado.** Solo los oficiales del **Departamento Policial del Condado de Sarasota** pueden registrar arrestos.`,
                 ephemeral: true
             });
         }

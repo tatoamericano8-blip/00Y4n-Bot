@@ -103,7 +103,7 @@ export default {
         ) {
             return await interaction.reply({
                 content:
-                    '❌ **Acceso denegado.** Este comando es exclusivo para los integrantes del **Alto Mando**.',
+                    `${E.cruz || '❌'} **Acceso denegado.** Este comando es exclusivo para los integrantes del **Alto Mando**.`,
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -206,7 +206,7 @@ export default {
 
         await interaction.editReply({
             content:
-                `✅ Cierre forzado publicado.\n` +
+                `${E.tilde || '✅'} Cierre forzado publicado.\n` +
                 `🗑️ Limpieza: **${borrados}** mensaje(s).\n` +
                 `Sesiones forzadas cerradas: **${sesionesCerradas}**. Cuota: **no sumada**.`
         });

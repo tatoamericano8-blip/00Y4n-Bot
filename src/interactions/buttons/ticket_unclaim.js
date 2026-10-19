@@ -43,7 +43,7 @@ export default {
       if (!esClaimer) {
         return interaction.editReply({
           content:
-            '❌ Solo quien **reclamó** este ticket puede dejar de reclamarlo.\n' +
+            `${E.cruz || '❌'} Solo quien **reclamó** este ticket puede dejar de reclamarlo.\n` +
             `> Reclamado por: <@${claimedBy}>`
         });
       }

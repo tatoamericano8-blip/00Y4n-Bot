@@ -1,5 +1,6 @@
 import { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } from 'discord.js';
 import Sesion from '../../../models/Session.js';
+import { E } from '../../config/emojis.js';
 
 export default {
     name: 'abrir_feedback_swfl',
@@ -28,7 +29,7 @@ export default {
 
         if (!hostId) {
             return interaction.reply({
-                content: '❌ No se pudo identificar al host de la sesión. Intentá de nuevo más tarde.',
+                content: `${E.cruz || '❌'} No se pudo identificar al host de la sesión. Intentá de nuevo más tarde.`,
                 ephemeral: true
             });
         }

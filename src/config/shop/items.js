@@ -1,3 +1,4 @@
+import { E } from '../../config/emojis.js';
 
 
 
@@ -130,7 +131,7 @@ roleId: null,
     },
     {
         id: 'personal_safe',
-        name: '🔒 Personal Safe',
+        name: `${E.lock || '🔒'} Personal Safe`,
         price: 30000,
         description: 'Protects your money from theft. Prevents others from robbing you.',
         type: 'tool',

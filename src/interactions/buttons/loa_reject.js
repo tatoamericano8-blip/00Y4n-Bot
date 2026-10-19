@@ -64,7 +64,7 @@ export default {
 
       const embedEditado = EmbedBuilder.from(embedOriginal || {})
         .setColor(0xe74c3c)
-        .setTitle('❌ Solicitud de Ausencia (LOA) — RECHAZADA')
+        .setTitle(`${E.cruz || '❌'} Solicitud de Ausencia (LOA) — RECHAZADA`)
         .setFooter({
           text: `Rechazada por ${interaction.user.tag}`,
           iconURL: interaction.user.displayAvatarURL()

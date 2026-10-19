@@ -5,6 +5,7 @@ import { logger } from '../../utils/logger.js';
 import { checkRateLimit } from '../../utils/rateLimiter.js';
 
 import { InteractionHelper } from '../../utils/interactionHelper.js';
+import { E } from '../../config/emojis.js';
 export default {
     data: new SlashCommandBuilder()
         .setName("masskick")
@@ -164,7 +165,7 @@ export default {
             let description = `**Mass Kick Results:**\n\n`;
             
             if (results.successful.length > 0) {
-                description += `✅ **Successfully Kicked (${results.successful.length}):**\n`;
+                description += `${E.tilde || '✅'} **Successfully Kicked (${results.successful.length}):**\n`;
                 results.successful.forEach(result => {
                     description += `• ${result.user} (${result.userId})\n`;
                 });
@@ -180,7 +181,7 @@ export default {
             }
 
             if (results.failed.length > 0) {
-                description += `❌ **Failed (${results.failed.length}):**\n`;
+                description += `${E.cruz || '❌'} **Failed (${results.failed.length}):**\n`;
                 results.failed.forEach(result => {
                     description += `• ${result.userId} - ${result.reason}\n`;
                 });

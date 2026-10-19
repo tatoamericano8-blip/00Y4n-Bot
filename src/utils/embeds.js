@@ -1,5 +1,6 @@
 import { EmbedBuilder } from 'discord.js';
 import { getColor } from '../config/bot.js';
+import { E } from '../config/emojis.js';
 
 export function createEmbed({
   title = '',
@@ -122,14 +123,14 @@ export function errorEmbed(message, error = null, options = {}) {
   }
 
   return createEmbed({
-    title: '❌ Error',
+    title: `${E.cruz || '❌'} Error`,
     description,
     color: 'error',
     timestamp: true
   });
 }
 
-export function successEmbed(message, title = '✅ Success') {
+export function successEmbed(message, title = `${E.tilde || '✅'} Success`) {
   return createEmbed({
     title,
     description: message,

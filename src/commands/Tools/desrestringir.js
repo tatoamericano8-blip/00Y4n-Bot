@@ -104,7 +104,7 @@ export default {
 
     try {
       await targetUser.send(
-        `✅ **Restricción levantada en 00Y4n**\n\n` +
+        `${E.tilde || '✅'} **Restricción levantada en 00Y4n**\n\n` +
         `Tu restricción fue removida y se intentaron restaurar tus roles.\n` +
         `Si falta algún rol, contactá a Alto Comando.`
       ).catch(() => null);

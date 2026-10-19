@@ -112,7 +112,7 @@ export default {
 
       const embedEditado = EmbedBuilder.from(embedOriginal || {})
         .setColor(0x2ecc71)
-        .setTitle('✅ Solicitud de Ausencia (LOA) — APROBADA')
+        .setTitle(`${E.tilde || '✅'} Solicitud de Ausencia (LOA) — APROBADA`)
         .setFooter({
           text: `Aprobada por ${interaction.user.tag}`,
           iconURL: interaction.user.displayAvatarURL()

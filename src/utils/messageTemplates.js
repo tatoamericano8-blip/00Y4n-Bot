@@ -1,5 +1,6 @@
 import { EmbedBuilder } from 'discord.js';
 import { getColor } from '../config/bot.js';
+import { E } from '../config/emojis.js';
 
 
 
@@ -9,13 +10,13 @@ export const MessageTemplates = {
     SUCCESS: {
         DATA_UPDATED: (action, description) => new EmbedBuilder()
             .setColor(getColor('success'))
-            .setTitle(`✅ ${action.charAt(0).toUpperCase() + action.slice(1)} Successful`)
+            .setTitle(`${E.tilde || '✅'} ${action.charAt(0).toUpperCase() + action.slice(1)} Successful`)
             .setDescription(description)
             .setTimestamp(),
         
         COMMAND_EXECUTED: (command) => new EmbedBuilder()
             .setColor(getColor('success'))
-            .setTitle('✅ Command Executed')
+            .setTitle(`${E.tilde || '✅'} Command Executed`)
             .setDescription(`Successfully executed \`${command}\``)
             .setTimestamp()
     },
@@ -41,7 +42,7 @@ export const MessageTemplates = {
         
         INVALID_INPUT: (field) => new EmbedBuilder()
             .setColor(getColor('warning'))
-            .setTitle('❌ Invalid Input')
+            .setTitle(`${E.cruz || '❌'} Invalid Input`)
             .setDescription(`The ${field || 'input'} you provided is invalid. Please check and try again.`)
             .setTimestamp()
     },
@@ -64,7 +65,7 @@ export const MessageTemplates = {
 export const ContextualMessages = {
     configUpdated: (title, configLines) => new EmbedBuilder()
         .setColor(getColor('success'))
-        .setTitle(`✅ ${title} Updated`)
+        .setTitle(`${E.tilde || '✅'} ${title} Updated`)
         .setDescription(configLines.join('\n'))
         .setTimestamp()
 };

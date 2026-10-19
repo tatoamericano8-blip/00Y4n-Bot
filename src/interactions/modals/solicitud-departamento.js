@@ -9,6 +9,7 @@ import {
   DEPARTAMENTOS,
   setSolicitudPending
 } from '../../commands/Tools/solicitud-departamento.js';
+import { E } from '../../config/emojis.js';
 
 /**
  * Modal parte 1 — customId: solicitud_depto:KEY
@@ -22,7 +23,7 @@ export default {
 
     if (!dep) {
       return interaction.reply({
-        content: '❌ Departamento no reconocido.',
+        content: `${E.cruz || '❌'} Departamento no reconocido.`,
         flags: MessageFlags.Ephemeral
       });
     }
@@ -51,7 +52,7 @@ export default {
 
     return interaction.reply({
       content:
-        `✅ **Parte 1/2 guardada** para **${dep.nombre}**.\n` +
+        `${E.tilde || '✅'} **Parte 1/2 guardada** para **${dep.nombre}**.\n` +
         `Tocá el botón para completar la **parte 2** (preguntas del departamento).\n` +
         `-# Tenés **15 minutos**. Si expira, volvé a usar \`/solicitud-departamento\`.`,
       components: [row],

@@ -16,7 +16,7 @@ export default {
 
         if (!interaction.member.roles.cache.has(ROL_POLICIA_ID)) {
             return await interaction.reply({
-                content: '❌ **Acceso denegado.** Solo los oficiales del **Departamento Policial del Condado de Sarasota** pueden usar este comando.',
+                content: `${E.cruz || '❌'} **Acceso denegado.** Solo los oficiales del **Departamento Policial del Condado de Sarasota** pueden usar este comando.`,
                 ephemeral: true
             });
         }
@@ -30,7 +30,7 @@ export default {
 
             if (!vehiculo) {
                 return await interaction.editReply({
-                    content: `❌ No se encontró ningún vehículo registrado con la matrícula \`${patente}\`.`
+                    content: `${E.cruz || '❌'} No se encontró ningún vehículo registrado con la matrícula \`${patente}\`.`
                 });
             }
 
@@ -56,7 +56,7 @@ export default {
         } catch (error) {
             console.error('Error buscando patente:', error);
             await interaction.editReply({
-                content: '❌ Ocurrió un error interno al consultar la patente.'
+                content: `${E.cruz || '❌'} Ocurrió un error interno al consultar la patente.`
             });
         }
     },

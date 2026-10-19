@@ -22,6 +22,7 @@ import { TitanBotError, ErrorTypes } from '../../../utils/errorHandler.js';
 import { getGuildConfig, setGuildConfig } from '../../../services/guildConfig.js';
 import { getWelcomeConfig } from '../../../utils/database.js';
 import { botHasPermission } from '../../../utils/permissionGuard.js';
+import { E } from '../../../config/emojis.js';
 
 // ─── Live Panel Sync ──────────────────────────────────────────────────────────
 
@@ -34,7 +35,7 @@ async function updateLivePanel(guild, cfg) {
         if (!msg) return;
 
         const verifyEmbed = new EmbedBuilder()
-            .setTitle('✅ Server Verification')
+            .setTitle(`${E.tilde || '✅'} Server Verification`)
             .setDescription(cfg.message || botConfig.verification.defaultMessage)
             .setColor(getColor('success'));
 
@@ -62,13 +63,13 @@ function buildDashboardEmbed(cfg, guild, verifiedUserCount = 0, conflictSummary 
     const buttonText = cfg.buttonText || botConfig.verification.defaultButtonText;
 
     const embed = new EmbedBuilder()
-        .setTitle('🔒 Verification System Dashboard')
+        .setTitle(`${E.lock || '🔒'} Verification System Dashboard`)
         .setDescription(`Manage verification settings for **${guild.name}**.\nSelect an option below to modify a setting.`)
         .setColor(getColor('info'))
         .addFields(
             { name: '📢 Verification Channel', value: channel, inline: true },
             { name: '🏷️ Verified Role', value: role, inline: true },
-            { name: '⚙️ System Status', value: cfg.enabled !== false ? '✅ Enabled' : '❌ Disabled', inline: true },
+            { name: '⚙️ System Status', value: cfg.enabled !== false ? `${E.tilde || '✅'} Enabled` : `${E.cruz || '❌'} Disabled`, inline: true },
             { name: '🔘 Button Text', value: `\`${buttonText}\``, inline: true },
             { name: '👥 Verified Users', value: `${verifiedUserCount} users`, inline: true },
             { name: '\u200B', value: '\u200B', inline: true },
@@ -299,7 +300,7 @@ export default {
                 if (!wasEnabled && autoVerifyEnabled) {
                     await btnInteraction.followUp({
                         embeds: [errorEmbed(
-                            '❌ Cannot Enable Verification',
+                            `${E.cruz || '❌'} Cannot Enable Verification`,
                             'AutoVerify is currently enabled. Please disable AutoVerify first before enabling the manual Verification system.\n\nRun `/autoverify` to access the AutoVerify dashboard.'
                         )],
                         flags: MessageFlags.Ephemeral,
@@ -328,7 +329,7 @@ export default {
                     if (channel) {
                         try {
                             const verifyEmbed = new EmbedBuilder()
-                                .setTitle('✅ Server Verification')
+                                .setTitle(`${E.tilde || '✅'} Server Verification`)
                                 .setDescription(cfg.message || botConfig.verification.defaultMessage)
                                 .setColor(getColor('success'));
 
@@ -355,7 +356,7 @@ export default {
                 await btnInteraction.followUp({
                     embeds: [
                         successEmbed(
-                            '✅ System Updated',
+                            `${E.tilde || '✅'} System Updated`,
                             `The verification system is now **${cfg.enabled ? 'enabled' : 'disabled'}**.`,
                         ),
                     ],
@@ -462,7 +463,7 @@ async function handleChannel(selectInteraction, rootInteraction, cfg, guildId, c
         if (cfg.enabled !== false) {
             try {
                 const verifyEmbed = new EmbedBuilder()
-                    .setTitle('✅ Server Verification')
+                    .setTitle(`${E.tilde || '✅'} Server Verification`)
                     .setDescription(cfg.message || botConfig.verification.defaultMessage)
                     .setColor(getColor('success'));
 
@@ -487,7 +488,7 @@ async function handleChannel(selectInteraction, rootInteraction, cfg, guildId, c
         await setGuildConfig(client, guildId, latestConfig);
 
         await chanInteraction.followUp({
-            embeds: [successEmbed('✅ Channel Updated', `Verification panel moved to ${newChannel}.`)],
+            embeds: [successEmbed(`${E.tilde || '✅'} Channel Updated`, `Verification panel moved to ${newChannel}.`)],
             flags: MessageFlags.Ephemeral,
         });
 
@@ -575,7 +576,7 @@ async function handleRole(selectInteraction, rootInteraction, cfg, guildId, clie
         await setGuildConfig(client, guildId, latestConfig);
 
         await roleInteraction.followUp({
-            embeds: [successEmbed('✅ Role Updated', `Verified role set to ${role}.`)],
+            embeds: [successEmbed(`${E.tilde || '✅'} Role Updated`, `Verified role set to ${role}.`)],
             flags: MessageFlags.Ephemeral,
         });
 
@@ -635,7 +636,7 @@ async function handleMessage(selectInteraction, rootInteraction, cfg, guildId, c
         await updateLivePanel(rootInteraction.guild, cfg);
 
         await submitted.reply({
-            embeds: [successEmbed('✅ Message Updated', 'The verification panel has been updated with the new message.')],
+            embeds: [successEmbed(`${E.tilde || '✅'} Message Updated`, 'The verification panel has been updated with the new message.')],
             flags: MessageFlags.Ephemeral,
         });
 
@@ -687,7 +688,7 @@ async function handleButtonText(selectInteraction, rootInteraction, cfg, guildId
         await updateLivePanel(rootInteraction.guild, cfg);
 
         await submitted.reply({
-            embeds: [successEmbed('✅ Button Text Updated', `The verify button now reads **${cfg.buttonText}**.`)],
+            embeds: [successEmbed(`${E.tilde || '✅'} Button Text Updated`, `The verify button now reads **${cfg.buttonText}**.`)],
             flags: MessageFlags.Ephemeral,
         });
 

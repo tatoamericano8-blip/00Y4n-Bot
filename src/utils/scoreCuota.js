@@ -3,6 +3,7 @@ import {
   sesionesSemana,
   calcularPuntosSemana
 } from './metasCuota.js';
+import { E } from '../config/emojis.js';
 
 /**
  * Score semanal = puntos de cuota (host, co-host, supervisión, tickets).
@@ -78,7 +79,7 @@ export const semanaIdActual = idSemanaActual;
 export function textoScore(score) {
   const s = Number(score) || 0;
   if (s >= 100) return `🔥 ${s}`;
-  if (s >= 70) return `✅ ${s}`;
+  if (s >= 70) return `${E.tilde || '✅'} ${s}`;
   if (s >= 40) return `🟡 ${s}`;
   return `🔴 ${s}`;
 }

@@ -5,6 +5,7 @@ import { logger } from '../../utils/logger.js';
 import { getColor } from '../../config/bot.js';
 
 import { InteractionHelper } from '../../utils/interactionHelper.js';
+import { E } from '../../config/emojis.js';
 export default {
     data: new SlashCommandBuilder()
     .setName("lock")
@@ -58,7 +59,7 @@ export default {
       );
 
       const lockEmbed = createEmbed(
-        "🔒 Channel Locked (Action Log)",
+        `${E.lock || '🔒'} Channel Locked (Action Log)`,
         `${channel} has been locked down by ${interaction.user}.`,
       )
 .setColor(getColor('moderation'))
@@ -89,7 +90,7 @@ export default {
       await InteractionHelper.safeEditReply(interaction, {
         embeds: [
           successEmbed(
-            `🔒 **Channel Locked**`,
+            `${E.lock || '🔒'} **Channel Locked**`,
             `${channel} is now locked down. No one can speak here now.`,
           ),
         ],

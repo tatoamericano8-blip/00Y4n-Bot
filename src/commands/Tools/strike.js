@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { aplicarStrike, obtenerStrikesActivos } from '../../utils/gestorStrikes.js';
+import { E } from '../../config/emojis.js';
 
 const ROLE_STAFF = '1512120103771050005';
 const ROLE_HIGH_COMMAND = '1528870731629465752';
@@ -48,7 +49,7 @@ export default {
 
         if (!esStaff) {
             return interaction.reply({
-                content: '❌ Solo el **Staff** puede aplicar strikes.',
+                content: `${E.cruz || '❌'} Solo el **Staff** puede aplicar strikes.`,
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -59,14 +60,14 @@ export default {
 
         if (target.bot) {
             return interaction.reply({
-                content: '❌ No podés aplicar strikes a bots.',
+                content: `${E.cruz || '❌'} No podés aplicar strikes a bots.`,
                 flags: MessageFlags.Ephemeral
             });
         }
 
         if (target.id === interaction.user.id) {
             return interaction.reply({
-                content: '❌ No podés aplicarte un strike a vos mismo.',
+                content: `${E.cruz || '❌'} No podés aplicarte un strike a vos mismo.`,
                 flags: MessageFlags.Ephemeral
             });
         }

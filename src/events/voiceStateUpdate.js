@@ -8,6 +8,7 @@ import {
 } from '../utils/database.js';
 import { sanitizeInput } from '../utils/sanitization.js';
 import { logger } from '../utils/logger.js';
+import { E } from '../config/emojis.js';
 
 const channelCreationCooldown = new Map();
 const VOICE_CREATE_COOLDOWN_MS = 2000;
@@ -214,7 +215,7 @@ userLimit: userLimit === 0 ? undefined : userLimit,
                 
                 try {
                     await member.send({
-                        content: `❌ Failed to create your temporary voice channel. Please contact a server administrator.`
+                        content: `${E.cruz || '❌'} Failed to create your temporary voice channel. Please contact a server administrator.`
                     });
                 } catch (dmError) {
                     logger.debug(`Unable to send temporary channel failure DM to user ${member.id}:`, dmError);

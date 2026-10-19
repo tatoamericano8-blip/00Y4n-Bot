@@ -6,6 +6,7 @@ import {
   estaBarredEnSesion,
   requiereReaccionEnSesion
 } from '../../utils/gestorSessionBarGate.js';
+import { E } from '../../config/emojis.js';
 
 async function resolverDatosSesion(messageId, guildId) {
   global.coleccionSesiones = global.coleccionSesiones || new Map();
@@ -94,7 +95,7 @@ export default {
     if (!datos?.linkSesion) {
       return interaction.editReply({
         content:
-          '❌ **Error de sincronización:** No se encontró el enlace de esta sesión.\nPedile al staff que vuelva a lanzar con `/lanzar_rp` o `/lanzar_meet`.'
+          `${E.cruz || '❌'} **Error de sincronización:** No se encontró el enlace de esta sesión.\nPedile al staff que vuelva a lanzar con `/lanzar_rp` o `/lanzar_meet`.`
       });
     }
 
@@ -105,7 +106,7 @@ export default {
     if (estaBarredEnSesion(sesionDoc, interaction.user.id)) {
       return interaction.editReply({
         content:
-          '❌ **No podés obtener el link de esta sesión.**\nEstás bloqueado del acceso al link (session bar) hasta que termine la sesión.'
+          `${E.cruz || '❌'} **No podés obtener el link de esta sesión.**\nEstás bloqueado del acceso al link (session bar) hasta que termine la sesión.`
       });
     }
 
@@ -117,7 +118,7 @@ export default {
           : '\n\n👉 Buscá el mensaje de **`/inicio_swfl`** y reaccioná.';
         return interaction.editReply({
           content:
-            '❌ **No podés obtener el link todavía.**\nNo se detectó tu reacción en el mensaje de inicio (Startup).' +
+            `${E.cruz || '❌'} **No podés obtener el link todavía.**\nNo se detectó tu reacción en el mensaje de inicio (Startup).` +
             linkMsg
         });
       }

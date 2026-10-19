@@ -3,6 +3,7 @@ import { getTicketData, saveTicketData } from '../../utils/database.js';
 import { logger } from '../../utils/logger.js';
 import { getColor } from '../../config/bot.js';
 import { getGuildConfig } from '../../services/guildConfig.js';
+import { E } from '../../config/emojis.js';
 
 const STAR_LABELS = {
     '1': '⭐ 1 — Poor',
@@ -57,7 +58,7 @@ export default {
             await interaction.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setTitle('❌ Not Allowed')
+                        .setTitle(`${E.cruz || '❌'} Not Allowed`)
                         .setDescription('Only the ticket creator can submit feedback for this ticket.')
                         .setColor(getColor('error')),
                 ],
@@ -71,7 +72,7 @@ export default {
             await interaction.update({
                 embeds: [
                     new EmbedBuilder()
-                        .setTitle('✅ Already Submitted')
+                        .setTitle(`${E.tilde || '✅'} Already Submitted`)
                         .setDescription(`You already rated this ticket **${STAR_LABELS[String(ticketData.feedback.rating)]}**.\nThank you for your feedback!`)
                         .setColor(getColor('success')),
                 ],
@@ -123,7 +124,7 @@ export default {
 
         // Edit the DM message to remove the select and show thanks
         const thankYouEmbed = new EmbedBuilder()
-            .setTitle('✅ Thanks for your feedback!')
+            .setTitle(`${E.tilde || '✅'} Thanks for your feedback!`)
             .setDescription(`You rated your support experience **${ratingLabel}**.\n\nYour feedback has been recorded and helps us improve!`)
             .setColor(getColor('success'))
             .setFooter({ text: 'Thank you for using our support system.' })

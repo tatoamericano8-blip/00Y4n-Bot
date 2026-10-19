@@ -60,7 +60,7 @@ export default {
     await interaction.channel.send({ embeds: [embed], components: [row] });
 
     return interaction.reply({
-      content: '✅ Panel de verificación publicado en este canal.',
+      content: `${E.tilde || '✅'} Panel de verificación publicado en este canal.`,
       ephemeral: true
     });
   }

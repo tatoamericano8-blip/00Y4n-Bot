@@ -38,7 +38,7 @@ export default {
 
         if (!interaction.member.roles.cache.has(ROL_GERENTE_STAFF)) {
             return await interaction.reply({
-                content: '❌ **Acceso denegado.** Este comando es exclusivo del rol **Gerente de Staff**.',
+                content: `${E.cruz || '❌'} **Acceso denegado.** Este comando es exclusivo del rol **Gerente de Staff**.`,
                 ephemeral: true
             });
         }
@@ -60,7 +60,7 @@ export default {
 
         if (subcomando === 'agregar') {
             nuevoSaldo = await agregarSaldo(objetivo.id, cantidad);
-            accionTexto = `✅ Se han depositado **$${cantidad.toLocaleString('es-AR')}** exitosamente en la cuenta de <@${objetivo.id}>.`;
+            accionTexto = `${E.tilde || '✅'} Se han depositado **$${cantidad.toLocaleString('es-AR')}** exitosamente en la cuenta de <@${objetivo.id}>.`;
         } else if (subcomando === 'quitar') {
             if (saldoActual <= 0) {
                 return await interaction.reply({

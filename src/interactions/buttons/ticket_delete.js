@@ -26,7 +26,7 @@ export default {
     if (esTicketSP) {
       if (!interaction.member.roles.cache.has(ROLE_STAFF_SP)) {
         return interaction.reply({
-          content: '❌ Solo el **Staff de Servicios Públicos** puede eliminar estos tickets.',
+          content: `${E.cruz || '❌'} Solo el **Staff de Servicios Públicos** puede eliminar estos tickets.`,
           flags: MessageFlags.Ephemeral
         });
       }

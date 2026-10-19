@@ -23,6 +23,7 @@ import {
   reactivarPorRecuperacion,
   marcarRecuperacionFallida
 } from '../../utils/gestorLicencias.js';
+import { E } from '../../config/emojis.js';
 
 global.examenesLicencia = global.examenesLicencia || new Map();
 
@@ -116,9 +117,9 @@ export default {
     if (sub === 'tramitar') {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
       const result = await tramitarLicencia(userId, interaction.member);
-      if (!result.ok) return interaction.editReply({ content: `❌ ${result.mensaje}` });
+      if (!result.ok) return interaction.editReply({ content: `${E.cruz || '❌'} ${result.mensaje}` });
       return interaction.editReply({
-        content: `✅ **Licencia emitida.** Pagaste **$${PRECIO_EMISION.toLocaleString('es-AR')}**. Reglamento: <#${CANAL_REGLAMENTO}>.`
+        content: `${E.tilde || '✅'} **Licencia emitida.** Pagaste **$${PRECIO_EMISION.toLocaleString('es-AR')}**. Reglamento: <#${CANAL_REGLAMENTO}>.`
       });
     }
 
@@ -127,7 +128,7 @@ export default {
       if (!doc || doc.estado !== 'Revocada') {
         return interaction.reply({
           content:
-            `❌ Solo con licencia **Revocada**. Tu estado: **${doc?.estado || 'Sin licencia'}**.`,
+            `${E.cruz || '❌'} Solo con licencia **Revocada**. Tu estado: **${doc?.estado || 'Sin licencia'}**.`,
           flags: MessageFlags.Ephemeral
         });
       }
@@ -161,7 +162,7 @@ export default {
     if (sub === 'examen') {
       const doc = await getLicencia(userId);
       if (doc?.estado === 'Activa') {
-        return interaction.reply({ content: '✅ Ya tenes la licencia **Activa**.', flags: MessageFlags.Ephemeral });
+        return interaction.reply({ content: `${E.tilde || '✅'} Ya tenes la licencia **Activa**.`, flags: MessageFlags.Ephemeral });
       }
       if (doc?.estado === 'Revocada') {
         return interaction.reply({
@@ -250,7 +251,7 @@ export async function handleLicenciaExamenButton(interaction) {
         await reactivarPorRecuperacion(userId, interaction.member, puntaje);
         await interaction.update({
           content:
-            `✅ **Recuperacion aprobada** (${data.correctas}/${data.preguntas.length} — ${puntaje}%).\n` +
+            `${E.tilde || '✅'} **Recuperacion aprobada** (${data.correctas}/${data.preguntas.length} — ${puntaje}%).\n` +
             `Licencia **Activa** y rol asignado. Respeta <#${CANAL_REGLAMENTO}>.`,
           embeds: [],
           components: []
@@ -259,7 +260,7 @@ export async function handleLicenciaExamenButton(interaction) {
         await marcarRecuperacionFallida(userId);
         await interaction.update({
           content:
-            `❌ **No aprobaste** (${data.correctas}/${data.preguntas.length}).\n` +
+            `${E.cruz || '❌'} **No aprobaste** (${data.correctas}/${data.preguntas.length}).\n` +
             `Min **${RECUP_MIN_CORRECTAS}/${RECUP_PREGUNTAS}**. Revisa <#${CANAL_REGLAMENTO}> y reintenta en **24h**.`,
           embeds: [],
           components: []
@@ -272,7 +273,7 @@ export async function handleLicenciaExamenButton(interaction) {
       await marcarExamenAprobado(userId, puntaje);
       await interaction.update({
         content:
-          `✅ **Aprobaste** (${data.correctas}/${data.preguntas.length} — ${puntaje}%).\n` +
+          `${E.tilde || '✅'} **Aprobaste** (${data.correctas}/${data.preguntas.length} — ${puntaje}%).\n` +
           `72h para \`/licencia tramitar\` ($${PRECIO_EMISION.toLocaleString('es-AR')}).`,
         embeds: [],
         components: []
@@ -281,7 +282,7 @@ export async function handleLicenciaExamenButton(interaction) {
       await marcarExamenFallido(userId);
       await interaction.update({
         content:
-          `❌ **No aprobaste** (${data.correctas}/${data.preguntas.length}).\n` +
+          `${E.cruz || '❌'} **No aprobaste** (${data.correctas}/${data.preguntas.length}).\n` +
           `Min **${EXAMEN_MIN_CORRECTAS}**. Revisa <#${CANAL_REGLAMENTO}> y reintenta en **12h**.`,
         embeds: [],
         components: []

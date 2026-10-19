@@ -19,6 +19,7 @@ import { getGuildConfig, setGuildConfig } from './guildConfig.js';
 import { createError, ErrorTypes } from '../utils/errorHandler.js';
 import { insertVerificationAudit } from '../utils/database.js';
 import { ensureTypedServiceError } from '../utils/serviceErrorBoundary.js';
+import { E } from '../config/emojis.js';
 
 
 const verificationCooldowns = new Map();
@@ -688,7 +689,7 @@ async function sendAutoVerifyNotification(member, role, guild) {
             description: `You have been automatically verified in **${guild.name}**!`,
             fields: [
                 {
-                    name: "✅ Role Assigned",
+                    name: `${E.tilde || '✅'} Role Assigned`,
                     value: `You now have the ${role} role!`,
                     inline: false
                 },

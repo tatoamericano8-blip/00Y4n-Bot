@@ -4,6 +4,7 @@ import { logger } from '../../utils/logger.js';
 import { ModerationService } from '../../services/moderationService.js';
 import { handleInteractionError } from '../../utils/errorHandler.js';
 import { InteractionHelper } from '../../utils/interactionHelper.js';
+import { E } from '../../config/emojis.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -48,7 +49,7 @@ export default {
             await InteractionHelper.safeEditReply(interaction, {
                 embeds: [
                     successEmbed(
-                        '✅ Usuario desbaneado',
+                        `${E.tilde || '✅'} Usuario desbaneado`,
                         `Se desbaneó a **${targetUser.tag}**.\n\n**Motivo:** ${reason}\n**Caso:** #${result.caseId}`
                     )
                 ]

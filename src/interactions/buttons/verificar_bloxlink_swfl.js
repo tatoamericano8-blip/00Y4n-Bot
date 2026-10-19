@@ -6,6 +6,7 @@ import {
 } from '../../utils/gestorBloxlink.js';
 import { PRIMARIO, COLORES } from '../../utils/colores.js';
 import { logger } from '../../utils/logger.js';
+import { E } from '../../config/emojis.js';
 
 /** Rol Ciudadano (verificado) */
 const ROL_CIUDADANO_ID = '1506800624493269057';
@@ -26,7 +27,7 @@ export default {
     }
 
     if (!interaction.guild || !interaction.member) {
-      return interaction.editReply({ content: '❌ Este botón solo funciona dentro del servidor.' });
+      return interaction.editReply({ content: `${E.cruz || '❌'} Este botón solo funciona dentro del servidor.` });
     }
 
     const guild = interaction.guild;
@@ -79,13 +80,13 @@ export default {
 
       if (lookup.reason === 'missing_api_key') {
         return interaction.editReply({
-          content: '❌ Falta `BLOXLINK_API_KEY` en el entorno. Avisá a Alto Comando.'
+          content: `${E.cruz || '❌'} Falta \`BLOXLINK_API_KEY\` en el entorno. Avisá a Alto Comando.`
         });
       }
 
       return interaction.editReply({
         content:
-          '❌ No se pudo consultar Bloxlink ahora. Reintentá en unos segundos. Si sigue fallando, abrí ticket.'
+          `${E.cruz || '❌'} No se pudo consultar Bloxlink ahora. Reintentá en unos segundos. Si sigue fallando, abrí ticket.`
       });
     }
 
@@ -98,20 +99,20 @@ export default {
     if (!rolCiudadano) {
       logger.error(`[bloxlink-verify] Rol Ciudadano ${ROL_CIUDADANO_ID} no encontrado`);
       return interaction.editReply({
-        content: '❌ El rol de Ciudadano no existe en este servidor. Avisá a Alto Comando.'
+        content: `${E.cruz || '❌'} El rol de Ciudadano no existe en este servidor. Avisá a Alto Comando.`
       });
     }
 
     const me = guild.members.me;
     if (!me?.permissions.has(PermissionFlagsBits.ManageRoles)) {
       return interaction.editReply({
-        content: '❌ No tengo permiso **Manage Roles** para darte el rol. Avisá a Alto Comando.'
+        content: `${E.cruz || '❌'} No tengo permiso **Manage Roles** para darte el rol. Avisá a Alto Comando.`
       });
     }
     if (rolCiudadano.position >= me.roles.highest.position) {
       return interaction.editReply({
         content:
-          '❌ El rol Ciudadano está por encima del mío. Un admin debe subir el rol del bot en la lista de roles.'
+          `${E.cruz || '❌'} El rol Ciudadano está por encima del mío. Un admin debe subir el rol del bot en la lista de roles.`
       });
     }
 
@@ -120,7 +121,7 @@ export default {
     } catch (err) {
       logger.error('[bloxlink-verify] No se pudo agregar rol:', err?.message || err);
       return interaction.editReply({
-        content: '❌ No pude asignarte el rol Ciudadano. Revisá la jerarquía de roles del bot.'
+        content: `${E.cruz || '❌'} No pude asignarte el rol Ciudadano. Revisá la jerarquía de roles del bot.`
       });
     }
 

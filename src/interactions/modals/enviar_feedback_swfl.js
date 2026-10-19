@@ -1,5 +1,6 @@
 import { EmbedBuilder } from 'discord.js';
 import { registrarNotaHost } from '../../utils/gestorHostScore.js';
+import { E } from '../../config/emojis.js';
 
 const CANAL_FEEDBACK = '1529286924362317974';
 
@@ -24,14 +25,14 @@ export default {
 
     if (!hostId) {
       return interaction.reply({
-        content: '❌ No se pudo vincular la opinión al host de la sesión.',
+        content: `${E.cruz || '❌'} No se pudo vincular la opinión al host de la sesión.`,
         ephemeral: true
       });
     }
 
     if (!notaNum) {
       return interaction.reply({
-        content: '❌ La calificación debe ser un número del **1 al 10**.',
+        content: `${E.cruz || '❌'} La calificación debe ser un número del **1 al 10**.`,
         ephemeral: true
       });
     }
@@ -66,7 +67,7 @@ export default {
       .setTimestamp();
 
     await interaction.reply({
-      content: '✅ **¡Muchas gracias!** Tu opinión fue registrada y suma al **rating civil** del host.',
+      content: `${E.tilde || '✅'} **¡Muchas gracias!** Tu opinión fue registrada y suma al **rating civil** del host.`,
       ephemeral: true
     });
 

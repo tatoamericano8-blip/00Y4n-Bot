@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from 'discord.js';
 import { resetearTodaLaEconomia } from '../../utils/gestorEconomia.js';
+import { E } from '../../config/emojis.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -11,7 +12,7 @@ export default {
 
         if (!interaction.member.roles.cache.has(ROL_GERENTE_STAFF)) {
             return await interaction.reply({
-                content: '❌ **Acceso denegado.** Este comando es exclusivo del rol **Gerente de Staff**.',
+                content: `${E.cruz || '❌'} **Acceso denegado.** Este comando es exclusivo del rol **Gerente de Staff**.`,
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -65,7 +66,7 @@ export default {
                         .setColor('#00ff7f')
                         .setTitle('💥 Economía Reiniciada Exitosamente')
                         .setDescription(
-                            '✅ **Toda la economía del servidor ha sido restablecida.**\n\n' +
+                            `${E.tilde || '✅'} **Toda la economía del servidor ha sido restablecida.**\n\n` +
                             '• Todos los saldos de los ciudadanos han vuelto a **$0**.\n' +
                             `• Operación autorizada y ejecutada por: <@${interaction.user.id}>`
                         )
@@ -81,7 +82,7 @@ export default {
                     });
                 } else if (i.customId === 'cancelar_reset_economia') {
                     await i.update({
-                        content: '❌ **Operación cancelada.** La economía no ha sufrido ningún cambio.',
+                        content: `${E.cruz || '❌'} **Operación cancelada.** La economía no ha sufrido ningún cambio.`,
                         embeds: [],
                         components: []
                     });
@@ -89,7 +90,7 @@ export default {
             } catch (error) {
                 console.error('Error procesando el reset de economía:', error);
                 await interaction.editReply({
-                    content: '❌ Ocurrió un error al intentar reiniciar la economía en la base de datos.',
+                    content: `${E.cruz || '❌'} Ocurrió un error al intentar reiniciar la economía en la base de datos.`,
                     embeds: [],
                     components: []
                 }).catch(() => {});

@@ -1,5 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { EVENT_TYPES } from '../services/loggingService.js';
+import { E } from '../config/emojis.js';
 
 const EVENT_TYPES_BY_CATEGORY = Object.values(EVENT_TYPES).reduce((accumulator, eventType) => {
   const [category] = eventType.split('.');
@@ -83,7 +84,7 @@ export function createLoggingButtons() {
         .setStyle(ButtonStyle.Secondary),
       new ButtonBuilder()
         .setCustomId(`logging_toggle:${EVENT_TYPES.MESSAGE_DELETE}`)
-        .setLabel('❌ Messages')
+        .setLabel(`${E.cruz || '❌'} Messages`)
         .setStyle(ButtonStyle.Secondary),
       new ButtonBuilder()
         .setCustomId(`logging_toggle:${EVENT_TYPES.ROLE_CREATE}`)
@@ -160,7 +161,7 @@ export function createStatusIndicatorButtons(enabledEvents = {}, loggingEnabled 
     const emoji = {
       'moderation': '🔨',
       'ticket': '🎫',
-      'message': '❌',
+      'message': `${E.cruz || '❌'}`,
       'role': '🏷️',
       'member': '👋',
       'leveling': '📈',

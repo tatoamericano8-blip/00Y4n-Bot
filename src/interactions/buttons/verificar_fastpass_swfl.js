@@ -5,6 +5,7 @@ import {
   estaBarredEnSesion,
   requiereReaccionEnSesion
 } from '../../utils/gestorSessionBarGate.js';
+import { E } from '../../config/emojis.js';
 
 const ROLES_VIP_IDS = [
     '1512120103771050005',
@@ -64,7 +65,7 @@ export default {
         if (fromDb && fromDb.cerrado) {
             return interaction.editReply({
                 content:
-                    '🔒 **FastPass Cerrado.** La sesión ya fue lanzada; usá el botón **Link de la Sesión** del mensaje de lanzamiento.'
+                    `${E.lock || '🔒'} **FastPass Cerrado.** La sesión ya fue lanzada; usá el botón **Link de la Sesión** del mensaje de lanzamiento.`
             });
         }
 
@@ -77,7 +78,7 @@ export default {
         if (!linkReal) {
             return interaction.editReply({
                 content:
-                    '❌ **Error de sincronización:** No se encontró el enlace de este FastPass. Pedile al Staff que vuelva a lanzar el comando.'
+                    `${E.cruz || '❌'} **Error de sincronización:** No se encontró el enlace de este FastPass. Pedile al Staff que vuelva a lanzar el comando.`
             });
         }
 
@@ -87,7 +88,7 @@ export default {
         if (!tieneRolVip) {
             return interaction.editReply({
                 content:
-                    '❌ **No tenés acceso:** Este botón es exclusivo para miembros con **FastPass**, **Staff**, **Ciudadano del Día** o **Servicios Públicos**.'
+                    `${E.cruz || '❌'} **No tenés acceso:** Este botón es exclusivo para miembros con **FastPass**, **Staff**, **Ciudadano del Día** o **Servicios Públicos**.`
             });
         }
 
@@ -106,14 +107,14 @@ export default {
         if (!sesion || !sesion.idInicio) {
             return interaction.editReply({
                 content:
-                    '❌ **No hay una sesión activa** vinculada. El host debe usar `/inicio_swfl` antes de que el FastPass libere el enlace.'
+                    `${E.cruz || '❌'} **No hay una sesión activa** vinculada. El host debe usar `/inicio_swfl` antes de que el FastPass libere el enlace.`
             });
         }
 
         if (estaBarredEnSesion(sesion, interaction.user.id)) {
             return interaction.editReply({
                 content:
-                    '❌ **No podés obtener el FastPass de esta sesión.**\nEstás bloqueado del acceso (session bar) hasta que termine la sesión.'
+                    `${E.cruz || '❌'} **No podés obtener el FastPass de esta sesión.**\nEstás bloqueado del acceso (session bar) hasta que termine la sesión.`
             });
         }
 
@@ -126,13 +127,13 @@ export default {
                 if (votoInfo.sinMensaje) {
                     return interaction.editReply({
                         content:
-                            '❌ **No se pudo verificar tu voto** (no se encontró el mensaje de inicio).\nReaccioná al mensaje de **`/inicio_swfl`** y volvé a intentar.' +
+                            `${E.cruz || '❌'} **No se pudo verificar tu voto** (no se encontró el mensaje de inicio).\nReaccioná al mensaje de **`/inicio_swfl`** y volvé a intentar.` +
                             linkMensaje
                     });
                 }
                 return interaction.editReply({
                     content:
-                        '❌ **No obtuviste el FastPass porque todavía no votaste.**\nPrimero tenés que **reaccionar** en el mensaje de inicio de la sesión. Después volvé a apretar el botón.' +
+                        `${E.cruz || '❌'} **No obtuviste el FastPass porque todavía no votaste.**\nPrimero tenés que **reaccionar** en el mensaje de inicio de la sesión. Después volvé a apretar el botón.` +
                         linkMensaje
                 });
             }

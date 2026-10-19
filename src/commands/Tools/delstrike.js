@@ -4,6 +4,7 @@ import {
     buscarStrikePorId,
     obtenerStrikesActivos
 } from '../../utils/gestorStrikes.js';
+import { E } from '../../config/emojis.js';
 
 const ROLE_STAFF = '1512120103771050005';
 const ROLE_HIGH_COMMAND = '1528870731629465752';
@@ -34,7 +35,7 @@ export default {
 
         if (!esStaff) {
             return interaction.reply({
-                content: '❌ Solo el **Staff** puede remover strikes.',
+                content: `${E.cruz || '❌'} Solo el **Staff** puede remover strikes.`,
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -58,11 +59,11 @@ export default {
             const encontrado = await buscarStrikePorId(interaction.guildId, idStrike);
             if (encontrado && encontrado.userId !== target.id) {
                 return interaction.editReply({
-                    content: `❌ El strike \`${idStrike}\` pertenece a <@${encontrado.userId}>, no a <@${target.id}>.`
+                    content: `${E.cruz || '❌'} El strike \`${idStrike}\` pertenece a <@${encontrado.userId}>, no a <@${target.id}>.`
                 });
             }
             return interaction.editReply({
-                content: `❌ No se encontró un strike **activo** con el ID \`${idStrike}\` para <@${target.id}>.`
+                content: `${E.cruz || '❌'} No se encontró un strike **activo** con el ID \`${idStrike}\` para <@${target.id}>.`
             });
         }
 
@@ -70,7 +71,7 @@ export default {
 
         const embed = new EmbedBuilder()
             .setColor('#57f287')
-            .setTitle('✅ Strike removido')
+            .setTitle(`${E.tilde || '✅'} Strike removido`)
             .setDescription(
                 `• **Usuario:** <@${target.id}>\n` +
                 `• **ID de Strike:** \`${strike.id}\`\n` +
@@ -93,7 +94,7 @@ export default {
                 embeds: [
                     new EmbedBuilder()
                         .setColor('#57f287')
-                        .setTitle('✅ Strike de Comunidad Removido')
+                        .setTitle(`${E.tilde || '✅'} Strike de Comunidad Removido`)
                         .setDescription(
                             `> **Usuario:** <@${target.id}>\n` +
                             `> **ID:** \`${strike.id}\`\n` +

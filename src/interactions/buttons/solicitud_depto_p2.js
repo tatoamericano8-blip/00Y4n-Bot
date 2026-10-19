@@ -4,6 +4,7 @@ import {
   getSolicitudPending,
   DEPARTAMENTOS
 } from '../../commands/Tools/solicitud-departamento.js';
+import { E } from '../../config/emojis.js';
 
 /**
  * Botón tras parte 1.
@@ -17,14 +18,14 @@ export default {
 
     if (expectedUserId && interaction.user.id !== expectedUserId) {
       return interaction.reply({
-        content: '❌ Solo quien empezó la solicitud puede continuar.',
+        content: `${E.cruz || '❌'} Solo quien empezó la solicitud puede continuar.`,
         flags: MessageFlags.Ephemeral
       });
     }
 
     if (!departamentoKey || !DEPARTAMENTOS[departamentoKey]) {
       return interaction.reply({
-        content: '❌ Departamento inválido. Usá `/solicitud-departamento` de nuevo.',
+        content: `${E.cruz || '❌'} Departamento inválido. Usá `/solicitud-departamento` de nuevo.`,
         flags: MessageFlags.Ephemeral
       });
     }
@@ -33,7 +34,7 @@ export default {
     if (!pending || pending.departamentoKey !== departamentoKey) {
       return interaction.reply({
         content:
-          '❌ La parte 1 expiró o no existe.\n' +
+          `${E.cruz || '❌'} La parte 1 expiró o no existe.\n` +
           'Volvé a usar `/solicitud-departamento` y completá las dos partes.',
         flags: MessageFlags.Ephemeral
       });

@@ -5,6 +5,7 @@
 
 import { shopItems, getItemById, getItemsByType, getItemPrice, validatePurchase } from './items.js';
 import { botConfig } from '../bot.js';
+import { E } from '../../config/emojis.js';
 
 const { currency } = botConfig.economy;
 
@@ -85,8 +86,8 @@ mythic: '#E74C3C'
             currency: '🪙',
             quantity: '✖️',
             price: '💵',
-            owned: '✅',
-            outOfStock: '❌',
+            owned: `${E.tilde || '✅'}`,
+            outOfStock: `${E.cruz || '❌'}`,
             
             types: {
                 consumable: '🍯',

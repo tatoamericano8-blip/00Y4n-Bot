@@ -50,7 +50,7 @@ export default {
 
     if (!esStaff) {
       return interaction.reply({
-        content: '❌ **Sin permisos:** solo el Staff puede regenerar el link del servidor.',
+        content: `${E.cruz || '❌'} **Sin permisos:** solo el Staff puede regenerar el link del servidor.`,
         flags: MessageFlags.Ephemeral
       });
     }
@@ -58,7 +58,7 @@ export default {
     const linkSesion = normalizarLink(interaction.options.getString('link'));
     if (!linkSesion) {
       return interaction.reply({
-        content: '❌ El link no es válido. Pegá la URL completa del servidor privado de Roblox.',
+        content: `${E.cruz || '❌'} El link no es válido. Pegá la URL completa del servidor privado de Roblox.`,
         flags: MessageFlags.Ephemeral
       });
     }

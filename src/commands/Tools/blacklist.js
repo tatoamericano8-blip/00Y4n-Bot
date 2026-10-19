@@ -44,7 +44,7 @@ export default {
         const ROL_STAFF = '1512120103771050005';
         if (!interaction.member.roles.cache.has(ROL_STAFF)) {
             return await interaction.reply({ 
-                content: '❌ **No tienes permisos:** Solo el **Staff 00Y4n** puede gestionar la blacklist.', 
+                content: `${E.cruz || '❌'} **No tienes permisos:** Solo el **Staff 00Y4n** puede gestionar la blacklist.`, 
                 ephemeral: true 
             });
         }

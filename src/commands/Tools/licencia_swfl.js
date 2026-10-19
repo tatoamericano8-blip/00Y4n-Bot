@@ -104,7 +104,7 @@ export default {
 
     if (!tieneRolPolicia) {
       const embedSinPermiso = new EmbedBuilder()
-        .setTitle('❌ ACCESO DENEGADO')
+        .setTitle(`${E.cruz || '❌'} ACCESO DENEGADO`)
         .setDescription(
           'Este comando está reservado únicamente para el personal que posea el rol del **Departamento de Policía**.'
         )

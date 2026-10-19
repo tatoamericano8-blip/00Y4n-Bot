@@ -5,6 +5,7 @@ import {
   getSolicitudPending,
   clearSolicitudPending
 } from '../../commands/Tools/solicitud-departamento.js';
+import { E } from '../../config/emojis.js';
 
 /**
  * Modal parte 2 — customId: solicitud_depto2:KEY
@@ -18,7 +19,7 @@ export default {
 
     if (!dep) {
       return interaction.reply({
-        content: '❌ Departamento no reconocido.',
+        content: `${E.cruz || '❌'} Departamento no reconocido.`,
         flags: MessageFlags.Ephemeral
       });
     }
@@ -27,7 +28,7 @@ export default {
     if (!pending || pending.departamentoKey !== departamentoKey) {
       return interaction.reply({
         content:
-          '❌ No hay una **parte 1** válida o expiró.\n' +
+          `${E.cruz || '❌'} No hay una **parte 1** válida o expiró.\n` +
           'Volvé a usar `/solicitud-departamento` y completá las dos partes.',
         flags: MessageFlags.Ephemeral
       });
@@ -78,7 +79,7 @@ export default {
 
     if (!canal) {
       return interaction.reply({
-        content: '❌ No se encontró el canal de formularios. Avisá a un administrador.',
+        content: `${E.cruz || '❌'} No se encontró el canal de formularios. Avisá a un administrador.`,
         flags: MessageFlags.Ephemeral
       });
     }
@@ -88,7 +89,7 @@ export default {
 
     return interaction.reply({
       content:
-        `✅ Tu solicitud para **${dep.nombre}** fue enviada correctamente.\n` +
+        `${E.tilde || '✅'} Tu solicitud para **${dep.nombre}** fue enviada correctamente.\n` +
         `El equipo la revisará pronto. ¡Éxitos!`,
       flags: MessageFlags.Ephemeral
     });

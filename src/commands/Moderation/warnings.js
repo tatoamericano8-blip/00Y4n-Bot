@@ -6,6 +6,7 @@ import { logger } from '../../utils/logger.js';
 import { WarningService } from '../../services/warningService.js';
 import { handleInteractionError } from '../../utils/errorHandler.js';
 import { InteractionHelper } from '../../utils/interactionHelper.js';
+import { E } from '../../config/emojis.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -42,7 +43,7 @@ export default {
                     embeds: [
                         createEmbed({
                             title: `Advertencias: ${target.tag}`,
-                            description: '✅ Este usuario no tiene advertencias registradas.'
+                            description: `${E.tilde || '✅'} Este usuario no tiene advertencias registradas.`
                         }).setColor(getColor('success'))
                     ]
                 });

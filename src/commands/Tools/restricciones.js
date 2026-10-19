@@ -41,7 +41,7 @@ async function limpiarUna(guild, doc, client) {
     const user = await client.users.fetch(doc.userId).catch(() => null);
     if (user) {
       await user.send(
-        `✅ **Restricción vencida en 00Y4n**\n\n` +
+        `${E.tilde || '✅'} **Restricción vencida en 00Y4n**\n\n` +
         `Tu restricción expiró y se intentaron restaurar tus roles.`
       ).catch(() => null);
     }

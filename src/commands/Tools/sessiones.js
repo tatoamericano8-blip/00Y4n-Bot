@@ -40,7 +40,7 @@ export default {
     async execute(interaction) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
-                content: '❌ **No tienes permisos:** Solo el Staff autorizado puede iniciar sesiones.',
+                content: `${E.cruz || '❌'} **No tienes permisos:** Solo el Staff autorizado puede iniciar sesiones.`,
                 ephemeral: true
             });
         }

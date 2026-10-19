@@ -30,7 +30,7 @@ export default {
 
         if (!ticket) {
             return await interaction.reply({
-                content: `❌ No se encontró ninguna multa registrada con el ID **#${ticketID}**.`,
+                content: `${E.cruz || '❌'} No se encontró ninguna multa registrada con el ID **#${ticketID}**.`,
                 ephemeral: true
             });
         }

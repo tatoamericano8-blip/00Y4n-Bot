@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 import { lanzarOportunidadEconomica } from '../../utils/gestorOportunidades.js';
+import { E } from '../../config/emojis.js';
 
 export default {
     data: new SlashCommandBuilder()
@@ -16,13 +17,13 @@ export default {
         try {
             await lanzarOportunidadEconomica(interaction.client, CANAL_GENERAL_ID);
             await interaction.editReply({
-                content: '✅ **¡Oportunidad Económica enviada con éxito al chat general!**'
+                content: `${E.tilde || '✅'} **¡Oportunidad Económica enviada con éxito al chat general!**`
             });
         } catch (error) {
             console.error('Error al probar la Oportunidad Económica:', error);
             try {
                 await interaction.editReply({
-                    content: '❌ Ocurrió un error al intentar enviar la Oportunidad Económica.'
+                    content: `${E.cruz || '❌'} Ocurrió un error al intentar enviar la Oportunidad Económica.`
                 });
             } catch (_) {}
         }

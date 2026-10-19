@@ -14,7 +14,7 @@ export default {
     }
 
     return interaction.update({
-      content: '❌ Roleall cancelado.',
+      content: `${E.cruz || '❌'} Roleall cancelado.`,
       embeds: [],
       components: []
     });

@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { logger } from '../utils/logger.js';
+import { E } from '../config/emojis.js';
 
 // 🔒 ID del rol exclusivo con permiso para usar este comando
 const ID_ROL_PERMITIDO = '1451956429345919008';
@@ -30,7 +31,7 @@ export default {
 
       if (!tieneRol) {
         return await interaction.reply({
-          content: '❌ **Acceso denegado:** No tenés el rol necesario para ejecutar este comando.',
+          content: `${E.cruz || '❌'} **Acceso denegado:** No tenés el rol necesario para ejecutar este comando.`,
           ephemeral: true
         });
       }
@@ -81,7 +82,7 @@ export default {
 
       if (usuariosObjetivo.size === 0) {
         return await interaction.editReply({
-          content: '❌ No se encontraron usuarios válidos a los cuales enviar el mensaje.'
+          content: `${E.cruz || '❌'} No se encontraron usuarios válidos a los cuales enviar el mensaje.`
         });
       }
 
@@ -125,17 +126,17 @@ export default {
       // -------------------------------------------------------------
       await interaction.editReply({
         content: 
-          `✅ **Proceso finalizado con éxito.**\n\n` +
+          `${E.tilde || '✅'} **Proceso finalizado con éxito.**\n\n` +
           ` enviaron **${enviadosConExito}** mensajes correctamente.\n` +
-          `❌ No se pudo enviar a **${fallidos}** usuarios (DMs cerrados o bloqueados).`
+          `${E.cruz || '❌'} No se pudo enviar a **${fallidos}** usuarios (DMs cerrados o bloqueados).`
       });
 
     } catch (error) {
       logger.error('Error al ejecutar el comando /dm:', error);
       if (interaction.deferred || interaction.replied) {
-        await interaction.editReply({ content: '❌ Ocurrió un error al intentar enviar los mensajes.' });
+        await interaction.editReply({ content: `${E.cruz || '❌'} Ocurrió un error al intentar enviar los mensajes.` });
       } else {
-        await interaction.reply({ content: '❌ Ocurrió un error al intentar ejecutar el comando.', ephemeral: true });
+        await interaction.reply({ content: `${E.cruz || '❌'} Ocurrió un error al intentar ejecutar el comando.`, ephemeral: true });
       }
     }
   }

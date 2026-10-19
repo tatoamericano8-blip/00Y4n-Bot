@@ -16,7 +16,7 @@ export default {
         // ❌ CASO DE ERROR: Si las re-invitaciones expiraron o el bot se reinició
         if (!linkReal) {
             const embedError = new EmbedBuilder()
-                .setTitle('❌ Error de Sincronización')
+                .setTitle(`${E.cruz || '❌'} Error de Sincronización`)
                 .setDescription('Las re-invitaciones para esta tanda de Car Meet han expirado o el bot se reinició.\n\n*Espera a que el Staff mande un nuevo aviso.*')
                 .setColor('#ff4a4a'); // Rojo para alertas de error
 

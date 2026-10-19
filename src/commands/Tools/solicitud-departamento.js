@@ -10,6 +10,7 @@ import {
   ComponentType,
   MessageFlags
 } from 'discord.js';
+import { E } from '../../config/emojis.js';
 
 export const CANAL_FORMULARIOS = '1532865290529145043';
 
@@ -263,7 +264,7 @@ export default {
 
     if (!dep) {
       return interaction.reply({
-        content: '❌ Departamento inválido.',
+        content: `${E.cruz || '❌'} Departamento inválido.`,
         flags: MessageFlags.Ephemeral
       });
     }
@@ -308,7 +309,7 @@ export default {
       collector.on('collect', async (btn) => {
         if (btn.user.id !== interaction.user.id) {
           return btn.reply({
-            content: '❌ Solo quien ejecutó el comando puede responder.',
+            content: `${E.cruz || '❌'} Solo quien ejecutó el comando puede responder.`,
             flags: MessageFlags.Ephemeral
           });
         }
@@ -316,7 +317,7 @@ export default {
         if (btn.customId.startsWith('sheriff_no_')) {
           collector.stop();
           return btn.update({
-            content: '❌ Solicitud cancelada. Necesitás el pase de Robux del Sheriff para postularte.',
+            content: `${E.cruz || '❌'} Solicitud cancelada. Necesitás el pase de Robux del Sheriff para postularte.`,
             embeds: [],
             components: []
           });

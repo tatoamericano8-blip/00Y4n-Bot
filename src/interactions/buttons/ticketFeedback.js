@@ -3,6 +3,7 @@ import { getTicketData, saveTicketData } from '../../utils/database.js';
 import { logger } from '../../utils/logger.js';
 import { getColor } from '../../config/bot.js';
 import { getGuildConfig } from '../../services/guildConfig.js';
+import { E } from '../../config/emojis.js';
 
 const STAR_LABELS = {
     '1': '⭐ 1 — Malo',
@@ -55,7 +56,7 @@ const feedbackHandler = {
             await interaction.reply({
                 embeds: [
                     new EmbedBuilder()
-                        .setTitle('❌ No permitido')
+                        .setTitle(`${E.cruz || '❌'} No permitido`)
                         .setDescription('Solo el creador del ticket puede calificar.')
                         .setColor(getColor('error')),
                 ],
@@ -68,7 +69,7 @@ const feedbackHandler = {
             await interaction.update({
                 embeds: [
                     new EmbedBuilder()
-                        .setTitle('✅ Ya enviado')
+                        .setTitle(`${E.tilde || '✅'} Ya enviado`)
                         .setDescription(`Ya calificaste este ticket **${STAR_LABELS[String(ticketData.feedback.rating)] || ticketData.feedback.rating}**.\n¡Gracias por tu opinión!`)
                         .setColor(getColor('success')),
                 ],
@@ -120,7 +121,7 @@ const feedbackHandler = {
         await interaction.update({
             embeds: [
                 new EmbedBuilder()
-                    .setTitle('✅ ¡Gracias por tu opinión!')
+                    .setTitle(`${E.tilde || '✅'} ¡Gracias por tu opinión!`)
                     .setDescription(`Calificaste tu experiencia de soporte **${ratingLabel}**.\n\nTu opinión quedó registrada y nos ayuda a mejorar.`)
                     .setColor(getColor('success'))
                     .setFooter({ text: 'Gracias por usar el sistema de soporte.' })

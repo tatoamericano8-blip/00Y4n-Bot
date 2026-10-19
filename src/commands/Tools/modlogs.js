@@ -26,7 +26,7 @@ export default {
 
         if (!esStaff) {
             return interaction.reply({
-                content: '❌ Solo el **Staff** puede ver los modlogs.',
+                content: `${E.cruz || '❌'} Solo el **Staff** puede ver los modlogs.`,
                 flags: MessageFlags.Ephemeral
             });
         }

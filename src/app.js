@@ -21,6 +21,7 @@ import { procesarMensajeRecordatorio } from './utils/gestorRecordatorios.js';
 import { procesarCiudadanoDelDia } from './utils/ciudadanoDelDia.js';
 import { avisarAltoComando } from './utils/alertaHC.js';
 import { startBolsaTicker } from './utils/gestorBolsa.js';
+import { E } from './config/emojis.js';
 
 class TitanBot extends Client {
   constructor() {
@@ -173,7 +174,7 @@ class TitanBot extends Client {
         : 'Connected (persistent data enabled)';
       const handlerSummary = `${this.buttons.size} buttons, ${this.selectMenus.size} menus, ${this.modals.size} modals`;
       startupLog(
-        `ONLINE ✅ | ${this.commands.size} commands loaded | ${handlerSummary} | Database: ${databaseMode}`
+        `ONLINE ${E.tilde || '✅'} | ${this.commands.size} commands loaded | ${handlerSummary} | Database: ${databaseMode}`
       );
 
       this.setupCronJobs();

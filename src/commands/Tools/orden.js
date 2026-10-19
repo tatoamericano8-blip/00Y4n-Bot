@@ -38,7 +38,7 @@ export default {
         // Solo policía
         if (!interaction.member.roles.cache.has(ROL_POLICIA_ID)) {
             return await interaction.reply({
-                content: '❌ **Acceso denegado.** Solo los oficiales del **Departamento Policial del Condado de Sarasota** pueden gestionar Órdenes de Arresto.',
+                content: `${E.cruz || '❌'} **Acceso denegado.** Solo los oficiales del **Departamento Policial del Condado de Sarasota** pueden gestionar Órdenes de Arresto.`,
                 ephemeral: true
             });
         }
@@ -51,7 +51,7 @@ export default {
 
         if (!miembro) {
             return await interaction.reply({
-                content: '❌ No se pudo encontrar a ese usuario en el servidor.',
+                content: `${E.cruz || '❌'} No se pudo encontrar a ese usuario en el servidor.`,
                 ephemeral: true
             });
         }
@@ -62,7 +62,7 @@ export default {
         if (sub === 'emitir') {
             if (miembro.roles.cache.has(ROL_WARRANT_ID)) {
                 return await interaction.reply({
-                    content: `❌ **${ciudadano.tag}** ya tiene una Orden de Arresto activa.`,
+                    content: `${E.cruz || '❌'} **${ciudadano.tag}** ya tiene una Orden de Arresto activa.`,
                     ephemeral: true
                 });
             }
@@ -72,7 +72,7 @@ export default {
             } catch (error) {
                 console.error('Error al emitir Orden de Arresto:', error);
                 return await interaction.reply({
-                    content: '❌ No pude asignar el rol. Verificá que el bot tenga permisos para gestionar roles y que el rol esté por debajo del rol del bot.',
+                    content: `${E.cruz || '❌'} No pude asignar el rol. Verificá que el bot tenga permisos para gestionar roles y que el rol esté por debajo del rol del bot.`,
                     ephemeral: true
                 });
             }
@@ -138,7 +138,7 @@ export default {
         if (sub === 'remover') {
             if (!miembro.roles.cache.has(ROL_WARRANT_ID)) {
                 return await interaction.reply({
-                    content: `❌ **${ciudadano.tag}** no tiene una Orden de Arresto activa.`,
+                    content: `${E.cruz || '❌'} **${ciudadano.tag}** no tiene una Orden de Arresto activa.`,
                     ephemeral: true
                 });
             }
@@ -148,7 +148,7 @@ export default {
             } catch (error) {
                 console.error('Error al remover Orden de Arresto:', error);
                 return await interaction.reply({
-                    content: '❌ No pude remover el rol. Verificá que el bot tenga permisos para gestionar roles y que el rol esté por debajo del rol del bot.',
+                    content: `${E.cruz || '❌'} No pude remover el rol. Verificá que el bot tenga permisos para gestionar roles y que el rol esté por debajo del rol del bot.`,
                     ephemeral: true
                 });
             }

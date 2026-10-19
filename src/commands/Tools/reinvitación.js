@@ -192,7 +192,7 @@ export default {
             if (user.bot) return false;
             const id = reaction.emoji?.id;
             const name = reaction.emoji?.name;
-            return id === EMOJI_REACCION || name === 'tilde' || name === '✔️' || name === '✅';
+            return id === EMOJI_REACCION || name === 'tilde' || name === '✔️' || name === `${E.tilde || '✅'}`;
         };
 
         const collector = mensajeEnviado.createReactionCollector({

@@ -1,5 +1,6 @@
 import { logger } from '../utils/logger.js';
 import { PRIMARIO, COLORES } from '../utils/colores.js';
+import { E } from '../config/emojis.js';
 
 
 export const botConfig = {
@@ -184,7 +185,7 @@ export const botConfig = {
       allow: ["VIEW_CHANNEL", "CONNECT", "SPEAK"],
     },
     messages: {
-      created: "✅ Created counter **{name}**",
+      created: `${E.tilde || '✅'} Created counter **{name}**`,
       deleted: "🗑️ Deleted counter **{name}**",
       updated: "🔄 Updated counter **{name}**",
     },

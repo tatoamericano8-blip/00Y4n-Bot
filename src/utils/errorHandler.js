@@ -30,6 +30,7 @@ import { logger } from './logger.js';
 import { createEmbed } from './embeds.js';
 import { MessageFlags } from 'discord.js';
 import { getErrorMetadata, getDefaultErrorCodeByType, resolveErrorCode, ErrorCodes } from './errorRegistry.js';
+import { E } from '../config/emojis.js';
 
 
 
@@ -322,7 +323,7 @@ export async function handleInteractionError(interaction, error, context = {}) {
 
 function getErrorTitle(errorType) {
     const titles = {
-        [ErrorTypes.VALIDATION]: "❌ Invalid Input",
+        [ErrorTypes.VALIDATION]: `${E.cruz || '❌'} Invalid Input`,
         [ErrorTypes.PERMISSION]: "🚫 Permission Denied",
         [ErrorTypes.CONFIGURATION]: "⚙️ Configuration Error",
         [ErrorTypes.DATABASE]: "🗄️ Database Error",

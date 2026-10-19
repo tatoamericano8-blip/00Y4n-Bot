@@ -4,6 +4,7 @@ import { logger } from '../../utils/logger.js';
 import { getColor } from '../../config/bot.js';
 
 import { InteractionHelper } from '../../utils/interactionHelper.js';
+import { E } from '../../config/emojis.js';
 export default {
     data: new SlashCommandBuilder()
         .setName('hexcolor')
@@ -27,7 +28,7 @@ export default {
                     hexColor = hexColor.replace('#', '');
                     if (!/^[0-9A-Fa-f]{3,6}$/.test(hexColor)) {
                         return InteractionHelper.safeEditReply(interaction, {
-                            embeds: [errorEmbed('❌ Invalid Hex Color', 'Please provide a valid hex code.\n\n**Valid formats:**\n• `#FF5733` (with hash)\n• `FF5733` (without hash)\n• `F57` (3-digit shorthand)\n\n**Invalid:** `#GG5733` (G is not a hex digit)')],
+                            embeds: [errorEmbed(`${E.cruz || '❌'} Invalid Hex Color`, 'Please provide a valid hex code.\n\n**Valid formats:**\n• `#FF5733` (with hash)\n• `FF5733` (without hash)\n• `F57` (3-digit shorthand)\n\n**Invalid:** `#GG5733` (G is not a hex digit)')],
                         });
                     }
 

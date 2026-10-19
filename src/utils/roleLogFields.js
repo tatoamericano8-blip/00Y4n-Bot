@@ -1,3 +1,4 @@
+import { E } from '../config/emojis.js';
 const MAX_DISPLAYED_ROLE_PERMISSIONS = 5;
 
 export function buildRoleAuditFields(role, { includeMemberCount = false } = {}) {
@@ -33,7 +34,7 @@ export function buildRoleAuditFields(role, { includeMemberCount = false } = {}) 
 
   fields.push(
     {
-      name: '✅ Hoisted',
+      name: `${E.tilde || '✅'} Hoisted`,
       value: role.hoist ? 'Yes' : 'No',
       inline: true
     },

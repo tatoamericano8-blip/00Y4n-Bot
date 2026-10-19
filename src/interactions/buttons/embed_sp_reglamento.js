@@ -1,6 +1,7 @@
 import { MessageFlags } from 'discord.js';
 import { buildReglamentoEmbeds } from '../../config/embedPresets/serviciosPublicosInfo.js';
 import { ES } from '../../config/emojisServicios.js';
+import { E } from '../../config/emojis.js';
 
 /**
  * Botón "Reglamento" del preset SP · Información.
@@ -21,7 +22,7 @@ export default {
     } catch (e) {
       console.error('[embed_sp_reglamento]', e);
       return interaction.reply({
-        content: `${ES.cruz || '❌'} No se pudo mostrar el reglamento.`,
+        content: `${ES.cruz || `${E.cruz || '❌'}`} No se pudo mostrar el reglamento.`,
         flags: MessageFlags.Ephemeral
       }).catch(() => null);
     }

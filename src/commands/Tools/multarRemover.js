@@ -22,7 +22,7 @@ export default {
 
         if (!interaction.member.roles.cache.has(ROL_POLICIA_ID)) {
             return await interaction.reply({
-                content: '❌ **Acceso denegado.** Solo los oficiales del **Departamento Policial del Condado de Sarasota** pueden anular multas.',
+                content: `${E.cruz || '❌'} **Acceso denegado.** Solo los oficiales del **Departamento Policial del Condado de Sarasota** pueden anular multas.`,
                 ephemeral: true
             });
         }
@@ -33,14 +33,14 @@ export default {
         const multa = await obtenerMulta(ticketID);
         if (!multa) {
             return await interaction.reply({
-                content: `❌ No se encontró ninguna multa con el ID \`${ticketID}\`.`,
+                content: `${E.cruz || '❌'} No se encontró ninguna multa con el ID \`${ticketID}\`.`,
                 ephemeral: true
             });
         }
 
         if (multa.estado === 'ANULADA' || multa.estado === 'PAGADA') {
             return await interaction.reply({
-                content: `❌ La multa \`${ticketID}\` ya se encuentra en estado **${multa.estado}**.`,
+                content: `${E.cruz || '❌'} La multa \`${ticketID}\` ya se encuentra en estado **${multa.estado}**.`,
                 ephemeral: true
             });
         }

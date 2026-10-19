@@ -16,7 +16,7 @@ export default {
 
         if (!interaction.member.roles.cache.has(ROL_POLICIA_ID)) {
             return await interaction.reply({
-                content: '❌ **Acceso denegado.** Solo los oficiales del **Departamento Policial del Condado de Sarasota** pueden consultar historiales.',
+                content: `${E.cruz || '❌'} **Acceso denegado.** Solo los oficiales del **Departamento Policial del Condado de Sarasota** pueden consultar historiales.`,
                 ephemeral: true
             });
         }
@@ -29,7 +29,7 @@ export default {
 
         if (arrestos.length === 0) {
             return await interaction.editReply({
-                content: `✅ **${ciudadano.tag}** no tiene arrestos registrados en el sistema.`
+                content: `${E.tilde || '✅'} **${ciudadano.tag}** no tiene arrestos registrados en el sistema.`
             });
         }
 

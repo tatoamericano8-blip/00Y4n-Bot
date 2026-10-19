@@ -1,4 +1,5 @@
 import { EmbedBuilder, MessageFlags } from 'discord.js';
+import { E } from '../../config/emojis.js';
 
 const ROL_STAFF = '1512120103771050005';
 
@@ -18,7 +19,7 @@ export default {
     if (!esStaff) {
       return interaction.reply({
         content:
-          '❌ **No tenés el rol ni el permiso autorizado.** Solo el **Staff** puede usar el botón Staff Link.',
+          `${E.cruz || '❌'} **No tenés el rol ni el permiso autorizado.** Solo el **Staff** puede usar el botón Staff Link.`,
         flags: MessageFlags.Ephemeral
       });
     }
@@ -45,13 +46,13 @@ export default {
     if (!link) {
       return interaction.reply({
         content:
-          '❌ No hay link cargado en este aviso. Volvé a usar `/regenerar_swfl` con la opción **link**.',
+          `${E.cruz || '❌'} No hay link cargado en este aviso. Volvé a usar `/regenerar_swfl` con la opción **link**.`,
         flags: MessageFlags.Ephemeral
       });
     }
 
     const embed = new EmbedBuilder()
-      .setTitle('🔒 Staff Link')
+      .setTitle(`${E.lock || '🔒'} Staff Link`)
       .setDescription(
         `Link privado del servidor regenerado:\n\n🔗 ${link}\n\n` +
           `_Solo visible para staff. No lo compartas en canales públicos._`

@@ -21,7 +21,7 @@ export default {
 
         if (!interaction.member.roles.cache.has(ROL_POLICIA_ID)) {
             return await interaction.reply({
-                content: '❌ **Acceso denegado.** Solo los oficiales del **Departamento Policial del Condado de Sarasota** pueden anular arrestos.',
+                content: `${E.cruz || '❌'} **Acceso denegado.** Solo los oficiales del **Departamento Policial del Condado de Sarasota** pueden anular arrestos.`,
                 ephemeral: true
             });
         }
@@ -32,14 +32,14 @@ export default {
         const arresto = await obtenerArresto(arrestoID);
         if (!arresto) {
             return await interaction.reply({
-                content: `❌ No se encontró ningún arresto con el ID \`${arrestoID}\`.`,
+                content: `${E.cruz || '❌'} No se encontró ningún arresto con el ID \`${arrestoID}\`.`,
                 ephemeral: true
             });
         }
 
         if (arresto.estado === 'ANULADO') {
             return await interaction.reply({
-                content: `❌ El arresto \`${arrestoID}\` ya se encuentra anulado.`,
+                content: `${E.cruz || '❌'} El arresto \`${arrestoID}\` ya se encuentra anulado.`,
                 ephemeral: true
             });
         }

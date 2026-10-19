@@ -34,7 +34,7 @@ export default {
       const esStaffSP = interaction.member.roles.cache.has(ROLE_STAFF_SP);
       if (!esStaffSP && !esCreadorSP) {
         return interaction.editReply({
-          content: '❌ Solo el **Staff de Servicios Públicos** o quien abrió el ticket puede cerrarlo.'
+          content: `${E.cruz || '❌'} Solo el **Staff de Servicios Públicos** o quien abrió el ticket puede cerrarlo.`
         });
       }
     }
@@ -44,7 +44,7 @@ export default {
 
     if (!result.success) {
       return interaction.editReply({
-        content: `❌ No se pudo cerrar el ticket: ${result.error || 'error desconocido'}`
+        content: `${E.cruz || '❌'} No se pudo cerrar el ticket: ${result.error || 'error desconocido'}`
       });
     }
 
@@ -114,20 +114,20 @@ export default {
 
     if (esTicketSP) {
       return interaction.editReply({
-        content: '✅ Ticket cerrado correctamente.'
+        content: `${E.tilde || '✅'} Ticket cerrado correctamente.`
       });
     }
 
     if (cuotaOk) {
       return interaction.editReply({
         content:
-          '✅ Ticket cerrado correctamente.\n' + E.tilde + ' Se sumó **+1 ticket** a tu cuota de staff.'
+          `${E.tilde || '✅'} Ticket cerrado correctamente.\n` + E.tilde + ' Se sumó **+1 ticket** a tu cuota de staff.'
       });
     }
 
     return interaction.editReply({
       content:
-        `✅ Ticket cerrado correctamente.\n` +
+        `${E.tilde || '✅'} Ticket cerrado correctamente.\n` +
         (motivoNoCuota
           ? `> *No se sumó a la cuota:* ${motivoNoCuota}`
           : '> *No se sumó a la cuota.*')
