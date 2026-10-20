@@ -6,7 +6,7 @@ import { EMOJI_DEF } from './emojis.js';
  */
 
 export const TIENDA_BANNER =
-  'https://cdn.discordapp.com/attachments/1505017301089652898/1548119383874871316/Server_Tienda_1.png';
+  'https://media.discordapp.net/attachments/1505017301089652898/1561884470716661832/Copia_de_Server_Tienda_1.png?ex=6ad8a284&is=6ad75104&hm=e69748a197d5c080c7b064bad87d643241ae42a3aac881344e0a7897d0c9306e&=&format=webp&quality=lossless';
 
 export const TIENDA_COLOR = 0x8ae6fa;
 
