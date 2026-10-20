@@ -25,7 +25,7 @@
  */
 
 /** ★ Color principal de marca 00Y4n (RP) — CAMBIÁ SOLO ESTA LÍNEA ★ */
-export const PRIMARIO = '#8ae6fa';
+export const PRIMARIO = '#FEC18C';
 
 /** Rojo crítico unificado (suave, no agresivo) */
 export const ROJO_CRITICO = '#ed4245';
