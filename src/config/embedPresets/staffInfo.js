@@ -36,7 +36,7 @@ export default {
         { label: 'Cuotas', value: 'cuotas', emoji: optEmoji('tilde') },
         { label: 'Conducta y escalamiento', value: 'conducta', emoji: optEmoji('msj') },
         { label: 'Comandos de SWFL', value: 'comandos_swfl', emoji: optEmoji('manual') },
-        { label: 'Roles staff', value: 'roles_staff', emoji: optEmoji('staff') }
+        { label: 'Roles staff', value: 'roles_staff', emoji: optEmoji('corona') }
       );
 
     return {
