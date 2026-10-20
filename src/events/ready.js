@@ -12,6 +12,7 @@ import { limpiarSuspensionesVencidas } from '../utils/gestorSesionesRestriccione
 import { limpiarSesionesFantasma } from '../utils/cierreSesionAutomatico.js';
 import { limpiarLoaVencidas } from '../utils/gestorLoa.js';
 import { procesarCobrosSeguros } from '../utils/gestorTienda.js';
+import { ejecutarSorteo } from '../utils/gestorLoteria.js';
 import { procesarMultasVencidas } from '../utils/gestorMultas.js';
 
 const ROLE_SUSPEND_SESIONES = '1533180544630788166';
@@ -120,6 +121,22 @@ export default {
         cron.schedule('5 * * * *', runMultas);
         runMultas();
         startupLog('✅ Sistema de órdenes por multas vencidas iniciado (cada 1h + al arrancar).');
+
+      if (!client._loteriaCron) {
+        client._loteriaCron = true;
+        // Cada 4 horas (hora Argentina)
+        cron.schedule(
+          '0 */4 * * *',
+          () => {
+            ejecutarSorteo(client).catch((err) =>
+              logger.error('Error en sorteo de lotería:', err)
+            );
+          },
+          { timezone: 'America/Argentina/Buenos_Aires' }
+        );
+        startupLog('✅ Lotería 00Y4n iniciada (sorteo cada 4 h, canal resultados).');
+      }
+
       }
     } catch (error) {
       logger.error('Error in ready event:', error);
