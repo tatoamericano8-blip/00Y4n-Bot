@@ -14,7 +14,7 @@ export const EMOJI_DEF = {
   tres: { name: 'orange3', id: '1562186736040288447' },
   cuatro: { name: 'orange4', id: '1562186751101894756' },
   cinco: { name: 'orange5', id: '1562186766180417566' },
-  auto: { name: 'orange_auto', id: '1562186781111659264' },
+  auto: { name: 'orange_auto', id: '1562186781116596264' },
   bot: { name: 'orange_bot', id: '1562186811910918215' },
   carpeta: { name: 'orange_carpeta', id: '1562186827170054285' },
   cigarro: { name: 'orange_cigarro', id: '1562186842319753226' },
@@ -68,7 +68,7 @@ export const EMOJI_DEF = {
 
   // --- Revamp / extras ---
   blackjack: { name: 'orange_blackjack', id: '1562186796241002637' },
-  herramental: { name: 'cielo_herramental', id: '1562186876704784424' },
+  herramental: { name: 'cielo_herramental', id: '1562201300450414593' },
   rosa: { name: 'orange_rosa', id: '1562187698779983922' },
   segundopuesto: { name: 'orange_segundopuesto', id: '1562187731436703858' },
   shot: { name: 'orange_shot', id: '1562187747148439582' },
