@@ -63,19 +63,19 @@ export const EMOJI_DEF = {
   anuncio: { name: 'orange_saludo', id: '1562187716571955210' },
   checkpoint: { name: 'orange_tilde', id: '1562187795269681272' },
   // Sin orange_* equivalente en el pack del server → se mantienen
-  staff_icon: { name: 'cielo_staff', id: '1548325926738067616' },
-  staff_badge: { name: 'cielo_staff', id: '1548325926738067616' },
+  staff_icon: { name: 'cielo_staff', id: '1562186876704784424' },
+  staff_badge: { name: 'cielo_staff', id: '1562186876704784424' },
 
   // --- Revamp / extras ---
   blackjack: { name: 'orange_blackjack', id: '1562186796241002637' },
-  herramental: { name: 'cielo_herramental', id: '1548325589199185941' },
+  herramental: { name: 'cielo_herramental', id: '1562186876704784424' },
   rosa: { name: 'orange_rosa', id: '1562187698779983922' },
   segundopuesto: { name: 'orange_segundopuesto', id: '1562187731436703858' },
   shot: { name: 'orange_shot', id: '1562187747148439582' },
   sombreroegresado: { name: 'cielo_sombreroegresado', id: '1548325979381043271' },
-  egresado: { name: 'cielo_sombreroegresado', id: '1548325979381043271' },
-  staff: { name: 'cielo_staff', id: '1548325926738067616' },
-  stafftarjeta: { name: 'cielo_stafftarjeta', id: '1548325953833533491' },
+  egresado: { name: 'cielo_sombreroegresado', id: '1562186876704784424' },
+  staff: { name: 'cielo_staff', id: '1562186876704784424' },
+  stafftarjeta: { name: 'cielo_stafftarjeta', id: '1562186876704784424' },
   trofeoalas: { name: 'orange_trofeoalas', id: '1562187826915713104' },
   rating: { name: 'orange_rating', id: '1562187643377418301' },
 
