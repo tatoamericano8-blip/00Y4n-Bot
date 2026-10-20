@@ -39,7 +39,7 @@ export default {
           label: 'Qué es Alto Comando',
           value: 'que_es',
           description: 'Rol, alcance y mentalidad',
-          emoji: optEmoji('staff')
+          emoji: optEmoji('corona')
         },
         {
           label: 'Roles y autoridad',
