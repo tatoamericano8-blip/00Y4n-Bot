@@ -8,7 +8,7 @@ export const botConfig = {
     status: "online",
     activities: [
       {
-        name: "ostin deja de verme",
+        name: "¿Qué ocurrira?",
         type: 0,
       },
     ],
