@@ -6,7 +6,7 @@
  */
 
 export const EMOJI_DEF = {
-  logo: { name: 'Logo_00y4n_v3', id: '1548155893256953926' },
+  logo: { name: '00Y4n_v4', id: '1562190415933870191' },
 
   // --- Estáticos orange_* (IDs del server 00Y4n) ---
   uno: { name: 'orange1', id: '1562186705790963782' },
