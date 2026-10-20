@@ -65,7 +65,7 @@ export default {
 
                 // Embed estructurado al estilo premium 00Y4n con tus nuevos emojis
                 const IMAGEN_CONFIG_DEFAULT =
-                    'https://cdn.discordapp.com/attachments/1505017301089652898/1548119320104534117/Configurando_sesion_1.png';
+                    'https://media.discordapp.net/attachments/1505017301089652898/1561884377418440754/Copia_de_Configurando_Sesion_1.png?ex=6ad8a26d&is=6ad750ed&hm=af27345457e9820442576724865d8c1a1cdb7b12e00287e340289be79f4091e3&=&format=webp&quality=lossless';
                 const embedSetup = new EmbedBuilder()
                     .setTitle(`${E.a2alas} Southwest Florida Comunidad 00Y4n — __*Configuración del Servidor*__ ${E.a2alas}`)
                     .setDescription(
