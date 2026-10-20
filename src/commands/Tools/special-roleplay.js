@@ -6,32 +6,32 @@ const ROLEPLAYS = {
   realista: {
     name: 'Roleplay realista',
     image:
-      'https://cdn.discordapp.com/attachments/1505017301089652898/1548141457414684692/Roleplay_Realista.png?ex=6aa5fa96&is=6aa4a916&hm=893c7b16cb993439cb29a604c6fdfb8ca222be3701596e36b9f2f94c7a4ee83d&'
+      'https://media.discordapp.net/attachments/1505017301089652898/1561892745369362474/Gemini_Generated_Image_z6snbmz6snbmz6sn.jfif?ex=6ad80179&is=6ad6aff9&hm=f683a94d958f024345b87c4c4d8a0b330513921ba20195eb727ff73da0454705&=&format=webp'
   },
   reino_unido: {
     name: 'Reino Unido Roleplay',
     image:
-      'https://cdn.discordapp.com/attachments/1505017301089652898/1548141459583008788/Reino_unido_Roleplay.jpg?ex=6aa5fa97&is=6aa4a917&hm=8b3eac31d1b4d04fb5003c61dff02647cd9544590c05fd24b72144a43bdfa2fd&'
+      'https://media.discordapp.net/attachments/1505017301089652898/1561892744316584026/Gemini_Generated_Image_ezckd0ezckd0ezck.jfif?ex=6ad80178&is=6ad6aff8&hm=f82687604352a6ce29355222755d87a59cb07b700d40cb72d62f0d9851e395ab&=&format=webp'
   },
   funeral: {
     name: 'Funeral Roleplay',
     image:
-      'https://cdn.discordapp.com/attachments/1505017301089652898/1548141459239338094/Funeral_Roleplay.jpg?ex=6aa5fa96&is=6aa4a916&hm=4c96abf056c2772d315cd5f3dff61f41721911cd70f4d09f9c7af6dfea38b6f7&'
+      'https://media.discordapp.net/attachments/1505017301089652898/1561884673162874890/hgatU.jpg?ex=6ad7f9f4&is=6ad6a874&hm=a254da83906db5b760429776433b603475c07175ef9a552106ab4a31f5733988&=&format=webp'
   },
   cars_coffee: {
     name: "Cars & Coffee",
     image:
-      'https://cdn.discordapp.com/attachments/1505017301089652898/1548141458731573321/Cars__Coffe.jpg?ex=6aa5fa96&is=6aa4a916&hm=ae0b66774826c38db1a15bb999dd2919ecda254eed616fc303663e7a1cb109f4&'
+      'https://media.discordapp.net/attachments/1505017301089652898/1561892744836812860/Gemini_Generated_Image_nscwyonscwyonscw.jfif?ex=6ad80178&is=6ad6aff8&hm=5595fdcf2c66fccfed1744c6dec3ece026ce7c82c5ae07a7ad988f41ce79890e&=&format=webp'
   },
   ano_2000s: {
     name: "Roleplay Año 2000's",
     image:
-      'https://cdn.discordapp.com/attachments/1505017301089652898/1548141459868360776/ROLEPLAY_ANO_2000s.jpg?ex=6aa5fa97&is=6aa4a917&hm=c3e220e669974dcffb0657379b67f3b12e587990eb3bfdaf23ca4cefa41fd50e&'
+      'https://media.discordapp.net/attachments/1505017301089652898/1561884702795898910/19zs8.jpg?ex=6ad7f9fb&is=6ad6a87b&hm=888c2f9f13377f707e6e3fb5f9305478670c6cd6606c3cbcfb2f17da0a2ad50c&=&format=webp'
   },
   area_centro: {
     name: 'Area RP Centro',
     image:
-      'https://cdn.discordapp.com/attachments/1505017301089652898/1548141458261807104/AREA_RP_Centro.jpg?ex=6aa5fa96&is=6aa4a916&hm=29110bd474f00d81ef14cba692decc9a67f239fbc442833ec913d12756ab05a8&'
+      'https://media.discordapp.net/attachments/1505017301089652898/1561892745369362474/Gemini_Generated_Image_z6snbmz6snbmz6sn.jfif?ex=6ad80179&is=6ad6aff9&hm=f683a94d958f024345b87c4c4d8a0b330513921ba20195eb727ff73da0454705&=&format=webp'
   }
 };
 
