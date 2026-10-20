@@ -7,7 +7,7 @@ import { E, EMOJI_DEF } from '../../config/emojis.js';
 
 global.coleccionSesiones = global.coleccionSesiones || new Map();
 
-const IMAGEN_RP_DEFECTO = 'https://cdn.discordapp.com/attachments/1505017301089652898/1548119381391839282/Lanzamiento_Roleplay_1.png?ex=6aa5e607&is=6aa49487&hm=c400a185acf35da518cce0d55f7aafbe4ab4358f236cd838988ce9a7c660bbab&';
+const IMAGEN_RP_DEFECTO = 'https://media.discordapp.net/attachments/1505017301089652898/1561884468464066611/Copia_de_Lancamiento_Roleplay_1.png?ex=6ad8a283&is=6ad75103&hm=3e1c73620df9877c951371c8302844e2bc7ced26a6e7bd80e48ef49ae7933686&=&format=webp&quality=lossless';
 
 export default {
     data: {
