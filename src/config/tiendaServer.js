@@ -19,7 +19,9 @@ export const ROLES_TIENDA = {
   fastpass: '1503769793474597027',
   permiso_discapacidad: '1538284668703608833',
   licencia_conducir: '1529872838557962431',
-  permiso_limusina: '1521300094710714568'
+  permiso_limusina: '1521300094710714568',
+  permiso_deportes_motorizados: '1521298802198450298',
+  permiso_vehiculos_hyper: '1521300052809617539'
 };
 
 /**
@@ -80,11 +82,30 @@ export const TIENDA_ITEMS = {
   permiso_limusina: {
     id: 'permiso_limusina',
     name: 'Permiso de limusina',
-    price: 1000000,
+    price: 400000,
     category: 'permisos',
     type: 'role',
     roleId: ROLES_TIENDA.permiso_limusina,
     description: 'Autorización para conducir limusinas en sesiones.'
+  },
+  permiso_deportes_motorizados: {
+    id: 'permiso_deportes_motorizados',
+    name: 'Deportes Motorizados',
+    price: 650000,
+    category: 'permisos',
+    type: 'role',
+    roleId: ROLES_TIENDA.permiso_deportes_motorizados,
+    description:
+      'Permite usar vehículos motorizados en sesiones de RP (motos y karts). Los karts solo con permiso del host de la sesión.'
+  },
+  permiso_vehiculos_hyper: {
+    id: 'permiso_vehiculos_hyper',
+    name: 'Vehículos Hyper',
+    price: 1250000,
+    category: 'permisos',
+    type: 'role',
+    roleId: ROLES_TIENDA.permiso_vehiculos_hyper,
+    description: 'Permite conducir vehículos de la sección Hyper durante las sesiones de RP.'
   },
 
   rosa: {
