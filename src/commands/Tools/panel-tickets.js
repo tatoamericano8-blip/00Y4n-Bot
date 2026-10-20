@@ -9,7 +9,7 @@ import {
 import { E, EMOJI_DEF } from '../../config/emojis.js';
 
 const BANNER =
-    'https://cdn.discordapp.com/attachments/1505017301089652898/1548119319227924583/Asistencia_1.png';
+    'https://media.discordapp.net/attachments/1505017301089652898/1561884376218861608/Copia_de_Asistencia_1.png?ex=6ad8a26d&is=6ad750ed&hm=c47fef747bf9ea36124cd10ea1edf4ab3dd707aca34680009afa49b5d5303b24&=&format=webp&quality=lossless';
 const COLOR = 0x8ae6fa;
 
 export default {
