@@ -15,7 +15,7 @@ import { buildBienvenidaSPEmbeds } from '../config/embedPresets/serviciosPublico
 const GUILD_00Y4N = '1451939725308067842';
 const CHANNEL_BIENVENIDA = '1451942119827570830';
 const IMAGEN_BIENVENIDA =
-    'https://cdn.discordapp.com/attachments/1505017301089652898/1548158765772185680/Bienvenida_1.png?ex=6aa60ab5&is=6aa4b935&hm=73878f66d6e1e892fe44900b5e2cf4edf423233b2ac245da584f45730951d1ec';
+    'https://media.discordapp.net/attachments/1505017301089652898/1561884672298844170/Copia_deBienvenida_1.png?ex=6ad8a2b4&is=6ad75134&hm=fd4661654e3dfcec688d421b8f605db24348664cb66749cb6b478515bd8eaf5c&=&format=webp&quality=lossless';
 
 /** Bienvenida Servicios Públicos (solo ese guild — no afecta 00Y4n principal) */
 const GUILD_SP = '1497012276329451581';
