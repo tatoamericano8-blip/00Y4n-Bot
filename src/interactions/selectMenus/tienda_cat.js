@@ -14,6 +14,7 @@ import {
   emojiCategoriaTag
 } from '../../config/tiendaServer.js';
 import { obtenerSaldo } from '../../utils/gestorEconomia.js';
+import { E } from '../../config/emojis.js';
 
 export default {
   name: 'tienda_cat',
@@ -34,8 +35,10 @@ export default {
     const lista = items
       .map((i) => {
         const extra =
-          i.type === 'role_weekly' ? ` · **${formatMoney(i.weekly)}**/semana` : '';
-        return `• **${i.name}** — ${formatMoney(i.price)}${extra}\n  -# ${i.description}`;
+          i.type === 'role_weekly'
+            ? ` · ${E.money || ''}${formatMoney(i.weekly)}/semana`
+            : '';
+        return `${E.dot || '•'} **${i.name}** ${E.money || ''}${formatMoney(i.price)}${extra}\n  -# ${i.description}`;
       })
       .join('\n');
 
