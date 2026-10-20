@@ -1,47 +1,47 @@
 /**
  * ============================================================
- *  COLORES CENTRALIZADOS DEL BOT 00Y4n
+ *  COLORES CENTRALIZADOS DEL BOT 00Y4n (servidor principal RP)
  * ============================================================
  *
- *  CAMBIAR EL COLOR DE MARCA DE (casi) TODO EL BOT:
- *    1. Editá SOLO la línea de PRIMARIO (ej: '#FEC18C' o '#8ae6fa').
+ *  CAMBIAR EL COLOR DE MARCA:
+ *    1. Editá SOLO PRIMARIO abajo.
  *    2. Redeploy / reiniciá el bot.
  *
- *  Qué SÍ se actualiza al cambiar PRIMARIO:
- *    • Embeds de marca (sesiones, staff, economía UI, menús, etc.)
- *    • .setColor('#8ae6fa'), '#74d4fc', naranja viejo, blurple de marca
- *    • getColor('primary'|'info'|'moderation'|…)
- *    • COLORES.primario / secundario / info / sesion / economia / …
+ *  Qué sigue a PRIMARIO:
+ *    • Embeds de marca del server principal
+ *    • Éxito / confirmación / dinero OK
+ *    • Info, sesiones, economía UI, moderación “normal”
  *
- *  Qué NO cambia (embeds críticos / semánticos):
- *    • error / strike / rojo          → COLORES.error
- *    • éxito / verde                  → COLORES.exito
- *    • advertencia / LOA / amarillo   → COLORES.advertencia
- *    • Colores dinámicos (hex libre, recolor, prioridades de ticket, etc.)
+ *  Qué es crítico (rojo único, no muy fuerte):
+ *    • Error, strike, denegado, peligro → ROJO_CRITICO
  *
- *  El parche vive en utils/parcheColorEmbed.js (se carga al arrancar).
+ *  Avisos (amarillo, aparte):
+ *    • LOA / pendiente / advertencia
+ *
+ *  Servicios Públicos:
+ *    • NO usan PRIMARIO. Sus embeds van con COLOR_SP (#1a1a1a)
+ *      en presets/menus SP. El parche no los toca.
  * ============================================================
  */
 
-/** ★ Color principal de marca 00Y4n — CAMBIÁ SOLO ESTA LÍNEA ★ */
+/** ★ Color principal de marca 00Y4n (RP) — CAMBIÁ SOLO ESTA LÍNEA ★ */
 export const PRIMARIO = '#8ae6fa';
 
-/** Colores semánticos fijos (no siguen a PRIMARIO) */
+/** Rojo crítico unificado (suave, no agresivo) */
+export const ROJO_CRITICO = '#ed4245';
+
+/** Semánticos */
 export const CRITICO = {
-  /** Éxito, dinero OK, confirmaciones */
-  exito: '#57f287',
-  /** Error, strike, denegado, peligro */
-  error: '#ff6363',
-  /** Aviso, LOA, pendiente */
+  /** Éxito / confirmación / dinero OK → marca */
+  exito: PRIMARIO,
+  /** Error / strike / denegado → un solo rojo */
+  error: ROJO_CRITICO,
+  /** Aviso / LOA / pendiente */
   advertencia: '#faa61a',
-  /** Strike / sanción fuerte */
-  strike: '#E60404',
-  /** LOA / ausencia */
+  strike: ROJO_CRITICO,
   loa: '#fee75c',
-  /** Bomberos / emergencia roja */
-  bomberos: '#ed4245',
-  /** EMS */
-  ems: '#57f287',
+  bomberos: ROJO_CRITICO,
+  ems: PRIMARIO,
 };
 
 /** Alias legibles para embeds */
@@ -66,6 +66,9 @@ export const COLORES = {
   policia: PRIMARIO,
   bomberos: CRITICO.bomberos,
   ems: CRITICO.ems,
+
+  /** Solo referencia: SP no debe usar PRIMARIO */
+  serviciosPublicos: '#1a1a1a',
 };
 
 /**
