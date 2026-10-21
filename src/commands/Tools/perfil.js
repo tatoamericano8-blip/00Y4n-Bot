@@ -8,6 +8,7 @@ import { armarInventarioCompleto } from '../../utils/gestorTienda.js';
 import { TIENDA_COLOR } from '../../config/tiendaServer.js';
 import { E, EMOJI_DEF } from '../../config/emojis.js';
 import { db } from '../../utils/database.js';
+import { sincronizarRolLicencia } from '../../utils/gestorLicencias.js';
 
 const BLOXLINK_API_KEY = 'e47f3929-9be2-4179-82b1-e53b4a9a6538';
 
@@ -133,6 +134,14 @@ export default {
         // Solo la DB define el estado. Sin documento = Sin licencia (nunca Activa por defecto).
         let datosLicencia = await Licencia.findOne({ usuario_id: miembro.id });
         let estadoLicencia = (datosLicencia && datosLicencia.estado) ? datosLicencia.estado : 'Sin licencia';
+
+        // Resync rol ↔ DB: Activa sin rol → se asigna; no Activa con rol → se quita.
+        try {
+            const miembroGuild =
+                interaction.guild.members.cache.get(miembro.id) ||
+                (await interaction.guild.members.fetch(miembro.id).catch(() => null));
+            if (miembroGuild) await sincronizarRolLicencia(miembroGuild, estadoLicencia);
+        } catch (_) {}
 
         let textoLicenciaVisual = '⚪ Sin licencia';
         if (estadoLicencia === 'Activa') textoLicenciaVisual = E.tilde + ' Activa';
