@@ -105,7 +105,7 @@ export default {
 
             const embedExito = new EmbedBuilder()
                 .setColor('#2ecc71')
-                .setTitle(`${E.skirojo || ''} ¡Cometiste un delito!`)
+                .setTitle(`${E.ski || ''} ¡Cometiste un delito!`)
                 .setDescription(
                     `${historia}\n\n` +
                     `➔ Te saliste con la tuya y obtuviste **$${ganancia.toLocaleString('es-AR', { minimumFractionDigits: 2 })}**. Tu saldo actualizado es **$${nuevoSaldo.toLocaleString('es-AR', { minimumFractionDigits: 2 })}**.`
