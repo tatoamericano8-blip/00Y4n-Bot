@@ -1,6 +1,6 @@
 /**
  * 00Y4n Times — noticias de la bolsa (SVG → sharp).
- * Estilo diario celeste #8ae6fa.
+ * Estilo diario #FFC28D.
  */
 import sharp from 'sharp';
 import { formatMoney, formatDelta } from './gestorBolsa.js';
@@ -124,19 +124,19 @@ export async function renderBolsaNoticias({ gainers = [], losers = [] }) {
     </linearGradient>
   </defs>
   <rect width="${W}" height="${H}" rx="14" fill="url(#paper)"/>
-  <rect x="0" y="0" width="8" height="${H}" fill="#8ae6fa"/>
+  <rect x="0" y="0" width="8" height="${H}" fill="#FFC28D"/>
 
-  <text x="${W / 2}" y="46" font-family="Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#0a6a82" text-anchor="middle" letter-spacing="1.5">00Y4n TIMES</text>
-  <text x="${W / 2}" y="68" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#3d7a8a" text-anchor="middle">Bolsa de Valores · Southwest Florida Mercado</text>
-  <text x="${W / 2}" y="88" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#5a8a9a" text-anchor="middle">${esc(fecha)}</text>
-  <line x1="36" y1="100" x2="${W - 36}" y2="100" stroke="#8ae6fa" stroke-width="2"/>
+  <text x="${W / 2}" y="46" font-family="Georgia, Times New Roman, serif" font-size="30" font-weight="700" fill="#6b3f1a" text-anchor="middle" letter-spacing="1.5">00Y4n TIMES</text>
+  <text x="${W / 2}" y="68" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#7a5a3a" text-anchor="middle">Bolsa de Valores · Southwest Florida Mercado</text>
+  <text x="${W / 2}" y="88" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#8a6a4a" text-anchor="middle">${esc(fecha)}</text>
+  <line x1="36" y1="100" x2="${W - 36}" y2="100" stroke="#FFC28D" stroke-width="2"/>
 
-  <text x="48" y="136" font-family="Georgia, Times New Roman, serif" font-size="20" font-weight="700" fill="#0a6a82">${esc(title)}</text>
+  <text x="48" y="136" font-family="Georgia, Times New Roman, serif" font-size="20" font-weight="700" fill="#6b3f1a">${esc(title)}</text>
   <text x="48" y="160" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#3a5560">${esc(sub)}</text>
 
-  <text x="48" y="196" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#0a6a82" letter-spacing="1.2">RESUMEN DEL MERCADO</text>
+  <text x="48" y="196" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#6b3f1a" letter-spacing="1.2">RESUMEN DEL MERCADO</text>
   <text x="48" y="218" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1a2330">${esc(resumen)}</text>
-  <line x1="36" y1="236" x2="${W - 36}" y2="236" stroke="#b8eaf5" stroke-width="1"/>
+  <line x1="36" y1="236" x2="${W - 36}" y2="236" stroke="#FFD9B5" stroke-width="1"/>
 
   <text x="48" y="268" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#0d5c2e" letter-spacing="1">▲ MAYORES SUBIDAS</text>
   ${upRows}
@@ -144,10 +144,10 @@ export async function renderBolsaNoticias({ gainers = [], losers = [] }) {
   <text x="48" y="${yDownLabel}" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#9b1c1c" letter-spacing="1">▼ MAYORES BAJADAS</text>
   ${downRows}
 
-  <line x1="36" y1="${H - 34}" x2="${W - 36}" y2="${H - 34}" stroke="#b8eaf5" stroke-width="1"/>
-  <text x="48" y="${H - 14}" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#5a8a9a">Actualización cada 5 min · 00Y4n Bolsa de Valores</text>
-  <rect x="${W - 148}" y="${H - 28}" width="108" height="18" rx="9" fill="#8ae6fa" opacity="0.4"/>
-  <text x="${W - 94}" y="${H - 15}" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="600" fill="#0a6a82" text-anchor="middle">00Y4n Markets</text>
+  <line x1="36" y1="${H - 34}" x2="${W - 36}" y2="${H - 34}" stroke="#FFD9B5" stroke-width="1"/>
+  <text x="48" y="${H - 14}" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#8a6a4a">Actualización cada 5 min · 00Y4n Bolsa de Valores</text>
+  <rect x="${W - 148}" y="${H - 28}" width="108" height="18" rx="9" fill="#FFC28D" opacity="0.4"/>
+  <text x="${W - 94}" y="${H - 15}" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="600" fill="#6b3f1a" text-anchor="middle">00Y4n Markets</text>
 </svg>`;
 
   return sharp(Buffer.from(svg)).png().toBuffer();
