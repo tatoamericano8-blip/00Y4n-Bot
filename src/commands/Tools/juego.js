@@ -17,6 +17,8 @@ import { PRIMARIO } from '../../utils/colores.js';
 
 const MIN_APUESTA = 100;
 const MAX_APUESTA = 100_000;
+/** Adivina el auto: apuesta fija (o todo el saldo si es menor). */
+const APUESTA_ADIVINA = 10_000;
 const COOLDOWN_MS = 10 * 1000;
 const PARTIDA_IDLE_MS = 90 * 1000;
 
@@ -275,7 +277,7 @@ function embedAdivina(auto, apuesta, user) {
       { name: 'Apuesta', value: fmt$(apuesta), inline: true },
       { name: 'Jugador', value: `${user}`, inline: true }
     )
-    .setFooter({ text: 'Si acertás recuperás la apuesta y ganás lo mismo · 90s para responder' })
+    .setFooter({ text: 'Apuesta fija $10.000 (o tu saldo si es menor) · Si acertás x2 · 90s para responder' })
     .setTimestamp();
 }
 
@@ -312,8 +314,8 @@ export default {
     .addStringOption((o) =>
       o
         .setName('cantidad')
-        .setDescription(`Apuesta (mín ${MIN_APUESTA}, máx ${MAX_APUESTA}) o "all"`)
-        .setRequired(true)
+        .setDescription(`Slots/moneda: apuesta (mín ${MIN_APUESTA}, máx ${MAX_APUESTA} o "all"). Adivina el auto: fija $10.000 (opcional)`)
+        .setRequired(false)
     )
     .addStringOption((o) =>
       o
@@ -347,28 +349,11 @@ export default {
       }
 
       const saldo = await obtenerSaldo(userId);
-      const apuesta = parseApuesta(interaction.options.getString('cantidad'), saldo);
-      if (apuesta == null) {
+      // Apuesta fija $10.000; si no alcanza, se apuesta todo el saldo disponible.
+      const apuesta = Math.min(APUESTA_ADIVINA, Math.max(0, Math.floor(Number(saldo) || 0)));
+      if (apuesta <= 0) {
         return interaction.reply({
-          content: `${E.cruz || '❌'} Cantidad inválida. Usá un número o \`all\`.`,
-          flags: MessageFlags.Ephemeral
-        });
-      }
-      if (apuesta < MIN_APUESTA) {
-        return interaction.reply({
-          content: `${E.cruz || '❌'} La apuesta mínima es **${fmt$(MIN_APUESTA)}**.`,
-          flags: MessageFlags.Ephemeral
-        });
-      }
-      if (apuesta > MAX_APUESTA) {
-        return interaction.reply({
-          content: `${E.cruz || '❌'} La apuesta máxima es **${fmt$(MAX_APUESTA)}**.`,
-          flags: MessageFlags.Ephemeral
-        });
-      }
-      if (saldo < apuesta) {
-        return interaction.reply({
-          content: `${E.cruz || '❌'} Saldo insuficiente. Tenés **${fmt$(saldo)}**.`,
+          content: `${E.cruz || '❌'} No tenés saldo para jugar. La apuesta de Adivina el auto es **${fmt$(APUESTA_ADIVINA)}** (o tu saldo si es menor).`,
           flags: MessageFlags.Ephemeral
         });
       }
