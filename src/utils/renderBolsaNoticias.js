@@ -118,8 +118,9 @@ export async function renderBolsaNoticias({ gainers = [], losers = [] }) {
 <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#dff6fc"/>
-      <stop offset="45%" stop-color="#f2fbfe"/>
+      <stop offset="0%" stop-color="#FFC28D"/>
+      <stop offset="18%" stop-color="#FFE0C0"/>
+      <stop offset="45%" stop-color="#FFF5EB"/>
       <stop offset="100%" stop-color="#ffffff"/>
     </linearGradient>
   </defs>
