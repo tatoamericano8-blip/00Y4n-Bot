@@ -135,7 +135,7 @@ export default {
     if (sub === 'comprar') {
       const symbol = interaction.options.getString('simbolo');
       const qty = interaction.options.getInteger('cantidad');
-      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      await interaction.deferReply();
       const res = await buyShares(interaction.user.id, symbol, qty);
       if (!res.ok) {
         return interaction.editReply({ content: `${E.cruz || '❌'} ${res.error}` });
@@ -158,7 +158,7 @@ export default {
     if (sub === 'vender') {
       const symbol = interaction.options.getString('simbolo');
       const cantidad = interaction.options.getString('cantidad');
-      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      await interaction.deferReply();
       const res = await sellShares(interaction.user.id, symbol, cantidad);
       if (!res.ok) {
         return interaction.editReply({ content: `${E.cruz || '❌'} ${res.error}` });
@@ -179,7 +179,7 @@ export default {
     }
 
     if (sub === 'cartera') {
-      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      await interaction.deferReply();
       const port = await getPortfolio(interaction.user.id);
       const prices = await getPrices();
       const symbols = Object.keys(port);
