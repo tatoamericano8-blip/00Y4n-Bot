@@ -1,6 +1,6 @@
 /**
  * Renderiza el panel de la 00Y4n Bolsa de Valores como PNG (SVG → sharp).
- * Estilo: fondo degradé celeste #8ae6fa → blanco, cards blancas.
+ * Estilo: fondo degradé #FFC28D → blanco, cards blancas.
  */
 import sharp from 'sharp';
 import { STOCKS, PAGE_SIZE, formatMoney, formatDelta } from './gestorBolsa.js';
@@ -63,17 +63,17 @@ export async function renderBolsaPage(page, prices, prev) {
 <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#8ae6fa"/>
-      <stop offset="55%" stop-color="#c5f3fc"/>
+      <stop offset="0%" stop-color="#FFC28D"/>
+      <stop offset="55%" stop-color="#FFE0C0"/>
       <stop offset="100%" stop-color="#ffffff"/>
     </linearGradient>
   </defs>
   <rect width="${W}" height="${H}" fill="url(#bg)"/>
-  <text x="${W / 2}" y="48" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="28" font-weight="800" fill="#0d2a36" text-anchor="middle">00Y4n BOLSA DE VALORES</text>
-  <text x="${W / 2}" y="76" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#2a5566" text-anchor="middle">Southwest Florida Mercado · Página ${p + 1}/${totalPages}</text>
-  <text x="${W / 2}" y="98" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#3d6a7a" text-anchor="middle">Actualización cada 5 minutos · Tarifa 1.2%</text>
+  <text x="${W / 2}" y="48" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="28" font-weight="800" fill="#2a1f14" text-anchor="middle">00Y4n BOLSA DE VALORES</text>
+  <text x="${W / 2}" y="76" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#5c4a38" text-anchor="middle">Southwest Florida Mercado · Página ${p + 1}/${totalPages}</text>
+  <text x="${W / 2}" y="98" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b5745" text-anchor="middle">Actualización cada 5 minutos · Tarifa 1.2%</text>
   ${rows}
-  <text x="${W / 2}" y="${H - 22}" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#3d6a7a" text-anchor="middle">/bolsa comprar  ·  /bolsa vender  ·  /bolsa cartera</text>
+  <text x="${W / 2}" y="${H - 22}" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b5745" text-anchor="middle">/bolsa comprar  ·  /bolsa vender  ·  /bolsa cartera</text>
 </svg>`;
 
   return sharp(Buffer.from(svg)).png().toBuffer();
