@@ -23,8 +23,24 @@ const COOLDOWN_MS = 10 * 1000;
 const PARTIDA_IDLE_MS = 90 * 1000;
 
 const cooldowns = new Map();
-/** userId → true mientras hay adivina-auto pendiente */
-const partidasActivas = new Set();
+/** userId → timestamp de inicio de partida adivina-auto pendiente */
+const partidasActivas = new Map();
+/** Margen extra sobre el timeout del collector para liberar locks huérfanos */
+const PARTIDA_LOCK_MS = PARTIDA_IDLE_MS + 30 * 1000;
+
+function liberarPartida(userId) {
+  liberarPartida(userId);
+}
+
+function partidaPendiente(userId) {
+  const t = partidasActivas.get(userId);
+  if (t == null) return false;
+  if (Date.now() - t > PARTIDA_LOCK_MS) {
+    liberarPartida(userId);
+    return false;
+  }
+  return true;
+}
 
 const AUTOS = [
   // —— Compactos / hatch ——
@@ -341,9 +357,9 @@ export default {
     }
 
     if (sub === 'adivina-auto') {
-      if (partidasActivas.has(userId)) {
+      if (partidaPendiente(userId)) {
         return interaction.reply({
-          content: `${E.lock || '🔒'} Ya tenés una partida de **Adivina el auto** pendiente. Terminála antes de empezar otra.`,
+          content: `${E.lock || '🔒'} Ya tenés una partida de **Adivina el auto** pendiente. Terminála antes de empezar otra (o esperá ~2 min si se trabó).`,
           flags: MessageFlags.Ephemeral
         });
       }
@@ -369,16 +385,34 @@ export default {
         });
       }
 
-      partidasActivas.add(userId);
       const auto = pickAuto();
       const partidaId = `${userId.slice(-6)}_${Date.now().toString(36)}`;
       const letras = ['A', 'B', 'C', 'D'];
 
-      const msg = await interaction.reply({
-        embeds: [embedAdivina(auto, apuesta, interaction.user)],
-        components: [botonesAuto(partidaId)],
-        fetchReply: true
-      });
+      let msg;
+      try {
+        msg = await interaction.reply({
+          embeds: [embedAdivina(auto, apuesta, interaction.user)],
+          components: [botonesAuto(partidaId)],
+          fetchReply: true
+        });
+      } catch (e) {
+        // Si no se pudo enviar el mensaje, reembolsar y no dejar lock
+        try {
+          await agregarSaldo(userId, apuesta, {
+            tipo: 'INGRESO',
+            motivo: `Juego adivina-auto error al enviar — reembolso ${fmt$(apuesta)}`
+          });
+        } catch {
+          /* ignore */
+        }
+        return interaction.followUp({
+          content: `${E.cruz || '❌'} No se pudo iniciar la partida. Se reembolsó **${fmt$(apuesta)}**.`,
+          flags: MessageFlags.Ephemeral
+        }).catch(() => null);
+      }
+
+      partidasActivas.set(userId, Date.now());
 
       const collector = msg.createMessageComponentCollector({
         componentType: ComponentType.Button,
@@ -436,7 +470,7 @@ export default {
           }
         }
 
-        partidasActivas.delete(userId);
+        liberarPartida(userId);
         setCooldown(userId);
       };
 
@@ -475,7 +509,7 @@ export default {
         } catch {
           /* ignore */
         }
-        partidasActivas.delete(userId);
+        liberarPartida(userId);
         setCooldown(userId);
       });
 
