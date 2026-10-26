@@ -1,5 +1,6 @@
 import { EmbedBuilder } from 'discord.js';
 import { E } from '../../config/emojis.js';
+import { PRIMARIO } from '../../utils/colores.js';
 
 export default {
     name: 'verificar_reinvite_meet_swfl', // Mismo customId que el botón del Meet
@@ -33,7 +34,7 @@ export default {
                 inline: false
             })
             .setFooter({ text: '🚗 Recordá respetar la temática y lucir tu auto sin armar lío.' })
-            .setColor('#74d4fc'); // Tu nuevo color principal celestito
+            .setColor(PRIMARIO);
 
         // Le entregamos el link de Roblox de forma privada en su pantalla
         await interaction.editReply({ embeds: [embedExito] });
