@@ -1,5 +1,6 @@
 import { EmbedBuilder } from 'discord.js';
 import { E } from '../../config/emojis.js';
+import { PRIMARIO } from '../../utils/colores.js';
 
 export default {
     name: 'verificar_reinvite_swfl', // Mismo customId que el botón
@@ -33,7 +34,7 @@ export default {
                 inline: false
             })
             .setFooter({ text: '⚠️ Recordá evitar pasarle el enlace a usuarios que no pertenezcan al servidor.' })
-            .setColor('#74d4fc'); // Tu nuevo color principal celestito
+            .setColor(PRIMARIO);
 
         // Le entregamos el link en un hermoso embed privado
         await interaction.editReply({ embeds: [embedExito] });
