@@ -5,12 +5,8 @@ import {
   ButtonStyle,
   MessageFlags
 } from 'discord.js';
-import { reclamarOportunidadPorMensaje } from '../../utils/gestorOportunidades.js';
+import { reclamarOportunidadPorMensaje, crearEmbedBanner } from '../../utils/gestorOportunidades.js';
 import { E, EMOJI_DEF } from '../../config/emojis.js';
-import { PRIMARIO } from '../../utils/colores.js';
-
-const BANNER_OPORTUNIDAD_URL =
-  'https://cdn.discordapp.com/attachments/1505017301089652898/1548119381920194651/Oportunidad_economica_1.png?ex=6aa5e607&is=6aa49487&hm=42ac7700491d785d4da339f910bc6c66b7e28b6fb56040ee8591c73781123677&';
 
 export default {
   id: 'reclamar_oportunidad',
@@ -55,9 +51,7 @@ export default {
     });
     const historia = result.historia || '';
 
-    const embedBanner = new EmbedBuilder()
-      .setColor(PRIMARIO)
-      .setImage(BANNER_OPORTUNIDAD_URL);
+    const embedBanner = crearEmbedBanner();
 
     const embedGanador = new EmbedBuilder()
       .setColor('#57F287')
