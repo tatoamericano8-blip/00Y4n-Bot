@@ -6,7 +6,7 @@ import { getFromDb, setInDb } from './database.js';
 import { E, EMOJI_DEF } from '../config/emojis.js';
 
 /** Banner de oportunidad (solo imagen) — se envía como primer embed */
-const BANNER_OPORTUNIDAD_URL =
+export const BANNER_OPORTUNIDAD_URL =
     'https://media.discordapp.net/attachments/1505017301089652898/1561884469349191833/Copia_de_Oportunidad_Economica_1.png?ex=6ae1dd03&is=6ae08b83&hm=8753f3e5eebc9183d960f57e974fccf31d37ce792edb12b3fa2f2b5a81175021&=&format=webp&quality=lossless';
 
 const historiasOportunidades = [
@@ -57,7 +57,7 @@ const historiasOportunidades = [
     "por ayudar a una pareja a sacar una selfie grupal con el skyline de Sarasota de fondo."
 ];
 
-function crearEmbedBanner() {
+export function crearEmbedBanner() {
     return new EmbedBuilder().setColor(PRIMARIO).setImage(BANNER_OPORTUNIDAD_URL);
 }
 
