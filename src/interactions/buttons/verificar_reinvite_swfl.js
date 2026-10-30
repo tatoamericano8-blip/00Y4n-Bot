@@ -1,6 +1,6 @@
 import { EmbedBuilder } from 'discord.js';
 import { E } from '../../config/emojis.js';
-import { PRIMARIO } from '../../utils/colores.js';
+import { crearEmbedEnlaceSesion } from '../../utils/embedEnlaceSesion.js';
 
 export default {
     name: 'verificar_reinvite_swfl', // Mismo customId que el botón
@@ -24,19 +24,7 @@ export default {
             return await interaction.editReply({ embeds: [embedError] });
         }
 
-        // 🎉 CASO DE ÉXITO: Estructura de Embed limpia con tu nuevo color celestito
-        const embedExito = new EmbedBuilder()
-            .setTitle(E.aalas + ' Southwest Florida - Enlace de Re-Invitación ' + E.aalas)
-            .setDescription(E.dot + ' **¡Re-Invitación aceptada!** Recuerda respetar las indicaciones del Staff, ingresar despacio a los spots de estacionamiento y mantener una excelente conducta dentro del servidor.')
-            .addFields({
-                name: 'Enlace del Car Meet',
-                value: `${E.hyperlink} Haz clic [aquí](${linkReal}) para unirte a la sesión actual.`,
-                inline: false
-            })
-            .setFooter({ text: '⚠️ Recordá evitar pasarle el enlace a usuarios que no pertenezcan al servidor.' })
-            .setColor(PRIMARIO);
-
-        // Le entregamos el link en un hermoso embed privado
+        const embedExito = crearEmbedEnlaceSesion({ link: linkReal, tipo: 'reinvite' });
         await interaction.editReply({ embeds: [embedExito] });
     }
 };
