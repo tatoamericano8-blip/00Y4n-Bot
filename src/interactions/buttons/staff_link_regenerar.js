@@ -1,5 +1,6 @@
 import { EmbedBuilder, MessageFlags } from 'discord.js';
 import { E } from '../../config/emojis.js';
+import { crearEmbedEnlaceSesion } from '../../utils/embedEnlaceSesion.js';
 
 const ROL_STAFF = '1512120103771050005';
 
@@ -51,15 +52,7 @@ export default {
       });
     }
 
-    const embed = new EmbedBuilder()
-      .setTitle(`${E.lock || '🔒'} Staff Link`)
-      .setDescription(
-        `Link privado del servidor regenerado:\n\n🔗 ${link}\n\n` +
-          `_Solo visible para staff. No lo compartas en canales públicos._`
-      )
-      .setColor('#74d4fc')
-      .setFooter({ text: 'Southwest Florida Comunidad 00Y4n ™' });
-
+    const embed = crearEmbedEnlaceSesion({ link, tipo: 'staff' });
     return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
   }
 };
