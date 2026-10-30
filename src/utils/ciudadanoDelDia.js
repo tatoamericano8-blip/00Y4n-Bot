@@ -86,7 +86,7 @@ export async function procesarCiudadanoDelDia(client) {
 
         // Banner superior (solo imagen)
         const BANNER_CIUDADANO =
-            'https://media.discordapp.net/attachments/1505017301089652898/1561884377032695889/Copia_de_Ciudadano_Del_Dia_1.png?ex=6ad8a26d&is=6ad750ed&hm=d23c87deeb80d3aa5fbc989075cef85aa0870f4e7de76c312febe3febef18e10&=&format=webp&quality=lossless';
+            'https://media.discordapp.net/attachments/1505017301089652898/1565769726821535773/Copia_de_Ciudadano_del_Dia_1.png?ex=6ae61c31&is=6ae4cab1&hm=89fad53d86d797ba0994a8ec755a177178c9f1826c4ce498881cedd5df055f4a&=&format=webp&quality=lossless';
         const embedBanner = new EmbedBuilder()
             .setColor('#74d4fc')
             .setImage(BANNER_CIUDADANO);
