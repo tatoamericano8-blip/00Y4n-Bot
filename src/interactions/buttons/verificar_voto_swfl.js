@@ -7,6 +7,7 @@ import {
   requiereReaccionEnSesion
 } from '../../utils/gestorSessionBarGate.js';
 import { E } from '../../config/emojis.js';
+import { crearEmbedEnlaceSesion } from '../../utils/embedEnlaceSesion.js';
 
 async function resolverDatosSesion(messageId, guildId) {
   global.coleccionSesiones = global.coleccionSesiones || new Map();
@@ -125,9 +126,7 @@ export default {
     }
 
     return interaction.editReply({
-      content:
-        `🎉 **¡Voto verificado!** Acá tenés el acceso a la sesión:\n🔗 ${datos.linkSesion}\n\n` +
-        `*Respetá las reglas y no compartas el link.*`
+      embeds: [crearEmbedEnlaceSesion({ link: datos.linkSesion, tipo: 'sesion' })]
     });
   }
 };
