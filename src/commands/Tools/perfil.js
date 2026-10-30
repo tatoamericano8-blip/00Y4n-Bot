@@ -182,6 +182,7 @@ export default {
                 `\n⤷ *Para registrar una nueva unidad en tu garaje utiliza el comando \`/matricula registrar\` de forma pública.*`
             )
             .setThumbnail(fotoAvatar)
+            .setImage('https://media.discordapp.net/attachments/1505017301089652898/1565769789736095835/Copia_de_perfil_ciudadano_1.png?ex=6ae61c40&is=6ae4cac0&hm=5d61cb234cae2a7956931e42c10381220e62c83d8205488b80015bb96ea516e6&=&format=webp&quality=lossless')
             .setColor('#74d4fc')
             .setFooter({ text: `${interaction.guild.name} • Registro Civil`, iconURL: interaction.guild.iconURL() })
             .setTimestamp();
