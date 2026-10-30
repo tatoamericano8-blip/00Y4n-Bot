@@ -6,6 +6,7 @@ import {
   requiereReaccionEnSesion
 } from '../../utils/gestorSessionBarGate.js';
 import { E } from '../../config/emojis.js';
+import { crearEmbedEnlaceSesion } from '../../utils/embedEnlaceSesion.js';
 
 const ROLES_VIP_IDS = [
     '1512120103771050005',
@@ -140,10 +141,7 @@ export default {
         }
 
         return interaction.editReply({
-            content:
-                '🎉 **¡FastPass verificado!** Acá tenés tu enlace de entrada anticipada:\n🔗 ' +
-                linkReal +
-                '\n\n*Recordá que filtrar este link es motivo de ban permanente.*'
+            embeds: [crearEmbedEnlaceSesion({ link: linkReal, tipo: 'fastpass' })]
         });
     }
 };
