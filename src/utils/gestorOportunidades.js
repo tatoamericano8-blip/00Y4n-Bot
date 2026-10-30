@@ -7,7 +7,7 @@ import { E, EMOJI_DEF } from '../config/emojis.js';
 
 /** Banner de oportunidad (solo imagen) — se envía como primer embed */
 export const BANNER_OPORTUNIDAD_URL =
-    'https://media.discordapp.net/attachments/1505017301089652898/1561884469349191833/Copia_de_Oportunidad_Economica_1.png?ex=6ae1dd03&is=6ae08b83&hm=8753f3e5eebc9183d960f57e974fccf31d37ce792edb12b3fa2f2b5a81175021&=&format=webp&quality=lossless';
+    'https://media.discordapp.net/attachments/1505017301089652898/1565769789165539448/Copia_de_Oportunidad_Economica_1.png?ex=6ae61c40&is=6ae4cac0&hm=b2f109c438b9a2b6df8570c41dfba9548c2a6673b00e11bdd17f8f130bc168bd&=&format=webp&quality=lossless';
 
 const historiasOportunidades = [
     "de un lavaplatos del Diner local que te pagó por decirle a los clientes que la sopa era 'especial del chef' y no las sobras de ayer.",
