@@ -59,7 +59,7 @@ export default {
             .setColor('#74d4fc');
 
         const urlPredeterminada =
-            'https://media.discordapp.net/attachments/1505017301089652898/1561884377799991366/Copia_de_FastPass_1.png?ex=6ad8a26e&is=6ad750ee&hm=bef4c0dbbc4215167000e8e9c25ff30d23d48dd87d5e0fa4ea1e6a6290f836f4&=&format=webp&quality=lossless';
+            'https://media.discordapp.net/attachments/1505017301089652898/1565769727991881949/Copia_de_FastPass_1.png?ex=6ae61c31&is=6ae4cab1&hm=4038099db51b9dc9054a9bddac2f70d5ac90e66f2240b3a0b01f00908dc47c4d&=&format=webp&quality=lossless';
         embedFastPass.setImage(fotoAdjunta ? fotoAdjunta.url : urlPredeterminada);
 
         const filaComponentes = new ActionRowBuilder().addComponents(
