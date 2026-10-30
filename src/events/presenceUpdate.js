@@ -41,6 +41,7 @@ export default {
                         .setTitle(`${E.amariposas} ¡Colaborador del Servidor! ${E.amariposas}`)
                         .setDescription(`${E.dot} ¡<@${member.id}>, gracias por apoyar a **${guild.name}** usando **${TEXTO_REQUERIDO}** en tu estado! Se te ha otorgado el rol <@&${ROL_CONTRIBUIDOR_ID}> para mostrar nuestro aprecio por tu dedicación y apoyo a nuestra comunidad.`)
                         .setThumbnail(member.user.displayAvatarURL({ dynamic: true, size: 256 }))
+                        .setImage('https://media.discordapp.net/attachments/1505017301089652898/1565769727639298058/Copia_de_Copia_de_Southwest_Florida_1.png?ex=6ae61c31&is=6ae4cab1&hm=aff7d27ee45eb14bbea74f82d17599f15446327a5e46ae61d0dfc27b47c94ef3&=&format=webp&quality=lossless')
                         .setColor('#74d4fc')
                         .setFooter({ text: `${guild.name} 💎`, iconURL: guild.iconURL({ dynamic: true }) })
                         .setTimestamp();
