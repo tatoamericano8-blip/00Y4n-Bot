@@ -17,6 +17,7 @@ import {
   requiereReaccionEnSesion
 } from '../utils/gestorSessionBarGate.js';
 import { PRIMARIO } from '../utils/colores.js';
+import { crearEmbedEnlaceSesion } from '../utils/embedEnlaceSesion.js';
 
 function withTraceContext(context = {}, traceContext = {}) {
   return {
@@ -221,11 +222,7 @@ export default {
                 });
               }
 
-              const embedLink = {
-                title: 'Southwest Florida - Enlace de Sesion',
-                description: `**Enlace de la Sesion**\nHaz clic [aqui](${linkSesion}) para unirte.`,
-                color: parseInt(String(PRIMARIO).replace('#', ''), 16)
-              };
+              const embedLink = crearEmbedEnlaceSesion({ link: linkSesion, tipo: 'sesion' });
               return await interaction.reply({ embeds: [embedLink], flags: MessageFlags.Ephemeral });
             } catch (error) {
               logger.error(`Error al verificar voto: ${error.message}`);
