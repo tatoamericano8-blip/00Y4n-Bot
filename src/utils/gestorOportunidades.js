@@ -91,7 +91,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
 
         const embedInicial = new EmbedBuilder()
             .setColor(PRIMARIO)
-            .setTitle(E.a2alas + ' ¡Oportunidad Economica!')
+            .setTitle(E.aestrellitas + ' ¡Oportunidad Economica!')
             .setDescription(`${E.dinero} **$${monto.toLocaleString('es-AR')}** ${historia}`)
             .setTimestamp();
 
@@ -99,7 +99,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
             new ButtonBuilder()
                 .setCustomId('reclamar_oportunidad')
                 .setLabel('Reclamar')
-                .setEmoji(EMOJI_DEF.money.id)
+                .setEmoji(EMOJI_DEF.aestrellitas.id)
                 .setStyle(ButtonStyle.Secondary)
         );
 
