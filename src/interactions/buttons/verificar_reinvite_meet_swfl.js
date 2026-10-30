@@ -1,6 +1,6 @@
 import { EmbedBuilder } from 'discord.js';
 import { E } from '../../config/emojis.js';
-import { PRIMARIO } from '../../utils/colores.js';
+import { crearEmbedEnlaceSesion } from '../../utils/embedEnlaceSesion.js';
 
 export default {
     name: 'verificar_reinvite_meet_swfl', // Mismo customId que el botón del Meet
@@ -24,19 +24,7 @@ export default {
             return await interaction.editReply({ embeds: [embedError] });
         }
 
-        // 🎉 CASO DE ÉXITO: Estructura de Embed para el Car Meet con color celestito
-        const embedExito = new EmbedBuilder()
-            .setTitle(E.aalas + ' Southwest Florida - Enlace de Car Meet ' + E.aalas)
-            .setDescription(E.dot + ' **¡Re-Invitación al Meet Aceptada!** Recuerda respetar las indicaciones de los organizadores, ingresar despacio a la zona asignada y mantener el orden.')
-            .addFields({
-                name: 'Enlace del Car Meet',
-                value: `${E.hyperlink} Haz clic [aquí](${linkReal}) para unirte a las naves.`,
-                inline: false
-            })
-            .setFooter({ text: '🚗 Recordá respetar la temática y lucir tu auto sin armar lío.' })
-            .setColor(PRIMARIO);
-
-        // Le entregamos el link de Roblox de forma privada en su pantalla
+        const embedExito = crearEmbedEnlaceSesion({ link: linkReal, tipo: 'reinvite_meet' });
         await interaction.editReply({ embeds: [embedExito] });
     }
 };
