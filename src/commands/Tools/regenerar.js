@@ -13,7 +13,7 @@ import { E, EMOJI_DEF } from '../../config/emojis.js';
 const ROL_STAFF = '1512120103771050005';
 
 const IMAGEN_DEFAULT =
-  'https://media.discordapp.net/attachments/1505017301089652898/1561884468892147804/Copia_de_Link_regenerado_1.png?ex=6ad8a283&is=6ad75103&hm=1bc312cb2c26edd1b309e65fcbe4d68ac6896af4305abc3f68fbadf1ede865ed&=&format=webp&quality=lossless';
+  'https://media.discordapp.net/attachments/1505017301089652898/1565769788674932736/Copia_de_Link_regenerado_1.png?ex=6ae61c40&is=6ae4cac0&hm=c5709115c698ac6c2e9b3f927a6fd94e939dbde71e74e46d35ce70454dbcb498&=&format=webp&quality=lossless';
 
 function normalizarLink(raw) {
   let link = String(raw || '').trim();
