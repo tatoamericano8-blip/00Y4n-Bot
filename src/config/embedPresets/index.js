@@ -7,6 +7,7 @@ import roleplayManejo from './roleplayManejo.js';
 import guiaRoleplay from './guiaRoleplay.js';
 import guiaCarmeet from './guiaCarmeet.js';
 import chatRoleplay from './chatRoleplay.js';
+import normasConduccion from './normasConduccion.js';
 import staffInfo from './staffInfo.js';
 import altoComandoInfo from './altoComandoInfo.js';
 import serviciosPublicosInfo from './serviciosPublicosInfo.js';
@@ -27,6 +28,7 @@ export const EMBED_PRESETS = [
   guiaRoleplay,
   guiaCarmeet,
   chatRoleplay,
+  normasConduccion,
   staffInfo,
   altoComandoInfo,
   serviciosPublicosInfo,
