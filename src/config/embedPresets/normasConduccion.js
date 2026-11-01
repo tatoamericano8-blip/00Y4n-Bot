@@ -102,7 +102,7 @@ export function buildSeccionNormasConduccion(seccion) {
           .setColor(c)
           .setTitle(`${E.manual || E.carpeta} Terminología de sesión`)
           .setDescription(
-            `${d} **FRP (Fail Roleplay)** — Cualquier cosa **poco realista** o que ignore el rol a propósito.\n\n` +
+            `${d} **FRP (Fail Roleplay (FRP))** — Cualquier cosa **poco realista** o que ignore el rol a propósito.\n\n` +
               `${d} **Velocidad FRP** — Límite de velocidad del servidor en **mph**. Superarlo cuenta como infracción / FRP según el caso.\n\n` +
               `${d} **Intruso / leaker** — Persona que **no debería** estar en la sesión (sin acceso, filtró link, etc.).\n\n` +
               `${d} **Peacetime** — Estado de la sesión:\n` +
@@ -241,7 +241,7 @@ export function buildSeccionNormasConduccion(seccion) {
       embeds: [
         new EmbedBuilder()
           .setColor(c)
-          .setTitle(`${E.cruz || E.warn} Accidentes, spawn y estacionamiento`)
+          .setTitle(`${E.cruz || E.warn} Accidentes, aparición y estacionamiento`)
           .setDescription(
             `${f} **Choques (auto / peatón)**\n` +
               `${d} **Roleá completo** cualquier accidente sobre ~**20 MPH**.\n` +
@@ -271,7 +271,7 @@ export function buildSeccionNormasConduccion(seccion) {
       embeds: [
         new EmbedBuilder()
           .setColor(c)
-          .setTitle(`${E.warn} Imprudencia y Fail Roleplay`)
+          .setTitle(`${E.warn} Imprudencia y Fail Roleplay (FRP)`)
           .setDescription(
             `${d} **Conducción imprudente** = cualquier manejo a propósito que rompa la sesión: exceso grave, agresividad al volante, causar choques, chocar y huir, etc. **Está prohibido**.\n\n` +
               `${d} La mayoría de estas normas existen para **evitar FRP**, subir la calidad del manejo y cortar el caos.\n\n` +
