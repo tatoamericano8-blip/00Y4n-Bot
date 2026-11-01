@@ -46,7 +46,7 @@ export default {
         },
         {
           label: 'Logística del vehículo',
-          description: 'Licencia, seguro, matrícula, trailers',
+          description: 'Licencia, seguro, matrícula, acoplados',
           value: 'logistica',
           emoji: optEmoji('auto')
         },
@@ -69,7 +69,7 @@ export default {
           emoji: optEmoji('auto')
         },
         {
-          label: 'Accidentes y spawn',
+          label: 'Accidentes y aparición',
           description: 'Choques, ruedas pinchadas, reaparición',
           value: 'accidentes',
           emoji: optEmoji('cruz')
@@ -138,9 +138,9 @@ export function buildSeccionNormasConduccion(seccion) {
               `${d} Las multas se pagan por el sistema del bot cuando corresponda.\n` +
               `${d} No dejes deudas colgadas: afectan tu perfil y pueden escalar (orden de arresto, etc.).\n\n` +
               `${f} **Trailers / acoplados**\n` +
-              `${d} Si el juego y la sesión lo permiten, manejá el trailer con cuidado.\n` +
-              `${d} Sin permiso especial del host cuando se pida; circular mal con trailer puede ser sanción.\n` +
-              `${d} Registrá el trailer si el staff o el sistema lo requieren.`
+              `${d} Si el juego y la sesión lo permiten, manejá el acoplado/trailer con cuidado.\n` +
+              `${d} Sin permiso especial del host cuando se pida; circular mal con el acoplado puede ser sanción.\n` +
+              `${d} Registrá el acoplado si el staff o el sistema lo requieren.`
           )
       ]
     };
@@ -221,7 +221,7 @@ export function buildSeccionNormasConduccion(seccion) {
               `${d} Sin frenadas bruscas; velocidad baja.\n` +
               `${d} Estacioná bien (no en ángulo raro; paralelo en el sentido correcto).\n\n` +
               `${f} **Semáforos y stops**\n` +
-              `${d} No te pases el rojo; en peacetime ON a veces se tolera un error leve, en **STRICT** no.\n` +
+              `${d} No te pases el rojo; en peacetime ON a veces se tolera un error leve, en peacetime **estricto** no.\n` +
               `${d} En un **cruce de cuatro vías (pare en las cuatro)**, el que llega primero tiene preferencia.\n` +
               `${d} Dejá distancia con otros autos.\n\n` +
               `${f} **Giros en U**\n` +
@@ -244,15 +244,15 @@ export function buildSeccionNormasConduccion(seccion) {
           .setTitle(`${E.cruz || E.warn} Accidentes, spawn y estacionamiento`)
           .setDescription(
             `${f} **Choques (auto / peatón)**\n` +
-              `${d} **Roleá completo** cualquier accidente sobre ~**20 mph**.\n` +
+              `${d} **Roleá completo** cualquier accidente sobre ~**20 MPH**.\n` +
               `${d} Llamá a servicios si aplica, o roleá el choque si no hay nadie.\n` +
               `${d} Intercambiá datos con los involucrados.\n` +
               `${d} Decir “ex” y largarte **no vale**.\n` +
               `${d} Bajá del auto y roleá el intercambio (o equivalente en chat).\n` +
               `${d} **Chocar y huir** no se tolera: moderación fuerte.\n` +
-              `${d} El spawn (reaparecer) **no** borra el rol del accidente.\n\n` +
-              `${f} **Estacionamiento y spawn**\n` +
-              `${d} Al aparecer / spawnear, velocidad baja (no salgas disparado).\n` +
+              `${d} Reaparecer **no** borra el rol del accidente.\n\n` +
+              `${f} **Estacionamiento y aparición**\n` +
+              `${d} Al aparecer en el mapa, velocidad baja (no salgas disparado).\n` +
               `${d} En playas de estacionamiento, manejá con cuidado.\n` +
               `${d} No bloquees lugares de discapacidad / espacios reservados del mapa.\n` +
               `${d} Si chocás ahí, intercambiá info.\n` +
