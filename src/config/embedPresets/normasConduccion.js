@@ -106,10 +106,10 @@ export function buildSeccionNormasConduccion(seccion) {
               `${d} **Velocidad FRP** — Límite de velocidad del servidor en **mph**. Superarlo cuenta como infracción / FRP según el caso.\n\n` +
               `${d} **Leaker** — Persona que **no debería** estar en la sesión (sin acceso, filtró link, etc.).\n\n` +
               `${d} **Peacetime** — Estado de la sesión:\n` +
-              `• **ON** — Prioridad al orden y al tránsito ordenado.\n` +
-              `• **STRICT** — Más estricto todavía.\n` +
-              `• **OFF** — Se habilita más acción (prio, etc.) según indique el host.\n\n` +
-              `${d} **Prio** — Cuando el peacetime está **OFF**, es el **criminal prioritario** de la escena. Si no sos el prio, conducí con responsabilidad; el prio suele ir más agresivo.\n\n` +
+              `• **Estricto** — Máximo control; tope **75 MPH**.\n` +
+              `• **Normal** — Tránsito ordenado; tope **85 MPH**.\n` +
+              `• **Sin PT** — Más acción permitida; tope **120 MPH**.\n\n` +
+              `${d} **Prio** — Con **sin peacetime**, es el **criminal prioritario** de la escena. Si no sos el prio, conducí con responsabilidad; el prio suele ir más agresivo.\n\n` +
               `${d} **Scene** — Zona de la sesión que requiere **atención especial** (operativo, accidente, evento).\n\n` +
               `${d} **Scene VC** — Canal de voz de la escena; si un oficial te para, podés unirte ahí.\n\n` +
               `${d} **Void** — **No reconocés** un evento o acción (como si no hubiera pasado). Solo cuando el staff o las reglas lo indiquen.`
@@ -154,7 +154,7 @@ export function buildSeccionNormasConduccion(seccion) {
           .setTitle(`${E.warn || E.dot} Normas generales en sesión`)
           .setDescription(
             `${f} **Crimen**\n` +
-              `${d} Los **crímenes mayores** están **prohibidos** con peacetime **ON** o **STRICT** (asaltos, daño a propósito a vehículos, robo de autos, etc.), salvo que el host habilite algo puntual.\n\n` +
+              `${d} Los **crímenes mayores** están **prohibidos** con peacetime **estricto** o **normal** (asaltos, daño a propósito a vehículos, robo de autos, etc.), salvo que el host habilite algo puntual.\n\n` +
               `${f} **Chat y voz**\n` +
               `${d} No evadas el filtro de Roblox con insultos.\n` +
               `${d} Moderá insultos en voz (incluida música molesta).\n` +
@@ -182,18 +182,17 @@ export function buildSeccionNormasConduccion(seccion) {
           .setTitle(`${E.flecha} Velocidades FRP y peacetime`)
           .setDescription(
             `${d} Los límites **FRP** se hacen cumplir. Pasarte **aunque sea un poco** puede costarte warn, kick de sesión o más.\n\n` +
-              `${f} **Referencia habitual** *(el host puede anunciar otros si el evento lo pide)*\n` +
-              `${d} **Peacetime ON** — tope FRP orientativo **80 mph**\n` +
-              `${d} **Peacetime STRICT** — tope orientativo **70 mph**\n` +
-              `${d} **Peacetime OFF** — tope orientativo **90 mph**\n` +
-              `${d} **Prio** (con LEO en sesión, consultá) — hasta ~**120 mph** solo si aplica a ese rol de escena\n\n` +
+              `${f} **Límites oficiales de 00Y4n**\n` +
+              `${d} **Peacetime estricto** → **75 MPH**\n` +
+              `${d} **Peacetime normal** → **85 MPH**\n` +
+              `${d} **Sin peacetime (Sin PT)** → **120 MPH**\n\n` +
               `${f} **Estados de peacetime**\n` +
-              `${d} Hay **tres**: ON, STRICT y OFF.\n` +
+              `${d} Hay **tres**: estricto, normal y sin PT.\n` +
               `${d} En **ninguno** se tolera imprudencia gratuita (road rage, etc.).\n` +
-              `${d} Hit & run y conducción temeraria de civiles **no** están permitidos en peacetime OFF “porque sí”.\n` +
+              `${d} Hit & run y conducción temeraria de civiles **no** están permitidos en sin PT “porque sí”.\n` +
               `${d} Prestá atención al canal de la sesión: el host actualiza el peacetime ahí.\n\n` +
               `${f} **Rueda pinchada**\n` +
-              `${d} Tope orientativo **25 mph**.\n` +
+              `${d} Tope orientativo **25 MPH**.\n` +
               `${d} Carril derecho o orillate.\n` +
               `${d} Si no hay DOT/taller en rol, respawneá en zona segura cuando corresponda.`
           )
@@ -209,8 +208,8 @@ export function buildSeccionNormasConduccion(seccion) {
           .setTitle(`${E.auto} Carretera y circulación`)
           .setDescription(
             `${f} **Autopista / vía rápida**\n` +
-              `${d} Límite orientativo **70 mph** en tramos de autopista (salvo que el host diga otra cosa).\n` +
-              `${d} **+90 mph** en peacetime ON suele ser FRP.\n` +
+              `${d} En autopista aplicá el **tope del peacetime actual** (75 / 85 / 120 MPH).\n` +
+              `${d} Pasarte del límite del peacetime vigente cuenta como FRP.\n` +
               `${d} Si hay mucho tráfico, andá más despacio y con cuidado.\n\n` +
               `${f} **Uso de carriles**\n` +
               `${d} **Izquierdo** — adelantar.\n` +
