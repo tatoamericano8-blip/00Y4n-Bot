@@ -70,7 +70,7 @@ export default {
         },
         {
           label: 'Accidentes y spawn',
-          description: 'Choques, ruedas pinchadas, respawn',
+          description: 'Choques, ruedas pinchadas, reaparición',
           value: 'accidentes',
           emoji: optEmoji('cruz')
         },
@@ -104,15 +104,15 @@ export function buildSeccionNormasConduccion(seccion) {
           .setDescription(
             `${d} **FRP (Fail Roleplay)** — Cualquier cosa **poco realista** o que ignore el rol a propósito.\n\n` +
               `${d} **Velocidad FRP** — Límite de velocidad del servidor en **mph**. Superarlo cuenta como infracción / FRP según el caso.\n\n` +
-              `${d} **Leaker** — Persona que **no debería** estar en la sesión (sin acceso, filtró link, etc.).\n\n` +
+              `${d} **Intruso / leaker** — Persona que **no debería** estar en la sesión (sin acceso, filtró link, etc.).\n\n` +
               `${d} **Peacetime** — Estado de la sesión:\n` +
               `• **Estricto** — Máximo control; tope **75 MPH**.\n` +
               `• **Normal** — Tránsito ordenado; tope **85 MPH**.\n` +
               `• **Sin PT** — Más acción permitida; tope **120 MPH**.\n\n` +
-              `${d} **Prio** — Con **sin peacetime**, es el **criminal prioritario** de la escena. Si no sos el prio, conducí con responsabilidad; el prio suele ir más agresivo.\n\n` +
-              `${d} **Scene** — Zona de la sesión que requiere **atención especial** (operativo, accidente, evento).\n\n` +
-              `${d} **Scene VC** — Canal de voz de la escena; si un oficial te para, podés unirte ahí.\n\n` +
-              `${d} **Void** — **No reconocés** un evento o acción (como si no hubiera pasado). Solo cuando el staff o las reglas lo indiquen.`
+              `${d} **Prio (prioridad)** — Con **sin peacetime**, es el **criminal prioritario** de la escena. Si no sos el prio, conducí con responsabilidad; el prio suele ir más agresivo.\n\n` +
+              `${d} **Scene (escena)** — Zona de la sesión que requiere **atención especial** (operativo, accidente, evento).\n\n` +
+              `${d} **Canal de voz de la escena** — Canal de voz de la escena; si un oficial te para, podés unirte ahí.\n\n` +
+              `${d} **Void** (anular / no reconocer) — **No reconocés** un evento o acción (como si no hubiera pasado). Solo cuando el staff o las reglas lo indiquen.`
           )
       ]
     };
@@ -158,7 +158,7 @@ export function buildSeccionNormasConduccion(seccion) {
               `${f} **Chat y voz**\n` +
               `${d} No evadas el filtro de Roblox con insultos.\n` +
               `${d} Moderá insultos en voz (incluida música molesta).\n` +
-              `${d} Si tu cuenta de Roblox se banea por bypass, **no es responsabilidad** de 00Y4n.\n` +
+              `${d} Si tu cuenta de Roblox se banea por evitar el filtro, **no es responsabilidad** de 00Y4n.\n` +
               `${d} No rompas los Términos de Roblox. Roleplays de: bandas terroristas, suicidio, tiroteos escolares, contenido sexual, drogas pesadas, etc. **están prohibidos**.\n\n` +
               `${f} **Vehículos de emergencia**\n` +
               `${d} **Cedé el paso** si llevan luces/sirena.\n` +
@@ -181,20 +181,20 @@ export function buildSeccionNormasConduccion(seccion) {
           .setColor(c)
           .setTitle(`${E.flecha} Velocidades FRP y peacetime`)
           .setDescription(
-            `${d} Los límites **FRP** se hacen cumplir. Pasarte **aunque sea un poco** puede costarte warn, kick de sesión o más.\n\n` +
+            `${d} Los límites **FRP** se hacen cumplir. Pasarte **aunque sea un poco** puede costarte advertencia, expulsión de la sesión o más.\n\n` +
               `${f} **Límites oficiales de 00Y4n**\n` +
               `${d} **Peacetime estricto** → **75 MPH**\n` +
               `${d} **Peacetime normal** → **85 MPH**\n` +
               `${d} **Sin peacetime (Sin PT)** → **120 MPH**\n\n` +
               `${f} **Estados de peacetime**\n` +
               `${d} Hay **tres**: estricto, normal y sin PT.\n` +
-              `${d} En **ninguno** se tolera imprudencia gratuita (road rage, etc.).\n` +
-              `${d} Hit & run y conducción temeraria de civiles **no** están permitidos en sin PT “porque sí”.\n` +
+              `${d} En **ninguno** se tolera imprudencia gratuita (agresividad al volante, etc.).\n` +
+              `${d} Chocar y huir y conducción temeraria de civiles **no** están permitidos en sin PT “porque sí”.\n` +
               `${d} Prestá atención al canal de la sesión: el host actualiza el peacetime ahí.\n\n` +
               `${f} **Rueda pinchada**\n` +
               `${d} Tope orientativo **25 MPH**.\n` +
               `${d} Carril derecho o orillate.\n` +
-              `${d} Si no hay DOT/taller en rol, respawneá en zona segura cuando corresponda.`
+              `${d} Si no hay grúa/taller en rol, reaparecé en zona segura cuando corresponda.`
           )
       ]
     };
@@ -222,11 +222,11 @@ export function buildSeccionNormasConduccion(seccion) {
               `${d} Estacioná bien (no en ángulo raro; paralelo en el sentido correcto).\n\n` +
               `${f} **Semáforos y stops**\n` +
               `${d} No te pases el rojo; en peacetime ON a veces se tolera un error leve, en **STRICT** no.\n` +
-              `${d} En un **4-way stop**, el que llega primero tiene preferencia.\n` +
+              `${d} En un **cruce de cuatro vías (pare en las cuatro)**, el que llega primero tiene preferencia.\n` +
               `${d} Dejá distancia con otros autos.\n\n` +
-              `${f} **U-turns**\n` +
+              `${f} **Giros en U**\n` +
               `${d} Solo en intersecciones **con** semáforo, si es seguro.\n` +
-              `${d} El resto de U-turns están **prohibidos**, aunque no haya cartel.\n\n` +
+              `${d} El resto de Giros en U están **prohibidos**, aunque no haya cartel.\n\n` +
               `${f} **Clima**\n` +
               `${d} Lluvia o nieve: respetá el límite FRP publicado.\n` +
               `${d} No causes choques por cambiar de entorno de golpe.\n` +
@@ -249,18 +249,18 @@ export function buildSeccionNormasConduccion(seccion) {
               `${d} Intercambiá datos con los involucrados.\n` +
               `${d} Decir “ex” y largarte **no vale**.\n` +
               `${d} Bajá del auto y roleá el intercambio (o equivalente en chat).\n` +
-              `${d} **Hit & run** no se tolera: moderación fuerte.\n` +
-              `${d} El spawn **no** borra el rol del accidente.\n\n` +
+              `${d} **Chocar y huir** no se tolera: moderación fuerte.\n` +
+              `${d} El spawn (reaparecer) **no** borra el rol del accidente.\n\n` +
               `${f} **Estacionamiento y spawn**\n` +
-              `${d} Al spawnear, velocidad baja (no salgas disparado).\n` +
+              `${d} Al aparecer / spawnear, velocidad baja (no salgas disparado).\n` +
               `${d} En playas de estacionamiento, manejá con cuidado.\n` +
               `${d} No bloquees lugares de discapacidad / espacios reservados del mapa.\n` +
               `${d} Si chocás ahí, intercambiá info.\n` +
-              `${d} Mal estacionado o generar embotellamiento = kick o sanción.\n\n` +
-              `${f} **Respawn del vehículo**\n` +
-              `${d} **No** respawnees en medio de la calle.\n` +
+              `${d} Mal estacionado o generar embotellamiento = expulsión de la sesión o sanción.\n\n` +
+              `${f} **Reaparición del vehículo**\n` +
+              `${d} **No** reapariciónees en medio de la calle.\n` +
               `${d} Buscá casa o estacionamiento vacío.\n` +
-              `${d} Si debés respawnear fuera de zona, pedí permiso en chat de sesión (ej. *respawn perms*).`
+              `${d} Si debés reaparecer fuera de zona, pedí permiso en chat de sesión (ej. *reaparición perms*).`
           )
       ]
     };
@@ -273,7 +273,7 @@ export function buildSeccionNormasConduccion(seccion) {
           .setColor(c)
           .setTitle(`${E.warn} Imprudencia y Fail Roleplay`)
           .setDescription(
-            `${d} **Conducción imprudente** = cualquier manejo a propósito que rompa la sesión: exceso grave, road rage, causar choques, hit & run, etc. **Está prohibido**.\n\n` +
+            `${d} **Conducción imprudente** = cualquier manejo a propósito que rompa la sesión: exceso grave, agresividad al volante, causar choques, chocar y huir, etc. **Está prohibido**.\n\n` +
               `${d} La mayoría de estas normas existen para **evitar FRP**, subir la calidad del manejo y cortar el caos.\n\n` +
               `${d} La lista **no** es todas las reglas del universo: si algo se repite mucho, el staff puede sumar criterios. Se espera **sentido común** al volante.\n\n` +
               `${d} Si generás un ambiente imprudente, esperá moderación.\n` +
