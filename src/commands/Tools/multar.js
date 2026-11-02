@@ -1,25 +1,16 @@
-import { SlashCommandBuilder, EmbedBuilder,
-    MessageFlags} from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 import { generarIDMulta, guardarMulta, programarWarrant, calcularVencimiento } from '../../utils/gestorMultas.js';
 import { E } from '../../config/emojis.js';
+import { MULTAR_CHOICES, sumarMontosRazones } from '../../config/codigoInfracciones.js';
+import { PRIMARIO } from '../../config/colores.js';
 
-/** Opciones de infracción (máx. 25 en Discord). Name ≤ 100 caracteres. */
-const OPCIONES_MULTA = [
-    { name: '🏎️ Exceso Velocidad Clase A (1-15 MPH) — $500', value: 'Exceso de Velocidad Clase A (1-15 MPH sobre límite) [$500]' },
-    { name: '🏎️ Exceso Velocidad Clase B (16-29 MPH) — $1.200', value: 'Exceso de Velocidad Clase B (16-29 MPH sobre límite) [$1.200]' },
-    { name: '🏎️ Exceso Velocidad Clase C (30+ MPH) — $2.500', value: 'Exceso de Velocidad Clase C (30+ MPH sobre límite) [$2.500]' },
-    { name: '🚦 Semáforo en rojo (§ 346.37) — $800', value: '§ 346.37 - Cruzar Semáforo en Rojo [$800]' },
-    { name: '🛑 Ignorar señal de PARE — $600', value: 'Ignorar Señal de Stop [$600]' },
-    { name: '⚠️ Conducción imprudente / temeraria — $2.000', value: 'Conducción Imprudente [$2.000]' },
-    { name: '📄 Vehículo no registrado / sin patente — $1.000', value: '§ 341.04 - Vehículo No Registrado [$1.000]' },
-    { name: '🪪 Conducir sin licencia — $1.500', value: 'Conducir Sin Licencia [$1.500]' },
-    { name: '🚨 Huir de la escena (Hit & Run) — $3.500', value: 'Huir de la Escena (Hit & Run) [$3.500]' },
-    { name: '🚫 Conducir vehículo restringido — $1.800', value: 'Conducir Vehículo Restringido [$1.800]' },
-    { name: '📱 Uso de teléfono al volante — $700', value: 'Uso de Teléfono al Volante [$700]' },
-    { name: '🅿️ Estacionamiento en zona prohibida — $400', value: 'Estacionamiento en Zona Prohibida [$400]' },
-    { name: '↔️ Conducir en contramano — $2.200', value: 'Conducir en Contramano [$2.200]' },
-    { name: '🏁 Competencia ilegal / street racing — $4.000', value: 'Competencia Ilegal (Street Racing) [$4.000]' }
-];
+function colorInt() {
+    try {
+        return parseInt(String(PRIMARIO || '#FFC28D').replace('#', ''), 16);
+    } catch {
+        return 0xffc28d;
+    }
+}
 
 function formatearRazones(razones) {
     if (razones.length === 1) return razones[0];
@@ -29,31 +20,31 @@ function formatearRazones(razones) {
 export default {
     data: new SlashCommandBuilder()
         .setName('multar')
-        .setDescription('Emite una multa oficial de tránsito (Exclusivo Policía de Sarasota).')
+        .setDescription('Emite una multa oficial (Código de Infracciones 00Y4n · Policía).')
         .addUserOption(option =>
             option.setName('usuario')
                 .setDescription('El usuario que cometió la infracción.')
                 .setRequired(true))
         .addStringOption(option =>
             option.setName('razon')
-                .setDescription('Infracción principal (precio recomendado en el nombre).')
+                .setDescription('Infracción del código oficial 00Y4n.')
                 .setRequired(true)
-                .addChoices(...OPCIONES_MULTA))
+                .addChoices(...MULTAR_CHOICES))
         .addIntegerOption(option =>
             option.setName('monto')
-                .setDescription('Monto total en $ (sumá los recomendados si hay varias infracciones).')
-                .setRequired(true)
+                .setDescription('Monto en $ (opcional: si no lo ponés, se suma solo según el código).')
+                .setRequired(false)
                 .setMinValue(1))
         .addStringOption(option =>
             option.setName('razon_2')
                 .setDescription('Segunda infracción (opcional).')
                 .setRequired(false)
-                .addChoices(...OPCIONES_MULTA))
+                .addChoices(...MULTAR_CHOICES))
         .addStringOption(option =>
             option.setName('razon_3')
                 .setDescription('Tercera infracción (opcional).')
                 .setRequired(false)
-                .addChoices(...OPCIONES_MULTA)),
+                .addChoices(...MULTAR_CHOICES)),
 
     async execute(interaction) {
         const ROL_POLICIA_ID = '1529146302783422706';
@@ -66,7 +57,7 @@ export default {
         }
 
         const infractor = interaction.options.getUser('usuario');
-        const monto = interaction.options.getInteger('monto');
+        const montoManual = interaction.options.getInteger('monto');
 
         const razones = [
             interaction.options.getString('razon'),
@@ -76,6 +67,9 @@ export default {
 
         const razonesUnicas = [...new Set(razones)];
         const razonTexto = formatearRazones(razonesUnicas);
+
+        const montoAuto = sumarMontosRazones(razonesUnicas);
+        const monto = montoManual != null ? montoManual : (montoAuto > 0 ? montoAuto : 100);
 
         const ticketID = await generarIDMulta();
 
@@ -118,7 +112,7 @@ export default {
         }
 
         const embedMulta = new EmbedBuilder()
-            .setColor('#74d4fc')
+            .setColor(colorInt())
             .setTitle(E.carpeta + ' Ticket de Multa Emitido')
             .setDescription(
                 `• **Usuario —** <@${infractor.id}>\n` +
@@ -140,7 +134,6 @@ export default {
             allowedMentions: { users: [infractor.id] }
         });
 
-        // Guardar referencia del mensaje público para editarlo al pagar
         try {
             datosMulta.channelId = msgCanal.channelId;
             datosMulta.messageId = msgCanal.id;
