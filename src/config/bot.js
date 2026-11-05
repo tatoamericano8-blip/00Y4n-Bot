@@ -8,7 +8,7 @@ export const botConfig = {
     status: "online",
     activities: [
       {
-        name: "revamp SWFL 06-11-26 ",
+        name: "revamp SWFL 07-11-26 ",
         type: 0,
       },
     ],
