@@ -15,7 +15,7 @@ export default {
 
     const cuerpo = new EmbedBuilder()
       .setColor(PRIMARIO)
-      .setTitle(`${E.gift || E.trofeo || '🎁'} Southwest Florida 00Y4n, Sorteos`)
+      .setTitle(`${E.abow2 || E.abow2 || '🎁'} Southwest Florida 00Y4n, Sorteos`)
       .setDescription(
         [
           `${E.dot} Bienvenido al canal de **sorteos** de **Southwest Florida 00Y4n**.`,
