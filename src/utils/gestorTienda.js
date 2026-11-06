@@ -48,7 +48,7 @@ const DM_PERMISOS = {
       'Compraste el **FastPass**.\n\n' +
       '**¿Para qué sirve?**\n' +
       'Te da **acceso prioritario** a sesiones y eventos del servidor (rol FastPass).\n\n' +
-      'Mostrá el rol cuando el staff lo solicite en reinvitaciones o colas prioritarias.'
+      'Mostrá el rol cuando el staff lo solicite en reingreso o colas prioritarias.'
   },
   licencia_conducir: {
     titulo: 'Licencia de Conducir (Express)',
