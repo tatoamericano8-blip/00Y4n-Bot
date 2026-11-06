@@ -11,7 +11,7 @@ const IMAGEN_RP_DEFECTO = 'https://media.discordapp.net/attachments/150501730108
 
 export default {
     data: {
-        name: 'lanzar_rp',
+        name: 'comienzo-rp',
         description: 'Liberas los accesos para una sesion oficial de Roleplay.',
         options: [
             {
@@ -78,8 +78,8 @@ export default {
             });
         }
 
-        if (await bloquearSiCooldown(interaction, 'lanzar_rp')) return;
-        setCooldownSesion(interaction.guildId, 'lanzar_rp', interaction.member);
+        if (await bloquearSiCooldown(interaction, 'comienzo-rp')) return;
+        setCooldownSesion(interaction.guildId, 'comienzo-rp', interaction.member);
 
         let idInicio = interaction.options.getString('mensaje_id');
         const linkSesion = interaction.options.getString('acceso');
@@ -209,7 +209,7 @@ export default {
                 guildId: interaction.guildId
             });
         } catch (error) {
-            console.error('Error al guardar lanzamiento de Roleplay en MongoDB:', error);
+            console.error('Error al guardar comienzo de Roleplay en MongoDB:', error);
         }
     }
 };
