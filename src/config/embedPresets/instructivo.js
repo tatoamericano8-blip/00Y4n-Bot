@@ -8,7 +8,7 @@ import { E, EMOJI_DEF } from '../emojis.js';
 
 /** Banner superior — reemplazá la URL si caduca */
 const IMG_INSTRUCTIVO =
-  'https://media.discordapp.net/attachments/1505017301089652898/1565769728352452658/Copia_de_Informacion_del_Servidor_1.png?ex=6ae61c31&is=6ae4cab1&hm=6d2c760e8d9cbe4d1d0563db0f12140b2824abd6f0d743de09304cf8f5893797&=&format=webp&quality=lossless';
+  'https://media.discordapp.net/attachments/1505017301089652898/1568270287890550897/Copia_de_Informacion_1.png?ex=6aef3505&is=6aede385&hm=0aabcdda0691e44fb2a6fa1cd0ba556347e326302b550decc7eb6d6e7b060f7f&=&format=webp&quality=lossless';
 
 function optEmoji(key) {
   const d = EMOJI_DEF[key];
