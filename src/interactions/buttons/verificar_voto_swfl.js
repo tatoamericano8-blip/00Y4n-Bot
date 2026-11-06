@@ -96,7 +96,7 @@ export default {
     if (!datos?.linkSesion) {
       return interaction.editReply({
         content:
-          `${E.cruz || '❌'} **Error de sincronización:** No se encontró el enlace de esta sesión.\nPedile al staff que vuelva a lanzar con `/lanzar_rp` o `/lanzar_meet`.`
+          `${E.cruz || '❌'} **Error de sincronización:** No se encontró el enlace de esta sesión.\nPedile al staff que vuelva a usar `/comienzo-rp` o `/comienzo-meet`.`
       });
     }
 
