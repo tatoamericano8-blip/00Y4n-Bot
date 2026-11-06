@@ -11,8 +11,8 @@ export const CANAL_LOG_SESIONES = '1541940173011423322';
 export const COMANDOS_SESION = new Set([
   'inicio',
   'inicio_swfl',
-  'lanzar_rp',
-  'lanzar_meet',
+  'comienzo-rp',
+  'comienzo-meet',
   'reingreso',
   'host_swfl',
   'supervisar_swfl',
