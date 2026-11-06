@@ -17,7 +17,7 @@ global.coleccionSesiones = global.coleccionSesiones || new Map();
 const EMOJI_REACCION = EMOJI_DEF.tilde.id;
 const EMOJI_BOTON = EMOJI_DEF.hyperlink.id;
 const IMAGEN_REINVITACIONES_DEFECTO =
-    'https://media.discordapp.net/attachments/1505017301089652898/1565769790092615732/Copia_de_Reinvitaciones_1.png?ex=6ae61c40&is=6ae4cac0&hm=847db586d93810946ad5f6c04edbe882be0e831e910f554d01c990768d2abbab&=&format=webp&quality=lossless';
+    'https://media.discordapp.net/attachments/1505017301089652898/1568270374087426249/Copia_de_Reingreso_1.png?ex=6aef351a&is=6aede39a&hm=b49386f232d437293ee0b404e8e68ffe3cc617a65b09be668a3c6f94a432b2bc&=&format=webp&quality=lossless';
 
 function esURLValida(cadena) {
     try {
