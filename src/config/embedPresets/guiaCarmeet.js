@@ -7,7 +7,7 @@ import { PRIMARIO } from '../../utils/colores.js';
 import { E, EMOJI_DEF } from '../emojis.js';
 
 const IMG_CARMEET =
-  'https://media.discordapp.net/attachments/1505017301089652898/1565769817200529548/Copia_de_Sesion_de_Carmeet_1.png?ex=6ae61c47&is=6ae4cac7&hm=8c985da034523edc7fa88e9b59b9099d725cc255ef5c4c221bc65d85f11aa881&=&format=webp&quality=lossless';
+  'https://media.discordapp.net/attachments/1505017301089652898/1568270375228416090/Copia_de_Sesion_Carmeet_1.png?ex=6aef351a&is=6aede39a&hm=ed625bdab49aa7095a682ac83bf2c9f5f17fa94d5d999fae0adadee0918329b7&=&format=webp&quality=lossless';
 
 const LINK_ROBLOX =
   'https://www.roblox.com/es/communities/292739785/Clan-00Y4n#!/about';
