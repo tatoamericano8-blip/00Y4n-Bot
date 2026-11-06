@@ -81,6 +81,9 @@ export default {
                     E.warn + ' **Recordatorios**',
                     E.dot + ' Tickets solo por kicks de sesión se cierran (salvo strike + apelación de ese strike).',
                     E.dot + ' Tickets sin la información pedida se cierran.',
+                    E.dot + ' Tickets sobre el estado de una postulación (staff, media, etc.) se cierran: se revisan cuando el equipo corresponda.',
+                    E.dot + ' Servidores con **menos de 2.000 miembros** que pidan **partnership o sponsor** a 00Y4n deben abonar **$15 USD**. No abras ticket de eso si no estás dispuesto a pagar.',
+                    E.dot + ' Si no respondés el ticket en **12 horas**, puede cerrarse automáticamente.',
                     E.dot + ' **Un ticket a la vez.** Abrir varios sin motivo puede terminar en sanción.'
                 ].join('\n')
             )
