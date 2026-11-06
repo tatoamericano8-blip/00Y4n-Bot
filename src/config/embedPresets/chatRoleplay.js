@@ -3,7 +3,7 @@ import { PRIMARIO } from '../../utils/colores.js';
 import { E } from '../emojis.js';
 
 const IMG_CHAT_RP =
-  'https://media.discordapp.net/attachments/1505017301089652898/1565769726418878594/Copia_de_Chat_Roleplay_1.png?ex=6ae61c31&is=6ae4cab1&hm=618f13b970abc54818c59f6529a4d44129f8214b0e6f1c1d4b72630c4e44d3df&=&format=webp&quality=lossless';
+  'https://media.discordapp.net/attachments/1505017301089652898/1568272073451897013/Copia_de_Chat_Roleplay_1_1.png?ex=6aef36af&is=6aede52f&hm=fe768553cae79e24e3db286e2c0ba1c3b796c71e6b5de8f87b636c157a6e9cf1&=&format=webp&quality=lossless';
 
 export default {
   id: 'chat_roleplay',
