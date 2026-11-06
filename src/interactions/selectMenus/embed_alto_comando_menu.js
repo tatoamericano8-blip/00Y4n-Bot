@@ -209,7 +209,7 @@ function buildComandos() {
             '-# `/staff-perfil` — progreso, sesiones, tickets, score.',
             '',
             '**Sesiones**',
-            '-# `/inicio` · `/lanzar_rp` · `/lanzar_meet` · `/cerrar` · `/reingreso` · `/forzar-cierre`',
+            '-# `/inicio` · `/comienzo-rp` · `/comienzo-meet` · `/cerrar` · `/reingreso` · `/forzar-cierre`',
             '-# Supervisión: `/supervisar_swfl` · `/log-supervision`',
             '',
             '**Staff / liderazgo**',
