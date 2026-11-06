@@ -110,7 +110,7 @@ export default {
                 .setRequired(true))
         .addStringOption(option =>
             option.setName('id_inicio')
-                .setDescription('ID del mensaje de Lanzamiento/Inicio de la sesion (Opcional, se autodetecta).')
+                .setDescription('ID del mensaje de Comienzo/Inicio de la sesion (Opcional, se autodetecta).')
                 .setRequired(false)),
 
     async execute(interaction) {
