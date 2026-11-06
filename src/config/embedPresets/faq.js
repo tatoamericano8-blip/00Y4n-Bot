@@ -20,7 +20,7 @@ export default {
           `Leé reglas y reglamento · verificá · mirá anuncios · esperá sesión del staff · reaccioná al inicio cuando corresponda.\n\n` +
           `${E.dot} **3.** ${E.flecha} **¿Qué es una sesión?**\n` +
           `Evento de RP abierto/cerrado por staff.\n` +
-          `Orden: 1) Inicio (voto) → 2) Reacciones → 3) Lanzamiento RP/meet → 4) Reingreso/FastPass → 5) Cierre.\n` +
+          `Orden: 1) Inicio (voto) → 2) Reacciones → 3) Comienzo RP/meet → 4) Reingreso/FastPass → 5) Cierre.\n` +
           `Seguí siempre al host, co-host y staff.`
       );
 
