@@ -15,9 +15,9 @@ const INTROS = {
   meet:
     'Tu acceso al **Car Meet** está listo. Entrá con calma a la zona asignada y mantené el orden.',
   reinvite:
-    '**Re-invitación aceptada.** Entrá con calma, respetá al staff y cuidá tu conducta en el servidor.',
+    '**Reingreso aceptado.** Entrá con calma, respetá al staff y cuidá tu conducta en el servidor.',
   reinvite_meet:
-    '**Re-invitación al Meet aceptada.** Entrá con calma a la zona asignada y mantené el orden.',
+    '**Reingreso al Meet aceptado.** Entrá con calma a la zona asignada y mantené el orden.',
   fastpass:
     '**FastPass verificado.** Tenés entrada anticipada. Usalo solo vos; filtrar el link es sanción grave.',
   staff:
@@ -27,8 +27,8 @@ const INTROS = {
 const ETIQUETAS = {
   sesion: 'Sesión',
   meet: 'Car Meet',
-  reinvite: 'Re-invitación',
-  reinvite_meet: 'Re-invitación · Meet',
+  reinvite: 'Reingreso',
+  reinvite_meet: 'Reingreso · Meet',
   fastpass: 'FastPass',
   staff: 'Staff'
 };
