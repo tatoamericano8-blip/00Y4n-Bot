@@ -4,7 +4,7 @@ import { E } from '../emojis.js';
 
 /** Banner — reemplazá si caduca */
 const IMG_TIENDA =
-  'https://media.discordapp.net/attachments/1505017301089652898/1565769790847451247/Copia_de_Server_Tienda_1.png?ex=6ae61c40&is=6ae4cac0&hm=cb41d1b29ea5a3fc60ef8a4bcecceb658bc5bedb91a2e0f676d1919d10edaa0c&=&format=webp&quality=lossless';
+  'https://media.discordapp.net/attachments/1505017301089652898/1568270374653788250/Copia_de_Server_Tienda_1.png?ex=6aef351a&is=6aede39a&hm=c315dda07376d0413decf4292b1ab36f6f0a5a25f0528aea4a260007cabd37fb&=&format=webp&quality=lossless';
 
 const LINK_IMAGEN =
   'https://www.roblox.com/es/catalog/76447815319095/Permisos-de-imagen';
