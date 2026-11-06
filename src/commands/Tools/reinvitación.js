@@ -45,7 +45,7 @@ async function resolverSesion(guildId, idInicioManual) {
         }
         if (doc) targetIdInicio = doc.idInicio;
     } catch (e) {
-        console.error('[reinvitaciones] Error Mongo:', e?.message || e);
+        console.error('[reingreso] Error Mongo:', e?.message || e);
     }
 
     const candidatas = [];
@@ -97,16 +97,16 @@ async function resolverSesion(guildId, idInicioManual) {
 
 export default {
     data: new SlashCommandBuilder()
-        .setName('reinvitaciones')
-        .setDescription('Envia el aviso de reinvitaciones y libera los accesos al alcanzar las reacciones requeridas.')
+        .setName('reingreso')
+        .setDescription('Envia el aviso de reingreso y libera los accesos al alcanzar las reacciones requeridas.')
         .addIntegerOption(option =>
             option.setName('reacciones')
-                .setDescription('Cantidad de reacciones requeridas para habilitar las reinvitaciones.')
+                .setDescription('Cantidad de reacciones requeridas para habilitar el reingreso.')
                 .setRequired(true)
                 .setMinValue(1))
         .addStringOption(option =>
             option.setName('acceso')
-                .setDescription('Enlace del servidor privado de Roblox para la reinvitacion.')
+                .setDescription('Enlace del servidor privado de Roblox para el reingreso.')
                 .setRequired(true))
         .addStringOption(option =>
             option.setName('id_inicio')
@@ -116,13 +116,13 @@ export default {
     async execute(interaction) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
             return await interaction.reply({
-                content: E.cruz + ' **No tienes permisos:** Solo el Staff puede gestionar las reinvitaciones.',
+                content: E.cruz + ' **No tienes permisos:** Solo el Staff puede gestionar el reingreso.',
                 flags: MessageFlags.Ephemeral
             });
         }
 
-        if (await bloquearSiCooldown(interaction, 'reinvitaciones')) return;
-        setCooldownSesion(interaction.guildId, 'reinvitaciones', interaction.member);
+        if (await bloquearSiCooldown(interaction, 'reingreso')) return;
+        setCooldownSesion(interaction.guildId, 'reingreso', interaction.member);
 
         const reaccionesRequeridas = interaction.options.getInteger('reacciones');
         const rawLink = interaction.options.getString('acceso');
@@ -161,9 +161,9 @@ export default {
 
         const embedReinvitacion = new EmbedBuilder()
             .setColor('#74d4fc')
-            .setTitle(E.a2alas + ' Southwest Florida Comunidad 00Y4n — __*Reinvitaciones de Sesión*__' + E.a2alas)
+            .setTitle(E.a2alas + ' Southwest Florida Comunidad 00Y4n — __*Reingreso de Sesión*__' + E.a2alas)
             .setDescription(
-                E.dot + ` <@${interaction.user.id}> **está hosteando las reinvitaciones de su sesión!** Para que se libere el link, necesitamos recibir **${reaccionesRequeridas}** reacciones.` +
+                E.dot + ` <@${interaction.user.id}> **está hosteando el reingreso de su sesión!** Para que se libere el link, necesitamos recibir **${reaccionesRequeridas}** reacciones.` +
                 resumenSesion
             )
             .setImage(IMAGEN_REINVITACIONES_DEFECTO)
@@ -171,7 +171,7 @@ export default {
             .setTimestamp();
 
         await interaction.reply({
-            content: E.tilde + ' Aviso de reinvitaciones publicado.',
+            content: E.tilde + ' Aviso de reingreso publicado.',
             flags: MessageFlags.Ephemeral
         });
 
@@ -184,7 +184,7 @@ export default {
         try {
             await mensajeEnviado.react(EMOJI_REACCION);
         } catch (reactError) {
-            console.error('[reinvitaciones] Error reaccionando:', reactError?.message || reactError);
+            console.error('[reingreso] Error reaccionando:', reactError?.message || reactError);
             try { await mensajeEnviado.react('✔️'); } catch {}
         }
 
@@ -208,7 +208,7 @@ export default {
                     collector.stop('meta_alcanzada');
                 }
             } catch (err) {
-                console.error('[reinvitaciones] Error al procesar reacciones:', err);
+                console.error('[reingreso] Error al procesar reacciones:', err);
             }
         });
 
@@ -216,7 +216,7 @@ export default {
             if (reason !== 'meta_alcanzada') return;
 
             try { await mensajeEnviado.delete(); } catch (error) {
-                console.error('[reinvitaciones] Error al eliminar mensaje:', error);
+                console.error('[reingreso] Error al eliminar mensaje:', error);
             }
 
             const fresh = await resolverSesion(interaction.guildId, targetIdInicio);
@@ -227,18 +227,18 @@ export default {
             const timestampRelease = Math.floor(Date.now() / 1000);
             const textoCohost = fresh.coHostId ? `<@${fresh.coHostId}>` : 'Ninguno';
 
-            let tituloEmbed = E.a2alas + ' Southwest Florida Comunidad 00Y4n — __*Reinvitaciones Liberadas*__ ' + E.a2alas;
+            let tituloEmbed = E.a2alas + ' Southwest Florida Comunidad 00Y4n — __*Reingreso Liberado*__ ' + E.a2alas;
             let datosExtraSesion = '';
 
             if (fresh.tipo === 'rp') {
-                tituloEmbed = E.a2alas + ' Southwest Florida Comunidad 00Y4n — __*Reinvitaciones de Roleplay Liberadas*__ ' + E.a2alas;
+                tituloEmbed = E.a2alas + ' Southwest Florida Comunidad 00Y4n — __*Reingreso de Roleplay Liberado*__ ' + E.a2alas;
                 datosExtraSesion =
                     E.jpuntderecha + ` Límite de Fail-Roleplay: **${fresh.limiteVelocidad || '-'}**\n` +
                     E.jpuntderecha + ` Estado de Peacetime: **${fresh.peacetime || '-'}**\n` +
                     E.jpuntderecha + ` Servicios de emergencia: **${fresh.serviciosEmergencia || '-'}**\n` +
                     E.jpuntderecha + ` Co-Host de la sesión: ${textoCohost}\n`;
             } else if (fresh.tipo === 'meet') {
-                tituloEmbed = E.a2alas + ' Southwest Florida Comunidad 00Y4n — Reinvitaciones de Car Meet Liberadas';
+                tituloEmbed = E.a2alas + ' Southwest Florida Comunidad 00Y4n — Reingreso de Car Meet Liberado';
                 datosExtraSesion =
                     E.jpuntderecha + ` Temática: **${fresh.tematica || '-'}**\n` +
                     E.jpuntderecha + ` Ubicación: **${fresh.ubicacion || '-'}**\n` +
@@ -249,8 +249,8 @@ export default {
             }
 
             const infoDescripcion =
-                E.dot + ` <@${interaction.user.id}> **ha liberado las reinvitaciones de su sesión!** Asegurate de seguir todas las instrucciones del host y co-hosts antes de salir del spawn. Además, se deben respetar todas las regulaciones de **Southwest Florida Comunidad 00Y4n** durante toda la sesión.\n\n` +
-                E.replican + ` Los links del servidor se regenerarán a los **tres minutos** de la liberación, así que únete rápido. Las reinvitaciones ocurrirán **cada quince minutos**, así que no le pidas el link al host.\n\n` +
+                E.dot + ` <@${interaction.user.id}> **ha liberado el reingreso de su sesión!** Asegurate de seguir todas las instrucciones del host y co-hosts antes de salir del spawn. Además, se deben respetar todas las regulaciones de **Southwest Florida Comunidad 00Y4n** durante toda la sesión.\n\n` +
+                E.replican + ` Los links del servidor se regenerarán a los **tres minutos** de la liberación, así que únete rápido. El reingreso ocurrirá **cada quince minutos**, así que no le pidas el link al host.\n\n` +
                 E.manual + ` __**Información de la sesión:**__\n` +
                 datosExtraSesion +
                 `\n` + E.warn + ` __Cualquier compartición no autorizada del link resultará en un **ban inmediato** del servidor__.`;
@@ -273,7 +273,7 @@ export default {
 
             try {
                 const msgRelease = await interaction.channel.send({
-                    content: '@everyone Las reinvitaciones han sido **LANZADAS**!',
+                    content: '@everyone El reingreso ha sido **LANZADO**!',
                     embeds: [embedRelease],
                     components: [fila],
                     allowedMentions: { parse: ['everyone', 'roles'] }
@@ -333,7 +333,7 @@ export default {
                     guildId: interaction.guildId
                 });
             } catch (sendError) {
-                console.error('[reinvitaciones] Error al enviar liberacion:', sendError);
+                console.error('[reingreso] Error al enviar liberacion:', sendError);
             }
         });
     }
