@@ -9,6 +9,15 @@ import Staff from '../../../models/Staff.js';
 import { db } from '../../utils/database.js';
 import { E } from '../../config/emojis.js';
 
+const BANNER_RANKING =
+    'https://media.discordapp.net/attachments/1505017301089652898/1568270373546496120/Copia_de_Ranking_00Y4n_1.png?ex=6aef351a&is=6aede39a&hm=360642d3239f6da38ba96d4ecc6e98a4deb35128742ac0f7e21f99ef8ac1d1d5&=&format=webp&quality=lossless';
+
+function construirBannerRanking() {
+    return new EmbedBuilder()
+        .setColor('#74d4fc')
+        .setImage(BANNER_RANKING);
+}
+
 function parseCustomEmoji(tag) {
     const match = String(tag || '').match(/^<(a?):([\w~]+):(\d+)>$/);
     if (!match) return tag;
@@ -206,7 +215,7 @@ export default {
             const embed = construirEmbed(categoria, datos, interaction.guild.name);
             const row = construirSelect(categoria);
 
-            const msg = await interaction.editReply({ embeds: [embed], components: [row] });
+            const msg = await interaction.editReply({ embeds: [construirBannerRanking(), embed], components: [row] });
 
             const collector = msg.createMessageComponentCollector({
                 componentType: ComponentType.StringSelect,
@@ -221,7 +230,7 @@ export default {
                     const datosNRaw = await catN.fetch(guildId);
                     const datosN = await filtrarMiembrosActivos(interaction.guild, datosNRaw);
                     await i.update({
-                        embeds: [construirEmbed(nueva, datosN, interaction.guild.name)],
+                        embeds: [construirBannerRanking(), construirEmbed(nueva, datosN, interaction.guild.name)],
                         components: [construirSelect(nueva)]
                     });
                 } catch (err) {
