@@ -12,7 +12,7 @@ function buildSesiones() {
           `**Flujo:**\n` +
             `-# 1. \`/inicio\`\n` +
             `-# 2. Esperar reacciones\n` +
-            `-# 3. \`/lanzar_rp\` o \`/lanzar_meet\`\n` +
+            `-# 3. \`/comienzo-rp\` o \`/comienzo-meet\`\n` +
             `-# 4. \`/host\` y/o \`/supervisar_swfl\`\n` +
             `-# 5. \`/cerrar\` al terminar\n\n` +
             `**Extras:**\n` +
