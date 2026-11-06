@@ -13,7 +13,7 @@ export const COMANDOS_SESION = new Set([
   'inicio_swfl',
   'lanzar_rp',
   'lanzar_meet',
-  'reinvitaciones',
+  'reingreso',
   'host_swfl',
   'supervisar_swfl',
   'forzar-cierre',
