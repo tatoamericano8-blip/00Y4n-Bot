@@ -138,7 +138,7 @@ export async function construirRankingSemanal(guild) {
   const total = enriquecidos.length;
   const banner = new EmbedBuilder()
     .setColor('#8ae6fa')
-    .setImage('https://media.discordapp.net/attachments/1505017301089652898/1565769819133845584/Copia_de_Staff_Clasificacion_1.png?ex=6ae61c47&is=6ae4cac7&hm=95c75713521de6f7a38ea5c562aa6201178213ecd1375cc7f31fa2d27733b4ff&=&format=webp&quality=lossless');
+    .setImage('https://media.discordapp.net/attachments/1505017301089652898/1568270284891488336/Copia_de_Clasificacion_Staff_1.png?ex=6aef3504&is=6aede384&hm=8937659d8ffb5cbe947ebdcfbc0ad507b7fa7e4bc1ac3ee00ab1809302acfbfb&=&format=webp&quality=lossless');
 
   const embed = new EmbedBuilder()
     .setColor('#8ae6fa')
