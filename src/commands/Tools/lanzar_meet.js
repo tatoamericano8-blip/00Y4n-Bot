@@ -11,7 +11,7 @@ const IMAGEN_MEET_DEFECTO = 'https://media.discordapp.net/attachments/1505017301
 
 export default {
     data: {
-        name: 'lanzar_meet',
+        name: 'comienzo-meet',
         description: 'Liberas los accesos para una sesion oficial de Meet & Greet.',
         options: [
             { name: 'acceso', description: 'Pega aca el enlace del servidor privado de Roblox.', type: ApplicationCommandOptionType.String, required: true },
@@ -31,8 +31,8 @@ export default {
             });
         }
 
-        if (await bloquearSiCooldown(interaction, 'lanzar_meet_swfl')) return;
-        setCooldownSesion(interaction.guildId, 'lanzar_meet_swfl', interaction.member);
+        if (await bloquearSiCooldown(interaction, 'comienzo-meet')) return;
+        setCooldownSesion(interaction.guildId, 'comienzo-meet', interaction.member);
 
         let idInicio = interaction.options.getString('mensaje_id');
         const linkSesion = interaction.options.getString('acceso');
@@ -163,7 +163,7 @@ export default {
                 guildId: interaction.guildId
             });
         } catch (error) {
-            console.error('Error al guardar lanzamiento de Meet en MongoDB:', error);
+            console.error('Error al guardar comienzo de Meet en MongoDB:', error);
         }
     }
 };
