@@ -16,7 +16,7 @@ function buildSesiones() {
             `-# 4. \`/host\` y/o \`/supervisar_swfl\`\n` +
             `-# 5. \`/cerrar\` al terminar\n\n` +
             `**Extras:**\n` +
-            `\`/reinvitaciones\` · \`/fastpass\` · \`/finalizar_host\`\n\n` +
+            `\`/reingreso\` · \`/fastpass\` · \`/finalizar_host\`\n\n` +
             `**Reglas de sesión:**\n` +
             `-# • Seguir formatos aprobados (spawn, cupos crim, etc.)\n` +
             `-# • No inventar sistemas ni pausas no autorizadas\n` +
