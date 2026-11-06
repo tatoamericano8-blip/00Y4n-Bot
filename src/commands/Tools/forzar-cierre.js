@@ -7,7 +7,7 @@ const ROL_ALTO_MANDO_ID = '1528870731629465752';
 const CANAL_LOG_ID = '1505015805891579934';
 const HORAS_A_BORRAR = 3;
 const URL_IMAGEN_DEFAULT =
-    'https://media.discordapp.net/attachments/1505017301089652898/1565769816734957759/Copia_de_Sesion_Concluida_1.png?ex=6ae61c46&is=6ae4cac6&hm=8b64b3afb1d3e6cadc5c7ec3d1a1eb39c38731a86cac3d1515124a4f9802b0c1&=&format=webp&quality=lossless';
+    'https://media.discordapp.net/attachments/1505017301089652898/1568270285894058155/Copia_de_Concluida_1.png?ex=6aef3505&is=6aede385&hm=330d8ec37b6a912212d51416a6a18897840cef73dc6381e16c3237cd1f74a1de&=&format=webp&quality=lossless';
 
 async function borrarMensajesUltimasHoras(channel, horas = HORAS_A_BORRAR) {
     const limiteMs = Date.now() - horas * 60 * 60 * 1000;
