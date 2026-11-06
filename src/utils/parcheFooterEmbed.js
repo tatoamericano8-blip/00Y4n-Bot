@@ -11,7 +11,17 @@ import {
   NewsChannel,
   ThreadChannel,
   Message,
-  BaseInteraction
+  MessagePayload,
+  ChatInputCommandInteraction,
+  ButtonInteraction,
+  StringSelectMenuInteraction,
+  UserSelectMenuInteraction,
+  RoleSelectMenuInteraction,
+  ChannelSelectMenuInteraction,
+  MentionableSelectMenuInteraction,
+  ModalSubmitInteraction,
+  MessageContextMenuCommandInteraction,
+  UserContextMenuCommandInteraction
 } from 'discord.js';
 
 export const BRAND_FOOTER_TEXT = 'Southwest Florida Comunidad 00Y4n ™';
@@ -79,20 +89,33 @@ export function aplicarParcheFooterEmbed() {
   aplicado = true;
 
   const originalSetFooter = EmbedBuilder.prototype.setFooter;
-  const originalToJSON = EmbedBuilder.prototype.toJSON;
 
-  // Cualquier setFooter del bot → texto de marca (sin cambiar otras props del embed)
   EmbedBuilder.prototype.setFooter = function setFooterParcheado(_footerData) {
     return originalSetFooter.call(this, { text: BRAND_FOOTER_TEXT });
   };
 
-  // Un solo embed: al serializar siempre lleva footer de marca
-  EmbedBuilder.prototype.toJSON = function toJSONConFooter(...args) {
-    originalSetFooter.call(this, { text: BRAND_FOOTER_TEXT });
-    return originalToJSON.apply(this, args);
-  };
+  // NO parchear toJSON: forzaba footer en CADA embed y duplicaba la marca
+  // cuando había banner + contenido.
 
-  // Canales de texto / hilos / DM: al enviar varios embeds, footer solo al final
+  // MessagePayload: casi todos los envíos pasan por acá
+  if (MessagePayload?.prototype) {
+    const origResolve = MessagePayload.prototype.resolve;
+    if (typeof origResolve === 'function' && !origResolve.__00y4nFooterPatch) {
+      function resolvePatched(...args) {
+        try {
+          if (this.options && Array.isArray(this.options.embeds) && this.options.embeds.length) {
+            this.options = wrapPayload(this.options);
+          }
+        } catch {
+          /* no romper el envío */
+        }
+        return origResolve.apply(this, args);
+      }
+      resolvePatched.__00y4nFooterPatch = true;
+      MessagePayload.prototype.resolve = resolvePatched;
+    }
+  }
+
   for (const Cls of [TextChannel, DMChannel, NewsChannel, ThreadChannel]) {
     if (Cls?.prototype) patchMethod(Cls.prototype, 'send');
   }
@@ -100,10 +123,22 @@ export function aplicarParcheFooterEmbed() {
     patchMethod(Message.prototype, 'edit');
   }
 
-  // Respuestas de interacción (reply / editReply / followUp / update)
-  if (BaseInteraction?.prototype) {
+  const interactionClasses = [
+    ChatInputCommandInteraction,
+    ButtonInteraction,
+    StringSelectMenuInteraction,
+    UserSelectMenuInteraction,
+    RoleSelectMenuInteraction,
+    ChannelSelectMenuInteraction,
+    MentionableSelectMenuInteraction,
+    ModalSubmitInteraction,
+    MessageContextMenuCommandInteraction,
+    UserContextMenuCommandInteraction
+  ];
+  for (const Cls of interactionClasses) {
+    if (!Cls?.prototype) continue;
     for (const key of ['reply', 'editReply', 'followUp', 'update']) {
-      patchMethod(BaseInteraction.prototype, key);
+      patchMethod(Cls.prototype, key);
     }
   }
 }
