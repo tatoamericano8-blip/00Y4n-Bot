@@ -66,7 +66,7 @@ export default {
         if (fromDb && fromDb.cerrado) {
             return interaction.editReply({
                 content:
-                    `${E.lock || '🔒'} **FastPass Cerrado.** La sesión ya fue lanzada; usá el botón **Link de la Sesión** del mensaje de lanzamiento.`
+                    `${E.lock || '🔒'} **FastPass Cerrado.** La sesión ya tuvo su comienzo; usá el botón **Link de la Sesión** del mensaje de comienzo.`
             });
         }
 
@@ -79,7 +79,7 @@ export default {
         if (!linkReal) {
             return interaction.editReply({
                 content:
-                    `${E.cruz || '❌'} **Error de sincronización:** No se encontró el enlace de este FastPass. Pedile al Staff que vuelva a lanzar el comando.`
+                    `${E.cruz || '❌'} **Error de sincronización:** No se encontró el enlace de este FastPass. Pedile al Staff que vuelva a usar el comando de comienzo.`
             });
         }
 
