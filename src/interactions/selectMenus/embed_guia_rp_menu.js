@@ -79,7 +79,7 @@ function buildComoUnirse() {
             `Un Host lanzará un anuncio en <#${CANAL_SESIONES_1}> o en <#${CANAL_SESIONES_2}> avisando que se prepara una sesión.\n\n` +
             `Vas a ver un mensaje con meta de votos (reacciones o botones).\n` +
             `¡Dejá tu voto! Cuanto más rápido se llegue a la meta, más rápido se abre el servidor.\n\n` +
-            `### ${flecha} __**PASO 3: El Lanzamiento y Cómo Unirse**__\n` +
+            `### ${flecha} __**PASO 3: El Comienzo y Cómo Unirse**__\n` +
             `Una vez cumplida la meta:\n\n` +
             `• **FastPass** — Staff y FastPass reciben el acceso unos minutos antes.\n` +
             `• **Apertura general** — después se libera el anuncio para todos.\n` +
