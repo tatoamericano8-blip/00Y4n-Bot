@@ -7,9 +7,9 @@ import { iniciarLogSesion } from '../../utils/logSesionArchivo.js';
 import { E, EMOJI_DEF } from '../../config/emojis.js';
 
 const IMAGEN_INICIO_RP =
-    'https://media.discordapp.net/attachments/1505017301089652898/1565769787227906108/Copia_de_Inicio_Roleplay_1.png?ex=6ae61c3f&is=6ae4cabf&hm=e1f36d103d6b550cc009eb4b34e0230634a7c0d277856f39818a1e01df18ea9b&=&format=webp&quality=lossless';
+    'https://media.discordapp.net/attachments/1505017301089652898/1568270371440820414/Copia_de_Inicio_Roleplay_1_-_copia.png?ex=6aef3519&is=6aede399&hm=cf722078cf34bef1e5830c9b38f7f266aa1157dda14dcc680dc0ba08f52ba095&=&format=webp&quality=lossless';
 const IMAGEN_INICIO_MEET =
-    'https://media.discordapp.net/attachments/1505017301089652898/1565769786791563375/Copia_de_Inicio_Carmeet_1.png?ex=6ae61c3f&is=6ae4cabf&hm=b1f3ada5190fbeadd49a7c750645ec746359c8d6243e4ed7417d9a35c4336b0a&=&format=webp&quality=lossless';
+    'https://media.discordapp.net/attachments/1505017301089652898/1568270370954420225/Copia_de_Inicio_Carmeet_1.png?ex=6aef3519&is=6aede399&hm=ce4917f270a7d576fcd488fd8ae42d7a78107c5f88f7f75263290d28749544c4&=&format=webp&quality=lossless';
 
 global.coleccionStartups = global.coleccionStartups || new Map();
 
