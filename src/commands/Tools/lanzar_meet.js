@@ -78,7 +78,7 @@ export default {
             : E.jpuntderecha + ` Co-Host(s) de la sesión: *Sin asignar*`;
 
         const infoDescripcion =
-            E.dot + ` <@${hostIdSesion}> **ha liberado su sesión de Meet & Greet!** Asegurate de seguir todas las instrucciones del host y co-hosts antes de salir del spawn. Además, se deben respetar todas las regulaciones de **Southwest Florida Comunidad 00Y4n** durante toda la sesión.\n\n` +
+            E.dot + ` <@${hostIdSesion}> **ha liberado su sesión de Meet & Greet!** Asegurate de seguir todas las instrucciones del host y co-hosts antes de salir del spawn. Además, se deben respetar todas las regulaciones de <#1516590524725989437>, <#1540355602704764968> y de **Southwest Florida Comunidad 00Y4n** durante toda la sesión.\n\n` +
             E.replican + ` Los links del servidor se regenerarán a los **tres minutos** de la liberación, así que unite rápido. El reingreso ocurrirá **cada quince minutos** (según las reacciones), así que no le pidas el link al host.\n\n` +
             E.manual + ` __**Información de la sesión:**__\n` +
             E.jpuntderecha + ` Temática: **${tematica}**\n` +
