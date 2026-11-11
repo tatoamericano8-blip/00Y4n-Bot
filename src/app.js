@@ -14,6 +14,7 @@ import { getServerCounters, saveServerCounters, updateCounter } from './services
 import { logger, startupLog, shutdownLog } from './utils/logger.js';
 import { checkBirthdays } from './services/birthdayService.js';
 import { checkGiveaways } from './services/giveawayService.js';
+import { checkSorteosVencidos } from './utils/gestorSorteos.js';
 import { loadCommands, registerCommands as registerSlashCommands } from './handlers/commandLoader.js';
 
 import { lanzarOportunidadEconomica } from './utils/gestorOportunidades.js';
@@ -271,6 +272,7 @@ class TitanBot extends Client {
   setupCronJobs() {
     cron.schedule('0 6 * * *', () => checkBirthdays(this));
     cron.schedule('* * * * *', () => checkGiveaways(this));
+    cron.schedule('* * * * *', () => checkSorteosVencidos(this));
     cron.schedule('*/15 * * * *', () => this.updateAllCounters());
   }
 
