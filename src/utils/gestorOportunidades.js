@@ -111,7 +111,7 @@ export async function lanzarOportunidadEconomica(client, canalId) {
             await setInDb(LAST_OPORTUNIDAD_KEY, Date.now());
         } catch (_) {}
 
-        // Persistente hasta que alguien reclame (sin expiración por tiempo)
+        // Sin expiración mientras nadie reclame. Tras reclamar, el mensaje se borra a los 15 min.
         try {
             await setInDb(oportunidadKey(mensaje.id), {
                 monto,
@@ -168,4 +168,64 @@ export async function reclamarOportunidadPorMensaje(messageId, usuarioId) {
         monto,
         historia: data.historia || ''
     };
+}
+
+/** 15 minutos en ms */
+export const MS_BORRAR_TRAS_RECLAMO = 15 * 60 * 1000;
+
+/**
+ * Programa el borrado del mensaje de oportunidad ya reclamada.
+ * No cambia customIds ni el flujo de reclamo.
+ */
+export function programarBorradoOportunidadReclamada(client, { channelId, messageId, delayMs = MS_BORRAR_TRAS_RECLAMO }) {
+    if (!client || !channelId || !messageId) return;
+    const wait = Math.max(5_000, Number(delayMs) || MS_BORRAR_TRAS_RECLAMO);
+    setTimeout(() => {
+        borrarMensajeOportunidad(client, channelId, messageId).catch(() => null);
+    }, wait);
+}
+
+export async function borrarMensajeOportunidad(client, channelId, messageId) {
+    try {
+        const canal = await client.channels.fetch(String(channelId)).catch(() => null);
+        if (!canal?.isTextBased?.()) return;
+        const msg = await canal.messages.fetch(String(messageId)).catch(() => null);
+        if (msg) {
+            await msg.delete().catch(() => null);
+        }
+        try {
+            const prev = (await getFromDb(oportunidadKey(messageId), null)) || {};
+            await setInDb(oportunidadKey(messageId), {
+                ...prev,
+                messageDeleted: true,
+                deletedAt: Date.now()
+            });
+        } catch (_) {}
+    } catch (e) {
+        logger.warn?.(`[oportunidad] No se pudo borrar mensaje ${messageId}: ${e?.message || e}`);
+    }
+}
+
+/**
+ * Limpieza al reiniciar / cron: borra mensajes reclamados hace ≥ 15 min.
+ */
+export async function limpiarOportunidadesReclamadasViejas(client) {
+    try {
+        const { db } = await import('./database.js');
+        if (!db?.list) return;
+        const keys = await db.list('oportunidad:msg:');
+        if (!Array.isArray(keys) || !keys.length) return;
+        const ahora = Date.now();
+        for (const key of keys) {
+            const data = await getFromDb(key, null);
+            if (!data?.claimed || data.messageDeleted) continue;
+            const claimedAt = Number(data.claimedAt) || 0;
+            if (!claimedAt || ahora - claimedAt < MS_BORRAR_TRAS_RECLAMO) continue;
+            if (data.channelId && data.messageId) {
+                await borrarMensajeOportunidad(client, data.channelId, data.messageId);
+            }
+        }
+    } catch (e) {
+        logger.warn?.(`[oportunidad] limpiarOportunidadesReclamadasViejas: ${e?.message || e}`);
+    }
 }
