@@ -116,7 +116,7 @@ export default {
     // Discord: máx 10 embeds y ~6000 chars totales por mensaje
     const channel = interaction.channel;
     try {
-      const sizeChunks = chunkEmbedsBySize(embeds, 5500);
+      const sizeChunks = chunkEmbedsBySize(embeds, 4800);
       const flat = [];
       for (const sc of sizeChunks) {
         for (let i = 0; i < sc.length; i += 10) {
