@@ -69,7 +69,7 @@ export default {
                 const embedSetup = new EmbedBuilder()
                     .setTitle(`${E.a2alas} Southwest Florida Comunidad 00Y4n — __*Configuración del Servidor*__ ${E.a2alas}`)
                     .setDescription(
-                        `${E.dot} <@${startup.hostId}> **ha comenzado a configurar su servidor** para la sesión de **${nombreSesion}!** Los miembros con acceso anticipado podrán unirse en breve usando el enlace de early access. ¡Asegurate de boostear el servidor para early access!\n\n` +
+                        `${E.dot} <@${startup.hostId}> **ha comenzado a configurar su servidor** para la sesión de **${nombreSesion}!** Los miembros con acceso anticipado podrán unirse en breve usando el enlace del FastPass. ¡Asegurate de boostear el servidor para obternerlo!\n\n` +
                         `${E.flechareplica} __Por favor sé paciente y dale al host un tiempo razonable para configurar__.`
                     )
                     .setColor('#74d4fc')
