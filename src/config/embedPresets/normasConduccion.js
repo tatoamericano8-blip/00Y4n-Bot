@@ -1,95 +1,130 @@
-import {
-  EmbedBuilder,
-  ActionRowBuilder,
-  StringSelectMenuBuilder
-} from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { PRIMARIO } from '../../utils/colores.js';
-import { E, EMOJI_DEF } from '../emojis.js';
-
-function optEmoji(key) {
-  const d = EMOJI_DEF[key];
-  if (!d?.id) return undefined;
-  return { id: d.id, name: d.name };
-}
+import { E } from '../emojis.js';
 
 /**
- * Hub + menú: normas de conducción / sesión adaptadas a 00Y4n.
- * Contenido inspirado en guías de servidores grandes, sin temas ajenos
- * (límites de matrícula por rol, BVE/BLVE, Horton/Brookmere).
+ * Normas de conducción — PARTE 1 (embeds directos, sin menú):
+ * Terminología · Logística del vehículo · Normas generales · Velocidades y peacetime
+ *
+ * Parte 2 (carretera / FRP) se publica aparte más adelante.
+ * buildSeccionNormasConduccion se mantiene por compatibilidad con el menú viejo.
  */
 export default {
   id: 'normas_conduccion',
-  label: 'Normas de conducción (guía completa)',
-  description: 'Terminología, logística, peacetime, velocidades y FRP',
+  label: 'Normas de conducción · Parte 1',
+  description: 'Terminología, logística, normas generales, velocidades y peacetime',
 
   build() {
-    const hub = new EmbedBuilder()
-      .setColor(PRIMARIO)
-      .setTitle(`${E.auto || E.llaves} Southwest Florida 00Y4n · Guía de conducción`)
-      .setDescription(
-        `${E.dot} El objetivo es una experiencia **realista y prolija** dentro y fuera de las sesiones.\n` +
-          `${E.dot} Mantenemos un estándar lógico: si no entendés algo, leé la sección del menú o preguntá en staff.\n\n` +
-          `${E.flecha} **Elegí una sección** en el menú de abajo.\n` +
-          `-# Las reglas se aplican en sesión. El staff puede ajustar detalles según el evento.`
-      )
-      .setFooter({ text: 'Southwest Florida Comunidad 00Y4n ™' });
+    const c = PRIMARIO;
+    const d = E.dot;
+    const f = E.flecha;
 
-    const menu = new StringSelectMenuBuilder()
-      .setCustomId('embed_normas_conduccion_menu')
-      .setPlaceholder('00Y4n · Guía de conducción')
-      .addOptions(
-        {
-          label: 'Terminología',
-          description: 'FRP, peacetime, prio, scene, void…',
-          value: 'terminologia',
-          emoji: optEmoji('manual') || optEmoji('dot')
-        },
-        {
-          label: 'Logística del vehículo',
-          description: 'Licencia, seguro, matrícula, acoplados',
-          value: 'logistica',
-          emoji: optEmoji('auto')
-        },
-        {
-          label: 'Normas generales',
-          description: 'Crimen, chat, emergencias, distancia',
-          value: 'generales',
-          emoji: optEmoji('warn')
-        },
-        {
-          label: 'Velocidades y peacetime',
-          description: 'Límites FRP según estado de la sesión',
-          value: 'velocidades',
-          emoji: optEmoji('flecha')
-        },
-        {
-          label: 'Carretera y circulación',
-          description: 'Autopista, intersecciones, clima',
-          value: 'circulacion',
-          emoji: optEmoji('auto')
-        },
-        {
-          label: 'Accidentes y aparición',
-          description: 'Choques, ruedas pinchadas, reaparición',
-          value: 'accidentes',
-          emoji: optEmoji('cruz')
-        },
-        {
-          label: 'Imprudencia y FRP',
-          description: 'Qué se castiga y qué se espera de vos',
-          value: 'frp',
-          emoji: optEmoji('warn')
-        }
+    const intro = new EmbedBuilder()
+      .setColor(c)
+      .setTitle(`${E.auto || E.llaves} Southwest Florida 00Y4n · Normas de conducción`)
+      .setDescription(
+        `${d} Guía oficial de manejo en sesión. El objetivo es un tránsito **realista, prolijo y jugable**.\n` +
+          `${d} Esta es la **Parte 1**: terminología, logística del vehículo, normas generales y velocidades / peacetime.\n` +
+          `${d} La **Parte 2** (carretera, intersecciones, clima e imprudencia/FRP) se publica por separado.\n\n` +
+          `${f} Si no entendés algo, leé esta guía o preguntá en staff **antes** de improvisar.\n` +
+          `-# Se aplica en sesión. El staff puede ajustar detalles según el evento.`
+      );
+
+    const terminologia = new EmbedBuilder()
+      .setColor(c)
+      .setTitle(`${E.manual || E.carpeta} Terminología de sesión`)
+      .setDescription(
+        `${d} **FRP (Fail Roleplay)** — Cualquier conducta **poco realista** o que ignore el rol a propósito (manejo absurdo, romper escena, ignorar reglas claras).\n\n` +
+          `${d} **Velocidad FRP** — Límite de velocidad del servidor en **MPH**. Pasarlo puede ser infracción y, si es grave o a propósito, **FRP**.\n\n` +
+          `${d} **Intruso / leaker** — Persona que **no debería** estar en la sesión (sin acceso, link filtrado, cuenta ajena, etc.). Reportalo al staff.\n\n` +
+          `${d} **Peacetime (PT)** — Estado de control de la sesión (lo define el host / staff):\n` +
+          `• **Estricto** — Máximo control; tope orientativo **75 MPH**.\n` +
+          `• **Normal** — Tránsito ordenado; tope orientativo **85 MPH**.\n` +
+          `• **Sin PT** — Más acción permitida; tope orientativo **120 MPH**.\n` +
+          `-# Si el host publica otro número en el inicio, **manda ese**.\n\n` +
+          `${d} **Prio (prioridad)** — Con sesión **sin peacetime**, es el **criminal prioritario** de la escena. Si no sos el prio, manejá con responsabilidad; el prio puede ir más agresivo **dentro de lo permitido**.\n\n` +
+          `${d} **Scene (escena)** — Zona que requiere atención especial (operativo, accidente, evento, parada).\n\n` +
+          `${d} **Canal de voz de la escena** — Si un oficial te detiene o estás en la escena, usá el canal de voz indicado.\n\n` +
+          `${d} **Void** — **No reconocer** un hecho (como si no hubiera pasado). Solo cuando el **staff** o las reglas lo indiquen. No lo uses para “borrar” un error tuyo.`
+      );
+
+    const logistica = new EmbedBuilder()
+      .setColor(c)
+      .setTitle(`${E.auto} Logística del vehículo`)
+      .setDescription(
+        `${f} **Licencia**\n` +
+          `${d} Se gestiona con el bot (\`/perfil_swfl\` y comandos de staff).\n` +
+          `${d} Si está **suspendida** o inactiva, regularizala antes de circular con normalidad.\n\n` +
+          `${f} **Seguro**\n` +
+          `${d} Podés contratarlo desde la **tienda del servidor**.\n` +
+          `${d} Circular **sin seguro** puede terminar en multa u otras sanciones en rol.\n` +
+          `${d} Solo puede haber **un plan de seguro activo** a la vez.\n\n` +
+          `${f} **Matrícula / registro**\n` +
+          `${d} Registrá tus vehículos con \`/matricular\` (flujo vigente del servidor).\n` +
+          `${d} Respetá el formato del bot; no abuses del sistema ni uses placas falsas de forma OOC.\n\n` +
+          `${f} **Multas**\n` +
+          `${d} Se pagan por el sistema del bot cuando corresponda.\n` +
+          `${d} Deudas colgadas afectan el perfil y pueden escalar (orden de arresto, etc.).\n\n` +
+          `${f} **Trailers / acoplados**\n` +
+          `${d} Solo si el juego y la sesión lo permiten, y sin bloquear vías ni generar caos.\n` +
+          `${d} El host puede limitar o prohibir acoplados en esa sesión.`
+      );
+
+    const generales = new EmbedBuilder()
+      .setColor(c)
+      .setTitle(`${E.warn || E.dot} Normas generales de conducción`)
+      .setDescription(
+        `${f} **Calidad de manejo**\n` +
+          `${d} Conducí como si el tránsito importara: distancia, señales, sentido común.\n` +
+          `${d} No uses el auto para romper escenas ajenas ni para “joder” a otros jugadores.\n\n` +
+          `${f} **Crimen y persecuciones**\n` +
+          `${d} Respetá peacetime, cupos criminales y lo que indique el host.\n` +
+          `${d} Si no sos el **prio**, no te metas en la persecución a lo loco.\n` +
+          `${d} No uses el crimen como excusa para FRP de manejo.\n\n` +
+          `${f} **Chat y comunicación**\n` +
+          `${d} En sesión, priorizá el rol. Evitá spam y discusiones OOC en canales de sesión.\n` +
+          `${d} Si no tenés chat in-game, usá los canales de RP del Discord según la guía del server.\n\n` +
+          `${f} **Emergencias (LEO / EMS / Bomberos)**\n` +
+          `${d} Cedé el paso a vehículos de emergencia en rol cuando corresponda.\n` +
+          `${d} No bloquees operativos ni te quedes mirando encima de la escena sin motivo.\n\n` +
+          `${f} **Distancia y respeto de escena**\n` +
+          `${d} No te tires encima de una scene activa sin razón IC.\n` +
+          `${d} Si te piden alejarte (staff u oficiales en rol), cumplilo.\n\n` +
+          `${f} **Accidentes**\n` +
+          `${d} Si chocás, **roleá**: no digas “ex” y te vas.\n` +
+          `${d} Intercambiá información cuando corresponda.\n` +
+          `${d} **Chocar y huir** no se tolera.\n` +
+          `${d} Reaparecer el vehículo **no borra** el rol del accidente.`
+      );
+
+    const velocidades = new EmbedBuilder()
+      .setColor(c)
+      .setTitle(`${E.flecha} Velocidades y peacetime`)
+      .setDescription(
+        `${d} Los topes de abajo son el **estándar 00Y4n**. Si el host publica otro límite en el inicio, **ese manda**.\n\n` +
+          `${f} **Referencia por peacetime**\n` +
+          `${d} **Estricto** → hasta **75 MPH**\n` +
+          `${d} **Normal** → hasta **85 MPH**\n` +
+          `${d} **Sin peacetime** → hasta **120 MPH**\n\n` +
+          `${f} **Cómo se aplica**\n` +
+          `${d} Pasarte del límite vigente cuenta como infracción y puede ser **FRP** si es grave, repetido o a propósito.\n` +
+          `${d} En zonas lentas (barrios, estacionamientos, spawn) andá **más despacio** aunque el tope de PT sea alto.\n` +
+          `${d} Clima adverso: priorizá seguridad; el límite publicado sigue valiendo.\n\n` +
+          `${f} **Sin peacetime**\n` +
+          `${d} Hay más margen de acción, **no** carta blanca para destruir la sesión.\n` +
+          `${d} Civilians y no-prio: responsabilidad. El caos injustificado sigue siendo sancionable.\n\n` +
+          `${f} **Staff**\n` +
+          `${d} Puede bajar el tope, pausar o cerrar la sesión si el manejo se va de las manos.\n` +
+          `-# Parte 1 de 2 · Southwest Florida Comunidad 00Y4n ™`
       );
 
     return {
-      embeds: [hub],
-      components: [new ActionRowBuilder().addComponents(menu)]
+      embeds: [intro, terminologia, logistica, generales, velocidades]
     };
   }
 };
 
-/** Contenidos por sección (usados por el select menu). */
+/** Contenidos por sección (compatibilidad con menú antiguo / parte 2). */
 export function buildSeccionNormasConduccion(seccion) {
   const c = PRIMARIO;
   const d = E.dot;
@@ -102,17 +137,13 @@ export function buildSeccionNormasConduccion(seccion) {
           .setColor(c)
           .setTitle(`${E.manual || E.carpeta} Terminología de sesión`)
           .setDescription(
-            `${d} **FRP (Fail Roleplay (FRP))** — Cualquier cosa **poco realista** o que ignore el rol a propósito.\n\n` +
-              `${d} **Velocidad FRP** — Límite de velocidad del servidor en **mph**. Superarlo cuenta como infracción / FRP según el caso.\n\n` +
-              `${d} **Intruso / leaker** — Persona que **no debería** estar en la sesión (sin acceso, filtró link, etc.).\n\n` +
-              `${d} **Peacetime** — Estado de la sesión:\n` +
-              `• **Estricto** — Máximo control; tope **75 MPH**.\n` +
-              `• **Normal** — Tránsito ordenado; tope **85 MPH**.\n` +
-              `• **Sin PT** — Más acción permitida; tope **120 MPH**.\n\n` +
-              `${d} **Prio (prioridad)** — Con **sin peacetime**, es el **criminal prioritario** de la escena. Si no sos el prio, conducí con responsabilidad; el prio suele ir más agresivo.\n\n` +
-              `${d} **Scene (escena)** — Zona de la sesión que requiere **atención especial** (operativo, accidente, evento).\n\n` +
-              `${d} **Canal de voz de la escena** — Canal de voz de la escena; si un oficial te para, podés unirte ahí.\n\n` +
-              `${d} **Void** (anular / no reconocer) — **No reconocés** un evento o acción (como si no hubiera pasado). Solo cuando el staff o las reglas lo indiquen.`
+            `${d} **FRP (Fail Roleplay)** — Conducta poco realista o que ignora el rol a propósito.\n\n` +
+              `${d} **Velocidad FRP** — Límite en MPH. Superarlo puede ser infracción / FRP.\n\n` +
+              `${d} **Intruso / leaker** — Quien no debería estar en la sesión.\n\n` +
+              `${d} **Peacetime** — Estricto 75 · Normal 85 · Sin PT 120 (salvo que el host diga otro).\n\n` +
+              `${d} **Prio** — Criminal prioritario con sin peacetime.\n\n` +
+              `${d} **Scene** — Zona de atención especial.\n\n` +
+              `${d} **Void** — No reconocer un hecho; solo con staff/reglas.`
           )
       ]
     };
@@ -125,22 +156,11 @@ export function buildSeccionNormasConduccion(seccion) {
           .setColor(c)
           .setTitle(`${E.auto} Logística del vehículo`)
           .setDescription(
-            `${f} **Licencia**\n` +
-              `${d} En 00Y4n la licencia se gestiona con el sistema del bot (\`/perfil_swfl\` y comandos de staff).\n` +
-              `${d} Si está **suspendida**, debés regularizarla según indique el staff antes de circular con normalidad.\n\n` +
-              `${f} **Seguro**\n` +
-              `${d} Podés contratar seguro desde la **tienda del servidor** (planes disponibles en el momento).\n` +
-              `${d} Circular **sin seguro** puede terminar en multa u otras sanciones en rol.\n\n` +
-              `${f} **Matrícula / registro**\n` +
-              `${d} Registrá tu(s) vehículo(s) con \`/matricular\` (o el flujo vigente en el canal de comandos).\n` +
-              `${d} Respetá el formato que pida el bot y no abuses del sistema.\n\n` +
-              `${f} **Pago de multas**\n` +
-              `${d} Las multas se pagan por el sistema del bot cuando corresponda.\n` +
-              `${d} No dejes deudas colgadas: afectan tu perfil y pueden escalar (orden de arresto, etc.).\n\n` +
-              `${f} **Trailers / acoplados**\n` +
-              `${d} Si el juego y la sesión lo permiten, manejá el acoplado/trailer con cuidado.\n` +
-              `${d} Sin permiso especial del host cuando se pida; circular mal con el acoplado puede ser sanción.\n` +
-              `${d} Registrá el acoplado si el staff o el sistema lo requieren.`
+            `${f} **Licencia** — Bot / perfil. Suspendida = regularizar.\n` +
+              `${f} **Seguro** — Tienda del servidor; un plan a la vez.\n` +
+              `${f} **Matrícula** — \`/matricular\`.\n` +
+              `${f} **Multas** — Pago por bot; no dejes deudas.\n` +
+              `${f} **Acoplados** — Solo si sesión/juego lo permiten.`
           )
       ]
     };
@@ -151,24 +171,11 @@ export function buildSeccionNormasConduccion(seccion) {
       embeds: [
         new EmbedBuilder()
           .setColor(c)
-          .setTitle(`${E.warn || E.dot} Normas generales en sesión`)
+          .setTitle(`${E.warn || E.dot} Normas generales`)
           .setDescription(
-            `${f} **Crimen**\n` +
-              `${d} Los **crímenes mayores** están **prohibidos** con peacetime **estricto** o **normal** (asaltos, daño a propósito a vehículos, robo de autos, etc.), salvo que el host habilite algo puntual.\n\n` +
-              `${f} **Chat y voz**\n` +
-              `${d} No evadas el filtro de Roblox con insultos.\n` +
-              `${d} Moderá insultos en voz (incluida música molesta).\n` +
-              `${d} Si tu cuenta de Roblox se banea por evitar el filtro, **no es responsabilidad** de 00Y4n.\n` +
-              `${d} No rompas los Términos de Roblox. Roleplays de: bandas terroristas, suicidio, tiroteos escolares, contenido sexual, drogas pesadas, etc. **están prohibidos**.\n\n` +
-              `${f} **Vehículos de emergencia**\n` +
-              `${d} **Cedé el paso** si llevan luces/sirena.\n` +
-              `${d} No te escapes de un móvil que te indica parar.\n` +
-              `${d} No hostigues al vehículo ni a quien lo conduce.\n\n` +
-              `${f} **Distancia y cambio de carril**\n` +
-              `${d} Mantené distancia razonable (el juego tiene delay).\n` +
-              `${d} Usá el carril correcto (izquierdo para pasar, derecho más lento).\n` +
-              `${d} Dejá espacio de **varios autos** al cambiar de carril.\n` +
-              `${d} No cortes ni te metás de golpe.`
+            `${d} Manejo realista · respetá peacetime y cupos · no rompas escenas ·\n` +
+              `${d} Emergencias: ceder paso · accidentes: roleá, no huyas ·\n` +
+              `${d} Reaparecer no borra el rol del choque.`
           )
       ]
     };
@@ -179,22 +186,11 @@ export function buildSeccionNormasConduccion(seccion) {
       embeds: [
         new EmbedBuilder()
           .setColor(c)
-          .setTitle(`${E.flecha} Velocidades FRP y peacetime`)
+          .setTitle(`${E.flecha} Velocidades y peacetime`)
           .setDescription(
-            `${d} Los límites **FRP** se hacen cumplir. Pasarte **aunque sea un poco** puede costarte advertencia, expulsión de la sesión o más.\n\n` +
-              `${f} **Límites oficiales de 00Y4n**\n` +
-              `${d} **Peacetime estricto** → **75 MPH**\n` +
-              `${d} **Peacetime normal** → **85 MPH**\n` +
-              `${d} **Sin peacetime (Sin PT)** → **120 MPH**\n\n` +
-              `${f} **Estados de peacetime**\n` +
-              `${d} Hay **tres**: estricto, normal y sin PT.\n` +
-              `${d} En **ninguno** se tolera imprudencia gratuita (agresividad al volante, etc.).\n` +
-              `${d} Chocar y huir y conducción temeraria de civiles **no** están permitidos en sin PT “porque sí”.\n` +
-              `${d} Prestá atención al canal de la sesión: el host actualiza el peacetime ahí.\n\n` +
-              `${f} **Rueda pinchada**\n` +
-              `${d} Tope orientativo **25 MPH**.\n` +
-              `${d} Carril derecho o orillate.\n` +
-              `${d} Si no hay grúa/taller en rol, reaparecé en zona segura cuando corresponda.`
+            `${d} **Estricto 75** · **Normal 85** · **Sin PT 120** (o lo que diga el host).\n` +
+              `${d} Pasarte del límite = infracción / posible FRP.\n` +
+              `${d} Sin PT no es permiso para destruir la sesión.`
           )
       ]
     };
@@ -207,60 +203,18 @@ export function buildSeccionNormasConduccion(seccion) {
           .setColor(c)
           .setTitle(`${E.auto} Carretera y circulación`)
           .setDescription(
-            `${f} **Autopista / vía rápida**\n` +
-              `${d} En autopista aplicá el **tope del peacetime actual** (75 / 85 / 120 MPH).\n` +
-              `${d} Pasarte del límite del peacetime vigente cuenta como FRP.\n` +
-              `${d} Si hay mucho tráfico, andá más despacio y con cuidado.\n\n` +
-              `${f} **Uso de carriles**\n` +
-              `${d} **Izquierdo** — adelantar.\n` +
-              `${d} **Central** — marcha normal (si hay 3).\n` +
-              `${d} **Derecho** — entrar/salir, tráfico más lento.\n` +
-              `${d} **No:** tejer entre carriles, piques, frenadas de prueba, detenerte en plena vía.\n` +
-              `${d} Con mucho tráfico, el staff es más estricto.\n\n` +
+            `${f} **Autopista / vías rápidas**\n` +
+              `${d} Izquierda más rápido · derecha entrar/salir y tráfico lento.\n` +
+              `${d} No tejer carriles, no piques, no frenadas de prueba, no pararte en plena vía.\n\n` +
               `${f} **Calles estrechas**\n` +
-              `${d} Sin frenadas bruscas; velocidad baja.\n` +
-              `${d} Estacioná bien (no en ángulo raro; paralelo en el sentido correcto).\n\n` +
+              `${d} Velocidad baja, sin frenadas bruscas, estacioná bien.\n\n` +
               `${f} **Semáforos y stops**\n` +
-              `${d} No te pases el rojo; en peacetime ON a veces se tolera un error leve, en peacetime **estricto** no.\n` +
-              `${d} En un **cruce de cuatro vías (pare en las cuatro)**, el que llega primero tiene preferencia.\n` +
-              `${d} Dejá distancia con otros autos.\n\n` +
+              `${d} No te pases el rojo (en PT estricto, cero tolerancia).\n` +
+              `${d} En cruce de cuatro vías, prioriza quien llegó primero.\n\n` +
               `${f} **Giros en U**\n` +
-              `${d} Solo en intersecciones **con** semáforo, si es seguro.\n` +
-              `${d} El resto de Giros en U están **prohibidos**, aunque no haya cartel.\n\n` +
+              `${d} Solo en intersecciones con semáforo, si es seguro. El resto prohibidos.\n\n` +
               `${f} **Clima**\n` +
-              `${d} Lluvia o nieve: respetá el límite FRP publicado.\n` +
-              `${d} No causes choques por cambiar de entorno de golpe.\n` +
-              `${d} Que haya cambiado el clima **no** habilita manejar mal.`
-          )
-      ]
-    };
-  }
-
-  if (seccion === 'accidentes') {
-    return {
-      embeds: [
-        new EmbedBuilder()
-          .setColor(c)
-          .setTitle(`${E.cruz || E.warn} Accidentes, aparición y estacionamiento`)
-          .setDescription(
-            `${f} **Choques (auto / peatón)**\n` +
-              `${d} **Roleá completo** cualquier accidente sobre ~**20 MPH**.\n` +
-              `${d} Llamá a servicios si aplica, o roleá el choque si no hay nadie.\n` +
-              `${d} Intercambiá datos con los involucrados.\n` +
-              `${d} Decir “ex” y largarte **no vale**.\n` +
-              `${d} Bajá del auto y roleá el intercambio (o equivalente en chat).\n` +
-              `${d} **Chocar y huir** no se tolera: moderación fuerte.\n` +
-              `${d} Reaparecer **no** borra el rol del accidente.\n\n` +
-              `${f} **Estacionamiento y aparición**\n` +
-              `${d} Al aparecer en el mapa, velocidad baja (no salgas disparado).\n` +
-              `${d} En playas de estacionamiento, manejá con cuidado.\n` +
-              `${d} No bloquees lugares de discapacidad / espacios reservados del mapa.\n` +
-              `${d} Si chocás ahí, intercambiá info.\n` +
-              `${d} Mal estacionado o generar embotellamiento = expulsión de la sesión o sanción.\n\n` +
-              `${f} **Reaparición del vehículo**\n` +
-              `${d} **No** reapariciónees en medio de la calle.\n` +
-              `${d} Buscá casa o estacionamiento vacío.\n` +
-              `${d} Si debés reaparecer fuera de zona, pedí permiso en chat de sesión (ej. *reaparición perms*).`
+              `${d} Lluvia/nieve: respetá el límite FRP. El clima no habilita manejar mal.`
           )
       ]
     };
@@ -273,16 +227,10 @@ export function buildSeccionNormasConduccion(seccion) {
           .setColor(c)
           .setTitle(`${E.warn} Imprudencia y Fail Roleplay (FRP)`)
           .setDescription(
-            `${d} **Conducción imprudente** = cualquier manejo a propósito que rompa la sesión: exceso grave, agresividad al volante, causar choques, chocar y huir, etc. **Está prohibido**.\n\n` +
-              `${d} La mayoría de estas normas existen para **evitar FRP**, subir la calidad del manejo y cortar el caos.\n\n` +
-              `${d} La lista **no** es todas las reglas del universo: si algo se repite mucho, el staff puede sumar criterios. Se espera **sentido común** al volante.\n\n` +
-              `${d} Si generás un ambiente imprudente, esperá moderación.\n` +
-              `${d} **Cero tolerancia** a comportamiento irresponsable y FRP claro.\n\n` +
-              `${f} **Qué esperamos en 00Y4n**\n` +
-              `${d} Si seguís la guía, casi no vas a tener problemas con el staff.\n` +
-              `${d} El staff no está para “cazar” gente: está para que la sesión se disfrute.\n` +
-              `${d} Moderamos con firmeza a los que rompen el estándar.\n\n` +
-              `${d} Al estar en el servidor y entrar a sesiones, **aceptás** estas normas de conducción.\n` +
+            `${d} Conducción imprudente a propósito está **prohibida**.\n` +
+              `${d} Cero tolerancia a FRP claro e irresponsabilidad al volante.\n` +
+              `${d} Sentido común: si la guía no cubre un caso, no abuses.\n` +
+              `${d} Al entrar a sesiones de 00Y4n **aceptás** estas normas.\n` +
               `-# Southwest Florida Comunidad 00Y4n ™`
           )
       ]
