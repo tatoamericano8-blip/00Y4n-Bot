@@ -5,7 +5,11 @@ import {
   ButtonStyle,
   MessageFlags
 } from 'discord.js';
-import { reclamarOportunidadPorMensaje, crearEmbedBanner } from '../../utils/gestorOportunidades.js';
+import {
+  reclamarOportunidadPorMensaje,
+  crearEmbedBanner,
+  programarBorradoOportunidadReclamada
+} from '../../utils/gestorOportunidades.js';
 import { E, EMOJI_DEF } from '../../config/emojis.js';
 
 export default {
@@ -71,6 +75,7 @@ export default {
         .setDisabled(true)
     );
 
+
     try {
       await interaction.message.edit({
         embeds: [embedBanner, embedGanador],
@@ -79,6 +84,12 @@ export default {
     } catch (e) {
       console.error('[reclamar_oportunidad] edit mensaje:', e?.message || e);
     }
+
+    // A los 15 min de reclamada, borrar el mensaje (anti-spam del canal)
+    programarBorradoOportunidadReclamada(interaction.client, {
+      channelId: interaction.channelId || interaction.message?.channelId,
+      messageId
+    });
 
     return interaction
       .followUp({
