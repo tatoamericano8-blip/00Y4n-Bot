@@ -13,6 +13,51 @@ function puedeUsarEmbedSend(member) {
   return false;
 }
 
+
+/** Discord: máx ~6000 caracteres sumando todos los embeds del mensaje. */
+function estimateEmbedChars(embed) {
+  try {
+    const j = typeof embed?.toJSON === 'function' ? embed.toJSON() : embed || {};
+    let n = 0;
+    if (j.title) n += String(j.title).length;
+    if (j.description) n += String(j.description).length;
+    if (j.footer?.text) n += String(j.footer.text).length;
+    if (j.author?.name) n += String(j.author.name).length;
+    if (Array.isArray(j.fields)) {
+      for (const f of j.fields) {
+        if (f?.name) n += String(f.name).length;
+        if (f?.value) n += String(f.value).length;
+      }
+    }
+    return n;
+  } catch {
+    return 500;
+  }
+}
+
+function chunkEmbedsBySize(embeds, maxChars = 5500) {
+  const chunks = [];
+  let current = [];
+  let size = 0;
+  for (const emb of embeds) {
+    const s = estimateEmbedChars(emb);
+    if (current.length && size + s > maxChars) {
+      chunks.push(current);
+      current = [];
+      size = 0;
+    }
+    // un solo embed enorme: mandarlo igual solo
+    if (s > maxChars && !current.length) {
+      chunks.push([emb]);
+      continue;
+    }
+    current.push(emb);
+    size += s;
+  }
+  if (current.length) chunks.push(current);
+  return chunks.length ? chunks : [embeds];
+}
+
 export default {
   data: new SlashCommandBuilder()
     .setName('embed-send')
@@ -68,12 +113,19 @@ export default {
       });
     }
 
-    // Discord: máx 10 embeds por mensaje
+    // Discord: máx 10 embeds y ~6000 chars totales por mensaje
     const channel = interaction.channel;
     try {
-      for (let i = 0; i < embeds.length; i += 10) {
-        const chunk = embeds.slice(i, i + 10);
-        const isLast = i + 10 >= embeds.length;
+      const sizeChunks = chunkEmbedsBySize(embeds, 5500);
+      const flat = [];
+      for (const sc of sizeChunks) {
+        for (let i = 0; i < sc.length; i += 10) {
+          flat.push(sc.slice(i, i + 10));
+        }
+      }
+      for (let i = 0; i < flat.length; i++) {
+        const chunk = flat[i];
+        const isLast = i === flat.length - 1;
         await channel.send({
           content: i === 0 ? content : undefined,
           embeds: chunk,
