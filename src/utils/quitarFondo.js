@@ -1,8 +1,8 @@
 import sharp from 'sharp';
 
 /**
- * Quita fondos sólidos con flood-fill desde bordes + limpieza de halo.
- * No borra blancos interiores desconectados del borde.
+ * Quita fondos sólidos con flood-fill acotado al borde.
+ * Modo blanco exige casi-puro (#fff) para no comer cielo/metal/bote.
  */
 
 function dist(r, g, b, tr, tg, tb) {
@@ -12,33 +12,46 @@ function dist(r, g, b, tr, tg, tb) {
   return Math.sqrt(dr * dr + dg * dg + db * db);
 }
 
-/** Blanco “de fondo”: alto brillo y poca saturación (evita faros / metal claro). */
-function esBlancoFondo(r, g, b, tolerancia) {
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  const sat = max === 0 ? 0 : (max - min) / max;
-  // umbral de brillo baja un poco si tolerancia sube
-  const umbral = Math.max(210, 255 - tolerancia * 1.2);
-  return max >= umbral && sat <= 0.12 + tolerancia / 800;
+/**
+ * Blanco de lienzo (no cielo, no metal).
+ * tolerancia 5–100: a 12 ≈ min canal ≥ 249; a 22 ≈ ≥ 244; a 40 ≈ ≥ 235
+ */
+function esBlancoLienzo(r, g, b, tolerancia) {
+  const minC = Math.min(r, g, b);
+  const maxC = Math.max(r, g, b);
+  const umbral = Math.max(230, 255 - Math.floor(tolerancia * 0.5));
+  const delta = 8 + Math.floor(tolerancia / 6);
+  return minC >= umbral && maxC - minC <= delta;
 }
 
-function esNegroFondo(r, g, b, tolerancia) {
-  const max = Math.max(r, g, b);
-  const umbral = Math.min(45, 0 + tolerancia * 0.6);
-  return max <= umbral;
+function esNegroLienzo(r, g, b, tolerancia) {
+  const maxC = Math.max(r, g, b);
+  const umbral = Math.min(40, Math.floor(tolerancia * 0.55));
+  return maxC <= umbral;
 }
 
 function matchesBg(r, g, b, modo, targets, tolerancia) {
-  if (modo === 'blanco') return esBlancoFondo(r, g, b, tolerancia);
-  if (modo === 'negro') return esNegroFondo(r, g, b, tolerancia);
-  // auto: targets de esquinas + reglas si son claros/oscuros
+  if (modo === 'blanco') return esBlancoLienzo(r, g, b, tolerancia);
+  if (modo === 'negro') return esNegroLienzo(r, g, b, tolerancia);
+  // auto
   for (const [tr, tg, tb] of targets) {
-    if (dist(r, g, b, tr, tg, tb) <= tolerancia) return true;
+    if (dist(r, g, b, tr, tg, tb) <= tolerancia * 0.85) {
+      // si el target es claro, exigir también poca saturación
+      const lum = (tr + tg + tb) / 3;
+      if (lum > 200) return esBlancoLienzo(r, g, b, tolerancia);
+      if (lum < 50) return esNegroLienzo(r, g, b, tolerancia);
+      return true;
+    }
   }
-  const lum = (r + g + b) / 3;
-  if (lum > 235) return esBlancoFondo(r, g, b, tolerancia);
-  if (lum < 25) return esNegroFondo(r, g, b, tolerancia);
+  if (esBlancoLienzo(r, g, b, tolerancia)) return true;
+  if (esNegroLienzo(r, g, b, Math.max(8, tolerancia * 0.5))) return true;
   return false;
+}
+
+/** Qué tan “puro” es el match (0 = borderline, 1 = puro). */
+function purezaBlanco(r, g, b) {
+  const minC = Math.min(r, g, b);
+  return Math.max(0, Math.min(1, (minC - 230) / 25));
 }
 
 export async function redondearEsquinas(input, radio = null) {
@@ -60,9 +73,6 @@ export async function redondearEsquinas(input, radio = null) {
     .toBuffer();
 }
 
-/**
- * Dilata transparencia 1–2 px solo sobre píxeles casi-fondo (limpia halo).
- */
 function limpiarHalo(out, width, height, channels, modo, targets, tolerancia, pasadas = 2) {
   for (let p = 0; p < pasadas; p++) {
     const mark = new Uint8Array(width * height);
@@ -71,7 +81,6 @@ function limpiarHalo(out, width, height, channels, modo, targets, tolerancia, pa
         const idx = y * width + x;
         const i = idx * channels;
         if (out[i + 3] === 0) continue;
-        // ¿vecino transparente?
         let tocado = false;
         for (const [dx, dy] of [
           [1, 0],
@@ -91,16 +100,12 @@ function limpiarHalo(out, width, height, channels, modo, targets, tolerancia, pa
           }
         }
         if (!tocado) continue;
-        if (matchesBg(out[i], out[i + 1], out[i + 2], modo, targets, tolerancia + 12)) {
+        // solo limpia si sigue pareciendo lienzo (más estricto en halo)
+        if (matchesBg(out[i], out[i + 1], out[i + 2], modo, targets, tolerancia + 6)) {
           mark[idx] = 1;
-        } else {
-          // fringe suave: bajar alpha si es muy claro u oscuro
-          const lum = (out[i] + out[i + 1] + out[i + 2]) / 3;
-          if (modo === 'blanco' && lum > 200) {
-            out[i + 3] = Math.min(out[i + 3], 90);
-          } else if (modo === 'negro' && lum < 50) {
-            out[i + 3] = Math.min(out[i + 3], 90);
-          }
+        } else if (modo === 'blanco' || modo === 'auto') {
+          const minC = Math.min(out[i], out[i + 1], out[i + 2]);
+          if (minC > 236) out[i + 3] = Math.min(out[i + 3], 60);
         }
       }
     }
@@ -116,8 +121,7 @@ function limpiarHalo(out, width, height, channels, modo, targets, tolerancia, pa
  */
 export async function quitarFondoSolido(input, opts = {}) {
   const modo = opts.modo || 'auto';
-  // default más bajo → menos falsos positivos en metal/cielo claro
-  const tolerancia = Math.min(100, Math.max(5, Number(opts.tolerancia) || 22));
+  const tolerancia = Math.min(100, Math.max(5, Number(opts.tolerancia) || 18));
   const redondear = opts.redondear !== false;
   const radio = opts.radio != null ? Number(opts.radio) : null;
 
@@ -156,36 +160,67 @@ export async function quitarFondoSolido(input, opts = {}) {
     targets = [avg];
   }
 
+  // Profundidad máxima desde el borde:
+  // - píxeles casi #fff pueden ir más lejos (esquinas de banner redondeado)
+  // - matches débiles solo cerca del borde (evita cielo → bote)
+  const minSide = Math.min(width, height);
+  const maxDepthDebil = Math.max(24, Math.floor(minSide * 0.06));
+  const maxDepthPuro = Math.max(80, Math.floor(minSide * 0.22));
+
   const visited = new Uint8Array(width * height);
+  const depthArr = new Int16Array(width * height);
+  depthArr.fill(-1);
   const queue = [];
 
-  const tryPush = (x, y) => {
+  const tryPush = (x, y, depth, fromPure) => {
     if (x < 0 || y < 0 || x >= width || y >= height) return;
     const idx = y * width + x;
     if (visited[idx]) return;
     const i = idx * channels;
-    if (!matchesBg(data[i], data[i + 1], data[i + 2], modo, targets, tolerancia)) return;
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+    if (!matchesBg(r, g, b, modo, targets, tolerancia)) return;
+
+    const pure =
+      modo === 'negro'
+        ? Math.max(r, g, b) <= 10
+        : purezaBlanco(r, g, b) >= 0.75 || (Math.min(r, g, b) >= 252);
+
+    const limit = pure || fromPure ? maxDepthPuro : maxDepthDebil;
+    if (depth > limit) return;
+
     visited[idx] = 1;
+    depthArr[idx] = depth;
     queue.push(idx);
   };
 
   for (let x = 0; x < width; x++) {
-    tryPush(x, 0);
-    tryPush(x, height - 1);
+    tryPush(x, 0, 0, true);
+    tryPush(x, height - 1, 0, true);
   }
   for (let y = 0; y < height; y++) {
-    tryPush(0, y);
-    tryPush(width - 1, y);
+    tryPush(0, y, 0, true);
+    tryPush(width - 1, y, 0, true);
   }
 
-  while (queue.length) {
-    const idx = queue.pop();
+  // BFS (cola al inicio = profundidad creciente)
+  let qh = 0;
+  while (qh < queue.length) {
+    const idx = queue[qh++];
     const x = idx % width;
     const y = (idx / width) | 0;
-    tryPush(x + 1, y);
-    tryPush(x - 1, y);
-    tryPush(x, y + 1);
-    tryPush(x, y - 1);
+    const d = depthArr[idx];
+    const i = idx * channels;
+    const pure =
+      modo === 'negro'
+        ? Math.max(data[i], data[i + 1], data[i + 2]) <= 10
+        : purezaBlanco(data[i], data[i + 1], data[i + 2]) >= 0.75 ||
+          Math.min(data[i], data[i + 1], data[i + 2]) >= 252;
+    tryPush(x + 1, y, d + 1, pure);
+    tryPush(x - 1, y, d + 1, pure);
+    tryPush(x, y + 1, d + 1, pure);
+    tryPush(x, y - 1, d + 1, pure);
   }
 
   const out = Buffer.from(data);
@@ -193,13 +228,11 @@ export async function quitarFondoSolido(input, opts = {}) {
     if (visited[idx]) out[idx * channels + 3] = 0;
   }
 
-  // Limpieza de halo / bordes residuales blancos
   limpiarHalo(out, width, height, channels, modo, targets, tolerancia, 2);
 
   let buf = await sharp(out, { raw: { width, height, channels: 4 } }).png().toBuffer();
   if (redondear) {
     buf = await redondearEsquinas(buf, radio);
-    // segunda pasada ligera de halo tras redondear (anti-alias del mask)
     const raw2 = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
     const o2 = Buffer.from(raw2.data);
     limpiarHalo(o2, raw2.info.width, raw2.info.height, 4, modo, targets, tolerancia, 1);
