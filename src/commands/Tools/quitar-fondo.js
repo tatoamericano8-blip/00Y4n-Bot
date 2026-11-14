@@ -34,7 +34,7 @@ export default {
     .addIntegerOption((o) =>
       o
         .setName('tolerancia')
-        .setDescription('Sensibilidad 5–100 (default 22). Más alto = borra más del borde.')
+        .setDescription('Sensibilidad 5–100 (default 18). Más alto = borra más del borde.')
         .setRequired(false)
         .setMinValue(5)
         .setMaxValue(100)
@@ -57,7 +57,7 @@ export default {
   async execute(interaction) {
     const att = interaction.options.getAttachment('imagen', true);
     const modo = interaction.options.getString('fondo') || 'auto';
-    const tolerancia = interaction.options.getInteger('tolerancia') || 22;
+    const tolerancia = interaction.options.getInteger('tolerancia') || 18;
     const redondearOpt = interaction.options.getBoolean('redondear');
     const redondear = redondearOpt === null ? true : redondearOpt;
     const radio = interaction.options.getInteger('radio');
@@ -129,7 +129,7 @@ export default {
           `${E.dot || '•'} Método: **${metodo}**\n` +
             `${E.dot || '•'} Formato: **PNG transparente**\n` +
             `${E.dot || '•'} Redondeo: **${redondear ? (radio != null ? `${radio}px` : 'semicírculo (auto)') : 'no'}**\n` +
-            `-# Solo fondo conectado al borde. Si queda halo blanco, subí tolerancia un poco (28–35).`
+            `-# Solo lienzo casi blanco/negro desde el borde (no cielo ni metal). Halo: tolerancia 24–30.`
         )
         .setImage('attachment://sin-fondo.png');
 
