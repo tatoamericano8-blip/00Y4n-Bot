@@ -1,8 +1,8 @@
 import sharp from 'sharp';
 
 /**
- * Quita fondos sólidos (blanco / negro / auto por esquinas) → PNG con transparencia.
- * Ideal para banners y logos con fondo liso. No reemplaza IA tipo remove.bg.
+ * Quita fondos sólidos con flood-fill desde bordes (no toca interior).
+ * Redondeo de esquinas opcional (default semicírculo).
  */
 
 function dist(r, g, b, tr, tg, tb) {
@@ -12,14 +12,43 @@ function dist(r, g, b, tr, tg, tb) {
   return Math.sqrt(dr * dr + dg * dg + db * db);
 }
 
+function matchesBg(r, g, b, targets, tolerancia) {
+  for (const [tr, tg, tb] of targets) {
+    if (dist(r, g, b, tr, tg, tb) <= tolerancia) return true;
+  }
+  return false;
+}
+
+export async function redondearEsquinas(input, radio = null) {
+  const meta = await sharp(input).metadata();
+  const width = meta.width;
+  const height = meta.height;
+  let r = radio != null ? Number(radio) : Math.floor(Math.min(width, height) / 2);
+  r = Math.max(0, Math.min(r, Math.floor(Math.min(width, height) / 2)));
+  if (r <= 0) {
+    return sharp(input).png().toBuffer();
+  }
+  const svg = Buffer.from(
+    `<svg width="${width}" height="${height}">` +
+      `<rect x="0" y="0" width="${width}" height="${height}" rx="${r}" ry="${r}" fill="#fff"/>` +
+      `</svg>`
+  );
+  return sharp(input)
+    .ensureAlpha()
+    .composite([{ input: svg, blend: 'dest-in' }])
+    .png()
+    .toBuffer();
+}
+
 /**
  * @param {Buffer} input
- * @param {{ modo?: 'auto'|'blanco'|'negro', tolerancia?: number }} opts
- * @returns {Promise<Buffer>}
+ * @param {{ modo?: 'auto'|'blanco'|'negro', tolerancia?: number, redondear?: boolean, radio?: number|null }} opts
  */
 export async function quitarFondoSolido(input, opts = {}) {
   const modo = opts.modo || 'auto';
-  const tolerancia = Math.min(140, Math.max(5, Number(opts.tolerancia) || 36));
+  const tolerancia = Math.min(140, Math.max(5, Number(opts.tolerancia) || 28));
+  const redondear = opts.redondear !== false;
+  const radio = opts.radio != null ? Number(opts.radio) : null;
 
   const { data, info } = await sharp(input)
     .ensureAlpha()
@@ -59,25 +88,50 @@ export async function quitarFondoSolido(input, opts = {}) {
     if (lum < 45) targets.push([0, 0, 0]);
   }
 
-  const out = Buffer.from(data);
-  for (let i = 0; i < out.length; i += channels) {
-    const r = out[i];
-    const g = out[i + 1];
-    const b = out[i + 2];
-    for (const [tr, tg, tb] of targets) {
-      if (dist(r, g, b, tr, tg, tb) <= tolerancia) {
-        out[i + 3] = 0;
-        break;
-      }
-    }
+  const visited = new Uint8Array(width * height);
+  const queue = [];
+
+  const tryPush = (x, y) => {
+    if (x < 0 || y < 0 || x >= width || y >= height) return;
+    const idx = y * width + x;
+    if (visited[idx]) return;
+    const i = idx * channels;
+    if (!matchesBg(data[i], data[i + 1], data[i + 2], targets, tolerancia)) return;
+    visited[idx] = 1;
+    queue.push(idx);
+  };
+
+  for (let x = 0; x < width; x++) {
+    tryPush(x, 0);
+    tryPush(x, height - 1);
+  }
+  for (let y = 0; y < height; y++) {
+    tryPush(0, y);
+    tryPush(width - 1, y);
   }
 
-  return sharp(out, { raw: { width, height, channels: 4 } }).png().toBuffer();
+  while (queue.length) {
+    const idx = queue.pop();
+    const x = idx % width;
+    const y = (idx / width) | 0;
+    tryPush(x + 1, y);
+    tryPush(x - 1, y);
+    tryPush(x, y + 1);
+    tryPush(x, y - 1);
+  }
+
+  const out = Buffer.from(data);
+  for (let idx = 0; idx < visited.length; idx++) {
+    if (visited[idx]) out[idx * channels + 3] = 0;
+  }
+
+  let buf = await sharp(out, { raw: { width, height, channels: 4 } }).png().toBuffer();
+  if (redondear) {
+    buf = await redondearEsquinas(buf, radio);
+  }
+  return buf;
 }
 
-/**
- * remove.bg (opcional). Env: REMOVE_BG_API_KEY
- */
 export async function quitarFondoRemoveBg(input, apiKey) {
   const blob = new Blob([input], { type: 'image/png' });
   const form = new FormData();
