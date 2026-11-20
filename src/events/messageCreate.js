@@ -247,7 +247,7 @@ export default {
             `1. Unite al servidor de **División de Servicios Públicos** (si todavía no estás).\n` +
             `2. Completá el **formulario general** de Servicios Públicos cuando esté abierto.\n` +
             `3. Si te aceptan, postulá al **Departamento Policial del Condado de Sarasota**.\n` +
-            `4. En Discord SWFL usá \`/solicitud-departamento\` → **Policía del Condado de Sarasota**.\n` +
+            `4. En el canal <#1505615426305130657> usá \`/solicitud-departamento\` → **Policía del Condado de Sarasota**.\n` +
             `5. Aprobá el **entrenamiento** y las instrucciones de Alto Comando / instructores.\n\n` +
             `${E.dot} **Importante**\n` +
             `• No alcanza con solo querer el rol: hay proceso de selección.\n` +
