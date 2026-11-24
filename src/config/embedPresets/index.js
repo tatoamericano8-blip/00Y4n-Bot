@@ -18,6 +18,7 @@ import serviciosPublicosFaq from './serviciosPublicosFaq.js';
 import serviciosPublicosDeptoPolicial from './serviciosPublicosDeptoPolicial.js';
 import serviciosPublicosSignCalls from './serviciosPublicosSignCalls.js';
 import sorteos from './sorteos.js';
+import alianzas from './alianzas.js';
 
 /** @type {Array<{ id: string, label: string, description?: string, build: Function }>} */
 export const EMBED_PRESETS = [
@@ -40,7 +41,8 @@ export const EMBED_PRESETS = [
   serviciosPublicosFaq,
   serviciosPublicosDeptoPolicial,
   serviciosPublicosSignCalls,
-  sorteos
+  sorteos,
+  alianzas
 ];
 
 export function getPreset(id) {
